@@ -13,7 +13,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "*": ["node_modules/*"]
+      "*": ["node_modules/*"],
+      "@Globals/*": ["src/Globals/*"],
+      "@Globals": ["src/Globals"],
+      "@processors/*": ["src/processors/*"],
+      "@backend/*": ["src/backend/*"],
     },
     "typeRoots": [
       "./src/types",

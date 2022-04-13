@@ -23,5 +23,5 @@ declare module 'unpacker-with-progress' {
          /* running total of bytes written */
         loaded: number,
     }
-    export = unpack;
+    export = unpack
 }

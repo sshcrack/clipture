@@ -2,6 +2,7 @@
 require('source-map-support').install();
 
 import { app, BrowserWindow, dialog } from 'electron';
+import { OBSManager } from './backend/managers/obs';
 import { MainGlobals } from './Globals/mainGlobals';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -16,6 +17,9 @@ if(MainGlobals.getOS() !== "Windows_NT") {
 }
 
 const createWindow = (): void => {
+  setTimeout(() => {
+    MainGlobals.obs = new OBSManager()
+  }, 1000)
   const mainWindow = new BrowserWindow({
     height: 600,
     width: 800,

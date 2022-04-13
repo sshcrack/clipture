@@ -5,15 +5,11 @@ import { LockedReturnType } from './interface';
 
 const logger = MainLogger.get("Managers", "LockManager")
 export class LockManager {
-    private static _instance = new LockManager();
+    static readonly instance = new LockManager();
     private locked = false;
     private listeners = [] as WebContents[];
     private currProgress = undefined as Progress
     private lockListeners = [] as (() => unknown)[]
-
-    static get instance() : LockManager {
-        return LockManager._instance
-    }
 
 
     private setLock(lock: boolean, prog: Progress): boolean {

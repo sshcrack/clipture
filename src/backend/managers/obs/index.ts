@@ -1,96 +1,125 @@
-import { Globals } from '../../../Globals';
-import { existsProm } from '../../../backend/tools/fs';
-import { LockManager } from '../lock';
-import got from "got"
-import { getOBSExecutable, getOBSInfoUrl, getOBSPath, getOBSTempZip, getOBSVersion, getOBSVersionFile } from './tool';
-import { OBSReleaseResponse } from './interface';
-import { Downloader } from '../../../backend/processors/General/Downloader';
-import { Unpacker } from '../../../backend/processors/General/Unpacker';
-import { ProcessEventEmitter } from '../../../backend/processors/events/Processor';
+import { EOBSSettingsCategories as SettingCat, NodeObs } from '@streamlabs/obs-studio-node'
+import { mainStore as store } from '@Globals/storage'
+import { v4 as uuid } from "uuid"
+import { MainLogger } from '../../../interfaces/mainLogger'
+import { getOBSDataPath, getOBSWorkingDir } from './tool'
 
+
+const log = MainLogger.get("Managers", "OBS")
 export class OBSManager {
-    private static _instance = new OBSManager();
+    private obsInitialized = false
 
-    static get instance(): OBSManager {
-        return this._instance;
+    private async initialize() {
+        if (this.obsInitialized)
+            return log.warn("OBS already initialized")
+
+        await this.initOBS()
+        await this.configure()
+        this.obsInitialized = true
     }
 
-    public async install() {
-        const { instance } = LockManager
-        await instance.waitTillReleased()
-        const supportedVersion = Globals.obsVersion
+    private async initOBS() {
+        const hostId = `clipture-${uuid()}`;
+        const workDir = getOBSWorkingDir()
 
-        const installed = await this.isInstalled()
-        const latest = await this.hasLatest(supportedVersion)
+        log.debug(`Initializing OBS... (${hostId}}`);
+        NodeObs.IPC.host(hostId);
+        NodeObs.SetWorkingDirectory(workDir);
 
-        if (installed && latest)
+        const obsDataPath = getOBSDataPath()
+        const initResult = NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
+        if (initResult !== 0) {
+            const errorReasons = {
+                "-2": "DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.",
+                "-5": "Failed to initialize OBS. Your video drivers may be out of date, or libObs may not be supported on your system.",
+            };
+
+
+            const result = initResult.toString() as keyof typeof errorReasons;
+            const errorMessage = errorReasons[result] ?? `An unknown error #${initResult} was encountered while initializing OBS.`;
+
+            log.error("Could not initialize OBS", errorMessage);
+            this.shutdown(true);
+
+            throw Error(errorMessage);
+        }
+
+        log.info("Successfully initialized OBS!")
+        log.info("Performance", NodeObs.OBS_API_getPerformanceData())
+    }
+
+    public async shutdown(force = false) {
+        if (!this.obsInitialized && !force)
             return
 
-        instance.lock({
-            percent: 0,
-            status: "Getting download url..."
-        })
+        try {
+            NodeObs.OBS_service_removeCallback();
+            NodeObs.IPC.disconnect()
+        } catch (e) {
+            const newErr = new Error(`Exception when shutting down OBS process${e}`)
+            log.error(newErr)
 
-        const url = getOBSInfoUrl(supportedVersion);
-        const jsonRes = await got(url)
-            .json<OBSReleaseResponse>()
-
-        const arch = process.arch === "x64" ? "x64" : "x86"
-        const asset = jsonRes
-            .assets
-            .find(({ name }) =>
-                name.includes(".zip") &&
-                name.includes("win") &&
-                name.includes(arch)
-            )
-
-        if(!asset)
-            throw new Error("Architecture not supported")
-
-
-        const downloader = new Downloader({
-            url: asset.browser_download_url,
-            destination: getOBSTempZip(),
-            overwrite: true,
-            messages: {
-                downloading: "Downloading OBS...",
-            }
-        })
-
-        const unpacker = new Unpacker({
-            src: getOBSTempZip(),
-            destination: getOBSPath(),
-            messages: {
-                extracting: "Extracting OBS...",
-            },
-            overwrite: true,
-            deleteExistent: true
-        })
-
-        await ProcessEventEmitter.runMultiple([ downloader, unpacker ], p => {
-            instance.updateListeners(p)
-        })
-
-        instance.unlock({
-            percent: 100,
-            status: "OBS installed."
-        })
+            throw newErr;
+        }
     }
 
-    public isInstalled() {
-        const filePath = getOBSVersionFile()
-        const executable = getOBSExecutable()
+    private configure() {
+        log.info("Configuring OBS")
+        const Output = SettingCat.Output
+        const Video = SettingCat.Video
 
-        return existsProm(filePath) && existsProm(executable)
 
+        const availableEncoders = this.getAvailableValues(Output, 'Recording', 'RecEncoder');
+        this.setSetting(Output, "Mode", "Advanced")
+        this.setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
+        this.setSetting(Output, 'RecFilePath', store.get("clip_path"));
+        this.setSetting(Output, 'RecFormat', 'mkv');
+        this.setSetting(Output, 'VBitrate', 10000); // 10 Mbps
+        this.setSetting(Video, 'FPSCommon', 60);
+
+        log.info("Configured OBS successfully!")
     }
 
-    public async hasLatest(latest: string) {
-        const installed = await this.isInstalled()
-        if (!installed)
-            return false
 
-        const version = await getOBSVersion()
-        return version && version === latest
+    private setSetting(category: SettingCat, parameter: string, value: string | number) {
+        let oldValue: string | number;
+        const settings = NodeObs.OBS_settings_getSettings(category).data;
+
+        settings.forEach(subCategory => {
+            subCategory.parameters.forEach(param => {
+                if (param.name === parameter) {
+                    oldValue = param.currentValue;
+                    param.currentValue = value;
+                }
+            });
+        });
+
+        if (value === oldValue)
+            return
+
+        NodeObs.OBS_settings_saveSettings(category, settings);
     }
+
+    private getAvailableValues(category: SettingCat, subcategory: string, parameter: string) {
+        const categorySettings = NodeObs.OBS_settings_getSettings(category).data;
+        if (!categorySettings) {
+            log.warn(`There is no category ${category} in OBS settings`);
+            return [];
+        }
+
+        const subcategorySettings = categorySettings.find(sub => sub.nameSubCategory === subcategory);
+        if (!subcategorySettings) {
+            log.warn(`There is no subcategory ${subcategory} for OBS settings category ${category}`);
+            return [];
+        }
+
+        const parameterSettings = subcategorySettings.parameters.find(param => param.name === parameter);
+        if (!parameterSettings) {
+            log.warn(`There is no parameter ${parameter} for OBS settings category ${category}.${subcategory}`);
+            return [];
+        }
+
+        return parameterSettings.values.map(value => Object.values(value)[0]);
+    }
+
 }
