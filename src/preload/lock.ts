@@ -8,7 +8,7 @@ ipcRenderer.on("lock_update", (_, locked, progress: Progress) => lockListeners.m
 
 ipcRenderer.send("add_lock_listener")
 
-export const lock = {
+const lock = {
     addLockListener: (func: ListenerFunc) => lockListeners.push((a, b) => func(a, b)),
     isLocked: () => ipcRenderer.sendSync("is_locked") as LockedReturnType,
     lock: (prog: Progress) => setLock(true, prog),
@@ -19,3 +19,5 @@ export const lock = {
 function setLock(locked: boolean, prog: Progress) {
     ipcRenderer.sendSync("set_lock", locked, prog)
 }
+
+export default lock

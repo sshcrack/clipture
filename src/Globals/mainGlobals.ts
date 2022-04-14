@@ -1,15 +1,15 @@
+import { OBSManager } from '@backend/managers/obs';
 import { app, BrowserWindow } from 'electron';
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { OBSManager } from '../backend/managers/obs';
 import { mainStore } from './storage';
 
 
 export class MainGlobals {
     static window: BrowserWindow
     static store = mainStore
-    static obs = new OBSManager()
+    static obs: OBSManager;
 
 
     static getTempDir(shouldDelete = false) {

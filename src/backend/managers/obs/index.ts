@@ -1,15 +1,25 @@
-import { EOBSSettingsCategories as SettingCat, NodeObs } from '@streamlabs/obs-studio-node'
+import { MainGlobals } from '@Globals/mainGlobals'
 import { mainStore as store } from '@Globals/storage'
+import { NodeObs } from '@streamlabs/obs-studio-node'
+import { ipcMain } from 'electron'
+import { EOBSSettingsCategories as SettingsCat } from 'src/types/obs/obs-enums'
 import { v4 as uuid } from "uuid"
 import { MainLogger } from '../../../interfaces/mainLogger'
-import { getOBSDataPath, getOBSWorkingDir } from './tool'
+import { RegManMain } from '../../../general/register/main'
+import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 
 
+
+const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
 export class OBSManager {
     private obsInitialized = false
 
-    private async initialize() {
+    constructor() {
+        this.register()
+    }
+
+    public async initialize() {
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
@@ -21,8 +31,12 @@ export class OBSManager {
     private async initOBS() {
         const hostId = `clipture-${uuid()}`;
         const workDir = getOBSWorkingDir()
+        const binary = getOBSBinary();
 
         log.debug(`Initializing OBS... (${hostId}}`);
+        log.debug("WorkDir is", workDir)
+
+        NodeObs.IPC.setServerPath(binary, workDir)
         NodeObs.IPC.host(hostId);
         NodeObs.SetWorkingDirectory(workDir);
 
@@ -45,13 +59,16 @@ export class OBSManager {
         }
 
         log.info("Successfully initialized OBS!")
-        log.info("Performance", NodeObs.OBS_API_getPerformanceData())
+        setInterval(() =>
+            ipcMain.emit("performance", NodeObs.OBS_API_getPerformanceStatistics())
+        , 2000)
     }
 
     public async shutdown(force = false) {
         if (!this.obsInitialized && !force)
             return
 
+        log.info("Shutting OBS down...")
         try {
             NodeObs.OBS_service_removeCallback();
             NodeObs.IPC.disconnect()
@@ -65,8 +82,8 @@ export class OBSManager {
 
     private configure() {
         log.info("Configuring OBS")
-        const Output = SettingCat.Output
-        const Video = SettingCat.Video
+        const Output = SettingsCat.Output
+        const Video = SettingsCat.Video
 
 
         const availableEncoders = this.getAvailableValues(Output, 'Recording', 'RecEncoder');
@@ -81,7 +98,7 @@ export class OBSManager {
     }
 
 
-    private setSetting(category: SettingCat, parameter: string, value: string | number) {
+    private setSetting(category: SettingsCat, parameter: string, value: string | number) {
         let oldValue: string | number;
         const settings = NodeObs.OBS_settings_getSettings(category).data;
 
@@ -100,7 +117,7 @@ export class OBSManager {
         NodeObs.OBS_settings_saveSettings(category, settings);
     }
 
-    private getAvailableValues(category: SettingCat, subcategory: string, parameter: string) {
+    private getAvailableValues(category: SettingsCat, subcategory: string, parameter: string) {
         const categorySettings = NodeObs.OBS_settings_getSettings(category).data;
         if (!categorySettings) {
             log.warn(`There is no category ${category} in OBS settings`);
@@ -122,4 +139,8 @@ export class OBSManager {
         return parameterSettings.values.map(value => Object.values(value)[0]);
     }
 
+    public register() {
+        reg.onSync("obs_is_initialized", () => this.obsInitialized)
+        reg.onPromise("obs_initialize", () => this.initialize())
+    }
 }

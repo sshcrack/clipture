@@ -1,16 +1,18 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import { createRoot } from "react-dom/client"
 import theme from "./theme";
 
 
 export function renderMain(Comp: () => JSX.Element) {
     const app = document.getElementById("app")
+    const root = createRoot(app)
 
     console.log("Rendering...")
-    ReactDOM.render(
+    root.render(
         <ChakraProvider theme={theme}>
             <Comp />
         </ChakraProvider>
-    , app, () => console.log("Rendered."));
+    );
+    console.log("Rendered.")
 }

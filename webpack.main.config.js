@@ -16,4 +16,7 @@ module.exports = {
       new TsconfigPathsPlugin({})
     ]
   },
+  externals: {
+    "@streamlabs/obs-studio-node": "@streamlabs/obs-studio-node"
+  }
 };

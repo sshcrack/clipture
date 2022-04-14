@@ -7,3 +7,7 @@ export function getOBSDataPath() {
 export function getOBSWorkingDir() {
     return path.join(__dirname, "../../node_modules/@streamlabs/obs-studio-node").replace("app.asar", "app.asar.unpacked")
 }
+
+export function getOBSBinary() {
+    return path.join(getOBSWorkingDir(), "obs64.exe");
+}

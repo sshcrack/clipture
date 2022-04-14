@@ -18,6 +18,10 @@
       "@Globals": ["src/Globals"],
       "@processors/*": ["src/processors/*"],
       "@backend/*": ["src/backend/*"],
+      "@general/*": ["src/general/*"],
+      "@register/*": ["src/general/register/*"],
+      "src/*": ["src/*"],
+      "@types/*": ["src/types/*"]
     },
     "typeRoots": [
       "./src/types",
