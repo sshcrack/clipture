@@ -1,7 +1,6 @@
 
-declare module "@streamlabs/obs-studio-node" {
+module "@streamlabs/obs-studio-node" {
     import { EOBSSettingsCategories } from './obs-enums';
-    import * as obs from '@streamlabs/obs-studio-node';
 
     export interface SettingsParameter {
         name: string,

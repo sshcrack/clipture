@@ -16,6 +16,7 @@ export class AuthManager {
     private static window: BrowserWindow
     public static readonly TIMEOUT = 1000 * 60 * 10// 10 Minutes
     public static readonly FetchInterval = 100
+    private static currId = null as string
 
     static async authenticate() {
         const id = uuid() + uuid()
@@ -27,12 +28,17 @@ export class AuthManager {
         const begin = Date.now()
         log.info("Starting autofetch with id", id)
 
+        this.currId = id
         const secrets = await this.authFetch(id, begin)
         console.log("Saving secrets")
         Object.entries(secrets).forEach(([key, value]) => Storage.setSecure(key as SecureKeys, value))
 
-        RegManMain.send(MainGlobals.window.webContents, "auth_update")
+        this.updateListeners()
         return id
+    }
+
+    private static updateListeners() {
+        RegManMain.send(MainGlobals.window.webContents, "auth_update")
     }
 
     private static authFetch(id: string, startTime: number) {
@@ -40,6 +46,11 @@ export class AuthManager {
             if (Date.now() - startTime > this.TIMEOUT) {
                 log.info("Timeout has  been exceeded", Date.now() - startTime)
                 return reject(new Error("Timeout of " + this.TIMEOUT + "ms exceeded"))
+            }
+
+            if(id !== this.currId) {
+                log.warn("AutoFetch has been aborted, because another one started")
+                return reject(new Error("AutoFetch has been aborted, because another one started"))
             }
 
             const apiUrl = `${baseUrl}/api/validation/report?id=${id}`
@@ -95,9 +106,15 @@ export class AuthManager {
         }
     }
 
+    static signOut() {
+        requiredCookies.forEach(key => Storage.removeSecure(key))
+        this.updateListeners()
+    }
+
     static register() {
         RegManMain.onPromise("auth_authenticate", () => this.authenticate())
         RegManMain.onPromise("auth_get_session", () => this.getSession())
+        RegManMain.onSync("auth_signout", () => this.signOut())
     }
 }
 

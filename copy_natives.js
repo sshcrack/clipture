@@ -3,7 +3,6 @@ const path = require("path")
 
 const native = "node_modules/@streamlabs/obs-studio-node"
 module.exports = async (buildPath, _, _1, _2, callback) => {
-    fs.appendFile("creating", ".")
     const src = path.join(__dirname, native)
     const dst = path.join(buildPath, "resources", "app", native)
 

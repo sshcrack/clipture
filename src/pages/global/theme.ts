@@ -5,6 +5,14 @@ const config: ThemeConfig = {
     useSystemColorMode: false
 }
 
+const colors = {
+    brand: {
+        primary: "#b721ffff",
+        secondary: "#21aefdff",
+        bg: "#152B3F"
+    }
+}
+
 const component = {
     Button: {
         variants: {
@@ -15,6 +23,7 @@ const component = {
     }
 }
 
-const theme = extendTheme({ config, component })
+const theme = extendTheme({ config, component, colors })
 
+console.log(theme)
 export default theme

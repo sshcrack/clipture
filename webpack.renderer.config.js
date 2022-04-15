@@ -1,11 +1,6 @@
 const rules = require('./webpack.rules');
 const plugins = require('./webpack.plugins');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
-rules.push({
-  test: /\.css$/,
-  use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
-});
 
 module.exports = {
   module: {
@@ -15,7 +10,15 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
     plugins: [
-      new TsconfigPathsPlugin({})
+      ...plugins,
+      {
+        test: /\.(png|jpe?g|gif|ico|svg)$/,
+        type: 'asset/resource'
+      },
+      {
+        test: /\.css$/,
+        use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+      }
     ]
   },
 };

@@ -7,7 +7,8 @@ export type RegisterEvents = {
     lock_set: (locked: boolean, prog: Progress) => boolean,
     lock_update: (prog: Progress) => void,
     lock_add_listener: () => void,
-    lock_is_locked: () => LockedReturnType
+    lock_is_locked: () => LockedReturnType,
+    auth_signout: () => void
 }
 
 export type RegisterEventsPromises = {

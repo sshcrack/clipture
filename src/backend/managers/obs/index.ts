@@ -104,7 +104,6 @@ export class OBSManager {
         const Output = SettingsCat.Output
         const Video = SettingsCat.Video
 
-
         const availableEncoders = this.getAvailableValues(Output, 'Recording', 'RecEncoder');
         this.setSetting(Output, "Mode", "Advanced")
         this.setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');

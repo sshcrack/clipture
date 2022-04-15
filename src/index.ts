@@ -2,11 +2,11 @@
 require('source-map-support').install();
 
 import { registerFuncs } from '@backend/registerFuncs';
-import { RegManMain } from '@general/register/main';
 import { app, BrowserWindow, dialog } from 'electron';
 import { OBSManager } from './backend/managers/obs';
 import { MainGlobals } from './Globals/mainGlobals';
 import { MainLogger } from './interfaces/mainLogger';
+
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
@@ -29,6 +29,7 @@ const createWindow = (): void => {
     height: 600,
     width: 800,
     darkTheme: true,
+    frame: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
@@ -38,6 +39,7 @@ const createWindow = (): void => {
   mainWindow.setMenuBarVisibility(false)
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.maximize()
+  mainWindow.setIcon(__dirname + "/assets/icons/logo.svg")
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()

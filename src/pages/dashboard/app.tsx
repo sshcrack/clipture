@@ -1,9 +1,12 @@
-import { Flex, Heading, useToast } from '@chakra-ui/react';
+import { SessionStatus } from '@backend/managers/auth/interfaces';
+import { Flex, useToast } from '@chakra-ui/react';
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { useLock } from 'src/components/hooks/useLock';
+import { useSession } from 'src/components/hooks/useSession';
 import { DashboardMain } from 'src/components/obs/dashboardMain';
 import { LockDisplay } from 'src/components/obs/LockDisplayer';
+import LoginPage from 'src/components/obs/loginPage';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 
@@ -12,13 +15,15 @@ const App = () => {
     const { obs } = window.api
 
     const toast = useToast()
+    const { data, status } = useSession()
+
     const { progress, isLocked } = useLock()
     const [tryAgain, setTryAgain] = useState(() => Math.random())
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
 
     useEffect(() => {
         const curr = obs.isInitialized()
-        if(curr !== obsInitialized)
+        if (curr !== obsInitialized)
             setOBSInitialized(curr)
 
         console.log("Checking if locked")
@@ -41,6 +46,9 @@ const App = () => {
             })
     }, [obsInitialized, tryAgain, isLocked]);
 
+    const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
+    const DynamicPage = status === SessionStatus.AUTHENTICATED ? DashboardMain : LoginPage
+
     return <Flex
         width='100%'
         height='100%'
@@ -48,7 +56,7 @@ const App = () => {
         justifyContent='center'
         direction='column'
     >
-        {!isLocked && obsInitialized ? <DashboardMain /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..."}} />}
+        {initialized ? <DynamicPage data={data} /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..." }} />}
     </Flex>
 }
 export default App;
