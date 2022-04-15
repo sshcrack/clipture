@@ -1,11 +1,11 @@
-import { MainGlobals } from '@Globals/mainGlobals'
-import { mainStore as store } from '@Globals/storage'
+import { Storage } from '@Globals/storage'
 import { NodeObs } from '@streamlabs/obs-studio-node'
 import { ipcMain } from 'electron'
 import { EOBSSettingsCategories as SettingsCat } from 'src/types/obs/obs-enums'
 import { v4 as uuid } from "uuid"
-import { MainLogger } from '../../../interfaces/mainLogger'
 import { RegManMain } from '../../../general/register/main'
+import { MainLogger } from '../../../interfaces/mainLogger'
+import { LockManager } from '../lock'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 
 
@@ -20,11 +20,30 @@ export class OBSManager {
     }
 
     public async initialize() {
+        const inst = LockManager.instance
+        await inst.waitTillReleased()
+
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
+        inst.lock({
+            percent: 0,
+            status: "Initializing OBS..."
+        })
         await this.initOBS()
+
+
+        inst.updateListeners({
+            percent: .5,
+            status: "Configuring OBS..."
+        })
         await this.configure()
+
+        inst.unlock({
+            percent: 1,
+            status: "OBS initialized"
+        })
+
         this.obsInitialized = true
     }
 
@@ -61,7 +80,7 @@ export class OBSManager {
         log.info("Successfully initialized OBS!")
         setInterval(() =>
             ipcMain.emit("performance", NodeObs.OBS_API_getPerformanceStatistics())
-        , 2000)
+            , 2000)
     }
 
     public async shutdown(force = false) {
@@ -89,7 +108,7 @@ export class OBSManager {
         const availableEncoders = this.getAvailableValues(Output, 'Recording', 'RecEncoder');
         this.setSetting(Output, "Mode", "Advanced")
         this.setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
-        this.setSetting(Output, 'RecFilePath', store.get("clip_path"));
+        this.setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
         this.setSetting(Output, 'RecFormat', 'mkv');
         this.setSetting(Output, 'VBitrate', 10000); // 10 Mbps
         this.setSetting(Video, 'FPSCommon', 60);
@@ -140,6 +159,7 @@ export class OBSManager {
     }
 
     public register() {
+        log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
     }

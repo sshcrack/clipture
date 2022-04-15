@@ -1,6 +1,9 @@
-import { Flex, useToast } from '@chakra-ui/react';
+import { Flex, Heading, useToast } from '@chakra-ui/react';
 import * as React from "react";
 import { useEffect, useState } from "react";
+import { useLock } from 'src/components/hooks/useLock';
+import { DashboardMain } from 'src/components/obs/dashboardMain';
+import { LockDisplay } from 'src/components/obs/LockDisplayer';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 
@@ -9,18 +12,25 @@ const App = () => {
     const { obs } = window.api
 
     const toast = useToast()
+    const { progress, isLocked } = useLock()
     const [tryAgain, setTryAgain] = useState(() => Math.random())
-    const [obsInitialized, setOBSInitialized] = useState(false)//() => obs.isInitialized())
+    const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
 
     useEffect(() => {
-        if (obsInitialized)
+        const curr = obs.isInitialized()
+        if(curr !== obsInitialized)
+            setOBSInitialized(curr)
+
+        console.log("Checking if locked")
+        if (obsInitialized || isLocked)
             return
 
+        log.info("Initializing OBS...")
         obs.initialize()
             .then(() => setOBSInitialized(true))
             .catch((err: Error) => {
 
-                //logger.error("Failed to initialize OBS", err)
+                log.error("Failed to initialize OBS", err)
                 toast({
                     title: "OBS could not be initialized",
                     description: err?.stack ?? err?.message ?? JSON.stringify(err),
@@ -29,10 +39,16 @@ const App = () => {
 
                 setTimeout(() => setTryAgain(Math.random()), 1000)
             })
-    }, [obsInitialized, tryAgain]);
+    }, [obsInitialized, tryAgain, isLocked]);
 
-    return <Flex>
-        {obsInitialized ? "Initialized" : "false"}
+    return <Flex
+        width='100%'
+        height='100%'
+        alignItems='center'
+        justifyContent='center'
+        direction='column'
+    >
+        {!isLocked && obsInitialized ? <DashboardMain /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..."}} />}
     </Flex>
 }
 export default App;

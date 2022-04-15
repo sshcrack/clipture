@@ -1,3 +1,4 @@
+import { RegManMain } from '@general/register/main';
 import { ipcMain, WebContents } from 'electron';
 import { MainLogger } from '../../../interfaces/mainLogger';
 import { Progress } from '../../processors/events/interface';
@@ -12,17 +13,21 @@ export class LockManager {
     private lockListeners = [] as (() => unknown)[]
 
 
+    constructor() {
+        this.register()
+    }
+
     private setLock(lock: boolean, prog: Progress): boolean {
-        if(this.locked === lock)
+        if (this.locked === lock)
             return false
 
-        if(lock)
+        if (lock)
             logger.log(`Acquiring, description: ${prog.status}`)
         else
             logger.log(`Releasing, description: ${prog.status}`)
 
         this.locked === lock;
-        if(!lock) {
+        if (!lock) {
             this.lockListeners.map(e => e())
             this.lockListeners = [];
         }
@@ -44,12 +49,12 @@ export class LockManager {
 
     public updateListeners(prog: Progress) {
         this.currProgress = prog
-        this.listeners.map(e => e.send("lock_update", this.locked, this.currProgress))
+        this.listeners.map(e => RegManMain.send(e, "lock_update", this.locked, this.currProgress))
     }
 
     public waitTillReleased() {
         return new Promise<void>(resolve => {
-            if(!this.isLocked())
+            if (!this.isLocked())
                 return resolve()
 
             this.lockListeners.push(() => resolve())
@@ -57,29 +62,29 @@ export class LockManager {
     }
 
     public register() {
-        ipcMain.on("set_lock", (e, lock: boolean, prog: Progress) => {
+        RegManMain.onSync("lock_add_listener", e => this.listeners.push(e.sender))
+        RegManMain.onSync("lock_set", (e, lock, prog) => {
             logger.log("Setting lock...")
 
             if (this.locked === lock)
-                return e.returnValue = true
+                return false
 
             if (lock)
                 this.lock(prog)
             else
                 this.unlock(prog)
 
-            e.returnValue = true
+            return true
         })
 
-        ipcMain.on("update_lock", (e, prog: Progress) => {
-            this.updateListeners(prog)
-            e.returnValue = true
-        })
 
-        ipcMain.on("add_lock_listener", e => this.listeners.push(e.sender))
-        ipcMain.on("is_locked", e => e.returnValue = {
+        RegManMain.onSync("lock_is_locked", () => ({
             locked: this.isLocked(),
             progress: this.currProgress
-        } as LockedReturnType)
+        }))
+
+        RegManMain.onSync("lock_update", (_, prog: Progress) => {
+            this.updateListeners(prog)
+        })
     }
 }

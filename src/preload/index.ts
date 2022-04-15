@@ -1,14 +1,16 @@
 import { contextBridge } from 'electron';
 import log from "electron-log";
+import lock from "./lock";
+import auth from "./auth";
+import obs from "./obs";
+
+
+
 log.transports.file.maxSize = 1024 * 1024 * 20
-import obs from "./obs"
-
-//import lock from "./lock"
-
-
 export const API = {
-    //lock,
-    obs
+    lock,
+    obs,
+    auth
 }
 contextBridge.exposeInMainWorld(
     "api",

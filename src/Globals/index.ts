@@ -1,3 +1,3 @@
 export class Globals {
-    //static baseUrl = "https://mc.sshcrack.me";
+    static baseUrl = "http://localhost:3001"
 }

@@ -1,23 +1,22 @@
+import { RegManRender } from '@general/register/render'
 import { ipcRenderer } from 'electron'
 import { LockedReturnType, ListenerFunc} from '../backend/managers/lock/interface'
 import { Progress } from '../backend/processors/events/interface'
 
 const lockListeners: ListenerFunc[] = []
 
-ipcRenderer.on("lock_update", (_, locked, progress: Progress) => lockListeners.map((func) => func(locked, progress)))
-
-ipcRenderer.send("add_lock_listener")
-
+RegManRender.on("lock_update", (_, locked, progress: Progress) => lockListeners.map((func) => func(locked, progress)))
+RegManRender.emitSync("lock_add_listener")
 const lock = {
     addLockListener: (func: ListenerFunc) => lockListeners.push((a, b) => func(a, b)),
-    isLocked: () => ipcRenderer.sendSync("is_locked") as LockedReturnType,
+    isLocked: () => RegManRender.emitSync("lock_is_locked"),
     lock: (prog: Progress) => setLock(true, prog),
     unlock: (prog: Progress) => setLock(false, prog),
-    update: (prog: Progress) => ipcRenderer.send("update_lock", prog)
+    update: (prog: Progress) => RegManRender.emitSync("lock_update", prog)
 }
 
 function setLock(locked: boolean, prog: Progress) {
-    ipcRenderer.sendSync("set_lock", locked, prog)
+    RegManRender.emitSync("lock_set", locked, prog)
 }
 
 export default lock

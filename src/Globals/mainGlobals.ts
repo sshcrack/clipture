@@ -3,12 +3,10 @@ import { app, BrowserWindow } from 'electron';
 import fs from "fs";
 import os from "os";
 import path from "path";
-import { mainStore } from './storage';
 
 
 export class MainGlobals {
     static window: BrowserWindow
-    static store = mainStore
     static obs: OBSManager;
 
 
