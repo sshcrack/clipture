@@ -100,6 +100,12 @@ export class AuthManager {
             }
         }).then(e => JSON.parse(e.body) as SessionData)
 
+        if(Object.keys(response).length === 0)
+            return {
+                data: undefined,
+                status: SessionStatus.UNAUTHENTICATED
+            }
+
         return {
             data: response,
             status: SessionStatus.AUTHENTICATED
