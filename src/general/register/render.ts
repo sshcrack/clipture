@@ -1,6 +1,5 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
-import { getErrorEvent, getSuccessfulEvent } from './tools';
 import { MainToRender, RegisterEvents, RegisterEventsPromises } from './type';
 
 const log = MainLogger.get("RegisterManager", "Render");
@@ -20,26 +19,7 @@ export class RegManRender {
         if(!hasEventProm(event))
             log.error("Promise-Event not registered:", event)
 
-        return new Promise<X>((resolve, reject) => {
-            const id = Math.random().toString()
-            const sucEvent = getSuccessfulEvent(event)
-            const errEvent = getErrorEvent(event)
-
-            ipcRenderer.send(event, id, ...args)
-            ipcRenderer.on(sucEvent, (e, innerId, result) => {
-                if (innerId !== id)
-                    return
-
-                resolve(result as X)
-            })
-
-            ipcRenderer.on(errEvent, (e, innerId, err) => {
-                if (innerId !== id)
-                    return
-
-                reject(err)
-            })
-        });
+        return ipcRenderer.invoke(event, ...args)
     }
 
     static emitSync<T extends keyof RegisterEvents, K extends Parameters<RegisterEvents[T]>, X extends ReturnType<RegisterEvents[T]>>(event: T, ...args: K) {

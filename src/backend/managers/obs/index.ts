@@ -1,7 +1,8 @@
 import { Storage } from '@Globals/storage'
-import { NodeObs } from '@streamlabs/obs-studio-node'
+import { SceneFactory, NodeObs as notTypedOBS, InputFactory } from '@streamlabs/obs-studio-node'
 import { ipcMain } from 'electron'
 import { EOBSSettingsCategories as SettingsCat } from 'src/types/obs/obs-enums'
+import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
@@ -9,7 +10,7 @@ import { LockManager } from '../lock'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 
 
-
+const NodeObs: NodeObs = notTypedOBS
 const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
 export class OBSManager {
@@ -157,9 +158,15 @@ export class OBSManager {
         return parameterSettings.values.map(value => Object.values(value)[0]);
     }
 
+    public async getAvailable() {
+        log.debug("Getting available OBS sources")
+        return InputFactory.getPublicSources()
+    }
+
     public register() {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
+        reg.onPromise("obs_available_windows", () => this.getAvailable())
     }
 }

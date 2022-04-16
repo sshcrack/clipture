@@ -1,6 +1,7 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
 import { LockedReturnType } from '@backend/managers/lock/interface'
 import { Progress } from '@backend/processors/events/interface'
+import { IInput } from '@streamlabs/obs-studio-node'
 
 export type RegisterEvents = {
     obs_is_initialized: () => boolean,
@@ -14,7 +15,8 @@ export type RegisterEvents = {
 export type RegisterEventsPromises = {
     obs_initialize: () => void,
     auth_authenticate: () => string,
-    auth_get_session:  () => { data: SessionData, status: SessionStatus }
+    auth_get_session:  () => { data: SessionData, status: SessionStatus },
+    obs_available_windows: () => IInput[]
 }
 
 export type MainToRender = {

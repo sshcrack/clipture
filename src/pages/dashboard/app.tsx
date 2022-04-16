@@ -57,7 +57,7 @@ const App = () => {
         justifyContent='center'
         direction='column'
     >
-        {/*initialized ? <DynamicPage data={data} /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..." }} />*/<DynamicPage data={data}></DynamicPage>}
+        {initialized ? <DynamicPage data={data} /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..." }} />}
     </Flex>
 }
 export default App;
