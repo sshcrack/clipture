@@ -3,5 +3,5 @@ export class Globals {
 }
 
 function isDev() {
-    return process.argv[2] === "--dev"
+    return process.argv[2] === "dev"
 }

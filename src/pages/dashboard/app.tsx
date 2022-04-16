@@ -48,6 +48,7 @@ const App = () => {
 
     const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
     const DynamicPage = status === SessionStatus.AUTHENTICATED ? DashboardMain : LoginPage
+    console.log("Initialized", initialized, "status", status)
 
     return <Flex
         width='100%'
@@ -56,7 +57,7 @@ const App = () => {
         justifyContent='center'
         direction='column'
     >
-        {initialized ? <DynamicPage data={data} /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..." }} />}
+        {/*initialized ? <DynamicPage data={data} /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..." }} />*/<DynamicPage data={data}></DynamicPage>}
     </Flex>
 }
 export default App;

@@ -5,7 +5,7 @@
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "electron-forge start -- dev",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
@@ -28,7 +28,27 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "clipture"
+            "name": "clipture",
+            "authors": "sshcrack",
+            "description": "Clip your best ingame moments using clipture!",
+            "loadingGif": "src/assets/loading.gif",
+            "icon": "src/assets/logo.ico"
+          }
+        }
+      ],
+      "publishers": [
+        {
+          "name": "@electron-forge/publisher-github",
+          "platforms": [
+            "win32"
+          ],
+          "config": {
+            "repository": {
+              "owner": "sshcrack",
+              "name": "clipture"
+            },
+            "draft": false,
+            "prerelease": false
           }
         }
       ],

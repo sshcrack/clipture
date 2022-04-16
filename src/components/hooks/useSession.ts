@@ -29,8 +29,10 @@ export function useSession() {
                 log.error(e)
                 toast({
                     title: "Error",
-                    description: "Could not obtain session"
+                    description: `Could not obtain session ${e}. Retrying...`
                 })
+
+                setTimeout(() => setUpdate(Math.random()), 1000)
             })
     }, [ update ])
 
