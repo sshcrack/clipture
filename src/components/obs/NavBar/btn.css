@@ -1,0 +1,36 @@
+.navbar-icon {
+    height: 3em;
+    width: 3em;
+    margin-right: 1em;
+    padding: .2em;
+    border-radius: 10px;
+}
+
+
+
+.navbar-button-div:hover {
+    --gradient-color: var(--hover-color);
+}
+
+.navbar-button-div {
+    cursor: pointer;
+    transition: all .2s ease-in-out;
+
+    --gradient-color: transparent;
+    background: linear-gradient(90deg, transparent 0%, var(--gradient-color) 100%);
+
+    border-radius: 10px;
+    padding-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+}
+
+.navbar-active {
+    background: linear-gradient(90deg, transparent 0%, var(--hover-color) 100%);
+    transform: scale(1.1);
+}

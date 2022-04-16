@@ -1,17 +1,25 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { Button, Flex, Heading, Menu, Text } from '@chakra-ui/react';
+import { Flex, Menu } from '@chakra-ui/react';
 import React from "react";
 import { AiOutlineCompass } from "react-icons/ai";
-import { SiApplearcade } from "react-icons/si"
+import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
-import { FaCog } from "react-icons/fa"
+import { SiApplearcade } from "react-icons/si";
+import "src/components/obs/NavBar/styles.css";
 import NavBarButton from './NavBarButton';
 
 export function NavBar({ data }: { data: SessionData }) {
     const { image, name } = data.user
     const { auth } = window.api
 
-    return <Flex flexDir='column' w='100%' h='100%' bg='gray.700' p='3'>
+    return <Flex
+    flexDir='column'
+    w='100%'
+    h='100%'
+    bg='gray.700'
+    p='3'
+    className='navbar'
+    >
         <Menu>
             <Flex
                 flex='.5'
@@ -39,7 +47,6 @@ export function NavBar({ data }: { data: SessionData }) {
                 alignItems='center'
                 flexDir='column'
                 flex='.5'
-                gap='5'
             >
                 <NavBarButton
                     icon={FaCog}

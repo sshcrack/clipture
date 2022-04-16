@@ -1,8 +1,9 @@
-import {  Flex, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import classNames from 'classnames';
 import React from 'react';
+import { motion } from "framer-motion"
 import { IconType } from 'react-icons';
-import "src/components/obs/NavBar/styles.css"
+import "src/components/obs/NavBar/btn.css"
 
 export interface NavBarButtonProps {
     active: boolean,
@@ -13,24 +14,25 @@ export interface NavBarButtonProps {
 
 export default function NavBarButton({ active, icon: Icon, text, color }: NavBarButtonProps) {
     const cssColor = `--chakra-colors-${color.split(".").join("-")}`
-    return <Flex
-        justifyContent='start'
-        alignItems='center'
+    const colorCodeHover = getComputedStyle(document.body)
+        .getPropertyValue(cssColor)
+
+    return <motion.div
         style={{
             cursor: "pointer",
-        }}
-        _hover={{
-            bg: "gray.400"
-        }}
-        p='2'
-        w='100%'
-        className={classNames('navbar-div', active ? 'navbar-active' : null)}
-    >
-        <Icon className='navbar-icon' style={{
             "--hover-color": `var(${cssColor})`
-        } as any} />
+        } as any}
+        initial={{ "--gradient-color": "rgba(0,0,0,0)" } as any}
+        whileHover={{
+            "--gradient-color": colorCodeHover,
+            scale: 1.1
+        } as any}
+        transition={{ duration: .1 }}
+        className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
+    >
+        <Icon className='navbar-icon' />
         <Text fontSize='1.5em'>{text}</Text>
-    </Flex>
+    </motion.div>
 
 }
 

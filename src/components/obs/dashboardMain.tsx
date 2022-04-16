@@ -1,5 +1,5 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { Button, Flex, Grid, GridItem, Heading } from '@chakra-ui/react';
+import { Flex, Heading } from '@chakra-ui/react';
 import React from 'react';
 import { NavBar } from './NavBar/';
 
