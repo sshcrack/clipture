@@ -9,10 +9,11 @@ export interface NavBarButtonProps {
     active: boolean,
     icon: IconType,
     text: string,
-    color: string
+    color: string,
+    onClick?: () => void
 }
 
-export default function NavBarButton({ active, icon: Icon, text, color }: NavBarButtonProps) {
+export default function NavBarButton({ active, icon: Icon, text, color, onClick }: NavBarButtonProps) {
     const cssColor = `--chakra-colors-${color.split(".").join("-")}`
     const colorCodeHover = getComputedStyle(document.body)
         .getPropertyValue(cssColor)
@@ -25,13 +26,18 @@ export default function NavBarButton({ active, icon: Icon, text, color }: NavBar
         initial={{ "--gradient-color": "rgba(0,0,0,0)" } as any}
         whileHover={{
             "--gradient-color": colorCodeHover,
-            scale: 1.1
+            scale: active ? 1 : 1.1
         } as any}
         transition={{ duration: .1 }}
-        className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
+        className='navbar-button-outer'
+        onClick={onClick}
     >
-        <Icon className='navbar-icon' />
-        <Text fontSize='1.5em'>{text}</Text>
+        <div
+            className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
+        >
+            <Icon className='navbar-icon' />
+            <Text fontSize='1.5em'>{text}</Text>
+        </div>
     </motion.div>
 
 }

@@ -22,43 +22,42 @@ export function NavBar({ data }: { data: SessionData }) {
     >
         <Menu>
             <Flex
-                flex='.5'
+                flex='1'
                 w='100%'
                 h='100%'
                 flexDir='column'
-                gap='5'
-                mb='100'
             >
                 <NavBarButton
                     active={true}
                     icon={SiApplearcade}
                     text='Clips'
-                    color='red.400'
+                    color='brand.secondary'
                 />
                 <NavBarButton
                     active={false}
                     icon={AiOutlineCompass}
                     text='Discover'
-                    color='yellow.400'
+                    color='brand.primary'
                 />
             </Flex>
 
             <Flex
                 alignItems='center'
                 flexDir='column'
-                flex='.5'
+                flex='0'
             >
                 <NavBarButton
                     icon={FaCog}
                     active={false}
                     text='Settings'
-                    color='cyan.400'
+                    color='gray.400'
                 />
                 <NavBarButton
                     active={false}
                     icon={GoSignOut}
                     text='Sign Out'
-                    color='yellow.400'
+                    color='red.500'
+                    onClick={() => auth.signOut()}
                 />
             </Flex>
         </Menu>
