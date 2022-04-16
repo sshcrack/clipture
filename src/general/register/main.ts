@@ -2,9 +2,8 @@ if (!process)
     throw new Error("Register Manager main can not be used in renderer.")
 
 
-import { ipcMain, IpcMainEvent, WebContents } from 'electron'
+import { ipcMain, IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { getErrorEvent, getSuccessfulEvent } from './tools'
 import { MainToRender, RegisterEvents, RegisterEventsPromises } from "./type"
 
 const log = MainLogger.get("RegisterManager", "Main")
@@ -27,19 +26,13 @@ export class RegManMain {
         })
     }
 
-    static onPromise<T extends keyof RegisterEventsPromises, K extends Parameters<RegisterEventsPromises[T]>, X extends ReturnType<RegisterEventsPromises[T]>>(event: T, callback: (event: IpcMainEvent, ...args: K) => Promise<X>) {
+    static onPromise<T extends keyof RegisterEventsPromises, K extends Parameters<RegisterEventsPromises[T]>, X extends ReturnType<RegisterEventsPromises[T]>>(event: T, callback: (event: IpcMainInvokeEvent, ...args: K) => Promise<X>) {
         log.debug("Registering promise event:", event)
-        const errEv = getErrorEvent(event)
-        const sucEvent = getSuccessfulEvent(event)
-
 
         if (!this.eventProm.includes(event))
             this.eventProm.push(event)
 
-        return ipcMain.on(event, async (e, id: string, ...args) =>
-            callback(e, ...args as any)
-                .then(arg => e.reply(sucEvent, id, arg))
-                .catch(err => e.reply(errEv, id, err))
+        return ipcMain.handle(event, (e, ...args) => callback(e, ...args as any)
         )
     }
 

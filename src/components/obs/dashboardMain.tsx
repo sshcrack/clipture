@@ -1,6 +1,7 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, Heading } from '@chakra-ui/react';
 import React from 'react';
+import Clips from './clips';
 import { NavBar } from './NavBar/';
 
 export function DashboardMain({ data }: { data: SessionData }) {
@@ -19,9 +20,14 @@ export function DashboardMain({ data }: { data: SessionData }) {
         >
             <NavBar data={data} />
         </Flex>
-        <Flex flex='.5' flexDir='column'>
+        <Flex
+            flexDir='column'
+            alignItems='center'
+            w='100%'
+            h='100%'
+        >
             <Heading>Clips</Heading>
-            <p>Test Text</p>
+            <Clips />
         </Flex>
     </Flex>
 }
