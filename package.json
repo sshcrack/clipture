@@ -106,7 +106,7 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "11",
     "@emotion/styled": "11",
-    "@streamlabs/obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.20.19-release-win64.tar.gz",
+    "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\obs-studio-node.tar.gz",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
     "electron-log": "^4.4.6",

@@ -1185,9 +1185,9 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.6.0.tgz#3c7c9c46e678feefe7a2e5bb609d3dbd665ffb3f"
   integrity sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==
 
-"@streamlabs/obs-studio-node@https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.20.19-release-win64.tar.gz":
-  version "0.20.19"
-  resolved "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.20.19-release-win64.tar.gz#595102315d9fe497d511f11f0fb0a2c434d3d83d"
+"@streamlabs/obs-studio-node@D:\\NodeJS\\libs\\obs-studio-node-fix\\obs-studio-node.tar.gz":
+  version "0.3.99"
+  resolved "D:\\NodeJS\\libs\\obs-studio-node-fix\\obs-studio-node.tar.gz#23b3b447965cbe1bb1442ad7a49234026ea7cd1c"
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"

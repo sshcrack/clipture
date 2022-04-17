@@ -11,6 +11,15 @@ export default function Clips() {
     const [availableWindows, setAvilableWindows] = useState<WindowInformation[]>(null)
 
     const [previewHeight, setPreviewHeight] = useState(0)
+    const resize = () => {
+        if (!preview.current)
+            return
+
+        const { width, height, x, y } = preview.current.getBoundingClientRect()
+        log.log("Resizing...", width, height, x, y)
+        obs.resize_preview({ width, height, x, y })
+            .then(({ height }) => setPreviewHeight(height))
+    }
     useEffect(() => {
         if (!preview?.current)
             return
@@ -31,18 +40,16 @@ export default function Clips() {
 
         window.addEventListener("resize", () => {
             log.log("Resize event")
-            if (!preview.current)
-                return
-
-            const { width, height, x, y } = preview.current.getBoundingClientRect()
-            log.log("Resizing...", width, height, x, y)
-            obs.resize_preview({ width, height, x, y })
-                .then(({ height }) => setPreviewHeight(height))
+            resize()
         })
 
         obs.available_windows(true)
             .then(res => setAvilableWindows(res))
     }, [])
+
+    useEffect(() => {
+        resize()
+    })
 
     const buttons = [] as ReactNode[]
 

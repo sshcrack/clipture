@@ -1,9 +1,9 @@
 import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
-import { InputFactory, IScene, SceneFactory } from '@streamlabs/obs-studio-node';
+import { InputFactory, IScene, ITransformInfo, SceneFactory } from '@streamlabs/obs-studio-node';
 import { screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
-import { SettingsCat } from 'src/types/obs/obs-enums';
+import { EAlignment, EBoundsType, SettingsCat } from 'src/types/obs/obs-enums';
 import { v4 as uuid } from "uuid";
 import { setOBSSetting as setSetting } from '../base';
 import { AudioSceneManager } from './audio';
@@ -84,19 +84,17 @@ export class Scene {
     }
 
     static async switchGame({ className, executable, title }: GameOptions) {
-        log.log("Switching to Window View")
-        const videoSource = InputFactory.create("screen_capture", this.MAIN_SOURCE);
+        const windowId = `${title}:${className}:${executable}`;
+        log.log("Switching to Window View", windowId, InputFactory.types())
+        const videoSource = InputFactory.create("window_capture", this.MAIN_SOURCE);
 
         const settings = videoSource.settings;
+        settings["capture_mode"] = "window"
         settings['compatibility'] = true;
         settings['client_area'] = true;
-        settings['method'] = 0;
-        settings['window'] = `${title}:${className}:${executable}`;
-        /*settings.className = className
-        settings.executable = executable;
-        settings.title = title;
-        settings.width = 1920;
-        settings.height = 1080*/
+        settings['window'] = windowId;
+        //settings.width = 1920;
+        //settings.height = 10800
 
         videoSource.update(settings)
         videoSource.save()
@@ -104,19 +102,23 @@ export class Scene {
 
         const physicalHeight = 1080
         const physicalWidth = 1920
-        const resolution = `${physicalWidth}#${physicalHeight}`
+        const resolution = `${physicalWidth}x${physicalHeight}`
         setSetting(SettingsCat.Video, "Base", resolution)
         setSetting(SettingsCat.Video, "Output", resolution)
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)
-        sceneItem.scale = { x: 1, y: 1 }
+        sceneItem.bounds = { x: physicalWidth, y: physicalHeight }
+        sceneItem.boundsType = EBoundsType.ScaleInner as number
+        sceneItem.alignment = EAlignment.TopLeft as number
+
+        console.log("t")
     }
 
     static async getAvailableWindows(game?: boolean) {
         log.debug("Getting available windows")
         const execa = (await import("execa")).execa
-        const out = await execa(__dirname + "/assets/window_info.exe", [ game ? "game" : "" ])
+        const out = await execa(__dirname + "/assets/window_info.exe", [game ? "game" : ""])
         const stdout = out.stdout
         try {
             const res = JSON.parse(stdout) as WindowInformation[]
