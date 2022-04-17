@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <windows.h>
 #include <WinUser.h>
 
@@ -110,4 +111,20 @@ extern HWND FirstWindow(enum WindowSearchMode mode, HWND* parent,
 	return window;
 }
 
+extern void GetAllWindowsFromProcessID(DWORD dwProcessID, std::vector<HWND>& vhWnds)
+{
+	// find all hWnds (vhWnds) associated with a process id (dwProcessID)
+	HWND hCurWnd = nullptr;
+	do
+	{
+		hCurWnd = FindWindowEx(nullptr, hCurWnd, nullptr, nullptr);
+		DWORD checkProcessID = 0;
+		GetWindowThreadProcessId(hCurWnd, &checkProcessID);
+		if (checkProcessID == dwProcessID)
+		{
+			vhWnds.push_back(hCurWnd);  // add the found hCurWnd to the vector
+			//wprintf(L"Found hWnd %d\n", hCurWnd);
+		}
+	} while (hCurWnd != nullptr);
+}
 

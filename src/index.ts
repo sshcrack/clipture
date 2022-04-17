@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 
+import { ProcessManager } from '@backend/managers/process';
 import { registerFuncs } from '@backend/registerFuncs';
 import { app, BrowserWindow, dialog } from 'electron';
 import { OBSManager } from './backend/managers/obs';
@@ -75,6 +76,9 @@ app.on('activate', () => {
   }
 });
 
-app.on("will-quit", () => MainGlobals.obs.shutdown())
+app.on("will-quit", () => {
+  MainGlobals.obs.shutdown()
+  ProcessManager.exit()
+})
 
 registerFuncs.map(e => e())

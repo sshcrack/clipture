@@ -17,7 +17,7 @@ export default function Clips() {
 
         const { width, height, x, y } = preview.current.getBoundingClientRect()
         log.log("Resizing...", width, height, x, y)
-        obs.resize_preview({ width, height, x, y })
+        obs.resizePreview({ width, height, x, y })
             .then(({ height }) => setPreviewHeight(height))
     }
     useEffect(() => {
@@ -35,7 +35,7 @@ export default function Clips() {
     }, [preview])
 
     useEffect(() => {
-        obs.available_monitors()
+        obs.availableMonitors()
             .then(res => setAvailableMonitors(res))
 
         window.addEventListener("resize", () => {
@@ -43,7 +43,7 @@ export default function Clips() {
             resize()
         })
 
-        obs.available_windows(true)
+        obs.availableWindows(true)
             .then(res => setAvilableWindows(res))
     }, [])
 
@@ -55,13 +55,13 @@ export default function Clips() {
 
     if (availableMonitors !== NaN) {
         for (let i = 0; i < availableMonitors; i++) {
-            buttons.push(<Button key={'btn' + i} onClick={() => obs.switch_desktop(i)}>{i}</Button>)
+            buttons.push(<Button key={'btn' + i} onClick={() => obs.switchDesktop(i)}>{i}</Button>)
         }
     }
 
     if (availableWindows) {
         availableWindows.forEach(e => {
-            return buttons.push(<Button key={'btnwindow' + JSON.stringify(e)} onClick={() => obs.switch_game(e)}>{e.executable}</Button>)
+            return buttons.push(<Button key={'btnwindow' + JSON.stringify(e)} onClick={() => obs.switchWindow(e)}>{e.executable}</Button>)
         })
     }
 

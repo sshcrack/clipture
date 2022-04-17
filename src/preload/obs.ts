@@ -1,17 +1,32 @@
+import { WindowOptions } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn } from '@backend/managers/obs/types';
 import { RegManRender } from '@register/render';
-import type { GameOptions }from "@backend/managers/obs/Scene"
 
 const reg = RegManRender
+type ListenerType = (recording: boolean) => void
+const listeners = [] as ListenerType[]
+
+reg.on("obs_record_change", (_, recording: boolean) => listeners.map(e => e(recording)))
+
 const obs = {
     isInitialized: () => reg.emitSync("obs_is_initialized"),
     initialize: () => reg.emitPromise("obs_initialize"),
+
     preview_init: (rect: ClientBoundRecReturn) => reg.emitPromise("obs_preview_init", rect),
-    available_monitors: () => reg.emitPromise("obs_available_monitors"),
-    available_windows: (game: boolean) => reg.emitPromise("obs_available_windows", game),
-    switch_desktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
-    switch_game: (options: GameOptions) => reg.emitPromise("obs_switch_game", options),
-    resize_preview: (react: ClientBoundRecReturn) => reg.emitPromise("obs_resize_preview", react),
+    resizePreview: (react: ClientBoundRecReturn) => reg.emitPromise("obs_resize_preview", react),
+
+
+    availableMonitors: () => reg.emitPromise("obs_available_monitors"),
+    availableWindows: (game: boolean) => reg.emitPromise("obs_available_windows", game),
+
+    switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
+    switchWindow: (options: WindowOptions) => reg.emitPromise("obs_switch_window", options),
+
+
+    startRecording: () => reg.emitPromise("obs_start_recording"),
+    stopRecording: () => reg.emitPromise("obs_stop_recording"),
+    onRecordChange: (callback: ListenerType) => listeners.push(callback),
+    recordDescription: () => reg.emitSync("obs_get_record_description")
 }
 
 export default obs;

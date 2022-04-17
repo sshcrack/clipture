@@ -8,7 +8,6 @@ const logger = MainLogger.get("Managers", "LockManager")
 export class LockManager {
     static readonly instance = new LockManager();
     private locked = false;
-    private listeners = [] as WebContents[];
     private currProgress = undefined as Progress
     private lockListeners = [] as (() => unknown)[]
 
@@ -49,7 +48,7 @@ export class LockManager {
 
     public updateListeners(prog: Progress) {
         this.currProgress = prog
-        this.listeners.map(e => RegManMain.send(e, "lock_update", this.locked, this.currProgress))
+        RegManMain.send("lock_update", this.locked, this.currProgress)
     }
 
     public waitTillReleased() {
@@ -62,8 +61,7 @@ export class LockManager {
     }
 
     public register() {
-        RegManMain.onSync("lock_add_listener", e => this.listeners.push(e.sender))
-        RegManMain.onSync("lock_set", (e, lock, prog) => {
+        RegManMain.onSync("lock_set", (_, lock, prog) => {
             logger.log("Setting lock...")
 
             if (this.locked === lock)

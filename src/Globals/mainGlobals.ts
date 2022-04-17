@@ -7,6 +7,7 @@ import path from "path";
 
 export class MainGlobals {
     static window: BrowserWindow
+    static readonly windowInfoExe = __dirname + "/assets/window_info.exe"
     static obs: OBSManager;
 
 

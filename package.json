@@ -9,7 +9,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "server": "cd .. && cd clipture-server && yarn start -p 3001"
   },
   "keywords": [],
   "author": {
@@ -106,7 +107,7 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "11",
     "@emotion/styled": "11",
-    "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\obs-studio-node.tar.gz",
+    "@streamlabs/obs-studio-node": "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.5/obs-studio-node.tar.gz",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
     "electron-log": "^4.4.6",
@@ -116,6 +117,7 @@
     "framer-motion": "6",
     "got": "^11.8.3",
     "jszip": "^3.9.1",
+    "ps-list": "^8.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-icons": "^4.3.1",

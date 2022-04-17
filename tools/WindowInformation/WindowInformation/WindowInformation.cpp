@@ -67,7 +67,7 @@ void GetTitle(HWND hwnd, string& title) {
 
 
 
-bool GetExe(HWND wnd, string& executable) {
+bool GetExe(HWND wnd, string& executable, bool fullPath = false) {
     TCHAR path_buf[MAX_PATH];
     DWORD id[MAX_PATH];
     GetWindowThreadProcessId(wnd, id);
@@ -82,6 +82,10 @@ bool GetExe(HWND wnd, string& executable) {
 
     wstring wexe(path_buf);
     string exe(wexe.begin(), wexe.end());
+    if (fullPath) {
+        executable = exe;
+        return true;
+    }
     fs::path p(exe);
 
     executable = p.filename().string();
@@ -132,6 +136,36 @@ int main(int argc, char** argv)
         if (firstArg.compare("game") == 0) {
             checkGame = true;
             mode = WindowSearchMode::INCLUDE_MINIMIZED;
+        }
+
+        if (firstArg.compare("pid") == 0) {
+            if (argc >= 3) {
+                string secondArg(argv[2]);
+                int pid = stoi(secondArg);
+                vector<HWND> handles;
+
+                GetAllWindowsFromProcessID(pid, handles);
+                if (handles.size() == 0) {
+                    cerr << "Could not find any handles";
+                    exit(-1);
+                }
+
+                for (auto& handle: handles) // access by reference to avoid copying
+                {
+                    string exe;
+                    if (GetExe(handle, exe, true)) {
+                        cout << exe;
+                        exit(0);
+                    }
+                }
+
+                cerr << "Could not find any executable from handles";
+                exit(-1);
+            }
+            else {
+                cerr << "after argument pid, a pid has to be given";
+                exit(-1);
+            }
         }
     }
 

@@ -14,3 +14,4 @@ extern HWND FirstWindow(enum WindowSearchMode mode, HWND* parent,
 	bool* UseFindWindowEx);
 extern HWND NextWindow(HWND window, enum WindowSearchMode mode, HWND* parent,
 	bool use_findwindowex);
+extern void GetAllWindowsFromProcessID(DWORD dwProcessID, std::vector<HWND>& vhWnds);

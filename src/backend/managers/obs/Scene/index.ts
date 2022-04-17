@@ -1,5 +1,6 @@
 import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
+import { MainGlobals } from '@Globals/mainGlobals';
 import { InputFactory, IScene, ITransformInfo, SceneFactory } from '@streamlabs/obs-studio-node';
 import { screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
@@ -8,27 +9,16 @@ import { v4 as uuid } from "uuid";
 import { setOBSSetting as setSetting } from '../base';
 import { AudioSceneManager } from './audio';
 import { getDisplayInfoFromIndex } from "./display";
-import { WindowInformation } from './interfaces';
+import { CurrentSetting, CurrentSettingDescription, WindowInformation, WindowOptions } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene")
-export enum CurrentSetting {
-    NONE = 0,
-    DESKTOP = 1,
-    WINDOW = 2
-}
-
-export type GameOptions = {
-    executable: string,
-    title: string,
-    className: string,
-
-}
 
 export class Scene {
     private static readonly SCENE_ID = `main_scene_clipture-${uuid()}`
     private static readonly MAIN_SOURCE = "main_source"
     private static _scene: IScene;
     private static _setting = CurrentSetting.NONE
+    static currSettingDesc = "Nothing" as string
 
     static initialize() {
         log.info("Initializing scene...")
@@ -44,9 +34,10 @@ export class Scene {
 
     static register() {
         RegManMain.onPromise("obs_switch_desktop", (_, monitorIndex) => this.switchDesktop(monitorIndex))
-        RegManMain.onPromise("obs_switch_game", (_, options) => this.switchGame(options))
+        RegManMain.onPromise("obs_switch_window", (_, options) => this.switchWindow(options))
         RegManMain.onPromise("obs_available_monitors", async () => screen.getAllDisplays().length)
         RegManMain.onPromise("obs_available_windows", (_, game) => this.getAvailableWindows(game))
+        RegManMain.onSync("obs_get_record_description", (_) => this.currSettingDesc)
     }
 
     static getCurrentSetting() {
@@ -69,6 +60,7 @@ export class Scene {
         settings.width = physicalWidth
         settings.height = physicalHeight
         settings.monitor = monitor
+        this.currSettingDesc = `Monitor ${monitor}`
 
         videoSource.update(settings)
         videoSource.save()
@@ -83,9 +75,9 @@ export class Scene {
         sceneItem.scale = { x: 1, y: 1 }
     }
 
-    static async switchGame({ className, executable, title }: GameOptions) {
+    static async switchWindow({ className, executable, title }: WindowOptions) {
         const windowId = `${title}:${className}:${executable}`;
-        log.log("Switching to Window View", windowId, InputFactory.types())
+        log.log("Switching to Window View", windowId)
         const videoSource = InputFactory.create("window_capture", this.MAIN_SOURCE);
 
         const settings = videoSource.settings;
@@ -93,8 +85,7 @@ export class Scene {
         settings['compatibility'] = true;
         settings['client_area'] = true;
         settings['window'] = windowId;
-        //settings.width = 1920;
-        //settings.height = 10800
+        this.currSettingDesc = `[${executable}]: ${title}`
 
         videoSource.update(settings)
         videoSource.save()
@@ -108,17 +99,16 @@ export class Scene {
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)
+
         sceneItem.bounds = { x: physicalWidth, y: physicalHeight }
         sceneItem.boundsType = EBoundsType.ScaleInner as number
         sceneItem.alignment = EAlignment.TopLeft as number
-
-        console.log("t")
     }
 
     static async getAvailableWindows(game?: boolean) {
         log.debug("Getting available windows")
         const execa = (await import("execa")).execa
-        const out = await execa(__dirname + "/assets/window_info.exe", [game ? "game" : ""])
+        const out = await execa(MainGlobals.windowInfoExe, [game ? "game" : ""])
         const stdout = out.stdout
         try {
             const res = JSON.parse(stdout) as WindowInformation[]

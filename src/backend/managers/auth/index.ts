@@ -38,7 +38,7 @@ export class AuthManager {
     }
 
     private static updateListeners() {
-        RegManMain.send(MainGlobals.window.webContents, "auth_update")
+        RegManMain.send("auth_update")
     }
 
     private static authFetch(id: string, startTime: number) {

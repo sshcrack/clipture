@@ -1,9 +1,9 @@
-import { byOS, getOS, OS } from '@backend/tools/operating-system'
+import { getOS, OS } from '@backend/tools/operating-system'
 import { webContentsToWindow } from '@backend/tools/window'
 import { Storage } from '@Globals/storage'
-import { SceneFactory, NodeObs as notTypedOBS, InputFactory, IScene, Global } from '@streamlabs/obs-studio-node'
+import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { BrowserWindow, ipcMain, IpcMainInvokeEvent, screen } from 'electron'
-import { SettingsCat as SettingsCat } from 'src/types/obs/obs-enums'
+import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
@@ -14,13 +14,16 @@ import { Scene } from './Scene'
 import { getDisplayInfo } from './Scene/display'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 import { ClientBoundRecReturn } from './types'
+import fs from "fs/promises"
 
 
 const NodeObs: NodeObs = notTypedOBS
 const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
+
 export class OBSManager {
     private obsInitialized = false
+    private recording = false
     private readonly displayId = "previewDisplay"
 
     constructor() {
@@ -166,6 +169,41 @@ export class OBSManager {
         return { height: displayHeight }
     }
 
+    public async startRecording() {
+        if (this.recording)
+            return
+
+        const recordPath = NodeObs.OBS_settings_getSettings(SettingsCat.Output)
+            .data
+            .find(e => e.nameSubCategory === "Recording")
+            .parameters
+            .find(e => e.name === "RecFilePath")
+            .currentValue as string
+
+        if(!recordPath)
+            log.warn("No Record Path set")
+        else
+            await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
+
+        NodeObs.OBS_service_startRecording()
+        this.recording = true
+        RegManMain.send("obs_record_change", true)
+    }
+
+    public async stopRecording() {
+        if (!this.recording)
+            return
+
+        log.info("Stopped recording")
+        NodeObs.OBS_service_stopRecording()
+        this.recording = false
+        RegManMain.send( "obs_record_change", false)
+    }
+
+    public isRecording() {
+        return this.recording;
+    }
+
 
     public register() {
         log.log("Registering OBS Events...")
@@ -173,5 +211,8 @@ export class OBSManager {
         reg.onPromise("obs_initialize", () => this.initialize())
         reg.onPromise("obs_preview_init", (e, bounds) => this.initPreview(e, bounds))
         reg.onPromise("obs_resize_preview", (e, bounds) => this.resizePreview(webContentsToWindow(e.sender), bounds))
+        reg.onPromise("obs_start_recording", () => this.startRecording())
+        reg.onPromise("obs_stop_recording", () => this.stopRecording())
+        reg.onSync("obs_is_recording", () => this.isRecording())
     }
 }
