@@ -42,7 +42,7 @@ const App = () => {
                     duration: 15000
                 })
 
-                setTimeout(() => setTryAgain(Math.random()), 1000)
+                setTimeout(() => setTryAgain(Math.random()), 10000)
             })
     }, [obsInitialized, tryAgain, isLocked]);
 

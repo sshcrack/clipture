@@ -1,22 +1,75 @@
-import { Button, Flex } from '@chakra-ui/react';
-import type { IInput } from '@streamlabs/obs-studio-node';
-import React, { useEffect, useState } from "react"
+import type { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
+import { Button, Flex, FormControl, FormLabel, Input } from '@chakra-ui/react';
+import React, { ReactNode, useEffect, useRef, useState } from "react";
+import { RenderLogger } from 'src/interfaces/renderLogger';
 
+const log = RenderLogger.get("obs", "clips")
 export default function Clips() {
-    const { obs} = window.api
-    const [ available, setAvailable ] = useState<IInput[]>()
-    const [ update, setUpdate ] = useState(() => Math.random())
+    const { obs } = window.api
+    const preview = useRef<HTMLDivElement>()
+    const [availableMonitors, setAvailableMonitors] = useState(NaN)
+    const [availableWindows, setAvilableWindows] = useState<WindowInformation[]>(null)
+
+    const [previewHeight, setPreviewHeight] = useState(0)
+    useEffect(() => {
+        if (!preview?.current)
+            return
+
+
+        const { width, height, x, y } = preview.current.getBoundingClientRect()
+        obs.preview_init({ width, height, x, y })
+            .then(result => {
+                log.log("Setting", result)
+                setPreviewHeight(result.height)
+            })
+
+    }, [preview])
 
     useEffect(() => {
-        obs.available_windows()
-            .then(setAvailable)
-    }, [update])
+        obs.available_monitors()
+            .then(res => setAvailableMonitors(res))
+
+        window.addEventListener("resize", () => {
+            log.log("Resize event")
+            if (!preview.current)
+                return
+
+            const { width, height, x, y } = preview.current.getBoundingClientRect()
+            log.log("Resizing...", width, height, x, y)
+            obs.resize_preview({ width, height, x, y })
+                .then(({ height }) => setPreviewHeight(height))
+        })
+
+        obs.available_windows(true)
+            .then(res => setAvilableWindows(res))
+    }, [])
+
+    const buttons = [] as ReactNode[]
+
+    if (availableMonitors !== NaN) {
+        for (let i = 0; i < availableMonitors; i++) {
+            buttons.push(<Button key={'btn' + i} onClick={() => obs.switch_desktop(i)}>{i}</Button>)
+        }
+    }
+
+    if (availableWindows) {
+        availableWindows.forEach(e => {
+            return buttons.push(<Button key={'btnwindow' + JSON.stringify(e)} onClick={() => obs.switch_game(e)}>{e.executable}</Button>)
+        })
+    }
 
     return <Flex
         justifyContent='start'
         alignItems='center'
+        w='100%'
+        h='100%'
     >
-        {JSON.stringify(available)}
-        <Button onClick={() => setUpdate(Math.random())}>Update</Button>
+        {buttons}
+        <Flex
+            className='previewContainer'
+            ref={preview}
+            style={{ height: "100%", width: "100%" }}
+        >
+        </Flex>
     </Flex>
 }

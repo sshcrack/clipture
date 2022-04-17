@@ -1,13 +1,19 @@
+import { byOS, getOS, OS } from '@backend/tools/operating-system'
+import { webContentsToWindow } from '@backend/tools/window'
 import { Storage } from '@Globals/storage'
-import { SceneFactory, NodeObs as notTypedOBS, InputFactory } from '@streamlabs/obs-studio-node'
-import { ipcMain } from 'electron'
-import { EOBSSettingsCategories as SettingsCat } from 'src/types/obs/obs-enums'
+import { SceneFactory, NodeObs as notTypedOBS, InputFactory, IScene, Global } from '@streamlabs/obs-studio-node'
+import { BrowserWindow, ipcMain, IpcMainInvokeEvent, screen } from 'electron'
+import { SettingsCat as SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
 import { LockManager } from '../lock'
+import { getAvailableValues, setOBSSetting as setSetting } from './base'
+import { Scene } from './Scene'
+import { getDisplayInfo } from './Scene/display'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
+import { ClientBoundRecReturn } from './types'
 
 
 const NodeObs: NodeObs = notTypedOBS
@@ -15,6 +21,7 @@ const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
 export class OBSManager {
     private obsInitialized = false
+    private readonly displayId = "previewDisplay"
 
     constructor() {
         this.register()
@@ -35,10 +42,17 @@ export class OBSManager {
 
 
         inst.updateListeners({
-            percent: .5,
+            percent: .3,
             status: "Configuring OBS..."
         })
         await this.configure()
+
+
+        inst.updateListeners({
+            percent: .6,
+            status: "Initializing scene..."
+        })
+        Scene.initialize()
 
         inst.unlock({
             percent: 1,
@@ -105,68 +119,59 @@ export class OBSManager {
         const Output = SettingsCat.Output
         const Video = SettingsCat.Video
 
-        const availableEncoders = this.getAvailableValues(Output, 'Recording', 'RecEncoder');
-        this.setSetting(Output, "Mode", "Advanced")
-        this.setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
-        this.setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
-        this.setSetting(Output, 'RecFormat', 'mkv');
-        this.setSetting(Output, 'VBitrate', 10000); // 10 Mbps
-        this.setSetting(Video, 'FPSCommon', 60);
+        const availableEncoders = getAvailableValues(Output, 'Recording', 'RecEncoder');
+        setSetting(Output, "Mode", "Advanced")
+        setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
+        setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
+        setSetting(Output, 'RecFormat', 'mkv');
+        setSetting(Output, 'VBitrate', 10000); // 10 Mbps
+        setSetting(Video, 'FPSCommon', 60);
 
         log.info("Configured OBS successfully!")
     }
 
+    public async initPreview(event: IpcMainInvokeEvent, bounds: ClientBoundRecReturn) {
+        const window = webContentsToWindow(event.sender)
+        log.info("Initializing preview on", window.id)
+        const handle = window.getNativeWindowHandle()
 
-    private setSetting(category: SettingsCat, parameter: string, value: string | number) {
-        let oldValue: string | number;
-        const settings = NodeObs.OBS_settings_getSettings(category).data;
+        NodeObs.OBS_content_createSourcePreviewDisplay(
+            handle,
+            Scene.get().name,
+            this.displayId
+        )
 
-        settings.forEach(subCategory => {
-            subCategory.parameters.forEach(param => {
-                if (param.name === parameter) {
-                    oldValue = param.currentValue;
-                    param.currentValue = value;
-                }
-            });
-        });
+        NodeObs.OBS_content_setShouldDrawUI(this.displayId, false)
+        NodeObs.OBS_content_setPaddingSize(this.displayId, 0)
+        NodeObs.OBS_content_setPaddingColor(this.displayId, 255, 255, 255)
 
-        if (value === oldValue)
-            return
-
-        NodeObs.OBS_settings_saveSettings(category, settings);
+        return await this.resizePreview(window, bounds)
     }
 
-    private getAvailableValues(category: SettingsCat, subcategory: string, parameter: string) {
-        const categorySettings = NodeObs.OBS_settings_getSettings(category).data;
-        if (!categorySettings) {
-            log.warn(`There is no category ${category} in OBS settings`);
-            return [];
-        }
+    public async resizePreview(window: BrowserWindow, bounds: ClientBoundRecReturn) {
+        const winBounds = window.getBounds();
+        const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
 
-        const subcategorySettings = categorySettings.find(sub => sub.nameSubCategory === subcategory);
-        if (!subcategorySettings) {
-            log.warn(`There is no subcategory ${subcategory} for OBS settings category ${category}`);
-            return [];
+        let { aspectRatio, scaleFactor } = await getDisplayInfo(currScreen);
+        if (getOS() === OS.Mac) {
+            scaleFactor = 1
         }
+        const displayWidth = Math.floor(bounds.width);
+        const displayHeight = Math.round(displayWidth / aspectRatio);
+        const displayX = Math.floor(bounds.x);
+        const displayY = Math.floor(bounds.y);
 
-        const parameterSettings = subcategorySettings.parameters.find(param => param.name === parameter);
-        if (!parameterSettings) {
-            log.warn(`There is no parameter ${parameter} for OBS settings category ${category}.${subcategory}`);
-            return [];
-        }
-
-        return parameterSettings.values.map(value => Object.values(value)[0]);
+        NodeObs.OBS_content_resizeDisplay(this.displayId, displayWidth * scaleFactor, displayHeight * scaleFactor);
+        NodeObs.OBS_content_moveDisplay(this.displayId, displayX * scaleFactor, displayY * scaleFactor);
+        return { height: displayHeight }
     }
 
-    public async getAvailable() {
-        log.debug("Getting available OBS sources")
-        return InputFactory.getPublicSources()
-    }
 
     public register() {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
-        reg.onPromise("obs_available_windows", () => this.getAvailable())
+        reg.onPromise("obs_preview_init", (e, bounds) => this.initPreview(e, bounds))
+        reg.onPromise("obs_resize_preview", (e, bounds) => this.resizePreview(webContentsToWindow(e.sender), bounds))
     }
 }

@@ -77,7 +77,7 @@
         Wipe = 'wipe_transition'
     }
 
-    export const enum EOBSSettingsCategories {
+    export const enum SettingsCat {
         General = 'General',
         Stream = 'Stream',
         Output = 'Output',

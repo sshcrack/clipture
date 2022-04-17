@@ -1,13 +1,15 @@
 import { RegManMain } from '@general/register/main';
-import { registerBackendEvents } from './events';
+import { registerLockEvents } from './events';
 import { AuthManager } from './managers/auth';
+import { Scene } from './managers/obs/Scene';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 
 export const registerFuncs = [
     () => RegManMain.register(),
-    registerBackendEvents,
+    registerLockEvents,
     registerProcessorEvents,
     () => AuthManager.register(),
-    () => TitlebarManager.register()
+    () => TitlebarManager.register(),
+    () => Scene.register()
 ]

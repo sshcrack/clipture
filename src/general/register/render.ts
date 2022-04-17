@@ -19,7 +19,7 @@ export class RegManRender {
         if(!hasEventProm(event))
             log.error("Promise-Event not registered:", event)
 
-        return ipcRenderer.invoke(event, ...args)
+        return ipcRenderer.invoke(event, ...args) as Promise<X>
     }
 
     static emitSync<T extends keyof RegisterEvents, K extends Parameters<RegisterEvents[T]>, X extends ReturnType<RegisterEvents[T]>>(event: T, ...args: K) {

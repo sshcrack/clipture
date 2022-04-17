@@ -1,7 +1,10 @@
 const plugins = require('./webpack.plugins');
+const CopyWebpackPlugin = require("copy-webpack-plugin")
+const path = require("path")
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 
+const assets = ["assets"]
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -12,7 +15,17 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
-  plugins: plugins,
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: assets.map(asset => {
+        return {
+          from: path.resolve(__dirname, "src", asset, "main"),
+          to: path.resolve(__dirname, ".webpack/main", asset)
+        }
+      })
+    }),
+    ...plugins
+  ],
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
     plugins: [

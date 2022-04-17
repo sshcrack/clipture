@@ -23,7 +23,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: assets.map(asset => {
         return {
-          from: path.resolve(__dirname, "src", asset),
+          from: path.resolve(__dirname, "src", asset, "renderer"),
           to: path.resolve(__dirname, ".webpack/renderer", asset)
         }
       })

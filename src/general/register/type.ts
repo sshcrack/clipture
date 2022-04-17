@@ -1,7 +1,9 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
 import { LockedReturnType } from '@backend/managers/lock/interface'
+import { GameOptions } from '@backend/managers/obs/Scene'
+import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
+import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import { Progress } from '@backend/processors/events/interface'
-import { IInput } from '@streamlabs/obs-studio-node'
 
 export type RegisterEvents = {
     obs_is_initialized: () => boolean,
@@ -16,7 +18,12 @@ export type RegisterEventsPromises = {
     obs_initialize: () => void,
     auth_authenticate: () => string,
     auth_get_session:  () => { data: SessionData, status: SessionStatus },
-    obs_available_windows: () => IInput[]
+    obs_available_windows: (game: boolean) => WindowInformation[],
+    obs_available_monitors: () => number,
+    obs_preview_init: ({ width, height, x, y}: ClientBoundRecReturn) => ({ height: number }),
+    obs_switch_desktop: (monitor_id: number) => void,
+    obs_switch_game: (options: GameOptions) => void,
+    obs_resize_preview: ({ width, height, x, y}: ClientBoundRecReturn) => ({ height: number }),
 }
 
 export type MainToRender = {
