@@ -1,4 +1,4 @@
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import log from "electron-log";
 import lock from "./lock";
 import auth from "./auth";
@@ -12,7 +12,8 @@ export const API = {
     lock,
     obs,
     auth,
-    titlebar
+    titlebar,
+    shutdown: () => ipcRenderer.send("quit-app")
 }
 contextBridge.exposeInMainWorld(
     "api",

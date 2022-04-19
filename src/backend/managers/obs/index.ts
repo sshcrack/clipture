@@ -24,6 +24,7 @@ const log = MainLogger.get("Managers", "OBS")
 export class OBSManager {
     private obsInitialized = false
     private recording = false
+    private displayWindowMap = new Map<string, BrowserWindow>()
 
     constructor() {
         this.register()
@@ -148,6 +149,7 @@ export class OBSManager {
         NodeObs.OBS_content_setPaddingSize(displayId, 0)
         NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255)
 
+        this.displayWindowMap.set(displayId, window);
         return {
             displayId,
             preview: await this.resizePreview(displayId, window, bounds)
@@ -174,6 +176,10 @@ export class OBSManager {
 
     public async removePreview(displayId: string) {
         log.debug("Destroying display with id", displayId)
+        const window = this.displayWindowMap.get(displayId)
+        if(!window)
+            throw new Error("Window with id " + displayId + " could not be found.")
+
         NodeObs.OBS_content_destroyDisplay(displayId)
 
         log.log("Destroyed display with id", displayId)

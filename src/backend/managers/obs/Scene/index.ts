@@ -66,7 +66,7 @@ export class Scene {
         videoSource.save()
 
 
-        const resolution = `${physicalWidth}#${physicalHeight}`
+        const resolution = `${physicalWidth}x${physicalHeight}`
         setSetting(SettingsCat.Video, "Base", resolution)
         setSetting(SettingsCat.Video, "Output", resolution)
 
@@ -80,7 +80,6 @@ export class Scene {
 
     static async switchWindow({ className, executable, title, monitorDimensions, intersectsMultiple }: WindowOptions) {
         const windowId = `${title}:${className}:${executable}`;
-        log.log("Switching to Window View", windowId)
         const videoSource = InputFactory.create("window_capture", this.MAIN_SOURCE);
 
         const settings = videoSource.settings;
@@ -110,6 +109,7 @@ export class Scene {
         const resolution = `${physicalWidth}x${physicalHeight}`
         setSetting(SettingsCat.Video, "Base", resolution)
         setSetting(SettingsCat.Video, "Output", resolution)
+        log.log("Switching to Window View with id ", windowId, "and resolution", resolution)
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)

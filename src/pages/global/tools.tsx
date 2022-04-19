@@ -1,15 +1,16 @@
 import { ChakraProvider } from "@chakra-ui/react";
-import '../../components/titlebar/style.css'
 import * as React from 'react';
-import { createRoot } from "react-dom/client"
+import { createRoot } from "react-dom/client";
 import { TitleBar } from 'src/components/titlebar';
-
+import '../../components/titlebar/style.css';
 import theme from "./theme";
+
 
 
 export function renderMain(Comp: () => JSX.Element) {
     const app = document.getElementById("app")
     const root = createRoot(app)
+    window.onbeforeunload = () => window.api.shutdown();
 
     console.log("Rendering...")
     root.render(

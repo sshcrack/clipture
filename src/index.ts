@@ -3,7 +3,8 @@ require('source-map-support').install();
 
 import { ProcessManager } from '@backend/managers/process';
 import { registerFuncs } from '@backend/registerFuncs';
-import { app, BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainGlobals } from './Globals/mainGlobals';
 import { MainLogger } from './interfaces/mainLogger';
@@ -76,9 +77,22 @@ app.on('activate', () => {
   }
 });
 
-app.on("will-quit", () => {
+let alreadyShutdown = false
+
+const handleExit = () => {
+  if (alreadyShutdown)
+    return
+
+  logger.log("Shutting down...")
+  alreadyShutdown = true
   MainGlobals.obs.shutdown()
   ProcessManager.exit()
+}
+
+ipcMain.handle("quit-app", () => handleExit())
+app.on("will-quit", () => {
+  handleExit()
 })
 
+exitHook(() => handleExit())
 registerFuncs.map(e => e())
