@@ -24,7 +24,6 @@ const log = MainLogger.get("Managers", "OBS")
 export class OBSManager {
     private obsInitialized = false
     private recording = false
-    private readonly displayId = "previewDisplay"
 
     constructor() {
         this.register()
@@ -135,23 +134,27 @@ export class OBSManager {
 
     public async initPreview(event: IpcMainInvokeEvent, bounds: ClientBoundRecReturn) {
         const window = webContentsToWindow(event.sender)
-        log.info("Initializing preview on", window.id)
         const handle = window.getNativeWindowHandle()
+        const displayId = "PREVIEW_" + uuid()
+        log.info("Initializing preview on", window.id)
+        log.info("Creating Preview Display on id", displayId)
 
         NodeObs.OBS_content_createSourcePreviewDisplay(
             handle,
             Scene.get().name,
-            this.displayId
+            displayId
         )
+        NodeObs.OBS_content_setShouldDrawUI(displayId, false)
+        NodeObs.OBS_content_setPaddingSize(displayId, 0)
+        NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255)
 
-        NodeObs.OBS_content_setShouldDrawUI(this.displayId, false)
-        NodeObs.OBS_content_setPaddingSize(this.displayId, 0)
-        NodeObs.OBS_content_setPaddingColor(this.displayId, 255, 255, 255)
-
-        return await this.resizePreview(window, bounds)
+        return {
+            displayId,
+            preview: await this.resizePreview(displayId, window, bounds)
+        }
     }
 
-    public async resizePreview(window: BrowserWindow, bounds: ClientBoundRecReturn) {
+    public async resizePreview(displayId: string, window: BrowserWindow, bounds: ClientBoundRecReturn) {
         const winBounds = window.getBounds();
         const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
 
@@ -164,9 +167,16 @@ export class OBSManager {
         const displayX = Math.floor(bounds.x);
         const displayY = Math.floor(bounds.y);
 
-        NodeObs.OBS_content_resizeDisplay(this.displayId, displayWidth * scaleFactor, displayHeight * scaleFactor);
-        NodeObs.OBS_content_moveDisplay(this.displayId, displayX * scaleFactor, displayY * scaleFactor);
+        NodeObs.OBS_content_resizeDisplay(displayId, displayWidth * scaleFactor, displayHeight * scaleFactor);
+        NodeObs.OBS_content_moveDisplay(displayId, displayX * scaleFactor, displayY * scaleFactor);
         return { height: displayHeight }
+    }
+
+    public async removePreview(displayId: string) {
+        log.debug("Destroying display with id", displayId)
+        NodeObs.OBS_content_destroyDisplay(displayId)
+
+        log.log("Destroyed display with id", displayId)
     }
 
     public async startRecording() {
@@ -210,7 +220,8 @@ export class OBSManager {
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
         reg.onPromise("obs_preview_init", (e, bounds) => this.initPreview(e, bounds))
-        reg.onPromise("obs_resize_preview", (e, bounds) => this.resizePreview(webContentsToWindow(e.sender), bounds))
+        reg.onPromise("obs_preview_resize", (e, id, bounds) => this.resizePreview(id, webContentsToWindow(e.sender), bounds))
+        reg.onPromise("obs_preview_destroy", (_, id) => this.removePreview(id))
         reg.onPromise("obs_start_recording", () => this.startRecording())
         reg.onPromise("obs_stop_recording", () => this.stopRecording())
         reg.onSync("obs_is_recording", () => this.isRecording())

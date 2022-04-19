@@ -1,9 +1,9 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { Button, Flex, Heading, Menu, Text } from '@chakra-ui/react';
+import { Button, Flex, Menu, Text } from '@chakra-ui/react';
+import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { AiOutlineCompass } from "react-icons/ai";
-import { BsCameraReelsFill } from "react-icons/bs"
-import { motion } from "framer-motion"
+import { BsCameraReelsFill } from "react-icons/bs";
 import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
@@ -15,6 +15,11 @@ export function NavBar({ data }: { data: SessionData }) {
     const { auth, obs } = window.api
     const [recording, setRecording] = useState(false)
     const [recordDesc, setRecordDesc] = useState("Unknown")
+    const computed = getComputedStyle(document.body)
+    const brandPrimary = computed.getPropertyValue("--chakra-colors-brand-primary")
+    const brandSecondary = computed.getPropertyValue("--chakra-colors-brand-secondary")
+
+    console.log("primary", brandPrimary, brandSecondary)
 
     useEffect(() => {
         obs.onRecordChange(r => {
@@ -72,20 +77,30 @@ export function NavBar({ data }: { data: SessionData }) {
                 />
             </Flex>
             <Flex
-                justifyContent='center'
                 alignItems='center'
                 flexDir='column'
                 h='100%'
                 w='100%'
                 flex='.25'
             >
-                <Flex>
+                <Flex
+                    flexDir='row'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    w='75%'
+                    h='100%'
+                >
                     <motion.div
-                        animate={{ "--fillColor": recording ? "rgb(0, 255, 0)" : "rgb(255, 0, 0)", scale: recording ? 1 : 0 } as any}
+                        animate={{
+                            "--fillColor": recording ? "rgb(0, 255, 0)" : "rgb(255, 0, 0)",
+                            scale: recording ? 1 : 0,
+                            rotate: recording ? 0 : -180
+                        } as any}
                         transition={{ type: "spring" }}
                     >
-                        <BsCameraReelsFill style={{ fill: "var(--fillColor" }} />
+                        <BsCameraReelsFill style={{ fill: "var(--fillColor", width: "2em", height: "2em" }} />
                     </motion.div>
+
                     <motion.div
                         animate={{ "--textColor": recording ? "rgb(0,255,0)" : "rgb(255,0,0)" } as any}
                     >
@@ -94,13 +109,32 @@ export function NavBar({ data }: { data: SessionData }) {
                         >{recording ? recordDesc : "Not Recording"}</Text>
                     </motion.div>
                 </Flex>
-                <Button onClick={() => {
-                    if (!recording)
-                        obs.startRecording()
-                    else
-                        obs.stopRecording()
-                }}>{recording ? "Stop" : "Start"} Recording</Button>
+
+                <Flex
+                    justifyContent='center'
+                    alignItems='center'
+                    w='100%'
+                    h='100%'
+                >
+                    <motion.div
+                        animate={{
+                            "--color-primary": recording ? "rgba(0,0,0,0)" : brandPrimary,
+                            "--color-secondary": recording ? "rgba(0,0,0,0)" : brandSecondary,
+                        } as any}
+                    >
+                        <Button
+                            className='navbar-record-button'
+                            _hover={{ backgroundPosition: "100%" }}
+                            onClick={() => {
+                                if (!recording)
+                                    obs.startRecording()
+                                else
+                                    obs.stopRecording()
+                            }}
+                        >{recording ? "Stop" : "Start"} Recording</Button>
+                    </motion.div>
+                </Flex>
             </Flex>
-        </Menu>
-    </Flex>
+        </Menu >
+    </Flex >
 }

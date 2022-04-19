@@ -13,7 +13,8 @@ const obs = {
     initialize: () => reg.emitPromise("obs_initialize"),
 
     preview_init: (rect: ClientBoundRecReturn) => reg.emitPromise("obs_preview_init", rect),
-    resizePreview: (react: ClientBoundRecReturn) => reg.emitPromise("obs_resize_preview", react),
+    preview_destroy: (id: string) => reg.emitPromise("obs_preview_destroy", id),
+    resizePreview: (id: string, react: ClientBoundRecReturn) => reg.emitPromise("obs_preview_resize", id, react),
 
 
     availableMonitors: () => reg.emitPromise("obs_available_monitors"),

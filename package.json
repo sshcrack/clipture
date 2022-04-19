@@ -107,7 +107,7 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "11",
     "@emotion/styled": "11",
-    "@streamlabs/obs-studio-node": "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.5/obs-studio-node.tar.gz",
+    "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\archive-1.tar.gz",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
     "electron-log": "^4.4.6",

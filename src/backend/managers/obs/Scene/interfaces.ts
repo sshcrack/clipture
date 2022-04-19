@@ -2,7 +2,14 @@ export interface WindowInformation {
     className: string,
     executable: string,
     title: string,
-    pid: number
+    pid: number,
+    hwnd: number,
+    productName: string,
+    monitorDimensions?: {
+        width: number,
+        height: number
+    },
+    intersectsMultiple: boolean
 }
 
 export enum CurrentSetting {

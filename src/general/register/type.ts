@@ -25,10 +25,15 @@ export type RegisterEventsPromises = {
     obs_initialize: () => void,
     obs_available_windows: (game: boolean) => WindowInformation[],
     obs_available_monitors: () => number,
-    obs_preview_init: ({ width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
+    obs_preview_init: ({ width, height, x, y }: ClientBoundRecReturn) => {
+        displayId: string,
+        preview: { height: number }
+    },
+    obs_preview_destroy: (id: string) => void,
+    obs_preview_resize: (displayId: string, { width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
+
     obs_switch_desktop: (monitor_id: number) => void,
     obs_switch_window: (options: WindowOptions) => void,
-    obs_resize_preview: ({ width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
     obs_start_recording: () => void,
     obs_stop_recording: () => void
 }

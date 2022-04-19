@@ -1,15 +1,15 @@
 import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
-import { InputFactory, IScene, ITransformInfo, SceneFactory } from '@streamlabs/obs-studio-node';
-import { screen } from 'electron';
+import { InputFactory, IScene, SceneFactory } from '@streamlabs/obs-studio-node';
+import { BrowserWindow, screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { EAlignment, EBoundsType, SettingsCat } from 'src/types/obs/obs-enums';
 import { v4 as uuid } from "uuid";
 import { setOBSSetting as setSetting } from '../base';
 import { AudioSceneManager } from './audio';
-import { getDisplayInfoFromIndex } from "./display";
-import { CurrentSetting, CurrentSettingDescription, WindowInformation, WindowOptions } from './interfaces';
+import { getDisplayInfo, getDisplayInfoFromIndex } from "./display";
+import { CurrentSetting, WindowInformation, WindowOptions } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene")
 
@@ -72,10 +72,13 @@ export class Scene {
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)
-        sceneItem.scale = { x: 1, y: 1 }
+
+        sceneItem.bounds = { x: physicalWidth, y: physicalHeight }
+        sceneItem.boundsType = EBoundsType.ScaleInner as number
+        sceneItem.alignment = EAlignment.TopLeft as number
     }
 
-    static async switchWindow({ className, executable, title }: WindowOptions) {
+    static async switchWindow({ className, executable, title, monitorDimensions, intersectsMultiple }: WindowOptions) {
         const windowId = `${title}:${className}:${executable}`;
         log.log("Switching to Window View", windowId)
         const videoSource = InputFactory.create("window_capture", this.MAIN_SOURCE);
@@ -91,8 +94,19 @@ export class Scene {
         videoSource.save()
 
 
-        const physicalHeight = 1080
-        const physicalWidth = 1920
+        const allDisplays = screen.getAllDisplays()
+        const largestMonitor = allDisplays
+            .reduce(((a, b) => a.size.height * a.size.width > b.size.height * b.size.width ? a : b))
+
+        let { physicalHeight, physicalWidth } = intersectsMultiple && monitorDimensions ? {
+            physicalWidth: monitorDimensions.width,
+            physicalHeight: monitorDimensions.height
+        } : {
+            physicalHeight: largestMonitor.size.height,
+            physicalWidth: largestMonitor.size.width
+        }
+
+
         const resolution = `${physicalWidth}x${physicalHeight}`
         setSetting(SettingsCat.Video, "Base", resolution)
         setSetting(SettingsCat.Video, "Output", resolution)
@@ -114,8 +128,8 @@ export class Scene {
             const res = JSON.parse(stdout) as WindowInformation[]
             log.debug(res)
             return res
-        } catch {
-            throw new Error(out.all)
+        } catch (e) {
+            throw [new Error(`Stdout: ${out.stdout} Stderr: ${out.stderr} Code: ${out.exitCode}`), e]
         }
     }
 
