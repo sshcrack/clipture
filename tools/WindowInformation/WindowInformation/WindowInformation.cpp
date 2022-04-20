@@ -96,7 +96,7 @@ bool GetExe(HWND wnd, string& executable, bool fullPath = false) {
 
 bool invalidChar(char c)
 {
-    return c == 0;
+    return c == 0 || !(c >= 0 && c < 128);
 }
 void stripUnicode(string& str)
 {
@@ -170,8 +170,9 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
     }
 
     string hwnd_str = to_string((int)hwnd);
+    string is_focused = IsFocused(hwnd) ? "true" : "false";
 
-    str = std::format("{{\"className\": \"{}\", \"executable\": \"{}\", \"title\": \"{}\", \"pid\": {}, \"productName\": {}, \"hwnd\": {}, \"full_exe\": \"{}\", \"monitorDimensions\": {}, \"intersectsMultiple\": {} }}", className, exe, title, str_pid, final_product_name, hwnd_str, full_exe, final_monitor, intersects);
+    str = std::format("{{\"className\": \"{}\", \"executable\": \"{}\", \"title\": \"{}\", \"pid\": {}, \"productName\": {}, \"hwnd\": {}, \"full_exe\": \"{}\", \"monitorDimensions\": {}, \"intersectsMultiple\": {}, \"focused\": {} }}", className, exe, title, str_pid, final_product_name, hwnd_str, full_exe, final_monitor, intersects, is_focused);
     return true;
 }
 

@@ -14,5 +14,5 @@ export const registerFuncs = [
     () => AuthManager.register(),
     () => TitlebarManager.register(),
     () => Scene.register(),
-    () => ProcessManager.initialize()
+    () => ProcessManager.register()
 ]

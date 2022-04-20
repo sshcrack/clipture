@@ -6,21 +6,20 @@ import Preview from './preview';
 
 const log = RenderLogger.get("obs", "clips")
 export default function Clips() {
-    const { obs } = window.api
+    const { obs, process } = window.api
     const [availableMonitors, setAvailableMonitors] = useState(NaN)
-    const [availableWindows, setAvilableWindows] = useState<WindowInformation[]>(null)
+    const [availableWindows, setAvailableWindows] = useState<WindowInformation[]>(null)
 
 
     useEffect(() => {
         obs.availableMonitors()
             .then(res => setAvailableMonitors(res))
 
-        obs.availableWindows(true)
-            .then(res => setAvilableWindows(res))
+        process.availableWindows(true)
+            .then(res => setAvailableWindows(res))
     }, [])
 
     const buttons = [] as ReactNode[]
-
     if (availableMonitors !== NaN) {
         for (let i = 0; i < availableMonitors; i++) {
             buttons.push(<Button key={'btn' + i} onClick={() => obs.switchDesktop(i)}>{i}</Button>)
@@ -39,7 +38,9 @@ export default function Clips() {
         w='100%'
         h='100%'
     >
-        {buttons}
+        <Flex w='65%'>
+            {buttons}
+        </Flex>
         <Preview />
     </Flex>
 }

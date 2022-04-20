@@ -31,7 +31,9 @@ export class RegManMain {
         const registered = this.eventProm.includes(event)
         if (registered) {
             log.error(new Error(`Tried to register event '${event}' more than once. `))
+            return
         }
+        log.debug("Registering prom event:", event)
 
         this.eventProm.push(event)
         return ipcMain.handle(event, (e, ...args) => callback(e, ...args as any)

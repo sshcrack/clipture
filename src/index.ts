@@ -94,5 +94,9 @@ app.on("will-quit", () => {
   handleExit()
 })
 
+process.on("unhandledRejection", e => {
+  logger.error("Unhandled rejection", e)
+})
+
 exitHook(() => handleExit())
 registerFuncs.map(e => e())

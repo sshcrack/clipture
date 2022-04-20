@@ -3,7 +3,7 @@ import { LockedReturnType } from '@backend/managers/lock/interface'
 import { WindowInformation, WindowOptions } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import { Progress } from '@backend/processors/events/interface'
-import { ProcessDescriptor } from 'ps-list'
+import { UseToastOptions } from '@chakra-ui/react'
 
 export type RegisterEvents = {
     obs_is_initialized: () => boolean,
@@ -21,9 +21,9 @@ export type RegisterEventsPromises = {
     auth_authenticate: () => string,
     auth_get_session: () => { data: SessionData, status: SessionStatus },
 
+    process_available_windows: (game: boolean) => WindowInformation[],
 
     obs_initialize: () => void,
-    obs_available_windows: (game: boolean) => WindowInformation[],
     obs_available_monitors: () => number,
     obs_preview_init: ({ width, height, x, y }: ClientBoundRecReturn) => {
         displayId: string,
@@ -41,8 +41,9 @@ export type RegisterEventsPromises = {
 export type MainToRender = {
     lock_update: (locked: boolean, prog: Progress) => void,
     auth_update: () => void,
-    process_create: (details: ProcessDescriptor[]) => void,
+    process_update: (old: WindowInformation[], details: WindowInformation[]) => void,
     obs_record_change: (recording: boolean) => void,
+    toast_show: (options: UseToastOptions) => void
 }
 
 export type Prefixes = "obs"

@@ -18,7 +18,6 @@ const obs = {
 
 
     availableMonitors: () => reg.emitPromise("obs_available_monitors"),
-    availableWindows: (game: boolean) => reg.emitPromise("obs_available_windows", game),
 
     switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
     switchWindow: (options: WindowOptions) => reg.emitPromise("obs_switch_window", options),

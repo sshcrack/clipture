@@ -241,3 +241,8 @@ extern bool GetMonitorDimensions(HMONITOR monitor, int& width, int& height)
 	height = info.rcMonitor.bottom - info.rcMonitor.top;
 	return true;
 }
+
+extern bool IsFocused(HWND hwnd)
+{
+	return GetForegroundWindow() == hwnd;
+}
