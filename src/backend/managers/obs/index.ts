@@ -59,6 +59,7 @@ export class OBSManager {
             status: "OBS initialized"
         })
 
+        this.recordManager.initialize()
         this.obsInitialized = true
     }
 

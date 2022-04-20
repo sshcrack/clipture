@@ -3,11 +3,13 @@ require('source-map-support').install();
 
 import { ProcessManager } from '@backend/managers/process';
 import { registerFuncs } from '@backend/registerFuncs';
+import { RegManMain } from '@general/register/main';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainGlobals } from './Globals/mainGlobals';
 import { MainLogger } from './interfaces/mainLogger';
+import { addCrashHandler, addUpdater } from './main_funcs';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -94,9 +96,10 @@ app.on("will-quit", () => {
   handleExit()
 })
 
-process.on("unhandledRejection", e => {
-  logger.error("Unhandled rejection", e)
-})
+logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
+addCrashHandler()
+addUpdater()
+
 
 exitHook(() => handleExit())
 registerFuncs.map(e => e())

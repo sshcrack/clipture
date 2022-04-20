@@ -12,15 +12,15 @@ import { v4 as uuid } from "uuid";
 import { setOBSSetting as setSetting } from '../base';
 import { AudioSceneManager } from './audio';
 import { getDisplayInfoFromIndex } from "./display";
-import { CurrentSetting, DetectableGame, WindowOptions } from './interfaces';
+import { CurrentSetting, WindowInformation } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene")
 
 export class Scene {
     private static readonly SCENE_ID = `main_scene_clipture-${uuid()}`
-    private static readonly MAIN_SOURCE = "main_source"
+    private static readonly MAIN_WIN_SOURCE = "main_source"
+    private static readonly MAIN_GAME_SOURCE = "main_source_game"
     private static _scene: IScene;
-    private static detectableGames: DetectableGame[] = []
     private static _setting: CurrentSetting = null;
 
     static async initialize() {
@@ -31,20 +31,6 @@ export class Scene {
         } catch (e) {
             this._scene = SceneFactory.create(this.SCENE_ID)
         }
-
-        const res = await got(Globals.gameUrl)
-            .then(e => JSON.parse(e.body))
-            .catch(e => {
-                log.warn("Could not fetch game info from url", Globals.gameUrl, e)
-                RegManMain.send("toast_show", {
-                    title: "Warning",
-                    description: "Could not get detectable games, please check your internet connection or hit record manually",
-                    duration: 25000
-                } as UseToastOptions)
-                return undefined
-            })
-
-        this.detectableGames = res ?? []
 
         AudioSceneManager.initializeAudioSources(this._scene)
     }
@@ -75,7 +61,7 @@ export class Scene {
 
     static async switchDesktop(monitor: number) {
         log.log("Switching to Desktop View with monitor", monitor)
-        const videoSource = InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_SOURCE);
+        const videoSource = InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
         const { physicalWidth, physicalHeight } = await getDisplayInfoFromIndex(monitor)
 
         const settings = videoSource.settings;
@@ -97,20 +83,35 @@ export class Scene {
         sceneItem.bounds = { x: physicalWidth, y: physicalHeight }
         sceneItem.boundsType = EBoundsType.ScaleInner as number
         sceneItem.alignment = EAlignment.TopLeft as number
+
+
+        this._setting = {
+            window: null,
+            monitor: monitor
+        }
     }
 
-    static async switchWindow({ className, executable, title, monitorDimensions, intersectsMultiple }: WindowOptions) {
+    static async switchWindow(options: WindowInformation) {
+        const { className, executable, title, monitorDimensions, intersectsMultiple } = options
         const windowId = `${title}:${className}:${executable}`;
-        const videoSource = InputFactory.create("window_capture", this.MAIN_SOURCE);
+        log.debug("Window id is", windowId)
+        const windowSource = InputFactory.create("window_capture", this.MAIN_WIN_SOURCE);
+        const gameSource = InputFactory.create("game_capture", this.MAIN_GAME_SOURCE)
 
-        const settings = videoSource.settings;
-        settings["capture_mode"] = "window"
-        settings['compatibility'] = true;
-        settings['client_area'] = true;
-        settings['window'] = windowId;
+        const windowSettings = windowSource.settings;
+        windowSettings["capture_mode"] = "window"
+        windowSettings['compatibility'] = true;
+        windowSettings['client_area'] = true;
+        windowSettings['window'] = windowId;
 
-        videoSource.update(settings)
-        videoSource.save()
+        const gameSettings = gameSource.settings;
+        gameSettings['window'] = windowId;
+
+        gameSource.update(gameSettings)
+        gameSource.save()
+
+        windowSource.update(windowSettings)
+        windowSource.save()
 
 
         const allDisplays = screen.getAllDisplays()
@@ -132,11 +133,21 @@ export class Scene {
         log.log("Switching to Window View with id ", windowId, "and resolution", resolution)
 
         this.removeMainSource()
-        const sceneItem = this._scene.add(videoSource)
+        const windowItem = this._scene.add(windowSource)
+        const gameItem = this._scene.add(gameSource)
 
-        sceneItem.bounds = { x: physicalWidth, y: physicalHeight }
-        sceneItem.boundsType = EBoundsType.ScaleInner as number
-        sceneItem.alignment = EAlignment.TopLeft as number
+        windowItem.bounds = { x: physicalWidth, y: physicalHeight }
+        windowItem.boundsType = EBoundsType.ScaleInner as number
+        windowItem.alignment = EAlignment.TopLeft as number
+
+        gameItem.bounds = { x: physicalWidth, y: physicalHeight }
+        gameItem.boundsType = EBoundsType.ScaleInner as number
+        gameItem.alignment = EAlignment.TopLeft as number
+
+        this._setting = {
+            window: options,
+            monitor: null
+        }
     }
 
     private static removeAllItems() {
@@ -146,7 +157,7 @@ export class Scene {
 
     private static removeMainSource() {
         this._scene.getItems()
-            .filter(i => i.source.name === this.MAIN_SOURCE)
+            .filter(i => i.source.name === this.MAIN_WIN_SOURCE || i.source.name === this.MAIN_GAME_SOURCE)
             .map(e => e.remove())
     }
 }

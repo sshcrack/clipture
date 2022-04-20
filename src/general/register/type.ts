@@ -1,6 +1,6 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
 import { LockedReturnType } from '@backend/managers/lock/interface'
-import { WindowInformation, WindowOptions } from '@backend/managers/obs/Scene/interfaces'
+import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import { Progress } from '@backend/processors/events/interface'
 import { UseToastOptions } from '@chakra-ui/react'
@@ -33,7 +33,7 @@ export type RegisterEventsPromises = {
     obs_preview_resize: (displayId: string, { width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
 
     obs_switch_desktop: (monitor_id: number) => void,
-    obs_switch_window: (options: WindowOptions) => void,
+    obs_switch_window: (options: WindowInformation) => void,
     obs_start_recording: () => void,
     obs_stop_recording: () => void
 }

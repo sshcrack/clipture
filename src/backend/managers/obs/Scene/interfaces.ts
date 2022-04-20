@@ -19,8 +19,6 @@ export type CurrentSetting = null | {
     monitor?: number
 }
 
-export type WindowOptions = Omit<WindowInformation, "pid">
-
 export interface CurrentSettingDescription {
     description: string
 }

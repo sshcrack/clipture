@@ -13,16 +13,12 @@ export default function Preview() {
         if (!preview?.current || displayId)
             return
 
-
         const { width, height, x, y } = preview.current.getBoundingClientRect()
         obs.preview_init({ width, height, x, y })
             .then(({ displayId }) => {
-                console.log("Setting display id to", displayId)
                 setDisplayId(displayId)
             })
     }, [preview])
-
-
 
     return <Flex
         className='previewContainer'
@@ -40,7 +36,6 @@ function InnerPreview({ displayId, preview }: { displayId: string, preview: Muta
             return
 
         const { width, height, x, y } = preview.current.getBoundingClientRect()
-        log.debug("Display id is", displayId, "sending resize")
         if (displayId) {
             obs.resizePreview(displayId, { width, height, x, y })
         }

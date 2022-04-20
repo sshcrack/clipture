@@ -1,4 +1,4 @@
-import { WindowOptions } from '@backend/managers/obs/Scene/interfaces';
+import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn } from '@backend/managers/obs/types';
 import { RegManRender } from '@register/render';
 
@@ -20,13 +20,14 @@ const obs = {
     availableMonitors: () => reg.emitPromise("obs_available_monitors"),
 
     switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
-    switchWindow: (options: WindowOptions) => reg.emitPromise("obs_switch_window", options),
+    switchWindow: (options: WindowInformation) => reg.emitPromise("obs_switch_window", options),
 
 
     startRecording: () => reg.emitPromise("obs_start_recording"),
     stopRecording: () => reg.emitPromise("obs_stop_recording"),
     onRecordChange: (callback: ListenerType) => listeners.push(callback),
-    recordDescription: () => reg.emitSync("obs_get_record_description")
+    recordDescription: () => reg.emitSync("obs_get_record_description"),
+    isRecording: () => reg.emitSync("obs_is_recording")
 }
 
 export default obs;

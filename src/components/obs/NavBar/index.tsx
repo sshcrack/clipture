@@ -13,7 +13,7 @@ import NavBarButton from './NavBarButton';
 export function NavBar({ data }: { data: SessionData }) {
     const { image, name } = data.user
     const { auth, obs } = window.api
-    const [recording, setRecording] = useState(false)
+    const [recording, setRecording] = useState(() => window.api.obs.isRecording())
     const [recordDesc, setRecordDesc] = useState("Unknown")
     const computed = getComputedStyle(document.body)
     const brandPrimary = computed.getPropertyValue("--chakra-colors-brand-primary")

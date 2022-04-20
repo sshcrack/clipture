@@ -40,6 +40,13 @@ export class ProcessManager {
         while (!this.shouldExit) {
             await this.timeout(1000)
             const curr = await this.getAvailableWindows(true)
+                .catch(e => {
+                    log.error("Failed to get available windows", e)
+                    return undefined
+                }) as WindowInformation[]
+
+            if(!curr)
+                continue;
 
             const diff = [
                 // New processes
@@ -52,8 +59,10 @@ export class ProcessManager {
                 ...(this.prevProcesses.filter(e =>
                     !curr.some(f => f.pid === e.pid)
                 ) as WindowInformation[])
-            ]
+            ].filter((e, i, a) => a.findIndex(f => f.pid === e.pid) === i)
+
             if (diff.length > 0) {
+                log.debug("Notifying listeners", this.listeners.length, "...")
                 this.listeners.map(e => e(diff))
                 RegManMain.send("process_update", this.prevProcesses, diff)
             }
