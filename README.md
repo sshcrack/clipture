@@ -1,7 +1,9 @@
 # Clipture
 ## ☄ Record your favourite moments self-hosted!
 
-# <a href="#download">Download & Install (Windows only)</a>
+# Download & Install (Windows only)
+<!-- BEGIN LATEST DOWNLOAD BUTTON -->
+<!-- END LATEST DOWNLOAD BUTTON -->
 
 ## Selfhosting
 Make sure you have yarn installed, if not sure:
