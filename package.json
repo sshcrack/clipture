@@ -22,6 +22,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
+        "icon": "./src/assets/main/logo.ico",
         "afterExtract": [
           "copy_natives.js"
         ]
@@ -32,9 +33,9 @@
           "config": {
             "name": "clipture",
             "authors": "sshcrack",
-            "description": "Clip your best ingame moments using clipture!",
-            "loadingGif": "src/assets/loading.gif",
-            "icon": "src/assets/logo.ico"
+            "description": "Clip your best in-game moments using clipture!",
+            "loadingGif": "src/assets/renderer/loading.gif",
+            "icon": "src/assets/main/logo.ico"
           }
         }
       ],
@@ -58,7 +59,6 @@
         [
           "@electron-forge/plugin-webpack",
           {
-            "devContentSecurityPolicy": "default-src 'self' data: 'unsafe-inline' 'unsafe-eval' https://cdn.discordapp.com https://clipture.sshcrack.me; connect-src 'self' http://localhost:3000 https://clipture.sshcrack.me;",
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
               "config": "./webpack.renderer.config.js",
@@ -92,13 +92,14 @@
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
-    "@vercel/webpack-asset-relocator-loader": "1.7.0",
+    "@vercel/webpack-asset-relocator-loader": "^1.7.2",
     "css-loader": "^6.0.0",
     "electron": "18.0.3",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.0.1",
+    "native-ext-loader": "^2.3.0",
     "node-loader": "^2.0.0",
     "style-loader": "^3.0.0",
     "ts-loader": "^9.2.2",
@@ -122,6 +123,7 @@
     "framer-motion": "6",
     "got": "^11.8.3",
     "jszip": "^3.9.1",
+    "node-addon-loader": "^0.0.6",
     "node-notifier": "^10.0.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",

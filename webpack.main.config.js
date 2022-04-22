@@ -15,6 +15,9 @@ module.exports = {
   module: {
     rules: require('./webpack.rules'),
   },
+  node: {
+    __dirname: false,
+  },
   plugins: [
     new CopyWebpackPlugin({
       patterns: assets.map(asset => {
@@ -32,6 +35,7 @@ module.exports = {
       new TsconfigPathsPlugin({})
     ]
   },
+  devtool: "source-map",
   externals: {
     "@streamlabs/obs-studio-node": "@streamlabs/obs-studio-node"
   }
