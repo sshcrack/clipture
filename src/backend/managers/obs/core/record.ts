@@ -53,7 +53,6 @@ export class RecordManager {
             const os = getOS()
             this.detectableGames = this.detectableGames ?? await this.getDetectableGames()
 
-            log.debug("Checking matching games...")
             const matchingGames = info.filter(e => {
                 return this.detectableGames.some(g =>
                     g?.executables?.some(exe => e.full_exe.toLowerCase().endsWith(exe.name.toLowerCase()) && exe.os === os)

@@ -48,7 +48,7 @@ export class AuthManager {
                 return reject(new Error("Timeout of " + this.TIMEOUT + "ms exceeded"))
             }
 
-            if(id !== this.currId) {
+            if (id !== this.currId) {
                 log.warn("AutoFetch has been aborted, because another one started")
                 return reject(new Error("AutoFetch has been aborted, because another one started"))
             }
@@ -59,7 +59,11 @@ export class AuthManager {
                 .catch(() => null)
 
             if (res?.reported) {
-                return resolve(res.entry)
+                const { csrf, session} = res.entry;
+                return resolve({
+                    "next-auth.csrf-token": csrf,
+                    "next-auth.session-token": session
+                })
             }
 
             setTimeout(() => this.authFetch(id, startTime)
@@ -100,7 +104,7 @@ export class AuthManager {
             }
         }).then(e => JSON.parse(e.body) as SessionData)
 
-        if(Object.keys(response).length === 0)
+        if (Object.keys(response).length === 0)
             return {
                 data: undefined,
                 status: SessionStatus.UNAUTHENTICATED
@@ -126,8 +130,12 @@ export class AuthManager {
 
 interface CheckReturnBody {
     reported: boolean,
-    entry: SessionCookies
+    entry: {
+        session: string,
+        csrf: string
+    }
 }
+
 
 const requiredCookies = [
     "next-auth.csrf-token",

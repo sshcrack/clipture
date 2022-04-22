@@ -23,7 +23,7 @@ export default function LoginPage() {
         m='3'
     >
         <Image
-            src="/assets/logo_text.svg"
+            src="../assets/logo_text.svg"
             h='12'
         />
 

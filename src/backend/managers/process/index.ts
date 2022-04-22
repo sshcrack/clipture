@@ -62,7 +62,6 @@ export class ProcessManager {
             ].filter((e, i, a) => a.findIndex(f => f.pid === e.pid) === i)
 
             if (diff.length > 0) {
-                log.debug("Notifying listeners", this.listeners.length, "...")
                 this.listeners.map(e => e(diff))
                 RegManMain.send("process_update", this.prevProcesses, diff)
             }

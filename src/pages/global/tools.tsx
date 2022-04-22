@@ -16,7 +16,7 @@ export function renderMain(Comp: () => JSX.Element) {
     console.log("Rendering...")
     root.render(
         <ChakraProvider theme={theme}>
-            <TitleBar icon='/assets/logo.svg'/>
+            <TitleBar icon='../assets/logo.svg'/>
             <div style={{height: "calc(100% - 28px)", width: "100%"}}>
                 <ToastNotifier />
                 <Comp />
