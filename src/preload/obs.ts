@@ -19,12 +19,12 @@ const obs = {
 
     availableMonitors: () => reg.emitPromise("obs_available_monitors"),
 
-    switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
-    switchWindow: (options: WindowInformation) => reg.emitPromise("obs_switch_window", options),
+    switchDesktop: (monitor: number, manual: boolean) => reg.emitPromise("obs_switch_desktop", monitor, manual),
+    switchWindow: (options: WindowInformation, manual: boolean) => reg.emitPromise("obs_switch_window", options, manual),
 
 
-    startRecording: () => reg.emitPromise("obs_start_recording"),
-    stopRecording: () => reg.emitPromise("obs_stop_recording"),
+    startRecording: (manual: boolean) => reg.emitPromise("obs_start_recording", manual),
+    stopRecording: (manual: boolean) => reg.emitPromise("obs_stop_recording", manual),
     onRecordChange: (callback: ListenerType) => listeners.push(callback),
     recordDescription: () => reg.emitSync("obs_get_record_description"),
     isRecording: () => reg.emitSync("obs_is_recording")

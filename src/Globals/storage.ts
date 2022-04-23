@@ -7,7 +7,8 @@ import { MainLogger } from 'src/interfaces/mainLogger';
 const log = MainLogger.get("Globals", "Storage")
 
 class StorageExtended<T> extends Store<T> {
-    public setSecure(key: SecureKeys, value: string) {
+    public setSecure(key: string, value: string) {
+        log.debug("Storing value with key", key)
         try {
             const encrypted = safeStorage.encryptString(value)
             const hex = encrypted.toString("hex")
@@ -20,7 +21,7 @@ class StorageExtended<T> extends Store<T> {
         }
     }
 
-    public async getSecure<T = string>(key: SecureKeys, defaultValue?: T): Promise<string | T> {
+    public async getSecure<T = string>(key: string, defaultValue?: T): Promise<string | T> {
         try {
             const encrypted = this.get(getEncryptKey(key) as any) as unknown as string
             if (!encrypted)
@@ -41,7 +42,7 @@ class StorageExtended<T> extends Store<T> {
         }
     }
 
-    public async removeSecure(key: SecureKeys) {
+    public async removeSecure(key: string) {
         const typedKey = key as string;
         this.delete(getEncryptKey(typedKey) as any)
         this.delete(typedKey as any)
@@ -51,9 +52,6 @@ class StorageExtended<T> extends Store<T> {
 function getEncryptKey(key: string) {
     return key + "_encrypted"
 }
-
-export type SecureKeys = "next-auth.csrf-token" | "next-auth.session-token"
-
 
 const defaultInstall = app.getPath("userData")
 const defaultClips = path.join(defaultInstall, "clips")

@@ -72,7 +72,7 @@ export class ProcessManager {
 
     static async getAvailableWindows(game?: boolean) {
         const execa = (await import("execa")).execa
-        const out = await execa(MainGlobals.windowInfoExe, [game ? "game" : ""])
+        const out = await execa(MainGlobals.nativeMngExe, [game ? "game" : ""])
         const stdout = out.stdout
         try {
             const res = JSON.parse(stdout) as WindowInformation[]

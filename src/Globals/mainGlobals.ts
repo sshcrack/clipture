@@ -7,7 +7,8 @@ import path from "path";
 
 export class MainGlobals {
     static window: BrowserWindow
-    static readonly windowInfoExe = __dirname + "/assets/window_info.exe"
+    static readonly nativeMngExe = __dirname + "/assets/native_mng.exe"
+    static readonly iconFile = __dirname + "./assets/logo.ico";
     static obs: OBSManager;
 
 

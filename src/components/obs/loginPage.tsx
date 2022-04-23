@@ -1,10 +1,13 @@
-import { Box, Button, Flex, Grid, GridItem, Heading, Image } from '@chakra-ui/react';
+import { Box, Button, Flex, Grid, GridItem, Heading, Image, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { FaDiscord } from "react-icons/fa";
+import { RenderLogger } from 'src/interfaces/renderLogger';
 
+const log = RenderLogger.get("OBS", "LoginPage")
 export default function LoginPage() {
     const { auth } = window.api
     const [authenticating, setAuthenticating] = useState(false)
+    const toast = useToast()
 
     const SignInBtn = ({ disabled }: { disabled: boolean }) => <Button
         isLoading={disabled}
@@ -43,6 +46,13 @@ export default function LoginPage() {
                         console.log("Box click")
                         setAuthenticating(true)
                         auth.signIn()
+                            .catch(e => {
+                                log.error("Could not authenticate", e)
+                                toast({
+                                    title: "Error",
+                                    description: "Could not authenticate you. For more details view logs.",
+                                })
+                            })
                             .finally(() => setAuthenticating(false))
                     }} style={{ opacity: 0 }}>
                         <SignInBtn disabled={false} />

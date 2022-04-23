@@ -6,13 +6,16 @@
 #include <iostream>
 #include <format>
 #include <windows.h>
-#include <windows.h>
 #include <WinUser.h>
 #include <string>
 
 
 #include <Psapi.h>
 #include <filesystem>
+
+#include <atlstr.h>
+#include <mmdeviceapi.h>
+#include <Functiondiscoverykeys_devpkey.h>
 
 #include "tools.h"
 #include "dstr.h"
@@ -23,93 +26,17 @@
 using namespace std;
 namespace fs = std::filesystem;
 
-void GetWindowClass(HWND wnd, string& className) {
-    TCHAR curr[MAX_PATH];
-    WCHAR path[MAX_PATH];
-
-    GetClassName(wnd, curr, MAX_PATH);
-
-    wstring wclass(curr);
-    string temp(wclass.begin(), wclass.end());
-
-    className = temp;
-}
-
-void GetTitle(HWND hwnd, string& title) {
-    int len; 
-
-    len = GetWindowTextLengthW(hwnd);
-    if (!len)
-        return;
-
-    if (len > 1024) {
-        TCHAR chartemp[2052];
-        if (!GetWindowTextW(hwnd, chartemp, len + 1))
-            return;
-
-        wstring wtemp(chartemp);
-        string temp(wtemp.begin(), wtemp.end());
-
-        title = temp;
+class CCoInitialize {
+private:
+    HRESULT m_hr;
+public:
+    CCoInitialize(PVOID pReserved, HRESULT& hr)
+        : m_hr(E_UNEXPECTED) {
+        hr = m_hr = CoInitialize(pReserved);
     }
-    else {
-        wchar_t chartemp[1024 + 1];
+    ~CCoInitialize() { if (SUCCEEDED(m_hr)) { CoUninitialize(); } }
+};
 
-        if (!GetWindowTextW(hwnd, chartemp, len + 1))
-            return;
-
-        wstring wtemp(chartemp);
-        string temp(wtemp.begin(), wtemp.end());
-
-        title = temp;
-    }
-}
-
-
-
-bool GetExe(HWND wnd, string& executable, bool fullPath = false) {
-    TCHAR path_buf[MAX_PATH];
-    DWORD id[MAX_PATH];
-    GetWindowThreadProcessId(wnd, id);
-
-    HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_TERMINATE, FALSE, *id);
-    if (hProc == 0)
-        return false;
-
-
-    if (GetModuleFileNameEx(hProc, NULL, path_buf, MAX_PATH) == 0)
-        return false;
-
-    wstring wexe(path_buf);
-    string exe(wexe.begin(), wexe.end());
-    CloseHandle(hProc);
-    if (fullPath) {
-        executable = exe;
-        return true;
-    }
-    fs::path p(exe);
-
-    executable = p.filename().string();
-
-    return true;
-}
-
-bool invalidChar(char c)
-{
-    return c == 0 || !(c >= 0 && c < 128);
-}
-void stripUnicode(string& str)
-{
-    str.erase(remove_if(str.begin(), str.end(), invalidChar), str.end());
-}
-
-void replace_json_specals(string& input) {
-    replace_str(input, "\\", "BACKSLASHREPLACEMENTNOONEISGONNAUSEIT");
-    replace_str(input, "\"", "DOUBLEQUOTEREPLACEMENTNOONEISGONNAUSE");
-    replace_str(input, "BACKSLASHREPLACEMENTNOONEISGONNAUSEIT", "\\\\");
-    replace_str(input, "DOUBLEQUOTEREPLACEMENTNOONEISGONNAUSE", "\\\"");
-    stripUnicode(input);
-}
 
 bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
     string full_exe, title, className, productName;
@@ -189,6 +116,46 @@ int main(int argc, char** argv)
 
     if (argc >= 2) {
         string firstArg(argv[1]);
+        if (firstArg.compare("audio") == 0) {
+            HRESULT hr = S_OK;
+            // initialize COM
+            CCoInitialize ci(NULL, hr);
+            if (FAILED(hr)) {
+                cerr << "failed1" << endl;
+                return __LINE__;
+            }
+            // get enumerator
+            CComPtr<IMMDeviceEnumerator> pMMDeviceEnumerator;
+            hr = pMMDeviceEnumerator.CoCreateInstance(__uuidof(MMDeviceEnumerator));
+            if (FAILED(hr)) {
+                cerr << "failed2" << endl;
+                return __LINE__;
+            }
+            // get default render/capture endpoints
+            CComPtr<IMMDevice> pRenderEndpoint;
+            CComPtr<IMMDevice> pCaptureEndpoint;
+
+            hr = pMMDeviceEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pRenderEndpoint);
+            hr = pMMDeviceEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &pCaptureEndpoint);
+            if (FAILED(hr)) {
+                cerr << "failed3" << endl;
+                return __LINE__;
+            }
+
+            if (hr != S_OK) {
+                cerr << hr;
+                exit(-1);
+            }
+
+            LPWSTR renderID = NULL;
+            LPWSTR captureID = NULL;
+            pRenderEndpoint->GetId(&renderID);
+            pCaptureEndpoint->GetId(&captureID);
+
+            printf("{\"desktop\":\"%S\",\"mic\":\"%S\"}", renderID, captureID);
+            exit(0);
+        }
+
         if (firstArg.compare("game") == 0) {
             checkGame = true;
             mode = WindowSearchMode::INCLUDE_MINIMIZED;

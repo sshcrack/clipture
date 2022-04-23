@@ -10,8 +10,6 @@ export type RegisterEvents = {
     obs_is_recording: () => boolean,
     obs_get_record_description: () => string
 
-    auth_signout: () => void
-
     lock_set: (locked: boolean, prog: Progress) => boolean,
     lock_update: (prog: Progress) => void,
     lock_is_locked: () => LockedReturnType,
@@ -20,6 +18,7 @@ export type RegisterEvents = {
 export type RegisterEventsPromises = {
     auth_authenticate: () => string,
     auth_get_session: () => { data: SessionData, status: SessionStatus },
+    auth_signout: () => void,
 
     process_available_windows: (game: boolean) => WindowInformation[],
 
@@ -32,10 +31,10 @@ export type RegisterEventsPromises = {
     obs_preview_destroy: (id: string) => void,
     obs_preview_resize: (displayId: string, { width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
 
-    obs_switch_desktop: (monitor_id: number) => void,
-    obs_switch_window: (options: WindowInformation) => void,
-    obs_start_recording: () => void,
-    obs_stop_recording: () => void
+    obs_switch_desktop: (monitor_id: number, manual: boolean) => void,
+    obs_switch_window: (options: WindowInformation, manual: boolean) => void,
+    obs_start_recording: (manual: boolean) => void,
+    obs_stop_recording: (manual: boolean) => void
 }
 
 export type MainToRender = {

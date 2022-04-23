@@ -18,11 +18,15 @@
     "name": "sshcrack",
     "email": "hendrik.lind777@gmail.com"
   },
+  "build": {
+    "appId": "me.sshcrack.clipture"
+  },
   "license": "MIT",
   "config": {
     "forge": {
       "packagerConfig": {
         "icon": "./src/assets/main/logo.ico",
+        "appBundleId": "me.sshcrack.clipture",
         "afterExtract": [
           "copy_natives.js"
         ]

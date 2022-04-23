@@ -43,7 +43,7 @@ const createWindow = (): void => {
   mainWindow.setMenuBarVisibility(false)
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.maximize()
-  mainWindow.setIcon(__dirname + "./assets/logo.ico")
+  mainWindow.setIcon(MainGlobals.iconFile)
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()

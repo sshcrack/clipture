@@ -32,19 +32,23 @@ export class Scene {
             this._scene = SceneFactory.create(this.SCENE_ID)
         }
 
-        AudioSceneManager.initializeAudioSources(this._scene)
+        await AudioSceneManager.initializeAudioSources(this._scene)
     }
 
     static register() {
-        RegManMain.onPromise("obs_switch_desktop", (_, monitorIndex) => this.switchDesktop(monitorIndex))
-        RegManMain.onPromise("obs_switch_window", (_, options) => this.switchWindow(options))
+        RegManMain.onPromise("obs_switch_desktop", (_, monitorIndex, manual) => this.switchDesktop(monitorIndex, manual))
+        RegManMain.onPromise("obs_switch_window", (_, options, manual) => this.switchWindow(options, manual))
         RegManMain.onPromise("obs_available_monitors", async () => screen.getAllDisplays().length)
         RegManMain.onSync("obs_get_record_description", (_) => {
             const hasScene = !!this._setting
-            const { window, monitor } = this._setting ?? {}
+            const { window, monitor, manual } = this._setting ?? {}
 
-            const recordString = monitor ? `Monitor ${monitor}` : `[${window.executable}]: ${window.title}`
-            return hasScene ? `${recordString}` : "No game detected"
+            const recordString = manual ?
+                "Manually recording" :
+                monitor ? `Monitor ${monitor}` :
+                    window ? `[${window.executable}]: ${window.title}` : "Unknown"
+
+            return hasScene ? `${recordString}` : "Recording blackscreen"
         })
     }
 
@@ -59,7 +63,7 @@ export class Scene {
         return this._scene;
     }
 
-    static async switchDesktop(monitor: number) {
+    static async switchDesktop(monitor: number, manual: boolean) {
         log.log("Switching to Desktop View with monitor", monitor)
         const videoSource = InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
         const { physicalWidth, physicalHeight } = await getDisplayInfoFromIndex(monitor)
@@ -87,11 +91,12 @@ export class Scene {
 
         this._setting = {
             window: null,
-            monitor: monitor
+            monitor: monitor,
+            manual
         }
     }
 
-    static async switchWindow(options: WindowInformation) {
+    static async switchWindow(options: WindowInformation, manual: boolean) {
         const { className, executable, title, monitorDimensions, intersectsMultiple } = options
         const windowId = `${title}:${className}:${executable}`;
         log.debug("Window id is", windowId)
@@ -146,7 +151,8 @@ export class Scene {
 
         this._setting = {
             window: options,
-            monitor: null
+            monitor: null,
+            manual
         }
     }
 

@@ -127,9 +127,9 @@ export function NavBar({ data }: { data: SessionData }) {
                             _hover={{ backgroundPosition: "100%" }}
                             onClick={() => {
                                 if (!recording)
-                                    obs.startRecording()
+                                    obs.startRecording(true)
                                 else
-                                    obs.stopRecording()
+                                    obs.stopRecording(true)
                             }}
                         >{recording ? "Stop" : "Start"} Recording</Button>
                     </motion.div>

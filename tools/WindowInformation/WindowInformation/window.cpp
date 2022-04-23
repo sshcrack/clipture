@@ -11,6 +11,10 @@
 #include <winver.h>
 #include <sdkddkver.h>
 
+
+#include <Psapi.h>
+#include <filesystem>
+
 #include <memory>
 #include <string>
 #include <cstddef>
@@ -23,7 +27,10 @@
 #define SZ_HEX_LANG_ID_EN_US_W L"0409"
 #define SZ_HEX_CODE_PAGE_ID_UNICODE_W L"04B0"
 
+
+
 using namespace std;
+namespace fs = std::filesystem;
 
 extern bool IsUWPWindow(HWND hwnd)
 {
@@ -245,4 +252,77 @@ extern bool GetMonitorDimensions(HMONITOR monitor, int& width, int& height)
 extern bool IsFocused(HWND hwnd)
 {
 	return GetForegroundWindow() == hwnd;
+}
+
+extern bool GetExe(HWND wnd, string& executable, bool fullPath = false)
+{
+	TCHAR path_buf[MAX_PATH];
+	DWORD id[MAX_PATH];
+	GetWindowThreadProcessId(wnd, id);
+
+	HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_TERMINATE, FALSE, *id);
+	if (hProc == 0)
+		return false;
+
+
+	if (GetModuleFileNameEx(hProc, NULL, path_buf, MAX_PATH) == 0)
+		return false;
+
+	wstring wexe(path_buf);
+	string exe(wexe.begin(), wexe.end());
+	CloseHandle(hProc);
+	if (fullPath) {
+		executable = exe;
+		return true;
+	}
+	fs::path p(exe);
+
+	executable = p.filename().string();
+
+	return true;
+}
+
+
+extern void GetTitle(HWND hwnd, string& title)
+{
+	int len;
+
+	len = GetWindowTextLengthW(hwnd);
+	if (!len)
+		return;
+
+	if (len > 1024) {
+		TCHAR chartemp[2052];
+		if (!GetWindowTextW(hwnd, chartemp, len + 1))
+			return;
+
+		wstring wtemp(chartemp);
+		string temp(wtemp.begin(), wtemp.end());
+
+		title = temp;
+	}
+	else {
+		wchar_t chartemp[1024 + 1];
+
+		if (!GetWindowTextW(hwnd, chartemp, len + 1))
+			return;
+
+		wstring wtemp(chartemp);
+		string temp(wtemp.begin(), wtemp.end());
+
+		title = temp;
+	}
+}
+
+extern void GetWindowClass(HWND wnd, string& className)
+{
+	TCHAR curr[MAX_PATH];
+	WCHAR path[MAX_PATH];
+
+	GetClassName(wnd, curr, MAX_PATH);
+
+	wstring wclass(curr);
+	string temp(wclass.begin(), wclass.end());
+
+	className = temp;
 }

@@ -20,12 +20,18 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin({
-      patterns: assets.map(asset => {
-        return {
-          from: path.resolve(__dirname, "src", asset, "main"),
-          to: path.resolve(__dirname, ".webpack/main", asset)
+      patterns: [
+        ...assets.map(asset => {
+          return {
+            from: path.resolve(__dirname, "src", asset, "main"),
+            to: path.resolve(__dirname, ".webpack/main", asset)
+          }
+        }),
+        {
+          from: path.resolve(__dirname, "node_modules/node-notifier/vendor"),
+          to: path.resolve(__dirname, ".webpack/main/vendor")
         }
-      })
+      ]
     }),
     ...plugins
   ],

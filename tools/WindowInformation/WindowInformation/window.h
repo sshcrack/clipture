@@ -20,3 +20,6 @@ extern bool HWNDToMonitor(HWND hwnd, HMONITOR& monitor);
 extern bool InterceptsWithMultipleMonitors(HWND hwnd);
 extern bool GetMonitorDimensions(HMONITOR monitor, int& width, int& height);
 extern bool IsFocused(HWND hwnd);
+extern bool GetExe(HWND wnd, string& executable, bool fullPath = false);
+extern void GetTitle(HWND hwnd, string& title);
+extern void GetWindowClass(HWND wnd, string& className);

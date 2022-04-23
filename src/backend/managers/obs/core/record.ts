@@ -1,26 +1,28 @@
 import { ProcessManager } from '@backend/managers/process'
+import { notify } from '@backend/tools/notifier'
 import { getOS } from '@backend/tools/operating-system'
+import { UseToastOptions } from '@chakra-ui/react'
 import { RegManMain } from '@general/register/main'
+import { Globals } from '@Globals/index'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import fs from "fs/promises"
+import got from 'got/dist/source'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
-import notifier from "node-notifier"
-import { Globals } from '@Globals/index'
-import got from 'got/dist/source'
-import { UseToastOptions } from '@chakra-ui/react'
 
 const reg = RegManMain
 const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
+
 export class RecordManager {
     private recording = false;
     private detectableGames: DetectableGame[] = null
     static instance: RecordManager = null;
     private registeredAutomatic = false;
+    private manualControlled = false;
 
     constructor() {
         if (RecordManager.instance)
@@ -66,13 +68,18 @@ export class RecordManager {
             const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
             if (gameToRecord) {
                 log.debug("Switching to game", gameToRecord)
-                await Scene.switchWindow(gameToRecord)
+                await Scene.switchWindow(gameToRecord, false)
             }
 
 
             log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
-            if (!this.isRecording() && Scene.getCurrentSetting()?.window)
+            if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
                 this.startRecording()
+                notify({
+                    title: "Recording started",
+                    message: `Recording started for ${gameToRecord?.productName ?? gameToRecord?.title ?? gameToRecord.executable}`
+                })
+            }
         }
 
         log.debug("Registering automatic recording stop")
@@ -80,9 +87,9 @@ export class RecordManager {
             const { window, monitor } = Scene.getCurrentSetting() ?? {}
             if (window && this.isRecording()) {
                 const isRunning = processRunning(window.pid)
-                if (!isRunning) {
+                if (!isRunning && !this.manualControlled) {
                     this.stopRecording()
-                    notifier.notify({
+                    notify({
                         title: "Recording stopped",
                         message: `${window.title ?? "Monitor " + monitor} has been recorded successfully`
                     })
@@ -95,12 +102,13 @@ export class RecordManager {
         onNewInfo(curr)
     }
 
-    public async startRecording() {
+    public async startRecording(manual = false) {
         if (this.recording) {
             log.debug("Tried to record even though already recording")
             return
         }
 
+        this.manualControlled = manual;
         const recordPath = NodeObs.OBS_settings_getSettings(SettingsCat.Output)
             .data
             .find(e => e.nameSubCategory === "Recording")
@@ -119,13 +127,14 @@ export class RecordManager {
         RegManMain.send("obs_record_change", true)
     }
 
-    public async stopRecording() {
+    public async stopRecording(manuel = false) {
         if (!this.recording)
             return
 
         log.info("Stopped recording")
         NodeObs.OBS_service_stopRecording()
         this.recording = false
+        this.manualControlled = manuel
         RegManMain.send("obs_record_change", false)
     }
 
@@ -134,8 +143,8 @@ export class RecordManager {
     }
 
     private register() {
-        reg.onPromise("obs_start_recording", () => this.startRecording())
-        reg.onPromise("obs_stop_recording", () => this.stopRecording())
+        reg.onPromise("obs_start_recording", (_, e) => this.startRecording(e))
+        reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
         reg.onSync("obs_is_recording", () => this.isRecording())
     }
 }

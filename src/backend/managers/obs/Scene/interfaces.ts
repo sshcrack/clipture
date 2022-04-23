@@ -16,7 +16,8 @@ export interface WindowInformation {
 
 export type CurrentSetting = null | {
     window: WindowInformation,
-    monitor?: number
+    monitor?: number,
+    manual: boolean
 }
 
 export interface CurrentSettingDescription {

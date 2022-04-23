@@ -91,3 +91,23 @@ extern string ConvertToString(DWORD value)
 {
 	return to_string(value);
 }
+
+
+bool invalidChar(char c)
+{
+	return c == 0 || !(c >= 0 && c < 128);
+}
+void stripUnicode(string& str)
+{
+	str.erase(remove_if(str.begin(), str.end(), invalidChar), str.end());
+}
+
+
+extern void replace_json_specals(string& input)
+{
+	replace_str(input, "\\", "BACKSLASHREPLACEMENTNOONEISGONNAUSEIT");
+	replace_str(input, "\"", "DOUBLEQUOTEREPLACEMENTNOONEISGONNAUSE");
+	replace_str(input, "BACKSLASHREPLACEMENTNOONEISGONNAUSEIT", "\\\\");
+	replace_str(input, "DOUBLEQUOTEREPLACEMENTNOONEISGONNAUSE", "\\\"");
+	stripUnicode(input);
+}
