@@ -3,6 +3,7 @@ import { RegManRender } from '@general/register/render';
 import { contextBridge, ipcRenderer } from 'electron';
 import log from "electron-log";
 import auth from "./auth";
+import clips from "./clips";
 import lock from "./lock";
 import obs from "./obs";
 import process from "./process";
@@ -16,6 +17,7 @@ const toastHandlers = [] as ToastHandlerFunc[]
 RegManRender.on("toast_show", (_, options) => toastHandlers.map(e => e(options)))
 
 export const API = {
+    clips,
     lock,
     obs,
     auth,

@@ -20,8 +20,8 @@ const log = MainLogger.get("Managers", "OBS")
 
 export class OBSManager {
     private obsInitialized = false
-    private previewInstance = new PreviewManager()
-    private recordManager = new RecordManager()
+    public previewInstance = new PreviewManager()
+    public recordManager = new RecordManager()
 
     constructor() {
         this.register()
@@ -45,7 +45,7 @@ export class OBSManager {
             percent: .3,
             status: "Configuring OBS..."
         })
-        await this.configure()
+        this.configure()
 
 
         inst.updateListeners({

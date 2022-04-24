@@ -60,6 +60,10 @@ export const Storage = new StorageExtended({
     defaults: {
         "install_dir": defaultInstall,
         "install_dir_selected": false,
-        "clip_path": defaultClips
+        "clip_path": defaultClips,
+        "audio_devices": {
+            "desktop": [] as string[],
+            "mic": [] as string[]
+        }
     }
 })

@@ -1,6 +1,5 @@
 import { Flex } from '@chakra-ui/react'
-import React, { MutableRefObject } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { RenderLogger } from 'src/interfaces/renderLogger'
 
 const log = RenderLogger.get("obs", "clips", "preview")
@@ -23,7 +22,7 @@ export default function Preview() {
     return <Flex
         className='previewContainer'
         ref={preview}
-        style={{ height: "100%", width: "100%" }}>
+        style={{ height: "100%", width: "100%", background: "red" }}>
             {displayId && preview.current && <InnerPreview displayId={displayId} preview={preview} />}
     </Flex>
 }

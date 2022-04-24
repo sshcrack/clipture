@@ -1,4 +1,5 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
+import { Clip } from '@backend/managers/clip/interface'
 import { LockedReturnType } from '@backend/managers/lock/interface'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
@@ -34,7 +35,9 @@ export type RegisterEventsPromises = {
     obs_switch_desktop: (monitor_id: number, manual: boolean) => void,
     obs_switch_window: (options: WindowInformation, manual: boolean) => void,
     obs_start_recording: (manual: boolean) => void,
-    obs_stop_recording: (manual: boolean) => void
+    obs_stop_recording: (manual: boolean) => void,
+
+    clips_list: () => Clip[]
 }
 
 export type MainToRender = {

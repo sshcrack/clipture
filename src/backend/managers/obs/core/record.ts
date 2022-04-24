@@ -127,14 +127,14 @@ export class RecordManager {
         RegManMain.send("obs_record_change", true)
     }
 
-    public async stopRecording(manuel = false) {
+    public async stopRecording(manual = false) {
         if (!this.recording)
             return
 
         log.info("Stopped recording")
         NodeObs.OBS_service_stopRecording()
         this.recording = false
-        this.manualControlled = manuel
+        this.manualControlled = manual
         RegManMain.send("obs_record_change", false)
     }
 

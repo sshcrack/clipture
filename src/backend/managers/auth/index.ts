@@ -1,5 +1,7 @@
+import { notify } from '@backend/tools/notifier';
 import { RegManMain } from '@general/register/main';
 import { Globals } from '@Globals';
+import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import { BrowserWindow, shell } from 'electron';
 import got from "got";
@@ -12,7 +14,6 @@ const log = MainLogger.get("Backend", "Managers", "AuthManager")
 const baseUrl = Globals.baseUrl;
 
 export class AuthManager {
-    private static window: BrowserWindow
     public static readonly TIMEOUT = 1000 * 60 * 10// 10 Minutes
     public static readonly FetchInterval = 100
     private static currId = null as string
@@ -118,12 +119,22 @@ export class AuthManager {
     }
 
     static async signOut() {
+        const { recordManager } = MainGlobals.obs
         for (const key in availableCookieTypes) {
             const id = getID(key, "key")
             const value = getID(key, "value")
 
             Storage.delete(id as any)
             await Storage.removeSecure(value)
+        }
+
+        const isRecording = recordManager.isRecording()
+        if(isRecording) {
+            await recordManager.stopRecording(true)
+            notify({
+                title: "Recording stopped",
+                message: "You have been signed out, because you've signed out"
+            })
         }
         this.updateListeners()
     }

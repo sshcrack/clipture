@@ -6,6 +6,7 @@ import { ProcessManager } from './managers/process';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 import fs from "fs/promises"
+import { ClipManager } from './managers/clip';
 
 export const registerFuncs = [
     () => RegManMain.register(),
@@ -14,5 +15,6 @@ export const registerFuncs = [
     () => AuthManager.register(),
     () => TitlebarManager.register(),
     () => Scene.register(),
-    () => ProcessManager.register()
+    () => ProcessManager.register(),
+    () => ClipManager.register()
 ]
