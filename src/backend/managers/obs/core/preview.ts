@@ -83,4 +83,6 @@ export class PreviewManager {
 
         log.log("Destroyed display with id", displayId)
     }
+
+    public shutdown() {}
 }
