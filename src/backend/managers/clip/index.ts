@@ -19,6 +19,7 @@ export class ClipManager {
         const files = (await globProm(globPattern))
             .map(e => path.resolve(e))
 
+        log.log("Listing clips...")
         return await Promise.all(
             files.map(async file => {
                 const thumbnailFile = (await generateThumbnail(file, {
@@ -29,7 +30,7 @@ export class ClipManager {
                         return undefined as string
                     }))
 
-                const thumbnail = 
+                const thumbnail =
                     this.imageData.get(thumbnailFile) ??
                     await readFile(thumbnailFile, "base64")
 

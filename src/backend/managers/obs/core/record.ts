@@ -64,7 +64,6 @@ export class RecordManager {
             if (matchingGames.length === 0)
                 return
 
-            log.info("Matching games are", matchingGames)
             const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
             if (gameToRecord) {
                 log.debug("Switching to game", gameToRecord)
@@ -100,6 +99,8 @@ export class RecordManager {
         ProcessManager.addUpdateListener(e => onNewInfo(e))
         const curr = await ProcessManager.getAvailableWindows(true)
         onNewInfo(curr)
+
+        this.registeredAutomatic = true
     }
 
     public async startRecording(manual = false) {
@@ -122,6 +123,7 @@ export class RecordManager {
         else
             await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
+        NodeObs.OBS_service_startStreaming()
         NodeObs.OBS_service_startRecording()
         this.recording = true
         RegManMain.send("obs_record_change", true)
@@ -132,6 +134,7 @@ export class RecordManager {
             return
 
         log.info("Stopped recording")
+        NodeObs.OBS_service_stopStreaming(false)
         NodeObs.OBS_service_stopRecording()
         this.recording = false
         this.manualControlled = manual

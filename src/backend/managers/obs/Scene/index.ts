@@ -1,11 +1,7 @@
-import { ProcessManager } from '@backend/managers/process';
-import { byOS, getOS } from '@backend/tools/operating-system';
-import { UseToastOptions } from '@chakra-ui/react';
+import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
-import { Globals } from '@Globals/index';
 import { InputFactory, IScene, SceneFactory } from '@streamlabs/obs-studio-node';
 import { screen } from 'electron';
-import got from 'got/dist/source';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { EAlignment, EBoundsType, SettingsCat } from 'src/types/obs/obs-enums';
 import { v4 as uuid } from "uuid";
@@ -111,13 +107,16 @@ export class Scene {
 
         const gameSettings = gameSource.settings;
         gameSettings['window'] = windowId;
+        gameSettings['active_window'] = windowId;
+        gameSettings['capture_window'] = windowId;
+        gameSettings["capture_mode"] = "window"
 
-        gameSource.update(gameSettings)
-        gameSource.save()
 
         windowSource.update(windowSettings)
         windowSource.save()
 
+        gameSource.update(gameSettings)
+        gameSource.save()
 
         const allDisplays = screen.getAllDisplays()
         const largestMonitor = allDisplays
@@ -138,8 +137,8 @@ export class Scene {
         log.log("Switching to Window View with id ", windowId, "and resolution", resolution)
 
         this.removeMainSource()
-        const windowItem = this._scene.add(windowSource)
         const gameItem = this._scene.add(gameSource)
+        const windowItem = this._scene.add(windowSource)
 
         windowItem.bounds = { x: physicalWidth, y: physicalHeight }
         windowItem.boundsType = EBoundsType.ScaleInner as number

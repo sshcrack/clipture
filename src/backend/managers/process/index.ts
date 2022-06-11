@@ -17,6 +17,7 @@ export class ProcessManager {
         if (this.initialized)
             return
 
+        log.debug("Initializing process manager")
         this.updateLoop()
         RegManMain.onPromise("process_available_windows", (_, game) => this.getAvailableWindows(game))
         this.initialized = true

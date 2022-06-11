@@ -33,7 +33,7 @@ export default function Clips() {
         gap='1em'
         gridTemplateColumns='repeat(auto-fit, minmax(25em, 1fr))'
     >
-        <Preview />
+        {/*<Preview />*/}
         {clipElements}
     </Grid>
 }

@@ -1,6 +1,7 @@
 const plugins = require('./webpack.plugins');
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const path = require("path")
+const webpack = require('webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 
@@ -19,6 +20,9 @@ module.exports = {
     __dirname: false,
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.FLUENTFFMPEG_COV': false
+    }),
     new CopyWebpackPlugin({
       patterns: [
         ...assets.map(asset => {

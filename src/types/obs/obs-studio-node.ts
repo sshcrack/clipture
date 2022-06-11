@@ -39,6 +39,8 @@ type INodeObs = {
     OBS_settings_saveSettings: (category: SettingsCat, settings: SettingsData[]) => void,
     OBS_service_startRecording: () => void,
     OBS_service_stopRecording: () => void,
+    OBS_service_startStreaming: () => void,
+    OBS_service_stopStreaming: (forceStop: boolean) => void,
 
     OBS_content_resizeDisplay: (displayId: string, width: number, height: number) => void,
     OBS_content_destroyDisplay: (displayId: string) => void,
@@ -47,6 +49,7 @@ type INodeObs = {
     OBS_content_setPaddingColor: (displayId: string, r: number, g: number, b: number) => void,
     OBS_content_setPaddingSize: (displayId: string, size: number) => void,
     OBS_content_moveDisplay: (displayId: string, x: number, y: number) => void,
+    OBS_content_setBackgroundColor: (displayId: string, r: number, g: number, b: number, alpha: number) => void,
     OBS_API_getPerformanceStatistics: () => PerformanceStatistics;
 }
 

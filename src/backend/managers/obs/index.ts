@@ -1,5 +1,6 @@
+import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
-import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
+import { NodeObs as notTypedOBS, ServiceFactory } from '@streamlabs/obs-studio-node'
 import { ipcMain } from 'electron'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
@@ -103,6 +104,7 @@ export class OBSManager {
         if (!this.obsInitialized && !force)
             return
 
+        await this.previewInstance.shutdown()
         log.info("Shutting OBS down...")
         try {
             NodeObs.OBS_service_removeCallback();
@@ -122,6 +124,7 @@ export class OBSManager {
 
         const availableEncoders = getAvailableValues(Output, 'Recording', 'RecEncoder');
         setSetting(Output, "Mode", "Advanced")
+        setSetting(Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
         setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
         setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
         setSetting(Output, 'RecFormat', 'mkv');

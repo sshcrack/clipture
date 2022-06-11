@@ -1,6 +1,6 @@
 import { RegManRender } from '@general/register/render'
-import { ListenerFunc } from '../backend/managers/lock/interface'
-import { Progress } from '../backend/processors/events/interface'
+import { ListenerFunc } from '../../backend/managers/lock/interface'
+import { Progress } from '../../backend/processors/events/interface'
 
 const lockListeners: ListenerFunc[] = []
 

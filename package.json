@@ -73,7 +73,15 @@
                   "js": "./src/pages/dashboard/renderer.ts",
                   "name": "main_window",
                   "preload": {
-                    "js": "./src/preload/index.ts"
+                    "js": "./src/preload/main/index.ts"
+                  }
+                },
+                {
+                  "html": "./src/pages/global/index.html",
+                  "js": "./src/pages/preview/renderer.ts",
+                  "name": "preview_window",
+                  "preload": {
+                    "js": "./src/preload/preview/index.ts"
                   }
                 }
               ]
@@ -115,7 +123,7 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "11",
     "@emotion/styled": "11",
-    "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\archive-4.tar.gz",
+    "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\archive7.tar.gz",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
     "electron-log": "^4.4.6",

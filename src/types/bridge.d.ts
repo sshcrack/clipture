@@ -1,4 +1,4 @@
-import { API } from '../preload';
+import { API } from '../preload/main';
 import log from "electron-log"
 import { regEveProm, regEveSync, mainToRenderer } from "@register/tools"
 

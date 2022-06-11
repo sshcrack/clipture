@@ -5,7 +5,6 @@ import { Scene } from './managers/obs/Scene';
 import { ProcessManager } from './managers/process';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
-import fs from "fs/promises"
 import { ClipManager } from './managers/clip';
 
 export const registerFuncs = [
