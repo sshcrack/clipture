@@ -65,7 +65,7 @@
         [
           "@electron-forge/plugin-webpack",
           {
-            "devContentSecurityPolicy": "default-src 'self' data: 'unsafe-inline' 'unsafe-eval' https://clipture.sshcrack.me; connect-src https://clipture.sshcrack.me 'self' http://localhost:3000;",
+            "devContentSecurityPolicy": "default-src 'self' data: 'unsafe-inline' clip-video-file: 'unsafe-eval' https://clipture.sshcrack.me; connect-src https://clipture.sshcrack.me 'self' http://localhost:3000;",
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
               "config": "./webpack.renderer.config.js",

@@ -44,6 +44,7 @@ const createWindow = (): void => {
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.maximize()
   mainWindow.setIcon(MainGlobals.iconFile)
+  ClipManager.registerProtocol()
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
