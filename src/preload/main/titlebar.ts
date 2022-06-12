@@ -7,7 +7,7 @@ export const titlebar = {
     initialize: (id: number) => ipcRenderer.invoke("electron-react-titlebar/initialize", id) as Promise<number>,
     removeMaximizeChange: (listener: MaximizeListener) => ipcRenderer.removeListener("electron-react-titlebar/maximize/change", listener),
     setMaximized: (id: number) => ipcRenderer.send("electron-react-titlebar/maximize/set", id),
-    setMinimized: (id: number) => ipcRenderer.send("electron-react-ttilebar/minimize/set", id),
+    setMinimized: (id: number) => ipcRenderer.send("electron-react-titlebar/minimize/set", id),
     setClose: (id: number) => ipcRenderer.send("electron-react-titlebar/close", id)
 }
 

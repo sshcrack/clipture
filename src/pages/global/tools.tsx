@@ -1,4 +1,5 @@
 import { ChakraProvider } from "@chakra-ui/react";
+import '@fontsource/varela-round'
 import * as React from 'react';
 import { createRoot } from "react-dom/client";
 import { TitleBar } from 'src/components/titlebar';

@@ -3,7 +3,7 @@ import { notify } from '@backend/tools/notifier'
 import { getOS } from '@backend/tools/operating-system'
 import { UseToastOptions } from '@chakra-ui/react'
 import { RegManMain } from '@general/register/main'
-import { Globals } from '@Globals/index'
+import { MainGlobals } from '@Globals/mainGlobals'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import fs from "fs/promises"
 import got from 'got/dist/source'
@@ -33,7 +33,7 @@ export class RecordManager {
     }
 
     public getDetectableGames(showToast = true) {
-        return got(Globals.gameUrl).then(e => JSON.parse(e.body))
+        return got(MainGlobals.gameUrl).then(e => JSON.parse(e.body))
             .catch(e => {
                 log.warn("Could not fetch detectable games", e)
                 if (showToast)
@@ -55,25 +55,31 @@ export class RecordManager {
             const os = getOS()
             this.detectableGames = this.detectableGames ?? await this.getDetectableGames()
 
-            const matchingGames = info.filter(e => {
-                return this.detectableGames.some(g =>
-                    g?.executables?.some(exe => e.full_exe.toLowerCase().endsWith(exe.name.toLowerCase()) && exe.os === os)
-                )
+            const areSame = (detecGame: DetectableGame, winInfo: WindowInformation) => detecGame?.executables?.some(exe => winInfo?.full_exe?.toLowerCase()?.endsWith(exe?.name?.toLowerCase()) && exe?.os === os)
+
+
+            const matchingGames = info.filter(winInfo => {
+                return this.detectableGames.some(detecGame => areSame(detecGame, winInfo))
             })
 
             if (matchingGames.length === 0)
                 return
 
             const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
-            if (gameToRecord) {
-                log.debug("Switching to game", gameToRecord)
+            const game = this.detectableGames.find(e => areSame(e, gameToRecord))
+
+            const diffGame = areSame(game, Scene.getCurrentSetting()?.window)
+            log.info("Game is diff", diffGame, "manual", this.manualControlled, "game", game, "curr", Scene.getCurrentSetting()?.window)
+            if (gameToRecord && (diffGame || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
                 await Scene.switchWindow(gameToRecord, false)
+                if(this.isRecording())
+                    await this.stopRecording()
             }
 
 
             log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
             if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
-                this.startRecording()
+                this.startRecording(false, game)
                 notify({
                     title: "Recording started",
                     message: `Recording started for ${gameToRecord?.productName ?? gameToRecord?.title ?? gameToRecord.executable}`
@@ -103,7 +109,7 @@ export class RecordManager {
         this.registeredAutomatic = true
     }
 
-    public async startRecording(manual = false) {
+    public async startRecording(manual = false, discordGameInfo: DetectableGame = null) {
         if (this.recording) {
             log.debug("Tried to record even though already recording")
             return
@@ -123,8 +129,32 @@ export class RecordManager {
         else
             await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
+        const listClips = () => fs.readdir(recordPath).then(e => e.filter(e => !e.endsWith(".json")))
+        const currClips = await listClips()
+        log.debug("CurrClips", currClips)
+
         NodeObs.OBS_service_startStreaming()
         NodeObs.OBS_service_startRecording()
+
+        let clipName = null
+        for (let i = 0; i < 1000; i++) {
+            const newClips = await listClips()
+            if (newClips.length > currClips.length) {
+                clipName = newClips.find(e => currClips.indexOf(e) === -1)
+                break
+            }
+
+            await sleepSync(50)
+            log.debug("Waiting for new clip...")
+        }
+
+        const clipPath = recordPath + "/" + clipName
+        if(!clipPath)
+            log.warn("Clip Path could not be obtained")
+        if(discordGameInfo && clipPath) {
+            log.debug("Writing discord game info to", clipPath + ".json")
+            await fs.writeFile(clipPath + ".json", JSON.stringify(discordGameInfo))
+        }
         this.recording = true
         RegManMain.send("obs_record_change", true)
     }
@@ -159,4 +189,10 @@ function processRunning(pid: number) {
     } catch {
         return false
     }
+}
+
+function sleepSync(ms: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    });
 }

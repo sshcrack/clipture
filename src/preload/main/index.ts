@@ -24,7 +24,8 @@ export const API = {
     process,
     titlebar,
     shutdown: () => ipcRenderer.send("quit-app"),
-    onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e))
+    onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
+    isDev: () => ipcRenderer.sendSync("isDev") as boolean
 }
 contextBridge.exposeInMainWorld(
     "api",

@@ -8,6 +8,7 @@ import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
 import "src/components/obs/NavBar/styles.css";
+import Preview from '../clips/preview';
 import NavBarButton from './NavBarButton';
 
 export function NavBar({ data }: { data: SessionData }) {
@@ -83,6 +84,12 @@ export function NavBar({ data }: { data: SessionData }) {
                 w='100%'
                 flex='.25'
             >
+                <Flex
+                    w='10em'
+                    h='10em'
+                >
+                    {/*recording ? <Preview /> : null*/}
+                </Flex>
                 <Flex
                     flexDir='row'
                     alignItems='center'

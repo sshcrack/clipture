@@ -5,7 +5,8 @@
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start -- dev",
+    "start": "electron-forge start",
+    "dev": "electron-forge start -- dev",
     "prod": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -64,6 +65,7 @@
         [
           "@electron-forge/plugin-webpack",
           {
+            "devContentSecurityPolicy": "default-src 'self' data: 'unsafe-inline' 'unsafe-eval' https://clipture.sshcrack.me; connect-src https://clipture.sshcrack.me 'self' http://localhost:3000;",
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
               "config": "./webpack.renderer.config.js",
@@ -123,6 +125,7 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "11",
     "@emotion/styled": "11",
+    "@fontsource/varela-round": "^4.5.8",
     "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\archive7.tar.gz",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
@@ -133,6 +136,7 @@
     "electron-util": "^0.17.2",
     "execa": "^6.1.0",
     "exit-hook": "^3.0.0",
+    "ffmetadata": "^1.7.0",
     "framer-motion": "6",
     "got": "^11.8.3",
     "jszip": "^3.9.1",

@@ -1,9 +1,8 @@
 import { notify } from '@backend/tools/notifier';
 import { RegManMain } from '@general/register/main';
-import { Globals } from '@Globals';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { BrowserWindow, shell } from 'electron';
+import { shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { v4 as uuid } from "uuid";
@@ -11,7 +10,7 @@ import { SessionData, SessionStatus } from './interfaces';
 
 
 const log = MainLogger.get("Backend", "Managers", "AuthManager")
-const baseUrl = Globals.baseUrl;
+const baseUrl = MainGlobals.baseUrl;
 
 export class AuthManager {
     public static readonly TIMEOUT = 1000 * 60 * 10// 10 Minutes
@@ -35,7 +34,7 @@ export class AuthManager {
             const { key, cookie, type } = obj;
 
             Storage.set(getID(type, "key"), key)
-            await Storage.setSecure(getID(type, "value"), cookie)
+            Storage.setSecure(getID(type, "value"), cookie)
         }
 
         this.updateListeners()

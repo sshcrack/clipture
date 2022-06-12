@@ -1,15 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
+import { MainGlobals } from './Globals/mainGlobals';
 
 import { ProcessManager } from '@backend/managers/process';
 import { registerFuncs } from '@backend/registerFuncs';
-import { RegManMain } from '@general/register/main';
 import { app, BrowserWindow, dialog, ipcMain } from 'electron';
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
-import { MainGlobals } from './Globals/mainGlobals';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
+import { ClipManager } from '@backend/managers/clip';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -87,11 +87,15 @@ const handleExit = () => {
 
   logger.log("Shutting down...")
   alreadyShutdown = true
+  ClipManager.shutdown()
   MainGlobals.obs.shutdown()
   ProcessManager.exit()
 }
 
 ipcMain.handle("quit-app", () => handleExit())
+ipcMain.on("isDev", e => {
+  e.returnValue = process.argv[2] === "dev"
+})
 app.on("will-quit", () => {
   handleExit()
 })

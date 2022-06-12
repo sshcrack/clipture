@@ -20,8 +20,9 @@ export class TitlebarManager {
             return undefined
         })
 
-        ipcMain.on('electron-react-titlebar/maximumize/set', (event, browserWindowId) => {
+        ipcMain.on('electron-react-titlebar/maximize/set', (event, browserWindowId) => {
             const browserWindow = browserWindowId ? BrowserWindow.fromId(browserWindowId) : BrowserWindow.fromWebContents(event.sender)
+            console.log("Maximizable", browserWindow?.isMaximizable())
             if (browserWindow?.isMaximizable()) {
                 if (browserWindow.isMaximized()) {
                     browserWindow.unmaximize()
@@ -31,7 +32,7 @@ export class TitlebarManager {
             }
         })
 
-        ipcMain.on('electron-react-titlebar/minimumize/set', (event, browserWindowId) => {
+        ipcMain.on('electron-react-titlebar/minimize/set', (event, browserWindowId) => {
             const browserWindow = browserWindowId ? BrowserWindow.fromId(browserWindowId) : BrowserWindow.fromWebContents(event.sender)
             browserWindow?.minimize()
         })

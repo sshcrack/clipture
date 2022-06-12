@@ -1,45 +1,62 @@
+import { getClipCachePath, getClipImagePath } from '@backend/tools/fs'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
+import fs from "fs"
 import { readFile } from 'fs/promises'
 import glob from "glob"
 import path from "path"
+import { SiTheirishtimes } from 'react-icons/si'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail } from "thumbsupply"
 import { promisify } from "util"
-import { Clip } from './interface'
+import { DetectableGame } from '../obs/Scene/interfaces'
+import { Clip, getClipInfo } from './interface'
 
 const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
 export class ClipManager {
     private static imageData = new Map<string, string>()
+    private static cache = new Map<string, DetectableGame>()
+
     static async list() {
         const clipPath = Storage.get("clip_path")
         const globPattern = `${clipPath}/**/*.mkv`
         const files = (await globProm(globPattern))
             .map(e => path.resolve(e))
 
-        log.log("Listing clips...")
         return await Promise.all(
-            files.map(async file => {
-                const thumbnailFile = (await generateThumbnail(file, {
-                    cacheDir: MainGlobals.getTempDir()
-                })
-                    .catch(e => {
-                        log.error("Failed to generate thumbnail for", file, e)
-                        return undefined as string
-                    }))
+            files
+            .map(e => path.resolve(e))
+            .map(async file => {
+                log.silly("Getting thumbnail for file", file, "has", this.imageData.has(file))
+                if(!this.imageData.has(file)) {
+                    const thumbnailFile = (await generateThumbnail(file, {
+                        cacheDir: MainGlobals.getTempDir(),
+                        timestamp: "00:00:00"
+                    })
+                        .catch(e => {
+                            log.error("Failed to generate thumbnail for", file, e)
+                            return undefined as string
+                        }))
+                    if(thumbnailFile) {
+                        const thumbnail = await readFile(thumbnailFile, "base64")
+                        this.imageData.set(file, thumbnail)
+                        log.silly("Saving thumbnail for file", file, thumbnailFile)
+                    }
+                } else { log.silly("Thumbnail already exists for", file) }
 
-                const thumbnail =
-                    this.imageData.get(thumbnailFile) ??
-                    await readFile(thumbnailFile, "base64")
 
-                if (!this.imageData.has(thumbnailFile))
-                    this.imageData.set(thumbnailFile, thumbnail)
+                let gameInfo = this.cache.get(file) as DetectableGame | null
+                if (!gameInfo)
+                    gameInfo = await getClipInfo(clipPath, path.basename(file))
 
+                const clipName = path.basename(file)
                 return {
+                    clipName: clipName,
                     clip: file,
-                    thumbnail: "data:image/png;base64," + thumbnail
+                    info: gameInfo ?? null,
+                    thumbnail: "data:image/png;base64," + this.imageData.get(file)
                 }
             }
             )
@@ -52,6 +69,31 @@ export class ClipManager {
 
     static register() {
         RegManMain.onPromise("clips_list", () => this.list())
+        const cachePath = getClipCachePath()
+        const exists = fs.existsSync(cachePath)
+        if(exists)
+            try {
+                const jsonData = JSON.parse(fs.readFileSync(cachePath, "utf-8"))
+                this.cache = new Map(jsonData)
+            } catch (e) {
+                log.error("Could not load cache from path", cachePath, e)
+            }
 
+        const imagePath = getClipImagePath()
+        const imageExists = fs.existsSync(imagePath)
+        if(imageExists)
+            try {
+                const jsonData = JSON.parse(fs.readFileSync(imagePath, "utf-8"))
+                this.imageData = new Map(jsonData)
+            } catch(e) {
+                log.error("Could not load image data from path", imagePath, e)
+            }
+
+    }
+
+    static shutdown() {
+        log.info("Saving Clip Cache and Image data")
+        fs.writeFileSync(getClipCachePath(), JSON.stringify(Array.from(this.cache.entries())))
+        fs.writeFileSync(getClipImagePath(), JSON.stringify(Array.from(this.imageData.entries())))
     }
 }

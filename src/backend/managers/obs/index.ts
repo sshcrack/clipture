@@ -1,6 +1,6 @@
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
-import { NodeObs as notTypedOBS, ServiceFactory } from '@streamlabs/obs-studio-node'
+import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { ipcMain } from 'electron'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'

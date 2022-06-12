@@ -23,7 +23,12 @@ const component = {
     }
 }
 
-const theme = extendTheme({ config, component, colors })
+const fonts = {
+    heading: `'Varela Round', sans-serif`,
+    body: `'Varela Round', sans-serif`,
+}
+
+const theme = extendTheme({ config, component, colors, fonts})
 
 console.log(theme)
 export default theme

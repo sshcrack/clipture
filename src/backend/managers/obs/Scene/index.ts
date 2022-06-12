@@ -103,6 +103,7 @@ export class Scene {
         windowSettings["capture_mode"] = "window"
         windowSettings['compatibility'] = true;
         windowSettings['client_area'] = true;
+        windowSettings["method"] = 2 // WGC Capture Method
         windowSettings['window'] = windowId;
 
         const gameSettings = gameSource.settings;
