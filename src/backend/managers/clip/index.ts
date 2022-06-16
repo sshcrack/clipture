@@ -6,18 +6,21 @@ import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import fs from "fs"
 import { readFile } from 'fs/promises'
 import glob from "glob"
+import {type execa as execaType } from "execa"
 import path from "path"
+import { v4 as uuid } from "uuid"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail } from "thumbsupply"
 import { promisify } from "util"
 import { DetectableGame } from '../obs/Scene/interfaces'
-import { Clip, getClipInfo } from './interface'
+import { Clip, getClipInfo, getClipInfoPath } from './interface'
 
 const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
 export class ClipManager {
     private static imageData = new Map<string, string>()
     private static cache = new Map<string, DetectableGame>()
+    private static execa: typeof execaType = null
 
     static async list() {
         const clipPath = Storage.get("clip_path")
@@ -69,6 +72,7 @@ export class ClipManager {
 
     static register() {
         RegManMain.onPromise("clips_list", () => this.list())
+        RegManMain.onPromise("clips_cut", (_, e) => this.cut(e))
         const cachePath = getClipCachePath()
         const exists = fs.existsSync(cachePath)
         if (exists)
@@ -107,8 +111,6 @@ export class ClipManager {
         const clipPath = path.join(clipRootUrl, requestedPath)
 
         let check = fs.existsSync(clipPath)
-        log.silly("Clip procotol handler", requestedPath, clipPath, check)
-
         if (!check || requestedPath.includes("..") || requestedPath.includes("/")) {
             callback({
                 // -6 is FILE_NOT_FOUND
@@ -121,5 +123,31 @@ export class ClipManager {
         callback({
             path: path.resolve(clipPath)
         });
+    }
+
+    static async cut({clipName: videoName, start, end}: {clipName: string, start: number, end: number}) {
+        videoName = videoName.split("..").join("").split("/").join("").split("\\").join("")
+        const id = uuid()
+
+        const clipRoot = Storage.get("clip_path")
+        const videoPath = path.join(clipRoot, videoName)
+        const clipOut = path.join(clipRoot, path.basename(videoName, path.extname(videoName)) + id + ".clipped.mp4")
+
+        const infoPath = getClipInfoPath(clipRoot, videoName)
+        const info = await getClipInfo(clipRoot, videoName)
+
+        const withClippedExt = infoPath.replace(".mkv.json", "") + id + ".clipped.mp4.json"
+
+
+        const ffmpegExe = MainGlobals.ffmpegExe
+        const commandRunner = this.execa ?? (await import("execa")).execa
+
+        await commandRunner(ffmpegExe, [ "-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), clipOut])
+        fs.writeFileSync(withClippedExt, JSON.stringify({
+            ...info,
+            orginal: videoName,
+            start: start,
+            end: end
+        }))
     }
 }

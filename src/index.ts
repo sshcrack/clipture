@@ -30,8 +30,8 @@ logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.
 let mainWindow: BrowserWindow;
 const createWindow = (): void => {
   mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 700,
+    width: 1000,
     darkTheme: true,
     frame: false,
     webPreferences: {

@@ -37,7 +37,8 @@ export type RegisterEventsPromises = {
     obs_start_recording: (manual: boolean) => void,
     obs_stop_recording: (manual: boolean) => void,
 
-    clips_list: () => Clip[]
+    clips_list: () => Clip[],
+    clips_cut: ({}: { clipName: string, start: number, end: number}) => void
 }
 
 export type MainToRender = {

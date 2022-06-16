@@ -8,7 +8,7 @@ import Editor from './editor';
 const log = RenderLogger.get("obs", "clips")
 export default function Clips() {
     const [currClips, setClips] = React.useState<Clip[]>([])
-    const [currSelected, setCurrSelected] = React.useState<string | null>(null)
+    const [currSelected, setCurrSelected] = React.useState<string | null>("2022-06-11 20-08-47.mkv")
     const [ loading, setLoading ] = React.useState(false)
     const { clips } = window.api
 
