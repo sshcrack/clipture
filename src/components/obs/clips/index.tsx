@@ -1,30 +1,44 @@
+import "src/pages/dashboard/scrollbar.css"
+
 import { Clip } from '@backend/managers/clip/interface';
-import { Flex, Grid, GridItem, Image, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Grid, GridItem, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import Editor from './editor';
 
 const log = RenderLogger.get("obs", "clips")
 export default function Clips() {
+    const toast = useToast()
+    const [retry, setRetry] = useState(0)
     const [currClips, setClips] = React.useState<Clip[]>([])
     const [currSelected, setCurrSelected] = React.useState<string | null>("2022-06-11 20-08-47.mkv")
-    const [ loading, setLoading ] = React.useState(false)
+    const [loading, setLoading] = React.useState(false)
     const { clips } = window.api
 
     useEffect(() => {
+        log.debug("Starting loading clips")
         setLoading(true)
         clips.list()
             .then(e => {
-                setClips(e)
+                setClips([...e, ...e, ...e, ...e, ...e, ...e, ...e, ...e])
+                log.debug("Total of", e.length, "clips loaded")
                 setLoading(false)
             })
-    }, [])
+            .catch(e => {
+                log.error(e)
+                toast({
+                    title: "Could not list clips",
+                    description: `${e.message}. Retrying in 5 seconds`,
+                })
+                setTimeout(() => setRetry(Math.random()))
+            })
+    }, [retry])
 
-    if(currSelected)
-        return <Editor clipName={currSelected} onBack={() => setCurrSelected(null)}/>
+    if (currSelected)
+        return <Editor clipName={currSelected} onBack={() => setCurrSelected(null)} />
 
-    const clipElements = [...currClips, ...currClips, ...currClips, ...currClips, ...currClips, ...currClips].map(({ thumbnail, info, clipName }, i) => {
+    const clipElements = currClips.map(({ thumbnail, info, clipName }, i) => {
         const { id, name, aliases, icon } = info ?? {}
 
         const gameName = name ?? aliases?.[0] ?? "Unknown Game"
@@ -79,8 +93,11 @@ export default function Clips() {
         w='100%'
         gap='1em'
         templateColumns='repeat(auto-fill, minmax(21.5em,1fr))'
+        className='sc2'
         overflowY='auto'
         p='5'
+        pr='2'
+        mr='4'
     >
         {loading ? <Spinner /> : clipElements}
     </Grid>

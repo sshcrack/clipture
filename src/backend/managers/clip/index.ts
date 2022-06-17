@@ -24,7 +24,7 @@ export class ClipManager {
 
     static async list() {
         const clipPath = Storage.get("clip_path")
-        const globPattern = `${clipPath}/**/*.mkv`
+        const globPattern = `${clipPath}/**/*!(.clipped).mkv`
         const files = (await globProm(globPattern))
             .map(e => path.resolve(e))
 
@@ -32,7 +32,6 @@ export class ClipManager {
             files
                 .map(e => path.resolve(e))
                 .map(async file => {
-                    log.silly("Getting thumbnail for file", file, "has", this.imageData.has(file))
                     if (!this.imageData.has(file)) {
                         const thumbnailFile = (await generateThumbnail(file, {
                             cacheDir: MainGlobals.getTempDir(),
@@ -47,7 +46,7 @@ export class ClipManager {
                             this.imageData.set(file, thumbnail)
                             log.silly("Saving thumbnail for file", file, thumbnailFile)
                         }
-                    } else { log.silly("Thumbnail already exists for", file) }
+                    }
 
 
                     let gameInfo = this.cache.get(file) as DetectableGame | null

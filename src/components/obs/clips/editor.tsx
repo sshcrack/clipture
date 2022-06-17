@@ -6,7 +6,7 @@ import { BsFillCaretLeftFill } from "react-icons/bs"
 
 export default function Editor({ clipName, onBack }: { clipName: string, onBack: () => void }) {
     const barWidth = 5
-    const endStartBuffer = 10
+    const getEndStartBuffer = (_offset: number, range: number) => Math.max(range * 0.1, 2)
 
     const videoRef = useRef<HTMLVideoElement>()
     const seekBar = useRef<HTMLDivElement>()
@@ -25,6 +25,7 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
     const [currOffset, setOffset] = useState<number>(0)
     const [selectStart, setSelectStart] = useState<number>(0)
     const [selectEnd, setSelectEnd] = useState<number | null>(null)
+    const [canvasBackgrounds, setCanvasBackgrounds] = useState(new Map<number, string>())
 
     const [isGenerating, setGenerating] = useState(false)
 
@@ -71,6 +72,45 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         setBar(videoRef.current.currentTime, seek)
         setBar(selectEnd, end)
         setBar(selectStart, start)
+        const generateBg = () => {
+
+            const currRangePercentage = currRange / duration
+            const segments = 10 + 20 * (1 - currRangePercentage)
+            const colors = ["#3B4863", "#5A6E96"]
+            // Grid Background
+            const stepPercentage = 1 / segments
+
+            const size = [outerBar.current.clientWidth, outerBar.current.clientHeight]
+            let canvas = document.createElement("canvas")
+            canvas = document.body.appendChild(canvas)
+
+            canvas.width = size[0]
+            canvas.height = size[1]
+            const ctx = canvas.getContext("2d")
+
+            for (let i = 0; i < segments; i++) {
+                const color = colors[i % 2]
+                const percentage = stepPercentage * i
+
+                const startX = percentage * size[0]
+                const endX = stepPercentage * (i + 1) * size[0]
+
+                console.log("Start", startX, "width", endX - startX, "color", color, size[0])
+                ctx.fillStyle = color
+                ctx.fillRect(startX, 0, endX - startX, size[1])
+            }
+
+            const data = canvas.toDataURL()
+            canvas.remove()
+
+            setCanvasBackgrounds(canvasBackgrounds.set(currRange, data))
+            console.log(data)
+            return data
+        }
+
+
+        const bg = canvasBackgrounds.get(currRange) ?? generateBg()
+        outerBar.current.style.background = `url(${bg})`
     }
 
     useEffect(() => {
@@ -99,11 +139,27 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         const full = outerBar.current.clientWidth
 
         const percentage = clamp(x / full, 0, 1)
-        return currRange * percentage + currOffset
+        const calculatedTime = currRange * percentage + currOffset
+
+        // Snap to start and end if shift is not pressed
+
+        const isAtEnd = currOffset + currRange >= duration
+        const isAtStart = Math.floor(currOffset * 100) === 0
+
+        const endTwoPixelTime = (full - 2) / full * currRange + currOffset
+        const startTwoPixelTime = 2 / full * currRange + currOffset
+
+        if (calculatedTime <= startTwoPixelTime && isAtStart && !e.shiftKey && e.movementX < 0)
+            return 0
+
+        if (calculatedTime >= endTwoPixelTime && isAtEnd && !e.shiftKey && e.movementX > 0)
+            return duration
+
+        return calculatedTime
     }
 
     const processMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent) => {
-        if (!videoRef?.current)
+        if (!videoRef?.current || !outerBar?.current)
             return
 
         const time = onMoveToTime(e)
@@ -115,6 +171,8 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
 
         if (endDragging && time !== null && time > selectStart)
             setSelectEnd(time)
+
+        updateElements()
     }
 
     const playClip = () => {
@@ -128,7 +186,7 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
                 return setPaused(video.paused)
             }
 
-            setTimeout(checkTime, 100);
+            setTimeout(checkTime, selectEnd - video.currentTime);
         }
 
         video.currentTime = selectStart
@@ -155,6 +213,7 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             setSeekDragging(false)
             setStartDragging(false)
             setEndDragging(false)
+            const endStartBuffer = getEndStartBuffer(currOffset, currRange)
 
             const newOffset = Math.max(selectStart - endStartBuffer, 0)
             const diff = Math.min(selectEnd - newOffset + endStartBuffer, duration - newOffset)
@@ -212,6 +271,13 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         >
             <Button onClick={togglePlay}>{paused ? "Play" : "Pause"}</Button>
             <Button onClick={generateClip} isLoading={isGenerating} loadingText='Generating clip...'>Generate Clip</Button>
+            <Button onClick={() => {
+                setOffset(0);
+                setRange(duration);
+                setSelectStart(0);
+                setSelectEnd(duration);
+                updateElements()
+            }}>Reset Selection</Button>
             <Button onClick={playClip}>Play Clip</Button>
             <Text>{duration ? prettyMS(duration * 1000) : "Loading..."}</Text>
         </Flex>
@@ -256,10 +322,10 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
                 onMouseDown={() => startDrag("end")}
             />
         </Grid>
-        <Flex>
-            <Text>{prettyMS(selectStart * 1000)}</Text>
+        <Flex w='80%'>
+            <Text alignSelf='start' whiteSpace='nowrap'>{prettyMS(selectStart * 1000)}</Text>
             <Box w='100%' />
-            <Text>{selectEnd === null ? "Loading..." : prettyMS(selectEnd * 1000)}</Text>
+            <Text alignSelf='end' whiteSpace='nowrap'>{selectEnd === null ? "Loading..." : prettyMS(selectEnd * 1000)}</Text>
         </Flex>
     </>
 }
