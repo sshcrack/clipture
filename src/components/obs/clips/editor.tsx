@@ -3,7 +3,10 @@ import { Box, Button, Flex, Grid, Text } from '@chakra-ui/react'
 import prettyMS from "pretty-ms"
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { BsFillCaretLeftFill } from "react-icons/bs"
+import { FaPlay } from 'react-icons/fa'
+import { motion } from "framer-motion"
 
+type ReactMouseEvent = React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent
 export default function Editor({ clipName, onBack }: { clipName: string, onBack: () => void }) {
     const barWidth = 5
     const getEndStartBuffer = (_offset: number, range: number) => Math.max(range * 0.1, 2)
@@ -25,10 +28,10 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
     const [currOffset, setOffset] = useState<number>(0)
     const [selectStart, setSelectStart] = useState<number>(0)
     const [selectEnd, setSelectEnd] = useState<number | null>(null)
+
     const [canvasBackgrounds, setCanvasBackgrounds] = useState(new Map<number, string>())
-
-    const [isGenerating, setGenerating] = useState(false)
-
+    const [lastMouseX, setLastMouseX] = useState<number | null>(null)
+    const [isCuttingClips, setClipsCutting] = useState(false)
 
     const startSeekDrag = () => {
         document.body.style.userSelect = "none"
@@ -69,14 +72,19 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             ref.setAttribute("style", `display: ${currDisplay};transform: translateX(${position}px)`)
         }
 
+        outerBar.current.style.backgroundPositionX = -currOffset + "%"
+        outerBar.current.style.backgroundRepeat = "repeat"
+        outerBar.current.style.backgroundAttachment = "fixed"
         setBar(videoRef.current.currentTime, seek)
         setBar(selectEnd, end)
         setBar(selectStart, start)
-        const generateBg = () => {
 
+        const generateBg = () => {
             const currRangePercentage = currRange / duration
-            const segments = 10 + 20 * (1 - currRangePercentage)
             const colors = ["#3B4863", "#5A6E96"]
+            const additionalSegments = Math.round(20 * currRangePercentage)
+            const segments = 10 + additionalSegments + additionalSegments % colors.length
+
             // Grid Background
             const stepPercentage = 1 / segments
 
@@ -95,7 +103,6 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
                 const startX = percentage * size[0]
                 const endX = stepPercentage * (i + 1) * size[0]
 
-                console.log("Start", startX, "width", endX - startX, "color", color, size[0])
                 ctx.fillStyle = color
                 ctx.fillRect(startX, 0, endX - startX, size[1])
             }
@@ -104,32 +111,34 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             canvas.remove()
 
             setCanvasBackgrounds(canvasBackgrounds.set(currRange, data))
-            console.log(data)
             return data
         }
 
 
         const bg = canvasBackgrounds.get(currRange) ?? generateBg()
-        outerBar.current.style.background = `url(${bg})`
+        outerBar.current.style.backgroundImage = `url(${bg})`
     }
 
-    useEffect(() => {
-        updateElements()
-    }, [update])
-
-    useEffect(() => {
-        if (!videoRef?.current)
+    const onMiddleMouseMove = (e: ReactMouseEvent) => {
+        if (!videoRef?.current || !lastMouseX || !outerBar?.current)
             return
 
-        videoRef.current.onloadeddata = () => {
-            const duration = videoRef.current.duration
-            setDuration(duration)
-            setRange(duration)
-            setSelectEnd(duration)
-        }
-    }, [videoRef])
+        const dragMultiplier = 0.5
+        const clientWidth = outerBar.current.clientWidth
 
-    const onMoveToTime = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent) => {
+        const diff = (lastMouseX - e.clientX) / clientWidth * currRange * dragMultiplier
+        const newOffset = currOffset + diff
+        const aboveDuration = newOffset + currRange > duration
+        const isBelowStart = newOffset < 0
+        const finalOffset = aboveDuration ? duration - currRange : isBelowStart ? 0 : newOffset
+
+        setOffset(finalOffset)
+        setLastMouseX(e.clientX)
+
+        updateElements()
+    }
+
+    const onMoveToTime = (e: ReactMouseEvent) => {
         if (!outerBar?.current || !videoRef?.current)
             return null
 
@@ -158,9 +167,12 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         return calculatedTime
     }
 
-    const processMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent) => {
+    const processMouseMove = (e: ReactMouseEvent) => {
         if (!videoRef?.current || !outerBar?.current)
             return
+
+        if (lastMouseX !== null)
+            return onMiddleMouseMove(e)
 
         const time = onMoveToTime(e)
         if (seekDragging && time !== null)
@@ -195,6 +207,33 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         checkTime()
     }
 
+    const generateClip = () => {
+        if (isCuttingClips)
+            return
+
+        setClipsCutting(true)
+        window.api.clips.cut(clipName, selectStart, selectEnd)
+            .then(e => setClipsCutting(false))
+    }
+
+    useEffect(() => {
+        updateElements()
+    }, [update])
+
+    useEffect(() => {
+        if (!videoRef?.current)
+            return
+
+        const video = videoRef.current
+        video.onloadeddata = () => {
+            const duration = video.duration
+            setDuration(duration)
+            setRange(duration)
+            setSelectEnd(duration)
+        }
+    }, [videoRef])
+
+
     useEffect(() => {
         console.log("Effect", outerBar, "End", endBar)
         if (!outerBar?.current || !endBar?.current)
@@ -210,9 +249,11 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
 
         const endMouseDrag = () => {
             document.body.style.userSelect = ""
+            const wasDraggingTimeline = lastMouseX !== null
             setSeekDragging(false)
             setStartDragging(false)
             setEndDragging(false)
+            setLastMouseX(null)
             const endStartBuffer = getEndStartBuffer(currOffset, currRange)
 
             const newOffset = Math.max(selectStart - endStartBuffer, 0)
@@ -220,7 +261,7 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
 
 
             console.log("NewOffset", newOffset, "Range", diff)
-            if (currOffset !== newOffset || currRange !== diff) {
+            if ((currOffset !== newOffset || currRange !== diff) && (!wasDraggingTimeline || currOffset + currRange < endStartBuffer)) {
                 setOffset(newOffset)
                 setRange(diff)
             }
@@ -233,23 +274,7 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         };
     }, [currRange, selectStart, selectEnd, duration, currOffset])
 
-    const togglePlay = useCallback(() => {
-        if (!videoRef?.current)
-            return
-        videoRef.current.paused ? videoRef.current.play() : videoRef.current.pause()
-        setPaused(videoRef.current.paused)
-    }, [paused])
-
-
-    const generateClip = () => {
-        if (isGenerating)
-            return
-
-        setGenerating(true)
-        window.api.clips.cut(clipName, selectStart, selectEnd)
-            .then(e => setGenerating(false))
-    }
-
+    const transition = 'all .2s ease-in-out'
     return <>
         <Box w='100%'>
             <Button
@@ -259,18 +284,58 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             >Back</Button>
         </Box>
 
-        <Flex h='40em' rounded='xl' overflow='hidden' mb='6'>
-            <video ref={videoRef}>
-                <source src={`clip-video-file:///${encodeURIComponent(clipName)}`}></source>
-            </video>
-        </Flex>
+        <Grid
+            h='32.5em'
+            rounded='xl'
+            style={{ aspectRatio: "16/9" }}
+            overflow='hidden'
+            mb='6'
+            onClick={() => {
+                const video = videoRef?.current
+                if (!video)
+                    return
+
+                video.paused ? video.play() : video.pause()
+                setPaused(video.paused)
+            }}
+        >
+            <Box
+                w='100%'
+                h='100%'
+                gridColumn='1'
+                gridRow='1'
+                transition={transition}
+                filter={paused ?
+                    "brightness(30%);" : "brightness(100%);"}
+            >
+                <video ref={videoRef}>
+                    <source src={`clip-video-file:///${encodeURIComponent(clipName)}`}></source>
+                </video>
+            </Box>
+            <Flex
+                gridColumn='1'
+                gridRow='1'
+                opacity={paused ? 1 : 0}
+                w='100%'
+                h='100%'
+                transition={transition}
+                justifyContent='center'
+                alignItems='center'
+                zIndex='2'
+            >
+                <motion.div
+                    animate={{ "--play-size": paused ? "2.5em" : "0em" } as any}
+                >
+                    <FaPlay style={{ width: 'var(--play-size)', height: 'var(--play-size)' }} />
+                </motion.div>
+            </Flex>
+        </Grid>
         <Flex
             w='100%'
             justifyContent='space-around'
             alignItems='center'
         >
-            <Button onClick={togglePlay}>{paused ? "Play" : "Pause"}</Button>
-            <Button onClick={generateClip} isLoading={isGenerating} loadingText='Generating clip...'>Generate Clip</Button>
+            <Button onClick={generateClip} isLoading={isCuttingClips} loadingText='Generating clip...'>Generate Clip</Button>
             <Button onClick={() => {
                 setOffset(0);
                 setRange(duration);
@@ -284,11 +349,18 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         <Grid
             w='80%'
             h='10em'
+            backgroundRepeat='repeat'
             bg='gray'
             ref={outerBar}
             onMouseMove={e => processMouseMove(e)}
-            onContextMenu={e => e.button === 2 && processMouseMove(e)}
-            onMouseDown={e => e.button === 2 && startSeekDrag()}
+            onContextMenu={e => (e.button === 2 || e.button === 1) && processMouseMove(e)}
+            onMouseDown={e => {
+                if (e.button === 2)
+                    startSeekDrag()
+                if (e.button === 1) {
+                    setLastMouseX(e.clientX);
+                }
+            }}
         >
             <Box
                 gridRow='1'

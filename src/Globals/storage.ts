@@ -44,7 +44,9 @@ class StorageExtended<T> extends Store<T> {
 
     public async removeSecure(key: string) {
         const typedKey = key as string;
-        this.delete(getEncryptKey(typedKey) as any)
+        const encryptKey = getEncryptKey(typedKey)
+        log.info("Deleting secret key", key, "encryptKey", encryptKey)
+        this.delete(encryptKey as any)
         this.delete(typedKey as any)
     }
 }

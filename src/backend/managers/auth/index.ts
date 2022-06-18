@@ -135,6 +135,7 @@ export class AuthManager {
                 message: "You have been signed out, because you've signed out"
             })
         }
+
         this.updateListeners()
     }
 
