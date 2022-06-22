@@ -36,7 +36,7 @@ export default function Clips() {
     }, [retry])
 
     if (currSelected)
-        return <Editor clipName={currSelected} onBack={() => setCurrSelected(null)} />
+        return <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)} />
 
     const clipElements = currClips.map(({ thumbnail, info, clipName }, i) => {
         const { id, name, aliases, icon } = info ?? {}

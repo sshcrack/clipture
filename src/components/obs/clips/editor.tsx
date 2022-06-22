@@ -1,10 +1,12 @@
 import { clamp } from '@backend/tools/math'
-import { Box, Button, Flex, Grid, Text } from '@chakra-ui/react'
+import { Box, Button, Flex, Grid, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Text } from '@chakra-ui/react'
 import prettyMS from "pretty-ms"
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { BsFillCaretLeftFill } from "react-icons/bs"
-import { FaPlay } from 'react-icons/fa'
+import React, { useEffect, useRef, useState } from 'react'
+import { BsFillCaretLeftFill, BsArrowCounterclockwise } from "react-icons/bs"
+import { FaPlay, FaPause } from 'react-icons/fa'
+import { IoMdCut } from 'react-icons/io'
 import { motion } from "framer-motion"
+import { CSSProperties } from '@emotion/serialize'
 
 type ReactMouseEvent = React.MouseEvent<HTMLDivElement, MouseEvent> | MouseEvent
 export default function Editor({ clipName, onBack }: { clipName: string, onBack: () => void }) {
@@ -32,6 +34,7 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
     const [canvasBackgrounds, setCanvasBackgrounds] = useState(new Map<number, string>())
     const [lastMouseX, setLastMouseX] = useState<number | null>(null)
     const [isCuttingClips, setClipsCutting] = useState(false)
+    const [isVideoHovered, setVideoHovered] = useState(false)
 
     const startSeekDrag = () => {
         document.body.style.userSelect = "none"
@@ -62,7 +65,8 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         const start = startBar.current
         const end = endBar.current
 
-        const width = outerBar.current.clientWidth - barWidth
+        const clientBarWidth = outerBar.current.clientWidth
+        const width = clientBarWidth - barWidth
 
         const setBar = (currTime: number, ref: HTMLDivElement) => {
             const percentage = (currTime - currOffset) / currRange
@@ -72,7 +76,14 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             ref.setAttribute("style", `display: ${currDisplay};transform: translateX(${position}px)`)
         }
 
-        outerBar.current.style.backgroundPositionX = -currOffset + "%"
+
+        const currRangePercentage = currRange / duration
+        const colors = ["#3B4863", "#5A6E96"]
+        const additionalSegments = Math.round(20 * currRangePercentage)
+        const segments = 10 + additionalSegments + additionalSegments % colors.length
+
+        //TODO: Implement middle mouse button move
+        //outerBar.current.style.backgroundPositionX = -(clientBarWidth / duration * currOffset * .75) + "%"
         outerBar.current.style.backgroundRepeat = "repeat"
         outerBar.current.style.backgroundAttachment = "fixed"
         setBar(videoRef.current.currentTime, seek)
@@ -80,11 +91,6 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         setBar(selectStart, start)
 
         const generateBg = () => {
-            const currRangePercentage = currRange / duration
-            const colors = ["#3B4863", "#5A6E96"]
-            const additionalSegments = Math.round(20 * currRangePercentage)
-            const segments = 10 + additionalSegments + additionalSegments % colors.length
-
             // Grid Background
             const stepPercentage = 1 / segments
 
@@ -171,18 +177,27 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         if (!videoRef?.current || !outerBar?.current)
             return
 
-        if (lastMouseX !== null)
+        //TODO: Implement middle mouse button move
+        if (lastMouseX !== null && false as any)
             return onMiddleMouseMove(e)
 
         const time = onMoveToTime(e)
         if (seekDragging && time !== null)
             videoRef.current.currentTime = time
 
-        if (startDragging && time !== null && time < selectEnd)
+        const shouldSetStart = startDragging && time !== null && time < selectEnd
+        const shouldSetEnd = endDragging && time !== null && time > selectStart
+
+        if (shouldSetStart)
             setSelectStart(time)
 
-        if (endDragging && time !== null && time > selectStart)
+        if (shouldSetEnd)
             setSelectEnd(time)
+
+        const currTime = videoRef.current.currentTime
+        const inTimeFrame = selectStart < currTime && currTime < selectEnd
+        if ((shouldSetStart || shouldSetEnd) && !inTimeFrame)
+            videoRef.current.currentTime = (selectStart + selectEnd) / 2
 
         updateElements()
     }
@@ -212,8 +227,8 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             return
 
         setClipsCutting(true)
-        window.api.clips.cut(clipName, selectStart, selectEnd)
-            .then(e => setClipsCutting(false))
+        window.api.clips.cut(clipName, selectStart, selectEnd, () => {})
+            .then(() => setClipsCutting(false))
     }
 
     useEffect(() => {
@@ -275,6 +290,24 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
     }, [currRange, selectStart, selectEnd, duration, currOffset])
 
     const transition = 'all .2s ease-in-out'
+    const iconStyle = { width: "1.5em", height: "1.5em" }
+
+    const pauseVideo = (newPaused: boolean) => {
+        const video = videoRef?.current
+        if (!video)
+            return
+
+        !newPaused ? video.play() : video.pause()
+        setPaused(video.paused)
+    }
+
+    const resetSettings = () => {
+        setOffset(0);
+        setRange(duration);
+        setSelectStart(0);
+        setSelectEnd(duration);
+        updateElements()
+    }
     return <>
         <Box w='100%'>
             <Button
@@ -287,47 +320,114 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
         <Grid
             h='32.5em'
             rounded='xl'
-            style={{ aspectRatio: "16/9" }}
+            style={{ aspectRatio: "16/9" } as any}
             overflow='hidden'
             mb='6'
-            onClick={() => {
-                const video = videoRef?.current
-                if (!video)
-                    return
-
-                video.paused ? video.play() : video.pause()
-                setPaused(video.paused)
-            }}
+            onMouseEnter={() => setVideoHovered(true)}
+            onMouseLeave={() => setVideoHovered(false)}
         >
             <Box
                 w='100%'
                 h='100%'
                 gridColumn='1'
                 gridRow='1'
-                transition={transition}
-                filter={paused ?
-                    "brightness(30%);" : "brightness(100%);"}
             >
-                <video ref={videoRef}>
+                <video ref={videoRef} style={{ zIndex: -10 }}>
                     <source src={`clip-video-file:///${encodeURIComponent(clipName)}`}></source>
                 </video>
             </Box>
             <Flex
                 gridColumn='1'
                 gridRow='1'
-                opacity={paused ? 1 : 0}
                 w='100%'
                 h='100%'
-                transition={transition}
-                justifyContent='center'
-                alignItems='center'
-                zIndex='2'
+                zIndex='1'
+                flexDir='column'
             >
-                <motion.div
-                    animate={{ "--play-size": paused ? "2.5em" : "0em" } as any}
+                <Flex
+                    flex='1'
+                    w='100%'
+                    h='100%'
+                    justifyContent='center'
+                    alignItems='center'
+                    opacity={paused ? 1 : 0}
+                    transition={transition}
+                    bg={paused ? "rgba(0,0,0,.4)" : "rgba(0,0,0,0)"}
+                    onClick={() => pauseVideo(!paused)}
                 >
-                    <FaPlay style={{ width: 'var(--play-size)', height: 'var(--play-size)' }} />
-                </motion.div>
+                    <motion.div
+                        animate={{
+                            "--play-size": paused ? "2.5em" : "0em",
+                        } as any}
+                    >
+                        <FaPlay style={{ width: 'var(--play-size)', height: 'var(--play-size)', cursor: "pointer" }} />
+                    </motion.div>
+                </Flex>
+                <Flex
+                    w='100%'
+                    h='10%'
+                    pl='3'
+                    pr='3'
+                    bg='rgba(0,0,0,0.6)'
+                    transition={transition}
+                    opacity={paused || isVideoHovered ? "1" : 0}
+                >
+                    <Flex
+                        w='100%'
+                        h='100%'
+                        display='none'
+                    >
+                        <Slider
+                            aria-label='time-slider'
+                            value={videoRef?.current?.currentTime}
+                            defaultValue={0}
+                            max={duration}
+                        >
+                            <SliderTrack>
+                                <SliderFilledTrack />
+                            </SliderTrack>
+                            <SliderThumb />
+                        </Slider>
+                    </Flex>
+                    <Flex
+                        w='100%'
+                        h='100%'
+                        justifyContent='space-around'
+                        alignItems='center'
+                    >
+                        {([
+                            [
+                                s => !paused ?
+                                    <FaPause style={{ ...iconStyle, ...s as any }} /> :
+                                    <FaPlay style={{ ...iconStyle, ...s as any }} />,
+                                !paused ? () => pauseVideo(true) : () => pauseVideo(false)
+                            ],
+                            [
+                                s => <IoMdCut style={{ ...iconStyle, ...s as any }} />,
+                                generateClip
+                            ],
+                            [
+                                s => <BsArrowCounterclockwise style={{ ...iconStyle, ...s as any }} />,
+                                resetSettings
+                            ]
+                        ] as [(additionalStyle: CSSProperties) => JSX.Element, () => void][])
+                            .map(([element, onClick]) => <Flex
+                                onClick={onClick}
+                                w='100%'
+                                h='100%'
+                                justifyContent='center'
+                                alignItems='center'
+                                cursor='pointer'
+                                _hover={{ "--scaleHover": "1.2" } as any}
+                            >
+                                {element({
+                                    transform: "scale(var(--scaleHover, 1))",
+                                    transition: transition
+                                })}
+                            </Flex>)
+                        }
+                    </Flex>
+                </Flex>
             </Flex>
         </Grid>
         <Flex
@@ -353,11 +453,13 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             bg='gray'
             ref={outerBar}
             onMouseMove={e => processMouseMove(e)}
-            onContextMenu={e => (e.button === 2 || e.button === 1) && processMouseMove(e)}
+            onContextMenu={e => (e.button === 2 /*|| e.button === 1*/) && processMouseMove(e)}
             onMouseDown={e => {
                 if (e.button === 2)
                     startSeekDrag()
-                if (e.button === 1) {
+
+                //TODO: Implement middle mouse button move
+                if (e.button === 1 && false as any) {
                     setLastMouseX(e.clientX);
                 }
             }}

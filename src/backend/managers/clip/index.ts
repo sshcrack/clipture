@@ -6,14 +6,16 @@ import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import fs from "fs"
 import { readFile } from 'fs/promises'
 import glob from "glob"
-import {type execa as execaType } from "execa"
+import { type execa as execaType } from "execa"
 import path from "path"
 import { v4 as uuid } from "uuid"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail } from "thumbsupply"
 import { promisify } from "util"
 import { DetectableGame } from '../obs/Scene/interfaces'
-import { Clip, getClipInfo, getClipInfoPath } from './interface'
+import { Clip, ClipCutInfo } from './interface'
+import { Progress } from '@backend/processors/events/interface'
+import { getClipInfo, getClipInfoPath } from './func'
 
 const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -21,6 +23,7 @@ export class ClipManager {
     private static imageData = new Map<string, string>()
     private static cache = new Map<string, DetectableGame>()
     private static execa: typeof execaType = null
+    private static processing = new Map<ClipCutInfo, Progress>()
 
     static async list() {
         const clipPath = Storage.get("clip_path")
@@ -71,7 +74,9 @@ export class ClipManager {
 
     static register() {
         RegManMain.onPromise("clips_list", () => this.list())
-        RegManMain.onPromise("clips_cut", (_, e) => this.cut(e))
+        RegManMain.onPromise("clips_cut", (_, e) => this.cut(e, prog => RegManMain.send("clip_update", e, prog)))
+        RegManMain.onPromise("clips_cutting", async () => Array.from(this.processing.entries()))
+
         const cachePath = getClipCachePath()
         const exists = fs.existsSync(cachePath)
         if (exists)
@@ -124,7 +129,10 @@ export class ClipManager {
         });
     }
 
-    static async cut({clipName: videoName, start, end}: {clipName: string, start: number, end: number}) {
+    static async cut(clipObj: ClipCutInfo, onProgress: (prog: Progress) => void) {
+        let { clipName: videoName, start, end } = clipObj
+
+        log.log("Cutting clip", videoName, "from", start, "to", end)
         videoName = videoName.split("..").join("").split("/").join("").split("\\").join("")
         const id = uuid()
 
@@ -141,10 +149,50 @@ export class ClipManager {
         const ffmpegExe = MainGlobals.ffmpegExe
         const commandRunner = this.execa ?? (await import("execa")).execa
 
-        await commandRunner(ffmpegExe, [ "-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), clipOut])
+        const commandOut = commandRunner(ffmpegExe, ["-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), "-progress", "pipe:1", clipOut])
+        //? Duration in microseconds because ffmpeg is stupid
+        const duration = (end - start) * 1000 * 1000
+
+        let lastOutput = ""
+        commandOut.stdout?.on("data", chunk => {
+            lastOutput += chunk.toString("utf-8")
+            if (!lastOutput.includes("progress="))
+                return
+
+            const splitSegs = lastOutput
+                .split(" ").join("")
+                .split("\r").join("")
+                .split("\n").map(e => e.split("="))
+                .map(([key, val]) => ([key, isNaN(val as any as number) ? val : parseFloat(val)]))
+
+            const data = Object.fromEntries(splitSegs)
+            //? FFMPEG is stupid thats why its in microseconds
+            const curr = data?.["out_time_ms"]
+
+            log.silly("Clip", videoName, curr / duration * 100, "%")
+
+            lastOutput = ""
+            const prog = {
+                status: "Cutting clip...",
+                percent: curr / duration
+            }
+
+            this.processing.set(clipObj, prog)
+            onProgress(prog)
+        })
+
+
+        await commandOut
+        this.processing.delete(clipObj)
+
+        log.log("Clip was being cut successfully.")
+        onProgress({
+            status: "Clip successfully cut.",
+            percent: 1
+        })
         fs.writeFileSync(withClippedExt, JSON.stringify({
             ...info,
-            orginal: videoName,
+            original: videoName,
             start: start,
             end: end
         }))

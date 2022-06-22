@@ -1,5 +1,5 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
-import { Clip } from '@backend/managers/clip/interface'
+import { Clip, ClipCutInfo } from '@backend/managers/clip/interface'
 import { LockedReturnType } from '@backend/managers/lock/interface'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
@@ -38,7 +38,8 @@ export type RegisterEventsPromises = {
     obs_stop_recording: (manual: boolean) => void,
 
     clips_list: () => Clip[],
-    clips_cut: ({}: { clipName: string, start: number, end: number}) => void
+    clips_cut: (clipsOptions: ClipCutInfo) => void,
+    clips_cutting: () => [ClipCutInfo, Progress][]
 }
 
 export type MainToRender = {
@@ -46,7 +47,8 @@ export type MainToRender = {
     auth_update: () => void,
     process_update: (old: WindowInformation[], details: WindowInformation[]) => void,
     obs_record_change: (recording: boolean) => void,
-    toast_show: (options: UseToastOptions) => void
+    toast_show: (options: UseToastOptions) => void,
+    clip_update: (clip: ClipCutInfo, prog: Progress) => void
 }
 
 export type Prefixes = "obs"
