@@ -5,21 +5,30 @@
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start -- dev",
+    "start": "electron-forge start",
+    "dev": "electron-forge start -- dev",
+    "prod": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "eslint --ext .ts,.tsx ."
+    "lint": "eslint --ext .ts,.tsx .",
+    "server": "cd .. && cd clipture-server && yarn start -p 3001",
+    "serdev": "cd .. && cd clipture-server && yarn dev -p 3001"
   },
   "keywords": [],
   "author": {
     "name": "sshcrack",
     "email": "hendrik.lind777@gmail.com"
   },
+  "build": {
+    "appId": "me.sshcrack.clipture"
+  },
   "license": "MIT",
   "config": {
     "forge": {
       "packagerConfig": {
+        "icon": "./src/assets/main/logo.ico",
+        "appBundleId": "me.sshcrack.clipture",
         "afterExtract": [
           "copy_natives.js"
         ]
@@ -30,9 +39,9 @@
           "config": {
             "name": "clipture",
             "authors": "sshcrack",
-            "description": "Clip your best ingame moments using clipture!",
-            "loadingGif": "src/assets/loading.gif",
-            "icon": "src/assets/logo.ico"
+            "description": "Clip your best in-game moments using clipture!",
+            "loadingGif": "src/assets/renderer/loading.gif",
+            "icon": "src/assets/main/logo.ico"
           }
         }
       ],
@@ -56,7 +65,7 @@
         [
           "@electron-forge/plugin-webpack",
           {
-            "devContentSecurityPolicy": "default-src 'self' data: 'unsafe-inline' 'unsafe-eval' https://cdn.discordapp.com https://clipture.sshcrack.me; connect-src 'self' http://localhost:3000 https://clipture.sshcrack.me;",
+            "devContentSecurityPolicy": "default-src 'self' data: 'unsafe-inline' clip-video-file: 'unsafe-eval' https://clipture.sshcrack.me; connect-src https://clipture.sshcrack.me 'self' http://localhost:3000;",
             "mainConfig": "./webpack.main.config.js",
             "renderer": {
               "config": "./webpack.renderer.config.js",
@@ -66,7 +75,15 @@
                   "js": "./src/pages/dashboard/renderer.ts",
                   "name": "main_window",
                   "preload": {
-                    "js": "./src/preload/index.ts"
+                    "js": "./src/preload/main/index.ts"
+                  }
+                },
+                {
+                  "html": "./src/pages/global/index.html",
+                  "js": "./src/pages/preview/renderer.ts",
+                  "name": "preview_window",
+                  "preload": {
+                    "js": "./src/preload/preview/index.ts"
                   }
                 }
               ]
@@ -83,19 +100,23 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.61",
     "@electron-forge/maker-zip": "^6.0.0-beta.61",
     "@electron-forge/plugin-webpack": "6.0.0-beta.61",
+    "@types/dom-mediacapture-transform": "^0.1.3",
+    "@types/node": "^18.0.0",
+    "@types/node-notifier": "^8.0.2",
     "@types/react": "^18.0.4",
     "@types/react-dom": "^18.0.0",
     "@types/react-virtualized": "^9.21.21",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^4.0.1",
     "@typescript-eslint/parser": "^4.0.1",
-    "@vercel/webpack-asset-relocator-loader": "1.7.0",
+    "@vercel/webpack-asset-relocator-loader": "^1.7.2",
     "css-loader": "^6.0.0",
     "electron": "18.0.3",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.0.1",
+    "native-ext-loader": "^2.3.0",
     "node-loader": "^2.0.0",
     "style-loader": "^3.0.0",
     "ts-loader": "^9.2.2",
@@ -106,22 +127,33 @@
     "@chakra-ui/react": "^1.8.8",
     "@emotion/react": "11",
     "@emotion/styled": "11",
-    "@streamlabs/obs-studio-node": "https://s3-us-west-2.amazonaws.com/obsstudionodes3.streamlabs.com/osn-0.20.19-release-win64.tar.gz",
+    "@fontsource/varela-round": "^4.5.8",
+    "@streamlabs/obs-studio-node": "D:\\NodeJS\\libs\\obs-studio-node-fix\\archive7.tar.gz",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
     "electron-log": "^4.4.6",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.0.1",
+    "electron-unhandled": "^4.0.1",
+    "electron-util": "^0.17.2",
+    "execa": "^6.1.0",
+    "exit-hook": "^3.0.0",
+    "ffmetadata": "^1.7.0",
     "framer-motion": "6",
     "got": "^11.8.3",
     "jszip": "^3.9.1",
+    "node-addon-loader": "^0.0.6",
+    "node-notifier": "^10.0.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-icons": "^4.3.1",
+    "react-icons": "^4.4.0",
     "react-virtualized": "^9.22.3",
     "source-map-support": "^0.5.21",
+    "thumbsupply": "https://github.com/sshcrack/thumbsupply-webpack-fix",
+    "type-fest": "^2.12.2",
     "typed-emitter": "^2.1.0",
     "unpacker-with-progress": "^2.0.3",
+    "update-electron-app": "^2.0.1",
     "use-http": "^1.0.26",
     "uuid": "^8.3.2"
   }

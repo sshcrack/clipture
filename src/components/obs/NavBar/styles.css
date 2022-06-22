@@ -1,3 +1,9 @@
 .navbar {
     padding-right: 0 !important;
 }
+
+.navbar-record-button {
+    background-image: linear-gradient(to left, var(--color-primary) 0%, var(--color-secondary) 100%) !important;
+    background-size: 200% auto !important;
+    transition: .2s ease-in-out !important;
+}

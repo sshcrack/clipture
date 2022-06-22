@@ -1,6 +1,6 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces';
 import { useToast } from '@chakra-ui/react';
-import { SetStateAction, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("Hooks", "useSession")

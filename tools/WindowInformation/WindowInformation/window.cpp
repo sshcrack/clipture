@@ -1,12 +1,36 @@
 #pragma comment (lib, "dwmapi.lib")
+#pragma comment (lib, "Version.lib")
+#pragma comment (lib, "User32.lib")
+
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <windows.h>
 #include <WinUser.h>
+#include <winver.h>
+#include <sdkddkver.h>
+
+
+#include <Psapi.h>
+#include <filesystem>
+
+#include <memory>
+#include <string>
+#include <cstddef>
 
 #include "validators.h"
 
+
+#define SZ_STRING_FILE_INFO_W L"StringFileInfo"
+#define SZ_PRODUCT_NAME_W L"ProductName"
+#define SZ_HEX_LANG_ID_EN_US_W L"0409"
+#define SZ_HEX_CODE_PAGE_ID_UNICODE_W L"04B0"
+
+
+
+using namespace std;
+namespace fs = std::filesystem;
 
 extern bool IsUWPWindow(HWND hwnd)
 {
@@ -110,4 +134,195 @@ extern HWND FirstWindow(enum WindowSearchMode mode, HWND* parent,
 	return window;
 }
 
+extern void GetAllWindowsFromProcessID(DWORD dwProcessID, vector<HWND>& vhWnds)
+{
+	// find all hWnds (vhWnds) associated with a process id (dwProcessID)
+	HWND hCurWnd = nullptr;
+	do
+	{
+		hCurWnd = FindWindowEx(nullptr, hCurWnd, nullptr, nullptr);
+		DWORD checkProcessID = 0;
+		GetWindowThreadProcessId(hCurWnd, &checkProcessID);
+		if (checkProcessID == dwProcessID)
+		{
+			vhWnds.push_back(hCurWnd);  // add the found hCurWnd to the vector
+			//wprintf(L"Found hWnd %d\n", hCurWnd);
+		}
+	} while (hCurWnd != nullptr);
+}
 
+extern bool GetProductNameFromExe(string full_exe, string& productName)
+{
+	wstring convert(full_exe.begin(), full_exe.end());
+	LPCWSTR exe_lpw = convert.c_str();
+
+	[[maybe_unused]] DWORD dummy{};
+	auto const required_buffer_size
+	{
+		::GetFileVersionInfoSizeExW
+		(
+			FILE_VER_GET_NEUTRAL, exe_lpw, ::std::addressof(dummy)
+		)
+	};
+	if (0 == required_buffer_size)
+	{
+		return false;
+	}
+	auto const p_buffer
+	{
+		::std::make_unique<char[]>
+		(
+			static_cast<::std::size_t>(required_buffer_size)
+		)
+	};
+	auto const get_version_info_result
+	{
+		::GetFileVersionInfoExW
+		(
+			FILE_VER_GET_NEUTRAL
+		,   exe_lpw
+		,   DWORD{}
+		,   required_buffer_size
+		,   static_cast<void*>(p_buffer.get())
+		)
+	};
+	if (FALSE == get_version_info_result)
+	{
+		return false;
+	}
+	LPVOID p_value{};
+	UINT value_length{};
+	bool query_result = VerQueryValueW
+	(
+		static_cast<void*>(p_buffer.get())
+		, L"\\" SZ_STRING_FILE_INFO_W
+		L"\\" SZ_HEX_LANG_ID_EN_US_W SZ_HEX_CODE_PAGE_ID_UNICODE_W
+		L"\\" SZ_PRODUCT_NAME_W
+		, ::std::addressof(p_value)
+		, ::std::addressof(value_length)
+	);
+
+	if
+		(
+			(FALSE == query_result)
+			or
+			(nullptr == p_value)
+			or
+			((required_buffer_size / sizeof(wchar_t)) < value_length)
+			)
+	{
+		return false;
+	}
+	wstring const w_product_name
+	{
+		static_cast<wchar_t const*>(p_value)
+	,   static_cast<::std::size_t>(value_length)
+	};
+
+	string temp(w_product_name.begin(), w_product_name.end());
+	productName = temp;
+	return true;
+}
+
+extern bool HWNDToMonitor(HWND hwnd, HMONITOR& monitor)
+{
+	monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+	return monitor != NULL;
+}
+
+extern bool InterceptsWithMultipleMonitors(HWND hwnd) 
+{
+	HMONITOR monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONULL);
+	return monitor != NULL;
+}
+
+extern bool GetMonitorDimensions(HMONITOR monitor, int& width, int& height)
+{
+	MONITORINFO info{};
+	info.cbSize = sizeof(info);
+	if (!GetMonitorInfoA(monitor, &info)) {
+		return false;
+	}
+
+	width = info.rcMonitor.right - info.rcMonitor.left;
+	height = info.rcMonitor.bottom - info.rcMonitor.top;
+	return true;
+}
+
+extern bool IsFocused(HWND hwnd)
+{
+	return GetForegroundWindow() == hwnd;
+}
+
+extern bool GetExe(HWND wnd, string& executable, bool fullPath = false)
+{
+	TCHAR path_buf[MAX_PATH];
+	DWORD id[MAX_PATH];
+	GetWindowThreadProcessId(wnd, id);
+
+	HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | PROCESS_TERMINATE, FALSE, *id);
+	if (hProc == 0)
+		return false;
+
+
+	if (GetModuleFileNameEx(hProc, NULL, path_buf, MAX_PATH) == 0)
+		return false;
+
+	wstring wexe(path_buf);
+	string exe(wexe.begin(), wexe.end());
+	CloseHandle(hProc);
+	if (fullPath) {
+		executable = exe;
+		return true;
+	}
+	fs::path p(exe);
+
+	executable = p.filename().string();
+
+	return true;
+}
+
+
+extern void GetTitle(HWND hwnd, string& title)
+{
+	int len;
+
+	len = GetWindowTextLengthW(hwnd);
+	if (!len)
+		return;
+
+	if (len > 1024) {
+		TCHAR chartemp[2052];
+		if (!GetWindowTextW(hwnd, chartemp, len + 1))
+			return;
+
+		wstring wtemp(chartemp);
+		string temp(wtemp.begin(), wtemp.end());
+
+		title = temp;
+	}
+	else {
+		wchar_t chartemp[1024 + 1];
+
+		if (!GetWindowTextW(hwnd, chartemp, len + 1))
+			return;
+
+		wstring wtemp(chartemp);
+		string temp(wtemp.begin(), wtemp.end());
+
+		title = temp;
+	}
+}
+
+extern void GetWindowClass(HWND wnd, string& className)
+{
+	TCHAR curr[MAX_PATH];
+	WCHAR path[MAX_PATH];
+
+	GetClassName(wnd, curr, MAX_PATH);
+
+	wstring wclass(curr);
+	string temp(wclass.begin(), wclass.end());
+
+	className = temp;
+}

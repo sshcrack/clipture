@@ -1,11 +1,15 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
-
-import { registerFuncs } from '@backend/registerFuncs';
-import { app, BrowserWindow, dialog } from 'electron';
-import { OBSManager } from './backend/managers/obs';
 import { MainGlobals } from './Globals/mainGlobals';
+
+import { ProcessManager } from '@backend/managers/process';
+import { registerFuncs } from '@backend/registerFuncs';
+import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import exitHook from 'exit-hook';
+import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
+import { addCrashHandler, addUpdater } from './main_funcs';
+import { ClipManager } from '@backend/managers/clip';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -26,8 +30,8 @@ logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.
 let mainWindow: BrowserWindow;
 const createWindow = (): void => {
   mainWindow = new BrowserWindow({
-    height: 600,
-    width: 800,
+    height: 700,
+    width: 1000,
     darkTheme: true,
     frame: false,
     webPreferences: {
@@ -39,7 +43,8 @@ const createWindow = (): void => {
   mainWindow.setMenuBarVisibility(false)
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.maximize()
-  mainWindow.setIcon(__dirname + "/../renderer/assets/logo.ico")
+  mainWindow.setIcon(MainGlobals.iconFile)
+  ClipManager.registerProtocol()
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
@@ -75,6 +80,31 @@ app.on('activate', () => {
   }
 });
 
-app.on("will-quit", () => MainGlobals.obs.shutdown())
+let alreadyShutdown = false
 
+const handleExit = () => {
+  if (alreadyShutdown)
+    return
+
+  logger.log("Shutting down...")
+  alreadyShutdown = true
+  ClipManager.shutdown()
+  MainGlobals.obs.shutdown()
+  ProcessManager.exit()
+}
+
+ipcMain.handle("quit-app", () => handleExit())
+ipcMain.on("isDev", e => {
+  e.returnValue = process.argv[2] === "dev"
+})
+app.on("will-quit", () => {
+  handleExit()
+})
+
+logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
+addCrashHandler()
+addUpdater()
+
+
+exitHook(() => handleExit())
 registerFuncs.map(e => e())

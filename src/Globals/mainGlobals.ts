@@ -1,3 +1,11 @@
+
+const ffmpegExe = __dirname + "/assets/ffmpeg.exe";
+const ffprobeExe = __dirname + "/assets/ffprobe.exe";
+
+process.env.FFMPEG_PATH = ffmpegExe
+process.env.FFPROBE_PATH = ffprobeExe
+
+
 import { OBSManager } from '@backend/managers/obs';
 import { app, BrowserWindow } from 'electron';
 import fs from "fs";
@@ -5,8 +13,20 @@ import os from "os";
 import path from "path";
 
 
+function isDev() {
+    return process.argv[2] === "dev"
+}
+
+let isDevCached = isDev()
 export class MainGlobals {
     static window: BrowserWindow
+    static baseUrl = isDevCached ? "http://localhost:3001" : "https://clipture.sshcrack.me"
+    static gameUrl = this.baseUrl + "/api/game/detection"
+
+    static readonly nativeMngExe = __dirname + "/assets/native_mng.exe"
+    static readonly ffmpegExe = ffmpegExe
+    static readonly ffprobeExe = ffprobeExe
+    static readonly iconFile = __dirname + "./assets/logo.ico";
     static obs: OBSManager;
 
 

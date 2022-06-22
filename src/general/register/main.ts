@@ -2,11 +2,12 @@ if (!process)
     throw new Error("Register Manager main can not be used in renderer.")
 
 
-import { ipcMain, IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron'
+import { BrowserWindow, ipcMain, IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { MainToRender, RegisterEvents, RegisterEventsPromises } from "./type"
 
 const log = MainLogger.get("RegisterManager", "Main")
+
 
 export class RegManMain {
     static eventSync = [] as string[]
@@ -27,11 +28,14 @@ export class RegManMain {
     }
 
     static onPromise<T extends keyof RegisterEventsPromises, K extends Parameters<RegisterEventsPromises[T]>, X extends ReturnType<RegisterEventsPromises[T]>>(event: T, callback: (event: IpcMainInvokeEvent, ...args: K) => Promise<X>) {
-        log.debug("Registering promise event:", event)
+        const registered = this.eventProm.includes(event)
+        if (registered) {
+            log.error(new Error(`Tried to register event '${event}' more than once. `))
+            return
+        }
+        log.debug("Registering prom event:", event)
 
-        if (!this.eventProm.includes(event))
-            this.eventProm.push(event)
-
+        this.eventProm.push(event)
         return ipcMain.handle(event, (e, ...args) => callback(e, ...args as any)
         )
     }
@@ -40,9 +44,8 @@ export class RegManMain {
         return ipcMain.emit(event, ...args)
     }
 
-    static send<T extends keyof MainToRender, K extends Parameters<MainToRender[T]>>(sender: WebContents, event: T, ...args: K) {
-        log.warn("Send: Event not registered:", event)
-        return sender.send(event, ...args)
+    static send<T extends keyof MainToRender, K extends Parameters<MainToRender[T]>>(event: T, ...args: K) {
+        return BrowserWindow.getAllWindows().map(e => e.webContents.send(event, ...args))
     }
 
     static register() {

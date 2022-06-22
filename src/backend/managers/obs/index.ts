@@ -1,20 +1,28 @@
+import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
-import { SceneFactory, NodeObs as notTypedOBS, InputFactory } from '@streamlabs/obs-studio-node'
+import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { ipcMain } from 'electron'
-import { EOBSSettingsCategories as SettingsCat } from 'src/types/obs/obs-enums'
+import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
 import { LockManager } from '../lock'
+import { getAvailableValues, setOBSSetting as setSetting } from './base'
+import { PreviewManager } from './core/preview'
+import { RecordManager } from './core/record'
+import { Scene } from './Scene'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 
 
 const NodeObs: NodeObs = notTypedOBS
 const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
+
 export class OBSManager {
     private obsInitialized = false
+    public previewInstance = new PreviewManager()
+    public recordManager = new RecordManager()
 
     constructor() {
         this.register()
@@ -35,16 +43,24 @@ export class OBSManager {
 
 
         inst.updateListeners({
-            percent: .5,
+            percent: .3,
             status: "Configuring OBS..."
         })
-        await this.configure()
+        this.configure()
+
+
+        inst.updateListeners({
+            percent: .6,
+            status: "Initializing scene..."
+        })
+        await Scene.initialize()
 
         inst.unlock({
             percent: 1,
             status: "OBS initialized"
         })
 
+        this.recordManager.initialize()
         this.obsInitialized = true
     }
 
@@ -88,6 +104,7 @@ export class OBSManager {
         if (!this.obsInitialized && !force)
             return
 
+        await this.previewInstance.shutdown()
         log.info("Shutting OBS down...")
         try {
             NodeObs.OBS_service_removeCallback();
@@ -105,68 +122,21 @@ export class OBSManager {
         const Output = SettingsCat.Output
         const Video = SettingsCat.Video
 
-        const availableEncoders = this.getAvailableValues(Output, 'Recording', 'RecEncoder');
-        this.setSetting(Output, "Mode", "Advanced")
-        this.setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
-        this.setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
-        this.setSetting(Output, 'RecFormat', 'mkv');
-        this.setSetting(Output, 'VBitrate', 10000); // 10 Mbps
-        this.setSetting(Video, 'FPSCommon', 60);
+        const availableEncoders = getAvailableValues(Output, 'Recording', 'RecEncoder');
+        setSetting(Output, "Mode", "Advanced")
+        setSetting(Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
+        setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
+        setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
+        setSetting(Output, 'RecFormat', 'mkv');
+        setSetting(Output, 'VBitrate', 10000); // 10 Mbps
+        setSetting(Video, 'FPSCommon', 60);
 
         log.info("Configured OBS successfully!")
     }
 
-
-    private setSetting(category: SettingsCat, parameter: string, value: string | number) {
-        let oldValue: string | number;
-        const settings = NodeObs.OBS_settings_getSettings(category).data;
-
-        settings.forEach(subCategory => {
-            subCategory.parameters.forEach(param => {
-                if (param.name === parameter) {
-                    oldValue = param.currentValue;
-                    param.currentValue = value;
-                }
-            });
-        });
-
-        if (value === oldValue)
-            return
-
-        NodeObs.OBS_settings_saveSettings(category, settings);
-    }
-
-    private getAvailableValues(category: SettingsCat, subcategory: string, parameter: string) {
-        const categorySettings = NodeObs.OBS_settings_getSettings(category).data;
-        if (!categorySettings) {
-            log.warn(`There is no category ${category} in OBS settings`);
-            return [];
-        }
-
-        const subcategorySettings = categorySettings.find(sub => sub.nameSubCategory === subcategory);
-        if (!subcategorySettings) {
-            log.warn(`There is no subcategory ${subcategory} for OBS settings category ${category}`);
-            return [];
-        }
-
-        const parameterSettings = subcategorySettings.parameters.find(param => param.name === parameter);
-        if (!parameterSettings) {
-            log.warn(`There is no parameter ${parameter} for OBS settings category ${category}.${subcategory}`);
-            return [];
-        }
-
-        return parameterSettings.values.map(value => Object.values(value)[0]);
-    }
-
-    public async getAvailable() {
-        log.debug("Getting available OBS sources")
-        return InputFactory.getPublicSources()
-    }
-
-    public register() {
+    private register() {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
-        reg.onPromise("obs_available_windows", () => this.getAvailable())
     }
 }

@@ -1,8 +1,8 @@
+import { notify } from '@backend/tools/notifier';
 import { RegManMain } from '@general/register/main';
-import { Globals } from '@Globals';
 import { MainGlobals } from '@Globals/mainGlobals';
-import { SecureKeys, Storage } from '@Globals/storage';
-import { BrowserWindow, shell } from 'electron';
+import { Storage } from '@Globals/storage';
+import { shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { v4 as uuid } from "uuid";
@@ -10,10 +10,9 @@ import { SessionData, SessionStatus } from './interfaces';
 
 
 const log = MainLogger.get("Backend", "Managers", "AuthManager")
-const baseUrl = Globals.baseUrl;
+const baseUrl = MainGlobals.baseUrl;
 
 export class AuthManager {
-    private static window: BrowserWindow
     public static readonly TIMEOUT = 1000 * 60 * 10// 10 Minutes
     public static readonly FetchInterval = 100
     private static currId = null as string
@@ -30,25 +29,30 @@ export class AuthManager {
 
         this.currId = id
         const secrets = await this.authFetch(id, begin)
-        console.log("Saving secrets")
-        Object.entries(secrets).forEach(([key, value]) => Storage.setSecure(key as SecureKeys, value))
+        console.log("Saving secrets", secrets.map(e => e.key))
+        for (const obj of secrets) {
+            const { key, cookie, type } = obj;
+
+            Storage.set(getID(type, "key"), key)
+            Storage.setSecure(getID(type, "value"), cookie)
+        }
 
         this.updateListeners()
         return id
     }
 
     private static updateListeners() {
-        RegManMain.send(MainGlobals.window.webContents, "auth_update")
+        RegManMain.send("auth_update")
     }
 
     private static authFetch(id: string, startTime: number) {
-        return new Promise<SessionCookies>(async (resolve, reject) => {
+        return new Promise<ClientSessionInterface[]>(async (resolve, reject) => {
             if (Date.now() - startTime > this.TIMEOUT) {
                 log.info("Timeout has  been exceeded", Date.now() - startTime)
                 return reject(new Error("Timeout of " + this.TIMEOUT + "ms exceeded"))
             }
 
-            if(id !== this.currId) {
+            if (id !== this.currId) {
                 log.warn("AutoFetch has been aborted, because another one started")
                 return reject(new Error("AutoFetch has been aborted, because another one started"))
             }
@@ -71,17 +75,18 @@ export class AuthManager {
 
     static async getSession(): Promise<GetSessionReturn> {
         log.debug("Getting session...")
-        const cookies: SessionCookies = {
-            "next-auth.csrf-token": null,
-            "next-auth.session-token": null
-        }
+        const cookies = {} as { [key: string]: string }
 
-        for (const key of Object.keys(cookies) as SecureKeys[]) {
-            const value = await Storage.getSecure(key).catch(() => undefined)
-            if (value)
+
+        for (const cookieType of availableCookieTypes) {
+            const toGetKey = getID(cookieType, "key")
+            const toGetValue = getID(cookieType, "value")
+            const key = Storage.get(toGetKey) as string
+            const value = await Storage.getSecure(toGetValue).catch(() => undefined)
+            if (value && key)
                 cookies[key] = value
             else {
-                log.warn("Could not find value for key", key, "Probably means that this user is not logged in.")
+                log.warn("Could not find value for key", toGetValue, "or", toGetKey, "Probably means that this user is not logged in.")
                 return {
                     status: SessionStatus.UNAUTHENTICATED,
                     data: null
@@ -100,7 +105,7 @@ export class AuthManager {
             }
         }).then(e => JSON.parse(e.body) as SessionData)
 
-        if(Object.keys(response).length === 0)
+        if (Object.keys(response).length === 0)
             return {
                 data: undefined,
                 status: SessionStatus.UNAUTHENTICATED
@@ -112,34 +117,53 @@ export class AuthManager {
         }
     }
 
-    static signOut() {
-        requiredCookies.forEach(key => Storage.removeSecure(key))
+    static async signOut() {
+        const { recordManager } = MainGlobals.obs
+        for (const key in availableCookieTypes) {
+            const id = getID(key, "key")
+            const value = getID(key, "value")
+
+            Storage.delete(id as any)
+            await Storage.removeSecure(value)
+        }
+
+        const isRecording = recordManager.isRecording()
+        if(isRecording) {
+            await recordManager.stopRecording(true)
+            notify({
+                title: "Recording stopped",
+                message: "You have been signed out, because you've signed out"
+            })
+        }
+
         this.updateListeners()
     }
 
     static register() {
         RegManMain.onPromise("auth_authenticate", () => this.authenticate())
         RegManMain.onPromise("auth_get_session", () => this.getSession())
-        RegManMain.onSync("auth_signout", () => this.signOut())
+        RegManMain.onPromise("auth_signout", () => this.signOut())
     }
 }
 
 interface CheckReturnBody {
     reported: boolean,
-    entry: SessionCookies
+    entry: ClientSessionInterface[]
 }
 
-const requiredCookies = [
-    "next-auth.csrf-token",
-    "next-auth.session-token"
-] as const
-
-type TypedRequired = typeof requiredCookies[number]
-type SessionCookies = {
-    [key in TypedRequired]: string
+const availableCookieTypes = ["session", "csrf"]
+type CookieType = typeof availableCookieTypes[number]
+interface ClientSessionInterface {
+    cookie: string,
+    key: string,
+    type: CookieType
 }
 
 type GetSessionReturn = {
     data: SessionData,
     status: SessionStatus
+}
+
+function getID(type: CookieType, obj: "key" | "value") {
+    return `auth_${type}_` + obj
 }

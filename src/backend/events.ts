@@ -1,5 +1,5 @@
 import { LockManager } from './managers/lock';
 
-export function registerBackendEvents() {
+export function registerLockEvents() {
     LockManager.instance.register();
 }

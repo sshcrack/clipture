@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "allowJs": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
     "module": "commonjs",
     "skipLibCheck": true,
     "esModuleInterop": true,
     "noImplicitAny": true,
-    "sourceMap": true,
     "baseUrl": ".",
     "target": "ES2019",
     "jsx": "react",
