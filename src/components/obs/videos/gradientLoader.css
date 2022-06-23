@@ -9,7 +9,8 @@ body {
 }
 
 .gradientLoaderLinear {
-    background: linear-gradient(var(--gradient-first) 0%, var(--gradient-first) var(--gradient-percentage), var(--gradient-second) 100%)
+    --gradient-offset: calc(var(--gradient-percentage) + var(--gradient-percentage) * 0.15);
+    background: linear-gradient(var(--gradient-first) var(--gradient-percentage), var(--gradient-second) var(--gradient-offset), var(--gradient-second) 100%)
 }
 
 .gradientLoader {

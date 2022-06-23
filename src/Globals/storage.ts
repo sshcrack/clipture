@@ -66,6 +66,7 @@ export const Storage = new StorageExtended({
         "audio_devices": {
             "desktop": [] as string[],
             "mic": [] as string[]
-        }
-    }
+        },
+        "last_dashboard_page": 0
+    },
 })

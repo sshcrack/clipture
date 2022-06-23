@@ -6,6 +6,7 @@ import { ProcessManager } from './managers/process';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 import { ClipManager } from './managers/clip';
+import { SystemManager } from './managers/system';
 
 export const registerFuncs = [
     () => RegManMain.register(),
@@ -15,5 +16,6 @@ export const registerFuncs = [
     () => TitlebarManager.register(),
     () => Scene.register(),
     () => ProcessManager.register(),
-    () => ClipManager.register()
+    () => ClipManager.register(),
+    () => SystemManager.register()
 ]

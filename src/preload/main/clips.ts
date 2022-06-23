@@ -20,6 +20,7 @@ const clips = {
             listeners.splice(index, 1)
         }
     },
+    list: () => RegManRender.emitPromise("clips_list"),
     cut: (videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
         const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd })
         const listener = (clip: ClipCutInfo, prog: Progress) => {
@@ -35,7 +36,8 @@ const clips = {
                 return console.log("Invalid index for listener with video", videoName)
             listeners.splice(index, 1)
         })
-    }
+    },
+    delete: (clipName: string) => RegManRender.emitPromise("clips_delete", clipName)
 }
 
 RegManRender.on("clip_update", (_, x, y) => {

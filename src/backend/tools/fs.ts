@@ -8,10 +8,15 @@ export function existsProm(file: string) {
         .catch(() => false)
 }
 
-export function getClipCachePath() {
-    return path.join(MainGlobals.getTempDir(), "clip_cache.json")
+export function getVideoInfoCachePath() {
+    return path.join(MainGlobals.getTempDir(), "video_info_cache.json")
 }
 
-export function getClipImagePath() {
+
+export function getClipInfoCachePath() {
+    return path.join(MainGlobals.getTempDir(), "clip_info_cache.json")
+}
+
+export function getSharedImageCachePath() {
     return path.join(MainGlobals.getTempDir(), "clip_image.json")
 }

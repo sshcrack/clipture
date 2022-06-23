@@ -8,19 +8,15 @@ import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
 import "src/components/obs/NavBar/styles.css";
-import Preview from '../videos/preview';
 import NavBarButton from './NavBarButton';
 
 export function NavBar({ data }: { data: SessionData }) {
-    const { image, name } = data.user
     const { auth, obs } = window.api
     const [recording, setRecording] = useState(() => window.api.obs.isRecording())
     const [recordDesc, setRecordDesc] = useState("Unknown")
     const computed = getComputedStyle(document.body)
     const brandPrimary = computed.getPropertyValue("--chakra-colors-brand-primary")
     const brandSecondary = computed.getPropertyValue("--chakra-colors-brand-secondary")
-
-    console.log("primary", brandPrimary, brandSecondary)
 
     useEffect(() => {
         obs.onRecordChange(r => {

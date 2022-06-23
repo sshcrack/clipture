@@ -1,5 +1,5 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
-import { Video, ClipCutInfo } from '@backend/managers/clip/interface'
+import { ClipCutInfo, ExtendedClip, Video } from '@backend/managers/clip/interface'
 import { LockedReturnType } from '@backend/managers/lock/interface'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
@@ -38,8 +38,14 @@ export type RegisterEventsPromises = {
     obs_stop_recording: (manual: boolean) => void,
 
     video_list: () => Video[],
+    clips_list: () => ExtendedClip[],
     clips_cut: (clipsOptions: ClipCutInfo) => void,
-    clips_cutting: () => [ClipCutInfo, Progress][]
+    clips_cutting: () => [ClipCutInfo, Progress][],
+    clips_delete: (clipName: string) => void
+
+    system_open_folder: (path: string) => void,
+    system_get_dashboard_page_default: () => number,
+    system_set_default_dashboard_page: (newIndex: number) => void
 }
 
 export type MainToRender = {
