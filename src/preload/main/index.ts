@@ -8,6 +8,7 @@ import lock from "./lock";
 import obs from "./obs";
 import process from "./process";
 import titlebar from "./titlebar";
+import videos from './videos';
 
 
 
@@ -18,6 +19,7 @@ RegManRender.on("toast_show", (_, options) => toastHandlers.map(e => e(options))
 
 export const API = {
     clips,
+    videos,
     lock,
     obs,
     auth,

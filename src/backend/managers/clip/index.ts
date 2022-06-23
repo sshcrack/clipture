@@ -1,21 +1,21 @@
+import { Progress } from '@backend/processors/events/interface'
 import { getClipCachePath, getClipImagePath } from '@backend/tools/fs'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
+import { type execa as execaType } from "execa"
 import fs from "fs"
 import { readFile } from 'fs/promises'
 import glob from "glob"
-import { type execa as execaType } from "execa"
 import path from "path"
-import { v4 as uuid } from "uuid"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail } from "thumbsupply"
 import { promisify } from "util"
+import { v4 as uuid } from "uuid"
 import { DetectableGame } from '../obs/Scene/interfaces'
-import { Clip, ClipCutInfo } from './interface'
-import { Progress } from '@backend/processors/events/interface'
-import { getClipInfo, getClipInfoPath } from './func'
+import { getVideoInfo, getVideoInfoPath } from './func'
+import { ClipCutInfo, Video } from './interface'
 
 const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -25,7 +25,7 @@ export class ClipManager {
     private static execa: typeof execaType = null
     private static processing = new Map<ClipCutInfo, Progress>()
 
-    static async list() {
+    static async listVideos() {
         const clipPath = Storage.get("clip_path")
         const globPattern = `${clipPath}/**/*!(.clipped).mkv`
         const files = (await globProm(globPattern))
@@ -54,12 +54,12 @@ export class ClipManager {
 
                     let gameInfo = this.cache.get(file) as DetectableGame | null
                     if (!gameInfo)
-                        gameInfo = await getClipInfo(clipPath, path.basename(file))
+                        gameInfo = await getVideoInfo(clipPath, path.basename(file))
 
                     const clipName = path.basename(file)
                     return {
-                        clipName: clipName,
-                        clip: file,
+                        videoName: clipName,
+                        video: file,
                         info: gameInfo ?? null,
                         thumbnail: "data:image/png;base64," + this.imageData.get(file)
                     }
@@ -69,11 +69,11 @@ export class ClipManager {
             .catch(e => {
                 log.error(e)
                 throw e
-            }) as Clip[]
+            }) as Video[]
     }
 
     static register() {
-        RegManMain.onPromise("clips_list", () => this.list())
+        RegManMain.onPromise("video_list", () => this.listVideos())
         RegManMain.onPromise("clips_cut", (_, e) => this.cut(e, prog => RegManMain.send("clip_update", e, prog)))
         RegManMain.onPromise("clips_cutting", async () => Array.from(this.processing.entries()))
 
@@ -130,7 +130,7 @@ export class ClipManager {
     }
 
     static async cut(clipObj: ClipCutInfo, onProgress: (prog: Progress) => void) {
-        let { clipName: videoName, start, end } = clipObj
+        let { videoName, start, end } = clipObj
 
         log.log("Cutting clip", videoName, "from", start, "to", end)
         videoName = videoName.split("..").join("").split("/").join("").split("\\").join("")
@@ -140,8 +140,8 @@ export class ClipManager {
         const videoPath = path.join(clipRoot, videoName)
         const clipOut = path.join(clipRoot, path.basename(videoName, path.extname(videoName)) + id + ".clipped.mp4")
 
-        const infoPath = getClipInfoPath(clipRoot, videoName)
-        const info = await getClipInfo(clipRoot, videoName)
+        const infoPath = getVideoInfoPath(clipRoot, videoName)
+        const info = await getVideoInfo(clipRoot, videoName)
 
         const withClippedExt = infoPath.replace(".mkv.json", "") + id + ".clipped.mp4.json"
 
@@ -150,7 +150,7 @@ export class ClipManager {
         const commandRunner = this.execa ?? (await import("execa")).execa
 
         const commandOut = commandRunner(ffmpegExe, ["-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), "-progress", "pipe:1", clipOut])
-        //? Duration in microseconds because ffmpeg is stupid
+        //? Duration in microseconds because ffmpeg is stupid and titles it as milliseconds
         const duration = (end - start) * 1000 * 1000
 
         let lastOutput = ""
@@ -159,13 +159,13 @@ export class ClipManager {
             if (!lastOutput.includes("progress="))
                 return
 
-            const splitSegs = lastOutput
+            const splitSegments = lastOutput
                 .split(" ").join("")
                 .split("\r").join("")
                 .split("\n").map(e => e.split("="))
                 .map(([key, val]) => ([key, isNaN(val as any as number) ? val : parseFloat(val)]))
 
-            const data = Object.fromEntries(splitSegs)
+            const data = Object.fromEntries(splitSegments)
             //? FFMPEG is stupid thats why its in microseconds
             const curr = data?.["out_time_ms"]
 

@@ -4,7 +4,6 @@ import { RegManRender } from '@general/register/render';
 
 const listeners: ((clip: ClipCutInfo, prog: Progress) => void)[] = []
 const clips = {
-    list: () => RegManRender.emitPromise("clips_list"),
     currently_cutting: () => RegManRender.emitPromise("clips_cutting"),
     add_listener: (onUpdate: (clip: ClipCutInfo, prog: Progress) => void) => {
         const func = (clip: ClipCutInfo, prog: Progress) => {
@@ -21,10 +20,10 @@ const clips = {
             listeners.splice(index, 1)
         }
     },
-    cut: (clipName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
-        const prom = RegManRender.emitPromise("clips_cut", { clipName, start: selectStart, end: selectEnd })
+    cut: (videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
+        const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd })
         const listener = (clip: ClipCutInfo, prog: Progress) => {
-            if (clip.clipName !== clipName || clip.start !== selectStart || clip.end !== selectEnd)
+            if (clip.videoName !== videoName || clip.start !== selectStart || clip.end !== selectEnd)
                 return
 
             onProgress(prog)
@@ -33,7 +32,7 @@ const clips = {
         return prom.finally(() => {
             const index = listeners.indexOf(listener)
             if (index === -1)
-                return console.log("Invalid index for listener with clip", clipName)
+                return console.log("Invalid index for listener with video", videoName)
             listeners.splice(index, 1)
         })
     }

@@ -129,31 +129,31 @@ export class RecordManager {
         else
             await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
-        const listClips = () => fs.readdir(recordPath).then(e => e.filter(e => !e.endsWith(".json")))
-        const currClips = await listClips()
-        log.debug("CurrClips", currClips)
+        const listVideos = () => fs.readdir(recordPath).then(e => e.filter(e => !e.endsWith(".json")))
+        const currVideos = await listVideos()
+        log.silly("CurrVideos", currVideos)
 
         NodeObs.OBS_service_startStreaming()
         NodeObs.OBS_service_startRecording()
 
-        let clipName = null
+        let videoName = null
         for (let i = 0; i < 1000; i++) {
-            const newClips = await listClips()
-            if (newClips.length > currClips.length) {
-                clipName = newClips.find(e => currClips.indexOf(e) === -1)
+            const newVideos = await listVideos()
+            if (newVideos.length > currVideos.length) {
+                videoName = newVideos.find(e => currVideos.indexOf(e) === -1)
                 break
             }
 
             await sleepSync(50)
-            log.debug("Waiting for new clip...")
+            log.silly("Waiting for new video...")
         }
 
-        const clipPath = recordPath + "/" + clipName
-        if(!clipPath)
-            log.warn("Clip Path could not be obtained")
-        if(discordGameInfo && clipPath) {
-            log.debug("Writing discord game info to", clipPath + ".json")
-            await fs.writeFile(clipPath + ".json", JSON.stringify(discordGameInfo))
+        const videoPath = recordPath + "/" + videoName
+        if(!videoPath)
+            log.warn("Video Path could not be obtained")
+        if(discordGameInfo && videoPath) {
+            log.debug("Writing discord game info to", videoPath + ".json")
+            await fs.writeFile(videoPath + ".json", JSON.stringify(discordGameInfo))
         }
         this.recording = true
         RegManMain.send("obs_record_change", true)

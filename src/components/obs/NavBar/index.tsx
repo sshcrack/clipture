@@ -8,7 +8,7 @@ import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
 import "src/components/obs/NavBar/styles.css";
-import Preview from '../clips/preview';
+import Preview from '../videos/preview';
 import NavBarButton from './NavBarButton';
 
 export function NavBar({ data }: { data: SessionData }) {
