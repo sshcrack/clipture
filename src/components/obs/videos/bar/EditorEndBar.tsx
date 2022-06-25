@@ -63,7 +63,7 @@ export default function EditorEndBar(props: BoxProps) {
         mainBarRef.current.addEventListener("mousemove", onMouseMove)
         return () => {
             document.removeEventListener("mouseup", endMouseDragging)
-            mainBarRef.current.removeEventListener("mousemove", onMouseMove)
+            mainBarRef?.current?.removeEventListener("mousemove", onMouseMove)
         }
     }, [endDragging, selection, mainBarRef])
 

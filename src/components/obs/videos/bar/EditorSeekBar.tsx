@@ -70,7 +70,7 @@ export default function EditorSeekBar(props: BoxProps) {
 
         mainBarRef.current.addEventListener("mousemove", onMouseMove)
         return () => {
-            mainBarRef.current.removeEventListener("mousemove", onMouseMove)
+            mainBarRef?.current?.removeEventListener("mousemove", onMouseMove)
         }
     }, [mainBarRef, selection, videoRef, seekDragging])
 

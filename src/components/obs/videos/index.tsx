@@ -1,7 +1,7 @@
 import "src/pages/dashboard/scrollbar.css";
 
 import { Video } from '@backend/managers/clip/interface';
-import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
+import { Button, Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from "react";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
@@ -42,23 +42,26 @@ export default function Videos({ additionalElements = [] }: { additionalElements
     }, [retry])
 
     if (currSelected)
-        return <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)}>
-            <EditorVideo />
-            <EditorMainBar>
-                <EditorSeekBar />
-                <EditorStartBar
-                    bg='blue'
-                    cursor='pointer'
-                    h='100%'
-                />
-                <EditorEndBar
-                    bg='blue'
-                    cursor='pointer'
-                    h='100%'
-                />
-            </EditorMainBar>
-            <EditorTimelineTop />
-        </Editor>
+        return <>
+            <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)}>
+                <EditorVideo />
+                <EditorMainBar>
+                    <EditorSeekBar />
+                    <EditorStartBar
+                        bg='blue'
+                        cursor='pointer'
+                        h='100%'
+                    />
+                    <EditorEndBar
+                        bg='blue'
+                        cursor='pointer'
+                        h='100%'
+                    />
+                </EditorMainBar>
+                <EditorTimelineTop />
+            </Editor>
+            <Button onClick={() => setCurrSelected(null)}>Back</Button>
+        </>
 
     const clipElements = currVideos.map(({ thumbnail, info, videoName }, i) => {
         const { id, name, aliases, icon } = info ?? {}

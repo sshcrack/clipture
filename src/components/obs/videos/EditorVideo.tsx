@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react'
+import { Box, Button, Flex, Grid, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import React, { CSSProperties, useContext, useEffect, useState } from "react"
 import { BsArrowCounterclockwise } from 'react-icons/bs'
