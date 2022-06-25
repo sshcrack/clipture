@@ -1,28 +1,27 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { ClipCutInfo } from '@backend/managers/clip/interface';
-import { Progress } from '@backend/processors/events/interface';
-import { Flex, systemProps, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
+import { ClipProcessingInfo } from '@backend/managers/clip/interface';
+import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
-import Clips from './clips';
 import { VideoGridItem } from '../general/grid/video';
+import Clips from './clips';
 import { NavBar } from './NavBar/';
 import Videos from './videos';
 import GradientLoader from './videos/gradientLoader';
 
 
 //TODO: Add Illustration credits to settings
-type ClipInfoArray = [ClipCutInfo, Progress]
+type ClipInfoArray = [string, ClipProcessingInfo]
 export function DashboardMain({ data }: { data: SessionData }) {
     //const exampleArray = [[{ end: 10, start: 0, videoName: "Test.mkv" }, { percent: 0, status: "lol" }, 1]]
     const [clipsProg, setClipsProg] = useState<ClipInfoArray[]>([] /*exampleArray*/)
     const [update, setUpdate] = useState(0)
     const [currentPage, setCurrentPage] = useState(0)
-    const [ initialized, setInitialized ] = useState(false)
+    const [initialized, setInitialized] = useState(false)
     const { clips, system } = window.api
 
     useEffect(() => {
-        if(!initialized)
+        if (!initialized)
             return
 
         console.log("Default page update to", currentPage)
@@ -30,8 +29,13 @@ export function DashboardMain({ data }: { data: SessionData }) {
     }, [currentPage])
 
     useEffect(() => {
+        let shouldAbort = false
         clips.currently_cutting()
-            .then(e => setClipsProg(e))
+            .then(e => !shouldAbort && setClipsProg(e))
+
+        return () => {
+            shouldAbort = true
+        }
     }, [update])
 
     useEffect(() => {
@@ -46,25 +50,10 @@ export function DashboardMain({ data }: { data: SessionData }) {
     }, [])
 
 
-    useEffect(() => {
-        const newClips = clipsProg.map(([first, second]) => {
-            return [
-                first,
-                {
-                    ...second,
-                    percent: Math.min(1, second.percent)
-                }
-            ]
-        }) as ClipInfoArray[]
-        setTimeout(() => {
-            setClipsProg([...newClips])
-            setUpdate(Math.random())
-        }, 10)
-    }, [update])
-
     const primaryColor = "var(--chakra-colors-brand-primary)"
     const secondaryColor = "var(--chakra-colors-brand-secondary)"
-    const additionalElements = clipsProg.map(([{ videoName }, progress], i) => {
+    const additionalElements = clipsProg.map(([_, { info, progress }], i) => {
+        const { videoName } = info
         const textPercentage = Math.round(progress.percent * 1000) / 10
         return <VideoGridItem
             key={`${i}-clipProgress`}
@@ -170,11 +159,32 @@ export function DashboardMain({ data }: { data: SessionData }) {
                     <Tab>Clips</Tab>
                     <Tab>Videos</Tab>
                 </TabList>
-                <TabPanels display='flex' w='100%' h='100%'>
-                    <TabPanel display='flex' w='100%' h='100%'>
+                <TabPanels
+                    display='flex'
+                    w='100%'
+                    h='100%'
+                    flexDir='column'
+                    justifyContent='center'
+                    alignItems='center'
+                >
+                    <TabPanel
+                        display='flex'
+                        w='100%'
+                        h='100%'
+                        flexDir='column'
+                        justifyContent='center'
+                        alignItems='center'
+                    >
                         <Clips additionalElements={additionalElements} />
                     </TabPanel>
-                    <TabPanel display='flex' w='100%' h='100%'>
+                    <TabPanel
+                        display='flex'
+                        w='100%'
+                        h='100%'
+                        flexDir='column'
+                        justifyContent='center'
+                        alignItems='center'
+                    >
                         <Videos additionalElements={additionalElements} />
                     </TabPanel>
                 </TabPanels>

@@ -95,7 +95,7 @@ extern string ConvertToString(DWORD value)
 
 bool invalidChar(char c)
 {
-	return c == 0 || !(c >= 0 && c < 128);
+	return  (c >= 0 && c <= 31) || c == 127;
 }
 void stripUnicode(string& str)
 {

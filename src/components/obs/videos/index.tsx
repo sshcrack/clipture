@@ -6,7 +6,13 @@ import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from "react";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import { RenderLogger } from 'src/interfaces/renderLogger';
-import Editor from './editor';
+import Editor from './Editor';
+import EditorVideo from './EditorVideo';
+import EditorMainBar from './bar/EditorMainBar';
+import EditorSeekBar from './bar/EditorSeekBar';
+import EditorStartBar from './bar/EditorStartBar';
+import EditorEndBar from './bar/EditorEndBar';
+import EditorTimelineTop from './timelineTop/EditorTimelineTop';
 
 const log = RenderLogger.get("obs", "clips")
 
@@ -14,7 +20,7 @@ export default function Videos({ additionalElements = [] }: { additionalElements
     const toast = useToast()
     const [retry, setRetry] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
-    const [currSelected, setCurrSelected] = React.useState<string | null>(null)
+    const [currSelected, setCurrSelected] = React.useState<string | null>("2022-06-24 23-11-17.mkv")
     const [loading, setLoading] = React.useState(false)
 
     const { videos } = window.api
@@ -36,7 +42,23 @@ export default function Videos({ additionalElements = [] }: { additionalElements
     }, [retry])
 
     if (currSelected)
-        return <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)} />
+        return <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)}>
+            <EditorVideo />
+            <EditorMainBar>
+                <EditorSeekBar />
+                <EditorStartBar
+                    bg='blue'
+                    cursor='pointer'
+                    h='100%'
+                />
+                <EditorEndBar
+                    bg='blue'
+                    cursor='pointer'
+                    h='100%'
+                />
+            </EditorMainBar>
+            <EditorTimelineTop />
+        </Editor>
 
     const clipElements = currVideos.map(({ thumbnail, info, videoName }, i) => {
         const { id, name, aliases, icon } = info ?? {}

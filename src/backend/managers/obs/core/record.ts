@@ -1,3 +1,4 @@
+import { VideoInfo } from '@backend/managers/clip/interface'
 import { ProcessManager } from '@backend/managers/process'
 import { notify } from '@backend/tools/notifier'
 import { getOS } from '@backend/tools/operating-system'
@@ -20,9 +21,21 @@ const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
 export class RecordManager {
     private recording = false;
     private detectableGames: DetectableGame[] = null
+    private current = {
+        game: null,
+        videoPath: null,
+        currentInfoPath: null
+    } as Omit<VideoInfo, "duration"> & {
+        videoPath: string | null,
+        currentInfoPath: string | null
+    }
     static instance: RecordManager = null;
     private registeredAutomatic = false;
     private manualControlled = false;
+
+    public getCurrent() {
+        return this.current
+    }
 
     constructor() {
         if (RecordManager.instance)
@@ -56,6 +69,7 @@ export class RecordManager {
             this.detectableGames = this.detectableGames ?? await this.getDetectableGames()
 
             const areSame = (detecGame: DetectableGame, winInfo: WindowInformation) => detecGame?.executables?.some(exe => winInfo?.full_exe?.toLowerCase()?.endsWith(exe?.name?.toLowerCase()) && exe?.os === os)
+            const areSameInfo = (oldInfo: WindowInformation, winInfo: WindowInformation) => JSON.stringify(oldInfo) === JSON.stringify(winInfo)
 
 
             const matchingGames = info.filter(winInfo => {
@@ -68,11 +82,11 @@ export class RecordManager {
             const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
             const game = this.detectableGames.find(e => areSame(e, gameToRecord))
 
-            const diffGame = areSame(game, Scene.getCurrentSetting()?.window)
-            log.info("Game is diff", diffGame, "manual", this.manualControlled, "game", game, "curr", Scene.getCurrentSetting()?.window)
+            const diffGame = areSameInfo(gameToRecord, Scene.getCurrentSetting()?.window)
+            log.info("Game is diff", diffGame, "manual", this.manualControlled, "game", gameToRecord, "curr", Scene.getCurrentSetting()?.window)
             if (gameToRecord && (diffGame || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
                 await Scene.switchWindow(gameToRecord, false)
-                if(this.isRecording())
+                if (this.isRecording())
                     await this.stopRecording()
             }
 
@@ -133,7 +147,6 @@ export class RecordManager {
         const currVideos = await listVideos()
         log.silly("CurrVideos", currVideos)
 
-        NodeObs.OBS_service_startStreaming()
         NodeObs.OBS_service_startRecording()
 
         let videoName = null
@@ -145,16 +158,20 @@ export class RecordManager {
             }
 
             await sleepSync(50)
-            log.silly("Waiting for new video...")
+            if( i % 10 === 0)
+                log.silly("Waiting for new video...")
         }
 
         const videoPath = recordPath + "/" + videoName
-        if(!videoPath)
+        if (!videoPath)
             log.warn("Video Path could not be obtained")
-        if(discordGameInfo && videoPath) {
-            log.debug("Writing discord game info to", videoPath + ".json")
-            await fs.writeFile(videoPath + ".json", JSON.stringify(discordGameInfo))
+
+        this.current = {
+            currentInfoPath: videoPath ? videoPath + ".json" : null,
+            game: discordGameInfo,
+            videoPath: videoPath,
         }
+
         this.recording = true
         RegManMain.send("obs_record_change", true)
     }
@@ -164,8 +181,15 @@ export class RecordManager {
             return
 
         log.info("Stopped recording")
-        NodeObs.OBS_service_stopStreaming(false)
         NodeObs.OBS_service_stopRecording()
+        if (this.current?.currentInfoPath) {
+            const { currentInfoPath, game, videoPath } = this.current
+            const duration = await getDuration(videoPath)
+            await fs.writeFile(currentInfoPath, JSON.stringify({
+                duration,
+                game
+            } as VideoInfo, null, 2))
+        }
         this.recording = false
         this.manualControlled = manual
         RegManMain.send("obs_record_change", false)
@@ -195,4 +219,17 @@ function sleepSync(ms: number) {
     return new Promise(resolve => {
         setTimeout(resolve, ms)
     });
+}
+
+async function getDuration(inputPath: string) {
+    const execa = (await import("execa")).execa
+    const res = await execa(MainGlobals.ffprobeExe, ["-i", inputPath, "-show_format"])
+    return parseFloat(
+        res
+            .stdout
+            .split("\n")
+            .find(e => e.includes("duration"))
+            .split("=")
+            .shift()
+    )
 }

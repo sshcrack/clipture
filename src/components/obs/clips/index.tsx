@@ -1,8 +1,10 @@
 import { ExtendedClip } from '@backend/managers/clip/interface';
 import { Button, Flex, Heading, Image, Spinner, Text } from '@chakra-ui/react';
+import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from 'react';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
+import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 
 export default function Clips({ additionalElements }: { additionalElements: React.ReactChild[] }) {
     const [currClips, setCurrClips] = useState<ExtendedClip[]>([])
@@ -30,10 +32,42 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { original, thumbnail, game, clipName, clipPath } = clip ?? {}
+            const { thumbnail, game, clipName, clipPath } = clip ?? {}
+            const { name, aliases, id, icon } = game ?? {}
+
+            const gameName = name ?? aliases?.[0] ?? "Unknown Game"
+            const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+
+            let element = <VideoGridItem
+                background={`url(${thumbnail})`}
+                key={`VideoGrid-${i}`}
+            >
+                <Flex w='100%' h='100%' />
+                <Flex
+                    flex='0'
+                    gap='.25em'
+                    justifyContent='center'
+                    alignItems='center'
+                    flexDir='column'
+                    backdropFilter="blur(4px)"
+                    p='1'
+                >
+                    <Flex gap='1em' justifyContent='center' alignItems='center'>
+                        <Image src={imageSrc} w="1.5em" />
+                        <Text>{gameName}</Text>
+                    </Flex>
+                    <Text style={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        width: "90%",
+                        textAlign: "center"
+                    }}>{clipName}</Text>
+                </Flex>
+            </VideoGridItem>
 
             if (!thumbnail)
-                return <VideoGridItem
+                element = <VideoGridItem
                     background='#3d0000'
                     boxShadow='0px 0px 10px 0px #b60000'
                     key={`corrupted-key-${i}-clips`}
@@ -71,19 +105,14 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                                 onClick={() => clips.delete(clipName)}
                             >Delete Clip</PromiseButton>
                         </Flex>
-
                     </Flex>
                 </VideoGridItem>
 
-            return <VideoGridItem
-                background='blue'
-                key={`VideoGrid-${i}`}
-            >
-
-            </VideoGridItem>
+            return <ClipContextMenu key={`ContextMenu-${i}`} clipName={clipName} clipPath={clipPath}>
+                {element}
+            </ClipContextMenu>
         })
     ]
-
     const emptyPlaceholder = <Flex
         justifyContent='center'
         alignItems='center'

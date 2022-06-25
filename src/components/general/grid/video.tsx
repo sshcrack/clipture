@@ -14,7 +14,7 @@ type InputProps = {
 export function VideoGridItem({ key, background, onClick, children, ...rest }: VideoGridItem) {
     return <GridItem key={key}
         display='flex'
-        h='25em'
+        h='100%'
         w='100%'
         background={background}
         backgroundSize='cover'

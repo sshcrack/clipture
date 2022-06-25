@@ -9,13 +9,15 @@ import fs from "fs"
 import { readFile, rm } from 'fs/promises'
 import glob from "glob"
 import path from "path"
+import { AiOutlineConsoleSql } from 'react-icons/ai'
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { generateThumbnail } from "thumbsupply"
+import { generateThumbnail, lookupThumbnail } from "thumbsupply"
 import { promisify } from "util"
 import { v4 as uuid } from "uuid"
+import { RecordManager } from '../obs/core/record'
 import { DetectableGame } from '../obs/Scene/interfaces'
 import { getClipInfo, getVideoInfo, getVideoInfoPath } from './func'
-import { Clip, ClipCutInfo, ExtendedClip, Video } from './interface'
+import { Clip, ClipCutInfo, ClipProcessingInfo, ExtendedClip, Video } from './interface'
 
 const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -24,7 +26,7 @@ export class ClipManager {
     private static videoInfoCache = new Map<string, DetectableGame>()
     private static clipInfoCache = new Map<string, Clip>()
     private static execa: typeof execaType = null
-    private static processing = new Map<ClipCutInfo, Progress>()
+    private static processing = new Map<string, ClipProcessingInfo>()
 
     static async deleteClip(clipName: string) {
         log.silly("Deleting clip", clipName, "...")
@@ -32,14 +34,14 @@ export class ClipManager {
         const clipPath = path.join(rootPath, clipName)
         const infoPath = clipPath + ".json"
 
-        if(fs.existsSync(clipPath))
+        if (fs.existsSync(clipPath))
             await rm(clipPath)
 
-        if(fs.existsSync(infoPath))
+        if (fs.existsSync(infoPath))
             await rm(infoPath)
 
         log.log("Deleted clip", clipName, "!")
-        RegManMain.send("clip_update", { videoName: clipName, end: 0, start: 0}, null)
+        RegManMain.send("clip_update", { videoName: clipName, end: 0, start: 0 }, null)
     }
 
     static async listClips() {
@@ -50,22 +52,24 @@ export class ClipManager {
 
         log.info("Loading total of", files.length, "clips...")
         return await Promise.all(
-            files.map(async file => {
-                const thumbnail = await ClipManager.fromPathToThumbnail(file)
-                const fileName = path.basename(file)
+            files
+                .filter(e => !Array.from(this.processing.values()).some(x => path.basename(x.info.clipPath) === path.basename(e)))
+                .map(async file => {
+                    const thumbnail = await ClipManager.fromPathToThumbnail(file)
+                    const fileName = path.basename(file)
 
-                let clipInfo = this.clipInfoCache.get(file) as Clip | null
-                if (!clipInfo)
-                    clipInfo = await getClipInfo(clipPath, path.basename(file))
+                    let clipInfo = this.clipInfoCache.get(file) as Clip | null
+                    if (!clipInfo)
+                        clipInfo = await getClipInfo(clipPath, path.basename(file))
 
-                return {
-                    clipPath: file,
-                    clipName: fileName,
-                    original: fileName.split("_UUID_").shift(),
-                    ...clipInfo,
-                    thumbnail: thumbnail ? "data:image/png;base64," + thumbnail : null,
-                } as ExtendedClip
-            })
+                    return {
+                        clipPath: file,
+                        clipName: fileName,
+                        original: fileName.split("_UUID_").shift(),
+                        ...clipInfo,
+                        thumbnail: thumbnail ? "data:image/png;base64," + thumbnail : null,
+                    } as ExtendedClip
+                })
         )
     }
 
@@ -79,13 +83,14 @@ export class ClipManager {
         return await Promise.all(
             files
                 .map(e => path.resolve(e))
+                .filter(e => e !== RecordManager.instance.getCurrent()?.videoPath)
                 .map(async file => {
                     const thumbnail = await ClipManager.fromPathToThumbnail(file)
 
 
                     let gameInfo = this.videoInfoCache.get(file) as DetectableGame | null
                     if (!gameInfo)
-                        gameInfo = await getVideoInfo(videoPath, path.basename(file))
+                        gameInfo = (await getVideoInfo(videoPath, path.basename(file)))?.game
 
                     const clipName = path.basename(file)
                     return {
@@ -107,28 +112,34 @@ export class ClipManager {
         if (this.imageData.has(file))
             return this.imageData.get(file)
 
-        const thumbnailFile = (await generateThumbnail(file, {
+        const options = {
             cacheDir: MainGlobals.getTempDir(),
             timestamp: "00:00:00"
-        })
-            .catch(e => {
-                if (e?.message?.includes("Invalid data found when processing input"))
-                    return true
-                log.error("Failed to generate thumbnail for", file, e)
+        }
+        let thumbnailFile = await lookupThumbnail(file, { cacheDir: options.cacheDir })
+            .catch(() => false)
+        if (!thumbnailFile) {
+            thumbnailFile = (await generateThumbnail(file, options)
+                .catch(e => {
+                    if (e?.message?.includes("Invalid data found when processing input"))
+                        return true
 
-                return false
-            }))
+                    log.error("Failed to generate thumbnail for", file, e)
+                    return false
+                }))
+            log.silly("Saving thumbnail for file", file, thumbnailFile)
+        }
 
         if (thumbnailFile === true)
             this.imageData.set(file, null)
         if (!thumbnailFile || typeof thumbnailFile === "boolean")
             return null
 
+        log.silly("Reading file", thumbnailFile, "and setting it")
         const thumbnail = await readFile(thumbnailFile, "base64")
         this.imageData.set(file, thumbnail)
-        log.silly("Saving thumbnail for file", file, thumbnailFile)
 
-        return thumbnailFile
+        return thumbnail
     }
 
     static register() {
@@ -158,18 +169,6 @@ export class ClipManager {
             } catch (e) {
                 log.error("Could not load cache from path", cachePath, e)
             }
-
-
-        const imagePath = getSharedImageCachePath()
-        const imageExists = fs.existsSync(imagePath)
-        if (imageExists)
-            try {
-                const jsonData = JSON.parse(fs.readFileSync(imagePath, "utf-8"))
-                this.imageData = new Map(jsonData)
-            } catch (e) {
-                log.error("Could not load image data from path", imagePath, e)
-            }
-
     }
 
     static shutdown() {
@@ -251,13 +250,19 @@ export class ClipManager {
                 percent: curr / duration
             }
 
-            this.processing.set(clipObj, prog)
+            this.processing.set(clipOut, {
+                progress: prog,
+                info: {
+                    ...clipObj,
+                    clipPath: clipOut
+                }
+            })
             onProgress(prog)
         })
 
 
         await commandOut
-        this.processing.delete(clipObj)
+        this.processing.delete(clipOut)
 
         log.log("Clip was being cut successfully.")
         onProgress({
@@ -267,10 +272,11 @@ export class ClipManager {
         fs.writeFileSync(withClippedExt, JSON.stringify({
             clipName: path.basename(clipOut),
             clipPath: clipOut,
-            game: info,
+            game: info.game,
             original: videoName,
             start: start,
-            end: end
+            end: end,
+            duration: end - start
         } as Clip))
     }
 }
