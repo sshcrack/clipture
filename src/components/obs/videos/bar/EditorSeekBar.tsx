@@ -68,9 +68,13 @@ export default function EditorSeekBar(props: BoxProps) {
             }
         }
 
+        const onSeekEnd = () => setSeekDragging(false)
+
         mainBarRef.current.addEventListener("mousemove", onMouseMove)
+        document.addEventListener("mouseup", onSeekEnd)
         return () => {
             mainBarRef?.current?.removeEventListener("mousemove", onMouseMove)
+            document.removeEventListener("mouseup", onSeekEnd)
         }
     }, [mainBarRef, selection, videoRef, seekDragging])
 

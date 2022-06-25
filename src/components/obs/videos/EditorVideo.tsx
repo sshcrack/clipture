@@ -10,7 +10,7 @@ export default function EditorVideo() {
     const [isVideoHovered, setVideoHovered] = useState(false)
     const [isCuttingClips, setClipsCutting] = useState(false)
 
-    const { onBack, videoRef, duration, clipName, setDuration, paused, selection, setSelection, setPaused } = useContext(EditorContext)
+    const { onBack, bgGeneratorRef, videoRef, duration, clipName, setDuration, paused, selection, setSelection, setPaused } = useContext(EditorContext)
 
 
     const transition = 'all .2s ease-in-out'
@@ -72,6 +72,16 @@ export default function EditorVideo() {
         onMouseEnter={() => setVideoHovered(true)}
         onMouseLeave={() => setVideoHovered(false)}
     >
+        <Box
+            w='100%'
+            h='100%'
+            gridColumn='1'
+            gridRow='1'
+        >
+            <video ref={bgGeneratorRef} style={{ zIndex: -100 }}>
+                <source src={`clip-video-file:///${encodeURIComponent(clipName)}`}></source>
+            </video>
+        </Box>
         <Box
             w='100%'
             h='100%'

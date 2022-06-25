@@ -15,6 +15,7 @@ export type EditorState = {
     selection: Selection,
     setSelection: ReactSetState<Selection>,
     videoRef?: React.MutableRefObject<HTMLVideoElement>,
+    bgGeneratorRef?: React.MutableRefObject<HTMLVideoElement>,
     paused: boolean,
     setPaused: ReactSetState<boolean>
 }
@@ -43,6 +44,7 @@ type Props = {
 
 export default function Editor({ children, clipName, onBack }: React.PropsWithChildren<Props>) {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const bgGeneratorRef = useRef<HTMLVideoElement>(null);
     const [ paused, setPaused ] = useState(true)
     const [ duration, setDuration ] = useState<number>(undefined)
     const [selection, setSelection] = useState<Selection>({
@@ -62,7 +64,8 @@ export default function Editor({ children, clipName, onBack }: React.PropsWithCh
             paused,
             setPaused,
             duration,
-            setDuration
+            setDuration,
+            bgGeneratorRef
         }}
     >
         {children}
