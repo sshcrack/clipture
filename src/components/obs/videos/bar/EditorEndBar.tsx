@@ -6,14 +6,14 @@ import { EditorMainBarContext } from './EditorMainBar';
 import { ReactMouseEvent } from 'src/types/reactUtils';
 
 export default function EditorEndBar(props: BoxProps) {
-    const [endDragging, setEndDragging] = useState(false)
+    const [endDragging, setDragging] = useState(false)
     const { selection, duration, setSelection } = useContext(EditorContext)
-    const { mainBarRef, onEndMouseDrag } = useContext(EditorMainBarContext)
+    const { mainBarRef, onEndMouseDrag, resize } = useContext(EditorMainBarContext)
     const endRef = useRef(null)
 
     const startDrag = () => {
         document.body.style.userSelect = "none"
-        setEndDragging(true)
+        setDragging(true)
     }
 
 
@@ -28,7 +28,23 @@ export default function EditorEndBar(props: BoxProps) {
             range,
             ref: endRef
         })
-    }, [selection])
+    }, [selection, resize])
+
+
+
+    useEffect(() => {
+
+        const stopDragging = () => {
+            setDragging(false)
+            onEndMouseDrag()
+        }
+
+
+        document.addEventListener("mouseup", stopDragging)
+        return () => {
+            document.removeEventListener("mouseup", stopDragging)
+        }
+    }, [])
 
 
     useEffect(() => {
@@ -54,15 +70,8 @@ export default function EditorEndBar(props: BoxProps) {
             })
         }
 
-        const endMouseDragging = () => {
-            setEndDragging(false)
-            onEndMouseDrag()
-        }
-
-        document.addEventListener("mouseup", endMouseDragging)
         mainBarRef.current.addEventListener("mousemove", onMouseMove)
         return () => {
-            document.removeEventListener("mouseup", endMouseDragging)
             mainBarRef?.current?.removeEventListener("mousemove", onMouseMove)
         }
     }, [endDragging, selection, mainBarRef])

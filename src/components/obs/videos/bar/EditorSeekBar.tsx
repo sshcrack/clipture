@@ -8,13 +8,13 @@ import { getFuncMoveToTime, setBar } from '../EditorUtils';
 
 export default function EditorSeekBar(props: BoxProps) {
     const { videoRef, selection, duration } = useContext(EditorContext)
-    const { mainBarRef, seekDragging, setSeekDragging } = useContext(EditorMainBarContext)
+    const { mainBarRef, seekDragging, setSeekDragging: setDragging, onEndMouseDrag } = useContext(EditorMainBarContext)
     const seekBar = useRef<HTMLDivElement>()
 
 
     const startSeekDrag = () => {
         document.body.style.userSelect = "none"
-        setSeekDragging(true)
+        setDragging(true)
     }
 
 
@@ -23,6 +23,7 @@ export default function EditorSeekBar(props: BoxProps) {
         const { offset, range } = selection
         if (!duration || !videoRef.current)
             return
+
 
         const updateBar = () => {
             setBar({
@@ -39,7 +40,23 @@ export default function EditorSeekBar(props: BoxProps) {
         return () => {
             clearInterval(intervalId)
         }
-    }, [duration, videoRef])
+    }, [duration, videoRef, selection])
+
+
+
+    useEffect(() => {
+        const stopDragging = () => {
+            setDragging(false)
+            onEndMouseDrag()
+        }
+
+
+        document.addEventListener("mouseup", stopDragging)
+        return () => {
+            document.removeEventListener("mouseup", stopDragging)
+        }
+    }, [])
+
 
 
     useEffect(() => {
@@ -54,27 +71,16 @@ export default function EditorSeekBar(props: BoxProps) {
         })
 
         const onMouseMove = (e: ReactMouseEvent) => {
-            const time = onMoveToTime(e, selection.range, selection.offset)
+            const time = onMoveToTime(e, range, offset)
 
             if (seekDragging && time !== null) {
                 videoRef.current.currentTime = time
-                setBar({
-                    currTime: time,
-                    mainBarRef,
-                    offset,
-                    range,
-                    ref: seekBar
-                })
             }
         }
 
-        const onSeekEnd = () => setSeekDragging(false)
-
         mainBarRef.current.addEventListener("mousemove", onMouseMove)
-        document.addEventListener("mouseup", onSeekEnd)
         return () => {
             mainBarRef?.current?.removeEventListener("mousemove", onMouseMove)
-            document.removeEventListener("mouseup", onSeekEnd)
         }
     }, [mainBarRef, selection, videoRef, seekDragging])
 

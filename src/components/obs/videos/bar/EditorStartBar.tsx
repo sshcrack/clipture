@@ -6,14 +6,15 @@ import { EditorMainBarContext } from './EditorMainBar';
 import { ReactMouseEvent } from 'src/types/reactUtils';
 
 export default function EditorStartBar(props: BoxProps) {
-    const [startDragging, setStartDragging] = useState(false)
+    const [startDragging, setDragging] = useState(false)
     const { selection, duration, setSelection } = useContext(EditorContext)
-    const { mainBarRef, onEndMouseDrag } = useContext(EditorMainBarContext)
+    const { mainBarRef, onEndMouseDrag, resize } = useContext(EditorMainBarContext)
     const startRef = useRef(null)
 
     const startDrag = () => {
+        console.log("Start dragging")
         document.body.style.userSelect = "none"
-        setStartDragging(true)
+        setDragging(true)
     }
 
     useEffect(() => {
@@ -26,7 +27,20 @@ export default function EditorStartBar(props: BoxProps) {
             range,
             ref: startRef
         })
-    }, [selection])
+    }, [selection, resize])
+
+    useEffect(() => {
+        const stopDragging = () => {
+            setDragging(false)
+            onEndMouseDrag()
+        }
+
+
+        document.addEventListener("mouseup", stopDragging)
+        return () => {
+            document.removeEventListener("mouseup", stopDragging)
+        }
+    }, [])
 
 
     useEffect(() => {
@@ -53,15 +67,8 @@ export default function EditorStartBar(props: BoxProps) {
                 start: time
             })
         }
-        const stopDragging = () => {
-            setStartDragging(false)
-            onEndMouseDrag()
-        }
-
-        document.addEventListener("mouseup", stopDragging)
         mainBarRef.current.addEventListener("mousemove", onMouseMove)
         return () => {
-            document.removeEventListener("mouseup", stopDragging)
             mainBarRef?.current?.removeEventListener("mousemove", onMouseMove)
         }
     }, [startDragging, selection, mainBarRef, duration])

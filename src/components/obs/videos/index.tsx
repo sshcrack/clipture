@@ -13,6 +13,7 @@ import EditorSeekBar from './bar/EditorSeekBar';
 import EditorStartBar from './bar/EditorStartBar';
 import EditorEndBar from './bar/EditorEndBar';
 import EditorTimelineTop from './timelineTop/EditorTimelineTop';
+import EditorCutHighlight from './bar/EditorCutHighlight';
 
 const log = RenderLogger.get("obs", "clips")
 
@@ -46,6 +47,7 @@ export default function Videos({ additionalElements = [] }: { additionalElements
             <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)}>
                 <EditorVideo />
                 <EditorMainBar>
+                    <EditorCutHighlight bg='rgba(0, 255,0, 0.5)' />
                     <EditorSeekBar />
                     <EditorStartBar
                         bg='blue'

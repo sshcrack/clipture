@@ -272,7 +272,6 @@ export default function Editor({ clipName, onBack }: { clipName: string, onBack:
             const diff = Math.min(selectEnd - newOffset + endStartBuffer, duration - newOffset)
 
 
-            console.log("NewOffset", newOffset, "Range", diff)
             if ((currOffset !== newOffset || currRange !== diff) && (!wasDraggingTimeline || currOffset + currRange < endStartBuffer)) {
                 setOffset(newOffset)
                 setRange(diff)

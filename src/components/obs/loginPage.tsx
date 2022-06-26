@@ -43,7 +43,6 @@ export default function LoginPage() {
             <Grid>
                 <GridItem gridRow='1' gridColumn='1' zIndex='100'>
                     <Box onClick={() => {
-                        console.log("Box click")
                         setAuthenticating(true)
                         auth.signIn()
                             .catch(e => {

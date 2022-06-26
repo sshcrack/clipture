@@ -10,14 +10,16 @@ export type EditorMainBarState = {
     mainBarRef: React.MutableRefObject<HTMLDivElement>,
     seekDragging: boolean,
     setSeekDragging: ReactSetState<boolean>,
-    onEndMouseDrag: () => void
+    onEndMouseDrag: () => void,
+    resize: number
 }
 
 export const EditorMainBarContext = React.createContext<EditorMainBarState>({
     mainBarRef: null,
     seekDragging: false,
     setSeekDragging: () => { },
-    onEndMouseDrag: () => { }
+    onEndMouseDrag: () => { },
+    resize: 0
 })
 
 export default function EditorMainBar(props: React.PropsWithChildren<GridProps>) {
@@ -27,6 +29,8 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
     const { range, offset, start, end } = selection
 
     const [seekDragging, setSeekDragging] = useState(false)
+    const [ resize, setResize ] = useState(0)
+    const [update, setUpdate] = useState(0)
     const [canvasBackgrounds, setCanvasBackgrounds] = useState(new Map<string, string>())
     const mainBarRef = useRef<HTMLDivElement>(null)
 
@@ -54,9 +58,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
         const aspectRatio = videoCurr.videoHeight / videoCurr.videoWidth
         const segments = Math.ceil(aspectRatio * mainWidth / mainHeight)
 
-        console.log("Segments are", segments)
         const id = `${range}-${offset}`
-
         const generateBg = async () => {
             // Grid Background
             const stepPercentage = 1 / segments
@@ -84,7 +86,6 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
                     }
                     bgCurr.addEventListener("seeked", isSeekedEvent)
                     bgCurr.currentTime = currFrameTime
-                    console.log(currFrameTime)
                     requestAnimationFrame(() => {
                         if (seeked)
                             resolve()
@@ -114,7 +115,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
     }, [selection, videoRef, bgGenerator])
 
 
-    const endMouseDrag = () => {
+    useEffect(() => {
         const endStartBuffer = getEndStartBuffer(offset, range)
 
         const newOffset = Math.max(start - endStartBuffer, 0)
@@ -127,14 +128,29 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
                 range: diff
             })
         }
-    }
+    }, [update])
+
+    useEffect(() => {
+        console.log("Add")
+        const resizeListener = () => {
+            console.log("Resize main")
+            setResize(Math.random())
+        }
+        window.addEventListener("resize", resizeListener)
+
+        return () => {
+            console.log("Remove main")
+            window.removeEventListener("resize", resizeListener)
+        }
+    }, [mainBarRef])
 
     return <EditorMainBarContext.Provider
         value={{
             mainBarRef,
             seekDragging,
+            resize,
             setSeekDragging,
-            onEndMouseDrag: endMouseDrag
+            onEndMouseDrag: () => setUpdate(Math.random())
         }}
     >
         <Grid

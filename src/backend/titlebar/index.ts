@@ -22,7 +22,6 @@ export class TitlebarManager {
 
         ipcMain.on('electron-react-titlebar/maximize/set', (event, browserWindowId) => {
             const browserWindow = browserWindowId ? BrowserWindow.fromId(browserWindowId) : BrowserWindow.fromWebContents(event.sender)
-            console.log("Maximizable", browserWindow?.isMaximizable())
             if (browserWindow?.isMaximizable()) {
                 if (browserWindow.isMaximized()) {
                     browserWindow.unmaximize()
