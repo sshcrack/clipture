@@ -1,10 +1,9 @@
 import { Progress } from '@backend/processors/events/interface';
-import { border, Flex, Heading, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Heading, useColorModeValue } from '@chakra-ui/react';
 import { motion } from "framer-motion";
 import * as React from "react";
-import { useState, useEffect } from "react"
 
-export function LockDisplay({ progress }: { progress: Progress }) {
+export function InitializePage({ progress }: { progress: Progress }) {
     const { percent, status } = progress
     const primaryName = useColorModeValue("black", "white")
     const secondaryName = useColorModeValue("purple.700", "purple.300")
@@ -28,20 +27,20 @@ export function LockDisplay({ progress }: { progress: Progress }) {
                 cx={50}
                 cy={50}
                 fill={primary}
-                animate={{ r: [0, percent * 50 ] }}
+                animate={{ r: [0, percent * 50] }}
             />
             <motion.circle
                 cx={50}
                 cy={50}
                 fill={secondary}
-                animate={{ r: [ 0, percent * 45, 0 ]}}
+                animate={{ r: [0, percent * 45, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
             />
             <motion.circle
                 cx={50}
                 cy={50}
                 fill={third}
-                animate={{ r: [ 0, percent * 40, 0 ]}}
+                animate={{ r: [0, percent * 40, 0] }}
                 transition={{ repeat: Infinity, duration: 2, delay: 1 }}
             />
         </svg>

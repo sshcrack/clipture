@@ -1,5 +1,5 @@
+import "./video.css"
 import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
 import React from 'react'
 
 type VideoGridItem = GridItemProps & {
@@ -12,29 +12,18 @@ type InputProps = {
     children: React.ReactNode
 }
 
-const GridItemMotion = motion(GridItem)
-
 export function VideoGridItem({ key, background, onClick, children, ...rest }: VideoGridItem) {
-    return <GridItemMotion
+    return <GridItem
         key={key}
         display='flex'
         h='100%'
         w='100%'
         background={background}
         backgroundSize='cover'
-        backgroundPositionX="0%"
-        animate={{
-            backgroundPositionX: "100%"
-        }}
-        transition={{
-            ease: "easeInOut",
-            repeat: Infinity,
-            duration: 30,
-            repeatType: "reverse"
-        }}
         borderRadius="xl"
         flexDir='column'
         cursor='pointer'
+        className='videoGridItem'
         _hover={{
             filter: " drop-shadow(10px 2px 45px black)",
             transform: "scale(1.0125)"
@@ -46,7 +35,7 @@ export function VideoGridItem({ key, background, onClick, children, ...rest }: V
         {...rest}
     >
         {children}
-    </GridItemMotion>
+    </GridItem>
 }
 
 export function VideoGrid({ children }: InputProps) {
@@ -57,7 +46,7 @@ export function VideoGrid({ children }: InputProps) {
         h='100%'
         gap='1em'
         templateColumns='repeat(auto-fill, minmax(21.5em,1fr))'
-        className='sc2'
+        className='sc2 videoGrid'
         overflowY='auto'
         p='5'
         pr='2'

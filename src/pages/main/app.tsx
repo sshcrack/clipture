@@ -1,17 +1,17 @@
-import { SessionStatus } from '@backend/managers/auth/interfaces';
-import { Flex, useToast } from '@chakra-ui/react';
-import * as React from "react";
-import { useEffect, useState } from "react";
-import { useLock } from 'src/components/hooks/useLock';
-import { useSession } from 'src/components/hooks/useSession';
-import { DashboardMain } from 'src/components/obs/dashboardMain';
-import { LockDisplay } from 'src/components/obs/LockDisplayer';
-import LoginPage from 'src/components/obs/loginPage';
-import { RenderLogger } from 'src/interfaces/renderLogger';
-
+import { SessionStatus } from '@backend/managers/auth/interfaces'
+import { useToast } from '@chakra-ui/react'
+import React, { useEffect, useState } from "react"
+import { HashRouter, Route, Routes } from "react-router-dom"
+import { useLock } from 'src/components/hooks/useLock'
+import { useSession } from 'src/components/hooks/useSession'
+import { RenderLogger } from 'src/interfaces/renderLogger'
+import DashboardPage from './subpages/DashboardPage'
+import EditorPage from './subpages/EditorPage'
+import { InitializePage } from './subpages/InitializePage'
+import LoginPage from './subpages/LoginPage'
 
 const log = RenderLogger.get("App")
-const App = () => {
+export default function App() {
     const { obs } = window.api
 
     const toast = useToast()
@@ -47,16 +47,16 @@ const App = () => {
     }, [obsInitialized, tryAgain, isLocked]);
 
     const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
-    const DynamicPage = status === SessionStatus.AUTHENTICATED ? DashboardMain : LoginPage
+    if (!initialized)
+        return <InitializePage progress={progress ?? { percent: 0, status: "Initializing..." }} />
 
-    return <Flex
-        width='100%'
-        height='100%'
-        alignItems='center'
-        justifyContent='center'
-        direction='column'
-    >
-        {initialized ? <DynamicPage data={data} /> : <LockDisplay progress={progress ?? { percent: 0, status: "Initializing..." }} />}
-    </Flex>
+    if (status === SessionStatus.UNAUTHENTICATED)
+        return <LoginPage />
+
+    return <HashRouter>
+        <Routes>
+            <Route path="/" element={<DashboardPage data={data} />} />
+            <Route path="/editor/:videoName" element={<EditorPage />}></Route>
+        </Routes>
+    </HashRouter>
 }
-export default App;

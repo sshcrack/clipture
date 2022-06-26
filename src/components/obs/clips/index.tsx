@@ -1,12 +1,12 @@
 import { ExtendedClip } from '@backend/managers/clip/interface';
-import { Button, Flex, Heading, Image, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Heading, Image, Spinner, Text } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from 'react';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 
-export default function Clips({ additionalElements }: { additionalElements: React.ReactChild[] }) {
+export default function Clips({ additionalElements }: { additionalElements: React.ReactNode }) {
     const [currClips, setCurrClips] = useState<ExtendedClip[]>([])
     const [loading, setLoading] = useState(false)
     const [update, setUpdate] = useState(0)
@@ -30,7 +30,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
     }, [update])
 
     const elements = [
-        ...additionalElements,
+        additionalElements,
         ...currClips.map((clip, i) => {
             const { thumbnail, game, clipName, clipPath } = clip ?? {}
             const { name, aliases, id, icon } = game ?? {}
@@ -50,6 +50,9 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                     alignItems='center'
                     flexDir='column'
                     bg='brand.bg'
+                    borderRadius="xl"
+                    borderTopLeftRadius='0'
+                    borderTopRightRadius='0'
                     p='1'
                 >
                     <Flex gap='1em' justifyContent='center' alignItems='center'>

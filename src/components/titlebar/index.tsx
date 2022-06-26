@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react';
 import React, { ReactNode } from 'react';
 
 import { useContext } from 'react';
@@ -14,17 +15,23 @@ export interface TitleBarProps {
 }
 
 export const TitleBar: React.FC<TitleBarProps> = ({ children, icon, disableMinimize, disableMaximize, className, browserWindowId }) => {
-    const { menu } = useContext(TitlebarContext)
+    const { menu, size } = useContext(TitlebarContext)
 
     return <>
-        <div id="electron-app-title-bar" className={`electron-app-title-bar ${className || ''}`} style={{position: "fixed", zIndex: 1000}}>
+        <div id="electron-app-title-bar" className={`electron-app-title-bar ${className || ''}`} style={{ position: "fixed", zIndex: 1000, height: size, "--titlebar-size": size } as any}>
             <div className="resize-handle resize-handle-top" />
             <div className="resize-handle resize-handle-left" />
             {!!icon && <img className="icon" src={icon} />}
-            {!!menu && menu}
+            {!!menu && <Flex
+                className='no-drag'
+                alignItems='center'
+                justifyContent='center'
+            >
+                {menu}
+            </Flex>}
             {children}
             <WindowControls disableMinimize={disableMinimize} disableMaximize={disableMaximize} browserWindowId={browserWindowId} />
         </div>
-        <div style={{height: "var(--titlebar-size)"}}/>
+        <div style={{ height: size }} />
     </>
 }

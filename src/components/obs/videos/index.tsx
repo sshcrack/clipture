@@ -1,29 +1,18 @@
-import "src/pages/dashboard/scrollbar.css";
+import "src/pages/main/scrollbar.css";
 
 import { Video } from '@backend/managers/clip/interface';
-import { Button, Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
+import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from "react";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import { RenderLogger } from 'src/interfaces/renderLogger';
-import Editor from './Editor';
-import EditorVideo from './EditorVideo';
-import EditorMainBar from './bar/EditorMainBar';
-import EditorSeekBar from './bar/EditorSeekBar';
-import EditorStartBar from './bar/EditorStartBar';
-import EditorEndBar from './bar/EditorEndBar';
-import EditorTimelineTop from './timelineTop/EditorTimelineTop';
-import EditorCutHighlight from './bar/EditorCutHighlight';
-import TitleBarItem from 'src/components/titlebar/TitleBarItem';
-import { FaArrowLeft } from 'react-icons/fa';
 
 const log = RenderLogger.get("obs", "clips")
 
-export default function Videos({ additionalElements = [] }: { additionalElements?: React.ReactChild[] }) {
+export default function Videos({ additionalElements }: { additionalElements?: React.ReactNode }) {
     const toast = useToast()
     const [retry, setRetry] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
-    const [currSelected, setCurrSelected] = React.useState<string | null>("2022-06-24 23-11-17.mkv")
     const [loading, setLoading] = React.useState(false)
 
     const { videos } = window.api
@@ -44,38 +33,6 @@ export default function Videos({ additionalElements = [] }: { additionalElements
             })
     }, [retry])
 
-    if (currSelected)
-        return <>
-            <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)}>
-                <EditorVideo />
-                <EditorMainBar>
-                    <EditorCutHighlight bg='editor.highlight' opacity={.5} />
-                    <EditorSeekBar />
-                    <EditorStartBar
-                        bg='editor.highlight'
-                        cursor='pointer'
-                        h='100%'
-                    />
-                    <EditorEndBar
-                        bg='editor.highlight'
-                        cursor='pointer'
-                        h='100%'
-                    />
-                </EditorMainBar>
-                <EditorTimelineTop />
-            </Editor>
-            <TitleBarItem>
-                <Button
-                    leftIcon={<FaArrowLeft />}
-                    onClick={() => setCurrSelected(null)}
-                    variant='solid'
-                    colorScheme='red'
-                >
-                    Back
-                </Button>
-            </TitleBarItem>
-        </>
-
     const clipElements = currVideos.map(({ thumbnail, info, videoName }, i) => {
         const { id, name, aliases, icon } = info ?? {}
 
@@ -83,7 +40,7 @@ export default function Videos({ additionalElements = [] }: { additionalElements
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         return <VideoGridItem key={`${i}-videoElements`}
             background={`url(${thumbnail})`}
-            onClick={() => setCurrSelected(videoName)}
+            onClick={() => location.hash = `/editor/${videoName}`}
         >
             <Flex
                 flex='1'
@@ -98,6 +55,9 @@ export default function Videos({ additionalElements = [] }: { additionalElements
                 justifyContent='center'
                 alignItems='center'
                 flexDir='column'
+                borderRadius="xl"
+                borderTopLeftRadius='0'
+                borderTopRightRadius='0'
                 bg='brand.bg'
                 p='1'
             >
@@ -117,6 +77,6 @@ export default function Videos({ additionalElements = [] }: { additionalElements
     })
 
     return <VideoGrid>
-        {loading ? <Spinner /> : [...additionalElements, ...clipElements]}
+        {loading ? <Spinner /> : [additionalElements, ...clipElements]}
     </VideoGrid>
 }

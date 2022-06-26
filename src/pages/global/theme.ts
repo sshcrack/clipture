@@ -33,9 +33,6 @@ const fonts = {
 
 const styles = {
     global: {
-        html: {
-            "--titlebar-size": "28px"
-        }
     }
 }
 
