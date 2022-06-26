@@ -1,4 +1,5 @@
 import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
+import { motion } from 'framer-motion'
 import React from 'react'
 
 type VideoGridItem = GridItemProps & {
@@ -8,17 +9,29 @@ type VideoGridItem = GridItemProps & {
     key?: string
 }
 type InputProps = {
-    children: React.ReactChild | React.ReactChild[]
+    children: React.ReactNode
 }
 
+const GridItemMotion = motion(GridItem)
+
 export function VideoGridItem({ key, background, onClick, children, ...rest }: VideoGridItem) {
-    return <GridItem key={key}
+    return <GridItemMotion
+        key={key}
         display='flex'
         h='100%'
         w='100%'
         background={background}
         backgroundSize='cover'
-        backgroundPosition='center'
+        backgroundPositionX="0%"
+        animate={{
+            backgroundPositionX: "100%"
+        }}
+        transition={{
+            ease: "easeInOut",
+            repeat: Infinity,
+            duration: 30,
+            repeatType: "reverse"
+        }}
         borderRadius="xl"
         flexDir='column'
         cursor='pointer'
@@ -33,7 +46,7 @@ export function VideoGridItem({ key, background, onClick, children, ...rest }: V
         {...rest}
     >
         {children}
-    </GridItem>
+    </GridItemMotion>
 }
 
 export function VideoGrid({ children }: InputProps) {

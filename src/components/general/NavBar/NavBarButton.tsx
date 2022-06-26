@@ -1,19 +1,19 @@
-import { Flex, Text } from '@chakra-ui/react';
+import { Box, Tooltip } from '@chakra-ui/react';
 import classNames from 'classnames';
+import { motion } from "framer-motion";
 import React from 'react';
-import { motion } from "framer-motion"
 import { IconType } from 'react-icons';
-import "src/components/obs/NavBar/btn.css"
+import "src/components/general/NavBar/btn.css";
 
 export interface NavBarButtonProps {
     active: boolean,
     icon: IconType,
-    text: string,
+    tooltip: string,
     color: string,
     onClick?: () => void
 }
 
-export default function NavBarButton({ active, icon: Icon, text, color, onClick }: NavBarButtonProps) {
+export default function NavBarButton({ active, icon: Icon, tooltip, color, onClick }: NavBarButtonProps) {
     const cssColor = `--chakra-colors-${color.split(".").join("-")}`
     const colorCodeHover = getComputedStyle(document.body)
         .getPropertyValue(cssColor)
@@ -32,12 +32,13 @@ export default function NavBarButton({ active, icon: Icon, text, color, onClick 
         className='navbar-button-outer'
         onClick={onClick}
     >
-        <div
-            className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
-        >
-            <Icon className='navbar-icon' />
-            <Text fontSize='1.5em'>{text}</Text>
-        </div>
+        <Tooltip label={tooltip}>
+            <Box
+                className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
+            >
+                <Icon className='navbar-icon' />
+            </Box>
+        </Tooltip>
     </motion.div>
 
 }

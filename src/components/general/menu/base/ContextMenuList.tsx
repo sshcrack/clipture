@@ -1,6 +1,6 @@
 import React, { RefObject, useContext, useEffect, useState } from "react";
 import { ContextMenuContext } from "./ContextMenu";
-import { Variants } from "framer-motion";
+import { CustomDomComponent, Variants } from "framer-motion";
 import { MotionBox } from "./MotionBox";
 import { useOutsideClick } from "@chakra-ui/react";
 

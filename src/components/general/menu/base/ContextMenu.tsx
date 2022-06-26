@@ -32,7 +32,7 @@ export const ContextMenuContext = React.createContext<ContextMenuState>({
 
 export const ContextMenu = ({ children }: React.PropsWithChildren<Props>) => {
     const { isOpen, onClose: closeMenu, onOpen: openMenu } = useDisclosure();
-    const [position, setPosition] = useState<MousePosition>({ x: 0, y: 0 });
+    const [position, setPosition] = useState<MousePosition>({ x: -100, y: -100 });
     const menuRef = useRef<HTMLDivElement>(null);
     return (
         <ContextMenuContext.Provider

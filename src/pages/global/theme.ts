@@ -6,6 +6,9 @@ const config: ThemeConfig = {
 }
 
 const colors = {
+    editor: {
+        highlight: "#eeb600"
+    },
     brand: {
         primary: "#b721ff",
         secondary: "#21aefd",
@@ -28,7 +31,15 @@ const fonts = {
     body: `'Varela Round', sans-serif`,
 }
 
-const theme = extendTheme({ config, component, colors, fonts})
+const styles = {
+    global: {
+        html: {
+            "--titlebar-size": "28px"
+        }
+    }
+}
+
+const theme = extendTheme({ config, component, colors, fonts, styles})
 
 console.log(theme)
 export default theme

@@ -7,7 +7,7 @@ import { BsCameraReelsFill } from "react-icons/bs";
 import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
-import "src/components/obs/NavBar/styles.css";
+import "src/components/general/NavBar/styles.css";
 import NavBarButton from './NavBarButton';
 
 export function NavBar({ data }: { data: SessionData }) {
@@ -43,13 +43,13 @@ export function NavBar({ data }: { data: SessionData }) {
                 <NavBarButton
                     active={true}
                     icon={SiApplearcade}
-                    text='Clips'
+                    tooltip='Clips'
                     color='brand.secondary'
                 />
                 <NavBarButton
                     active={false}
                     icon={AiOutlineCompass}
-                    text='Discover'
+                    tooltip='Discover'
                     color='brand.primary'
                 />
             </Flex>
@@ -62,13 +62,13 @@ export function NavBar({ data }: { data: SessionData }) {
                 <NavBarButton
                     icon={FaCog}
                     active={false}
-                    text='Settings'
+                    tooltip='Settings'
                     color='gray.400'
                 />
                 <NavBarButton
                     active={false}
                     icon={GoSignOut}
-                    text='Sign Out'
+                    tooltip='Sign Out'
                     color='red.500'
                     onClick={() => auth.signOut()}
                 />

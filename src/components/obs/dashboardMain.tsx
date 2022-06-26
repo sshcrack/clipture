@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import { VideoGridItem } from '../general/grid/video';
 import Clips from './clips';
-import { NavBar } from './NavBar/';
+import { NavBar } from '../general/NavBar';
 import Videos from './videos';
 import GradientLoader from './videos/gradientLoader';
 
@@ -112,7 +112,7 @@ export function DashboardMain({ data }: { data: SessionData }) {
                 justifyContent='center'
                 alignItems='center'
                 flexDir='column'
-                backdropFilter="blur(4px)"
+                bg='brand.bg'
                 p='1'
             >
                 <Text style={{

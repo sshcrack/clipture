@@ -49,7 +49,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                     justifyContent='center'
                     alignItems='center'
                     flexDir='column'
-                    backdropFilter="blur(4px)"
+                    bg='brand.bg'
                     p='1'
                 >
                     <Flex gap='1em' justifyContent='center' alignItems='center'>
@@ -78,7 +78,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                         h='100%'
                         justifyContent='center'
                         alignItems='center'
-                        backdropFilter="blur(4px)"
+                        bg='brand.bg'
                         flexDir='column'
                     >
                         <Heading>CORRUPTED CLIP</Heading>

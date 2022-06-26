@@ -48,7 +48,6 @@ const App = () => {
 
     const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
     const DynamicPage = status === SessionStatus.AUTHENTICATED ? DashboardMain : LoginPage
-    console.log("Initialized", initialized, "status", status)
 
     return <Flex
         width='100%'

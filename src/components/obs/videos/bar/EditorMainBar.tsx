@@ -132,10 +132,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
 
     useEffect(() => {
         console.log("Add")
-        const resizeListener = () => {
-            console.log("Resize main")
-            setResize(Math.random())
-        }
+        const resizeListener = () => setResize(Math.random())
         window.addEventListener("resize", resizeListener)
 
         return () => {

@@ -17,7 +17,6 @@ export default function EditorCutHighlight(props: BoxProps) {
         let startPixel = Math.max(0, (start - offset) / range * width)
         let endPixel = Math.min(width, (end - offset) / range * width)
 
-        console.log("Resize")
         highlight.current.style.transform = `translateX(${startPixel}px)`
         highlight.current.style.width = `${endPixel - startPixel}px`
     }, [selection, highlight, mainBarRef, duration, resize])

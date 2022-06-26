@@ -1,5 +1,5 @@
 #electron-app-title-bar {
-    height: 28px;
+    height: var(--titlebar-size);
     background: #24292e;
     border-bottom: 1px solid #000;
     -webkit-app-region: drag;

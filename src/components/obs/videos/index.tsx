@@ -14,6 +14,8 @@ import EditorStartBar from './bar/EditorStartBar';
 import EditorEndBar from './bar/EditorEndBar';
 import EditorTimelineTop from './timelineTop/EditorTimelineTop';
 import EditorCutHighlight from './bar/EditorCutHighlight';
+import TitleBarItem from 'src/components/titlebar/TitleBarItem';
+import { FaArrowLeft } from 'react-icons/fa';
 
 const log = RenderLogger.get("obs", "clips")
 
@@ -47,22 +49,31 @@ export default function Videos({ additionalElements = [] }: { additionalElements
             <Editor key={currSelected} clipName={currSelected} onBack={() => setCurrSelected(null)}>
                 <EditorVideo />
                 <EditorMainBar>
-                    <EditorCutHighlight bg='rgba(0, 255,0, 0.5)' />
+                    <EditorCutHighlight bg='editor.highlight' opacity={.5} />
                     <EditorSeekBar />
                     <EditorStartBar
-                        bg='blue'
+                        bg='editor.highlight'
                         cursor='pointer'
                         h='100%'
                     />
                     <EditorEndBar
-                        bg='blue'
+                        bg='editor.highlight'
                         cursor='pointer'
                         h='100%'
                     />
                 </EditorMainBar>
                 <EditorTimelineTop />
             </Editor>
-            <Button onClick={() => setCurrSelected(null)}>Back</Button>
+            <TitleBarItem>
+                <Button
+                    leftIcon={<FaArrowLeft />}
+                    onClick={() => setCurrSelected(null)}
+                    variant='solid'
+                    colorScheme='red'
+                >
+                    Back
+                </Button>
+            </TitleBarItem>
         </>
 
     const clipElements = currVideos.map(({ thumbnail, info, videoName }, i) => {
@@ -87,7 +98,7 @@ export default function Videos({ additionalElements = [] }: { additionalElements
                 justifyContent='center'
                 alignItems='center'
                 flexDir='column'
-                backdropFilter="blur(4px)"
+                bg='brand.bg'
                 p='1'
             >
                 <Flex gap='1em' justifyContent='center' alignItems='center'>
