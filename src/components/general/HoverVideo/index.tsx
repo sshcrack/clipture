@@ -35,6 +35,7 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
             clearTimeout(timeoutId)
             video.pause()
             video.currentTime = 0
+            setCurrentTime(0)
         }
     }, [hovered, ref])
 
