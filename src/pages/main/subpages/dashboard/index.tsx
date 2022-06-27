@@ -6,7 +6,7 @@ import { NavBar } from 'src/components/general/NavBar';
 import Clips from 'src/components/obs/clips';
 import ClipProcessingItems from 'src/components/obs/progress/ClipProgressItems';
 import Videos from 'src/components/obs/videos';
-import "src/pages/main/subpages/DashboardPage.css"
+import "src/pages/main/subpages/dashboard/index.css"
 
 
 //TODO: Add Illustration credits to settings
@@ -56,12 +56,11 @@ export default function DashboardPage({ data }: { data: SessionData }) {
         width='100%'
         height='100%'
     >
-        <Flex
-            w='15em'
+        <NavBar
+            data={data}
+            w='5em'
             h='100%'
-        >
-            <NavBar data={data} />
-        </Flex>
+        />
         <Flex
             flexDir='column'
             alignItems='center'

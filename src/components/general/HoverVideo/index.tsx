@@ -5,8 +5,8 @@ import React, { useEffect, useRef, useState } from "react"
 export default function HoverVideo({ source, ...props }: BoxProps & { source: string }) {
     const [opacity, setOpacity] = useState(0)
     const [hovered, setHovered] = useState(false)
-    const [ currentTime, setCurrentTime] = useState(0)
-    const [ duration, setDuration] = useState(Infinity)
+    const [currentTime, setCurrentTime] = useState(0)
+    const [duration, setDuration] = useState(Infinity)
     const ref = useRef<HTMLVideoElement>(null)
 
     useEffect(() => {
@@ -27,7 +27,7 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
         const timeoutId = setTimeout(() => {
             setOpacity(1)
             video.play()
-        }, 100)
+        }, 350)
         return () => {
             clearInterval(intervalId)
             clearTimeout(timeoutId)
@@ -59,7 +59,7 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
             onMouseLeave={() => setHovered(false)}
             zIndex={100}
         >
-            <Slider marginTop='auto' aria-label='slider-ex-1' value={currentTime} max={duration}>
+            <Slider marginTop='auto' aria-label='slider-ex-1' value={isNaN(currentTime) ? 0 : currentTime} max={isNaN(duration) ? Infinity : duration}>
                 <SliderTrack>
                     <SliderFilledTrack />
                 </SliderTrack>

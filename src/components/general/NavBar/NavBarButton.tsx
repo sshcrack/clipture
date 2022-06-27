@@ -1,45 +1,49 @@
-import { Box, Tooltip } from '@chakra-ui/react';
+import { Flex, FlexProps, Tooltip } from '@chakra-ui/react';
 import classNames from 'classnames';
-import { motion } from "framer-motion";
-import React from 'react';
+import React, { useState } from 'react';
 import { IconType } from 'react-icons';
-import "src/components/general/NavBar/btn.css";
 
-export interface NavBarButtonProps {
-    active: boolean,
+export type NavBarButtonProps = FlexProps & {
     icon: IconType,
     tooltip: string,
     color: string,
+    active?: boolean,
     onClick?: () => void
 }
 
-export default function NavBarButton({ active, icon: Icon, tooltip, color, onClick }: NavBarButtonProps) {
+export default function NavBarButton({ active, icon: Icon, tooltip, color, ...props }: NavBarButtonProps) {
     const cssColor = `--chakra-colors-${color.split(".").join("-")}`
+    const [isHovered, setHovered] = useState(false)
+
     const colorCodeHover = getComputedStyle(document.body)
         .getPropertyValue(cssColor)
 
-    return <motion.div
-        style={{
-            cursor: "pointer",
-            "--hover-color": `var(${cssColor})`
-        } as any}
-        initial={{ "--gradient-color": "rgba(0,0,0,0)" } as any}
-        whileHover={{
-            "--gradient-color": colorCodeHover,
-            scale: active ? 1 : 1.1
-        } as any}
-        transition={{ duration: .1 }}
-        className='navbar-button-outer'
-        onClick={onClick}
-    >
-        <Tooltip label={tooltip}>
-            <Box
-                className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
-            >
-                <Icon className='navbar-icon' />
-            </Box>
-        </Tooltip>
-    </motion.div>
+    const transition = ".25s ease-in-out all"
+    return <Tooltip label={tooltip}>
+        <Flex
+            bg={active ? colorCodeHover : "transparent"}
+            _hover={{
+                bg: active ? colorCodeHover : colorCodeHover
+            }}
+            className={classNames('navbar-button-div', active ? 'navbar-active' : null)}
+            p='4'
+            w='100%'
+            justifyContent='center'
+            alignItems='center'
+            cursor='pointer'
+            transition={transition}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            {...props}
+        >
+            <Icon style={{
+                transition: transition,
+                transform: isHovered ? "scale(1.1)" : "scale(1)",
+                width: '2em',
+                height: '2em'
+            }} />
+        </Flex>
+    </Tooltip>
 
 }
 

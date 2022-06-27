@@ -5,16 +5,14 @@ import React from 'react'
 type VideoGridItem = GridItemProps & {
     background: string,
     children: React.ReactElement[] | React.ReactElement
-    onClick?: (React.MouseEventHandler<HTMLDivElement>),
-    key?: string
+    onClick?: (React.MouseEventHandler<HTMLDivElement>)
 }
 type InputProps = {
     children: React.ReactNode
 }
 
-export function VideoGridItem({ key, background, onClick, children, ...rest }: VideoGridItem) {
+export function VideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
     return <GridItem
-        key={key}
         display='flex'
         h='100%'
         minHeight='20em'

@@ -5,10 +5,12 @@ import { HashRouter, Route, Routes } from "react-router-dom"
 import { useLock } from 'src/components/hooks/useLock'
 import { useSession } from 'src/components/hooks/useSession'
 import { RenderLogger } from 'src/interfaces/renderLogger'
-import DashboardPage from './subpages/DashboardPage'
-import EditorPage from './subpages/EditorPage'
-import { InitializePage } from './subpages/InitializePage'
-import LoginPage from './subpages/LoginPage'
+import DashboardPage from './subpages/dashboard'
+import DiscoverPage from './subpages/discover'
+import EditorPage from './subpages/editor/EditorPage'
+import { InitializePage } from './subpages/initialize'
+import LoginPage from './subpages/login'
+import SettingsPage from './subpages/settings'
 
 const log = RenderLogger.get("App")
 export default function App() {
@@ -57,6 +59,8 @@ export default function App() {
         <Routes>
             <Route path="/" element={<DashboardPage data={data} />} />
             <Route path="/:mode" element={<DashboardPage data={data} />} />
+            <Route path="/discover" element={<DiscoverPage data={data} />} />
+            <Route path="/settings" element={<SettingsPage data={data} />} />
             <Route path="/editor/:videoName" element={<EditorPage />}></Route>
         </Routes>
     </HashRouter>
