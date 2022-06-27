@@ -17,6 +17,7 @@ export function VideoGridItem({ key, background, onClick, children, ...rest }: V
         key={key}
         display='flex'
         h='100%'
+        minHeight='20em'
         w='100%'
         background={background}
         backgroundSize='cover'

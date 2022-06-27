@@ -156,6 +156,7 @@
     "typed-emitter": "^2.1.0",
     "unpacker-with-progress": "^2.0.3",
     "update-electron-app": "^2.0.1",
+    "use-debounce": "^8.0.1",
     "use-http": "^1.0.26",
     "uuid": "^8.3.2"
   }

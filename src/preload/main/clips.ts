@@ -21,8 +21,9 @@ const clips = {
         }
     },
     list: () => RegManRender.emitPromise("clips_list"),
-    cut: (videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
-        const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd })
+    exists: (name: string) => RegManRender.emitPromise("clips_exists", name),
+    cut: (clipName: string, videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
+        const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd, clipName })
         const listener = (clip: ClipCutInfo, prog: Progress) => {
             if (clip.videoName !== videoName || clip.start !== selectStart || clip.end !== selectEnd)
                 return

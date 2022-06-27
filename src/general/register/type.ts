@@ -39,11 +39,13 @@ export type RegisterEventsPromises = {
 
     video_list: () => Video[],
     clips_list: () => ExtendedClip[],
+
+    clips_exists: (name: string) => boolean,
     clips_cut: (clipsOptions: ClipCutInfo) => void,
     clips_cutting: () => [string, ClipProcessingInfo][],
     clips_delete: (clipName: string) => void
 
-    system_open_folder: (path: string) => void,
+    system_open_clip: (path: string) => void,
     system_get_dashboard_page_default: () => number,
     system_set_default_dashboard_page: (newIndex: number) => void
 }

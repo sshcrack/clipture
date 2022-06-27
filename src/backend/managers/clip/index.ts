@@ -1,6 +1,7 @@
 import { Progress } from '@backend/processors/events/interface'
-import { getClipInfoCachePath, getSharedImageCachePath, getVideoInfoCachePath } from '@backend/tools/fs'
+import { existsProm, getClipInfoCachePath, getSharedImageCachePath, getVideoInfoCachePath } from '@backend/tools/fs'
 import { RegManMain } from '@general/register/main'
+import { isFilenameValid } from '@general/tools'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
@@ -9,14 +10,12 @@ import fs from "fs"
 import { readFile, rm } from 'fs/promises'
 import glob from "glob"
 import path from "path"
-import { AiOutlineConsoleSql } from 'react-icons/ai'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
 import { promisify } from "util"
-import { v4 as uuid } from "uuid"
 import { RecordManager } from '../obs/core/record'
 import { DetectableGame } from '../obs/Scene/interfaces'
-import { getClipInfo, getVideoInfo, getVideoInfoPath } from './func'
+import { getClipInfo, getClipInfoPath, getClipVideoPath, getVideoInfo, getVideoPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, ExtendedClip, Video } from './interface'
 
 const globProm = promisify(glob)
@@ -41,7 +40,7 @@ export class ClipManager {
             await rm(infoPath)
 
         log.log("Deleted clip", clipName, "!")
-        RegManMain.send("clip_update", { videoName: clipName, end: 0, start: 0 }, null)
+        RegManMain.send("clip_update", { videoName: null, end: null, start: null, clipName: clipName }, null)
     }
 
     static async listClips() {
@@ -53,6 +52,7 @@ export class ClipManager {
         log.info("Loading total of", files.length, "clips...")
         return await Promise.all(
             files
+                .filter(e => e.endsWith(".mp4"))
                 .filter(e => !Array.from(this.processing.values()).some(x => path.basename(x.info.clipPath) === path.basename(e)))
                 .map(async file => {
                     const thumbnail = await ClipManager.fromPathToThumbnail(file)
@@ -63,7 +63,6 @@ export class ClipManager {
                         clipInfo = await getClipInfo(clipPath, path.basename(file))
 
                     return {
-                        clipPath: file,
                         clipName: fileName,
                         original: fileName.split("_UUID_").shift(),
                         ...clipInfo,
@@ -143,6 +142,14 @@ export class ClipManager {
     }
 
     static register() {
+        RegManMain.onPromise("clips_exists", (_, n) => {
+            if (n.includes("..") || n.includes("/") || n.includes("\\") || n.includes("."))
+                return Promise.resolve(false)
+
+            const rootPath = Storage.get("clip_path")
+            const finalPath = path.resolve(rootPath, n + ".clipped.mp4")
+            return existsProm(finalPath)
+        })
         RegManMain.onPromise("clips_list", () => this.listClips())
         RegManMain.onPromise("clips_delete", (_, clipName) => this.deleteClip(clipName))
         RegManMain.onPromise("video_list", () => this.listVideos())
@@ -203,26 +210,37 @@ export class ClipManager {
     }
 
     static async cut(clipObj: ClipCutInfo, onProgress: (prog: Progress) => void) {
-        let { videoName, start, end } = clipObj
+        let { videoName, start, end, clipName } = clipObj
+        videoName = videoName.split(".mkv").join("")
+        clipName = clipName.split(".mp4").join("")
 
-        log.log("Cutting clip", videoName, "from", start, "to", end)
-        videoName = videoName.split("..").join("").split("/").join("").split("\\").join("")
-        const id = uuid()
+        if (!isFilenameValid(videoName) || !isFilenameValid(clipName)) {
+            log.error("Can't cut, invalid Video or Clip Name", videoName, clipName)
+            throw new Error(`Invalid VideoName (${videoName}) or ClipName ${clipName}`)
+        }
+
 
         const clipRoot = Storage.get("clip_path")
-        const videoPath = path.join(clipRoot, videoName)
-        const clipOut = path.join(clipRoot, path.basename(videoName, path.extname(videoName)) + "_UUID_" + id + ".clipped.mp4")
+        const videoPath = getVideoPath(clipRoot, videoName)
+        const clipOut = getClipVideoPath(clipRoot, clipName)
 
-        const infoPath = getVideoInfoPath(clipRoot, videoName)
-        const info = await getVideoInfo(clipRoot, videoName)
+        if (!existsProm(videoPath)) {
+            log.error("Can't cut, video with path", videoPath, "does not exist.")
+            throw new Error(`Video with name ${videoName} does not exist in clip directory`)
+        }
 
-        const withClippedExt = infoPath.replace(".mkv.json", "") + "_UUID_" + id + ".clipped.mp4.json"
+
+        const info = await getVideoInfo(clipRoot, videoName + ".mkv")
+        const withClippedExt = getClipInfoPath(clipRoot, clipName)
 
 
         const ffmpegExe = MainGlobals.ffmpegExe
         const commandRunner = this.execa ?? (await import("execa")).execa
 
-        const commandOut = commandRunner(ffmpegExe, ["-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), "-progress", "pipe:1", clipOut])
+        const args = ["-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), "-progress", "pipe:1", clipOut]
+        log.log("Cutting clip from vidoePath", videoPath, "Output", clipOut, "with info", info, "and clip info file", withClippedExt)
+        log.log("Running ffmpeg:", ffmpegExe, args.join(" "))
+        const commandOut = commandRunner(ffmpegExe, args)
         //? Duration in microseconds because ffmpeg is stupid and titles it as milliseconds
         const duration = (end - start) * 1000 * 1000
 
@@ -272,7 +290,7 @@ export class ClipManager {
         fs.writeFileSync(withClippedExt, JSON.stringify({
             clipName: path.basename(clipOut),
             clipPath: clipOut,
-            game: info.game,
+            game: info?.game,
             original: videoName,
             start: start,
             end: end,

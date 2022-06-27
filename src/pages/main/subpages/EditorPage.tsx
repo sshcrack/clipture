@@ -1,11 +1,10 @@
 import { Flex } from '@chakra-ui/react';
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import EditorCutBar from 'src/components/obs/videos/bar/EditorCutBar';
 import EditorCutHighlight from 'src/components/obs/videos/bar/EditorCutHighlight';
-import EditorEndBar from 'src/components/obs/videos/bar/EditorEndBar';
 import EditorMainBar from 'src/components/obs/videos/bar/EditorMainBar';
 import EditorSeekBar from 'src/components/obs/videos/bar/EditorSeekBar';
-import EditorStartBar from 'src/components/obs/videos/bar/EditorStartBar';
 import EditorTitlebar from 'src/components/obs/videos/bar/EditorTitlebar';
 import Editor from 'src/components/obs/videos/Editor';
 import EditorVideo from 'src/components/obs/videos/EditorVideo';
@@ -33,12 +32,14 @@ export default function EditorPage() {
                 <EditorMainBar>
                     <EditorCutHighlight bg='editor.highlight' opacity={.5} />
                     <EditorSeekBar />
-                    <EditorStartBar
+                    <EditorCutBar
+                        type="start"
                         bg='editor.highlight'
                         cursor='pointer'
                         h='100%'
                     />
-                    <EditorEndBar
+                    <EditorCutBar
+                        type="end"
                         bg='editor.highlight'
                         cursor='pointer'
                         h='100%'

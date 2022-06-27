@@ -1,4 +1,5 @@
 import { Box, Flex, Grid, GridItemProps } from '@chakra-ui/react'
+import { getVideoSourceUrl } from '@general/tools'
 import { motion } from 'framer-motion'
 import React, { useContext, useEffect } from "react"
 import { FaPlay } from 'react-icons/fa'
@@ -55,8 +56,8 @@ export default function EditorVideo(props: GridItemProps) {
             gridColumn='1'
             gridRow='1'
         >
-            <video ref={bgGeneratorRef} style={{ zIndex: -100, width: "100%"}}>
-                <source src={`clip-video-file:///${encodeURIComponent(videoName)}`}></source>
+            <video ref={bgGeneratorRef} style={{ zIndex: -100, width: "100%" }}>
+                <source src={getVideoSourceUrl(videoName)}></source>
             </video>
         </Box>
         <Box
@@ -66,7 +67,7 @@ export default function EditorVideo(props: GridItemProps) {
             gridRow='1'
         >
             <video ref={videoRef} style={{ zIndex: -10, width: "100%" }}>
-                <source src={`clip-video-file:///${encodeURIComponent(videoName)}`}></source>
+                <source src={getVideoSourceUrl(videoName)}></source>
             </video>
         </Box>
         <Flex

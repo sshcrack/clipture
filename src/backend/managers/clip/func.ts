@@ -1,6 +1,6 @@
 import { existsProm } from '@backend/tools/fs';
 import fs from "fs/promises";
-import { DetectableGame } from '../obs/Scene/interfaces';
+import path from 'path';
 import { Clip, VideoInfo } from './interface';
 
 
@@ -18,10 +18,6 @@ export async function getVideoInfo(recordingPath: string, videoName: string): Pr
 }
 
 
-export function getClipInfoPath(recordingPath: string, clipName: string) {
-    return recordingPath + "/" + clipName + ".json"
-}
-
 export async function getClipInfo(recordingPath: string, clipName: string): Promise<Clip | null> {
     const infoJsonPath = getVideoInfoPath(recordingPath, clipName)
     if (!await existsProm(infoJsonPath))
@@ -29,4 +25,16 @@ export async function getClipInfo(recordingPath: string, clipName: string): Prom
 
     const infoJson = await fs.readFile(infoJsonPath, "utf8")
     return JSON.parse(infoJson) as Clip
+}
+
+export function getClipVideoPath(root: string, name: string) {
+    return path.join(root, name + ".clipped.mp4")
+}
+
+export function getClipInfoPath(root: string, name: string) {
+    return getClipVideoPath(root, name) + ".json"
+}
+
+export function getVideoPath(root: string, name: string) {
+    return path.join(root, name + ".mkv")
 }

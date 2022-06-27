@@ -24,7 +24,7 @@ if (MainGlobals.getOS() !== "Windows_NT") {
   app.quit()
 }
 
-
+app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSession')
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
 
 let mainWindow: BrowserWindow;

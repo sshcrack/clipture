@@ -6,6 +6,7 @@ import { NavBar } from 'src/components/general/NavBar';
 import Clips from 'src/components/obs/clips';
 import ClipProcessingItems from 'src/components/obs/progress/ClipProgressItems';
 import Videos from 'src/components/obs/videos';
+import "src/pages/main/subpages/DashboardPage.css"
 
 
 //TODO: Add Illustration credits to settings
@@ -24,14 +25,25 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     }, [currentPage])
 
     useEffect(() => {
-        if(mode) {
-            console.log("Mode is", mode)
-            return setCurrentPage(mode === "clips" ? 0 : 1)
+        const hotkeyListener = (e: KeyboardEvent) => {
+            const { key } = e
+            if(key === "v")
+                return setCurrentPage(1)
+
+            if(key === "c")
+                return setCurrentPage(0)
         }
+
+        document.addEventListener("keypress", hotkeyListener)
+        return () => document.removeEventListener("keypress", hotkeyListener)
+    }, [])
+
+    useEffect(() => {
+        if(mode)
+            return setCurrentPage(mode === "videos" ? 1 : 0)
 
         system.get_dashboard_page_default().then(e => {
             setCurrentPage(e)
-            console.log("Setting current page to", e)
             setInitialized(true)
         })
     }, [])
@@ -58,7 +70,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
         >
             <Tabs
                 w='100%'
-                h='100%'
+                h='calc(100% - var(--chakra-space-5))'
                 isLazy
                 display='flex'
                 flexDir='column'
@@ -67,8 +79,8 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                 onChange={newIndex => setCurrentPage(newIndex)}
             >
                 <TabList>
-                    <Tab>Clips</Tab>
-                    <Tab>Videos</Tab>
+                    <Tab className='tabHotkey'>Clips</Tab>
+                    <Tab className='tabHotkey'>Videos</Tab>
                 </TabList>
                 <TabPanels
                     display='flex'

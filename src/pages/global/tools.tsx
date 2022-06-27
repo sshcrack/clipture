@@ -22,7 +22,7 @@ export function renderMain(Comp: () => JSX.Element) {
         <TitleBarProvider>
             <ChakraProvider theme={theme}>
                 <TitleBar icon='../assets/logo.svg' />
-                <TitlebarBalancer className='sc2'>
+                <TitlebarBalancer className='sc2' style={{overflowY: "hidden"}}>
                     <ToastNotifier />
                     <Comp />
                 </TitlebarBalancer>

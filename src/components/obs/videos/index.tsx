@@ -3,6 +3,8 @@ import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from "react";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
+import HoverVideo from 'src/components/general/HoverVideo';
+import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("obs", "clips")
@@ -36,42 +38,39 @@ export default function Videos({ additionalElements }: { additionalElements?: Re
 
         const gameName = name ?? aliases?.[0] ?? "Unknown Game"
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
-        return <VideoGridItem key={`${i}-videoElements`}
-            background={`url(${thumbnail})`}
-            onClick={() => location.hash = `/editor/${videoName}`}
-        >
-            <Flex
-                flex='1'
-                w='100%'
-                h='100%'
-                justifyContent='center'
-                alignItems='center'
-            />
-            <Flex
-                flex='0'
-                gap='.25em'
-                justifyContent='center'
-                alignItems='center'
-                flexDir='column'
-                borderRadius="xl"
-                borderTopLeftRadius='0'
-                borderTopRightRadius='0'
-                bg='brand.bg'
-                p='1'
+        return <VideoContextMenu videoName={videoName}>
+
+            <VideoGridItem key={`${i}-videoElements`}
+                background={`url(${thumbnail})`}
+                onClick={() => location.hash = `/editor/${videoName}`}
             >
-                <Flex gap='1em' justifyContent='center' alignItems='center'>
-                    <Image src={imageSrc} w="1.5em" />
-                    <Text>{gameName}</Text>
+                <HoverVideo source={videoName} w='100%' h='100%' flex='1'/>
+                <Flex
+                    flex='0'
+                    gap='.25em'
+                    justifyContent='center'
+                    alignItems='center'
+                    flexDir='column'
+                    borderRadius="xl"
+                    borderTopLeftRadius='0'
+                    borderTopRightRadius='0'
+                    bg='brand.bg'
+                    p='1'
+                >
+                    <Flex gap='1em' justifyContent='center' alignItems='center'>
+                        <Image src={imageSrc} w="1.5em" />
+                        <Text>{gameName}</Text>
+                    </Flex>
+                    <Text style={{
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        width: "90%",
+                        textAlign: "center"
+                    }}>{videoName}</Text>
                 </Flex>
-                <Text style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    width: "90%",
-                    textAlign: "center"
-                }}>{videoName}</Text>
-            </Flex>
-        </VideoGridItem>
+            </VideoGridItem>
+        </VideoContextMenu>
     })
 
     return <VideoGrid>

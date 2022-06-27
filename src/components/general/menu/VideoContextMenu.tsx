@@ -6,24 +6,25 @@ import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
 
 type Props = {
-    clipName: string
+    videoName: string
 }
 
-export default function ClipContextMenu({ children, clipName }: PropsWithChildren<Props>) {
+export default function VideoContextMenu({ children, videoName }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
     const cancelRef = React.useRef()
 
-    return <><ContextMenu>
-        <ContextMenuTrigger>
-            {children}
-        </ContextMenuTrigger>
-        <ContextMenuList>
-            <ContextMenuItem onClick={() => system.open_clip(clipName)}>Show in Explorer</ContextMenuItem>
-            <ContextMenuItem colorScheme='red' onClick={onOpen}>Delete</ContextMenuItem>
-        </ContextMenuList>
-    </ContextMenu>
+    return <>
+        <ContextMenu>
+            <ContextMenuTrigger>
+                {children}
+            </ContextMenuTrigger>
+            <ContextMenuList>
+                <ContextMenuItem onClick={() => system.open_clip(videoName)}>Show in Explorer</ContextMenuItem>
+                <ContextMenuItem colorScheme='red' onClick={onOpen}>Delete</ContextMenuItem>
+            </ContextMenuList>
+        </ContextMenu>
         <AlertDialog
             isOpen={isOpen}
             leastDestructiveRef={cancelRef}
@@ -32,11 +33,11 @@ export default function ClipContextMenu({ children, clipName }: PropsWithChildre
             <AlertDialogOverlay>
                 <AlertDialogContent>
                     <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                        Delete Clip
+                        Delete Video
                     </AlertDialogHeader>
 
                     <AlertDialogBody>
-                        Are you sure? The clip will be deleted forever.
+                        Are you sure? The video will be deleted forever.
                     </AlertDialogBody>
 
                     <AlertDialogFooter>
@@ -48,7 +49,7 @@ export default function ClipContextMenu({ children, clipName }: PropsWithChildre
                             isLoading={isDeleting}
                             onClick={() => {
                                 setDeleting(true)
-                                clips.delete(clipName)
+                                clips.delete(videoName)
                                     .finally(() => setDeleting(false))
                                 onClose()
                             }} ml={3}>

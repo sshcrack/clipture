@@ -4,6 +4,7 @@ import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from 'react';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
+import HoverVideo from 'src/components/general/HoverVideo';
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 
 export default function Clips({ additionalElements }: { additionalElements: React.ReactNode }) {
@@ -32,7 +33,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
     const elements = [
         additionalElements,
         ...currClips.map((clip, i) => {
-            const { thumbnail, game, clipName, clipPath } = clip ?? {}
+            const { thumbnail, game, clipName } = clip ?? {}
             const { name, aliases, id, icon } = game ?? {}
 
             const gameName = name ?? aliases?.[0] ?? "Unknown Game"
@@ -41,8 +42,9 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
             let element = <VideoGridItem
                 background={`url(${thumbnail})`}
                 key={`VideoGrid-${i}`}
+                onClick={() => location.hash = `/editor/${clipName}`}
             >
-                <Flex w='100%' h='100%' />
+                <HoverVideo source={clipName} w='100%' h='100%' flex='1'/>
                 <Flex
                     flex='0'
                     gap='.25em'
@@ -65,7 +67,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                         textOverflow: "ellipsis",
                         width: "90%",
                         textAlign: "center"
-                    }}>{clipName}</Text>
+                    }}>{clipName.replace(".clipped.mp4", "")}</Text>
                 </Flex>
             </VideoGridItem>
 
@@ -101,7 +103,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                         >
                             <PromiseButton
                                 loadingText='Opening folder...'
-                                onClick={() => system.open_folder(clipPath)}>Open affected clip</PromiseButton>
+                                onClick={() => system.open_clip(clipName)}>Open affected clip</PromiseButton>
                             <PromiseButton
                                 colorScheme="red"
                                 loadingText='Deleting clip...'
@@ -111,7 +113,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                     </Flex>
                 </VideoGridItem>
 
-            return <ClipContextMenu key={`ContextMenu-${i}`} clipName={clipName} clipPath={clipPath}>
+            return <ClipContextMenu key={`ContextMenu-${i}`} clipName={clipName}>
                 {element}
             </ClipContextMenu>
         })

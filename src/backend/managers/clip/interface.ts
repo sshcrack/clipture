@@ -10,7 +10,6 @@ export interface Video {
 
 export type Clip = {
     clipName: string,
-    clipPath: string,
     game: DetectableGame,
     original: string,
     start: number,
@@ -23,6 +22,7 @@ export type ExtendedClip = Clip & {
 }
 
 export interface ClipCutInfo {
+    clipName: string,
     videoName: string,
     start: number,
     end: number
