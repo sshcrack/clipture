@@ -1,5 +1,3 @@
-import "src/pages/main/scrollbar.css";
-
 import { Video } from '@backend/managers/clip/interface';
 import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';

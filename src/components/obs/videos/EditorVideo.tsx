@@ -1,20 +1,16 @@
-import { Box, Button, Flex, Grid, Slider, SliderFilledTrack, SliderThumb, SliderTrack } from '@chakra-ui/react'
+import { Box, Flex, Grid, GridItemProps } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import React, { CSSProperties, useContext, useEffect, useState } from "react"
-import { BsArrowCounterclockwise } from 'react-icons/bs'
-import { FaPlay, FaPause } from 'react-icons/fa'
-import { IoMdCut } from 'react-icons/io'
+import React, { useContext, useEffect } from "react"
+import { FaPlay } from 'react-icons/fa'
+import { RenderLogger } from 'src/interfaces/renderLogger'
 import { EditorContext } from './Editor'
 
-export default function EditorVideo() {
-    const [isVideoHovered, setVideoHovered] = useState(false)
-    const [isCuttingClips, setClipsCutting] = useState(false)
-
-    const { onBack, bgGeneratorRef, videoRef, duration, clipName, setDuration, paused, selection, setSelection, setPaused } = useContext(EditorContext)
+const log = RenderLogger.get("components", "obs", "videos", "EditorVideo")
+export default function EditorVideo(props: GridItemProps) {
+    const { bgGeneratorRef, videoRef, videoName, setDuration, paused, setSelection, setPaused } = useContext(EditorContext)
 
 
     const transition = 'all .2s ease-in-out'
-    const iconStyle = { width: "1.5em", height: "1.5em" }
 
     const pauseVideo = (newPaused: boolean) => {
         const video = videoRef?.current
@@ -25,16 +21,6 @@ export default function EditorVideo() {
         setPaused(video.paused)
     }
 
-    const resetSettings = () => {
-        setSelection({
-            end: duration,
-            offset: 0,
-            start: 0,
-            range: duration
-        })
-    }
-
-
     useEffect(() => {
         if (!videoRef?.current)
             return
@@ -42,35 +28,26 @@ export default function EditorVideo() {
         const video = videoRef.current
         video.onloadeddata = () => {
             const duration = video.duration
-            setDuration(duration)
-            setSelection({
+            const selection = {
                 end: duration,
                 offset: 0,
                 range: duration,
                 start: 0
-            })
+            }
+
+            log.log("Setting selection to", selection)
+            setDuration(duration)
+            setSelection(selection)
         }
-    }, [videoRef])
-
-    const generateClip = () => {
-        if (isCuttingClips)
-            return
-
-        setClipsCutting(true)
-        const { start, end } = selection
-        window.api.clips.cut(clipName, start, end, () => { })
-            .then(() => setClipsCutting(false))
-        onBack()
-    }
+    }, [videoRef, setSelection, setDuration])
 
     return <Grid
         h='32.5em'
         rounded='xl'
         style={{ aspectRatio: "16/9" } as any}
-        overflow='hidden'
         mb='6'
-        onMouseEnter={() => setVideoHovered(true)}
-        onMouseLeave={() => setVideoHovered(false)}
+        {...props}
+        overflow='hidden'
     >
         <Box
             w='100%'
@@ -78,8 +55,8 @@ export default function EditorVideo() {
             gridColumn='1'
             gridRow='1'
         >
-            <video ref={bgGeneratorRef} style={{ zIndex: -100 }}>
-                <source src={`clip-video-file:///${encodeURIComponent(clipName)}`}></source>
+            <video ref={bgGeneratorRef} style={{ zIndex: -100, width: "100%"}}>
+                <source src={`clip-video-file:///${encodeURIComponent(videoName)}`}></source>
             </video>
         </Box>
         <Box
@@ -88,8 +65,8 @@ export default function EditorVideo() {
             gridColumn='1'
             gridRow='1'
         >
-            <video ref={videoRef} style={{ zIndex: -10 }}>
-                <source src={`clip-video-file:///${encodeURIComponent(clipName)}`}></source>
+            <video ref={videoRef} style={{ zIndex: -10, width: "100%" }}>
+                <source src={`clip-video-file:///${encodeURIComponent(videoName)}`}></source>
             </video>
         </Box>
         <Flex
@@ -108,6 +85,7 @@ export default function EditorVideo() {
                 alignItems='center'
                 opacity={paused ? 1 : 0}
                 transition={transition}
+                cursor='pointer'
                 bg={paused ? "rgba(0,0,0,.4)" : "rgba(0,0,0,0)"}
                 onClick={() => pauseVideo(!paused)}
             >
@@ -118,72 +96,6 @@ export default function EditorVideo() {
                 >
                     <FaPlay style={{ width: 'var(--play-size)', height: 'var(--play-size)', cursor: "pointer" }} />
                 </motion.div>
-            </Flex>
-            <Flex
-                w='100%'
-                h='10%'
-                pl='3'
-                pr='3'
-                bg='rgba(0,0,0,0.6)'
-                transition={transition}
-                opacity={paused || isVideoHovered ? "1" : 0}
-            >
-                <Flex
-                    w='100%'
-                    h='100%'
-                    display='none'
-                >
-                    <Slider
-                        aria-label='time-slider'
-                        value={videoRef?.current?.currentTime}
-                        defaultValue={0}
-                        max={duration}
-                    >
-                        <SliderTrack>
-                            <SliderFilledTrack />
-                        </SliderTrack>
-                        <SliderThumb />
-                    </Slider>
-                </Flex>
-                <Flex
-                    w='100%'
-                    h='100%'
-                    justifyContent='space-around'
-                    alignItems='center'
-                >
-                    {([
-                        [
-                            s => !paused ?
-                                <FaPause style={{ ...iconStyle, ...s as any }} /> :
-                                <FaPlay style={{ ...iconStyle, ...s as any }} />,
-                            !paused ? () => pauseVideo(true) : () => pauseVideo(false)
-                        ],
-                        [
-                            s => <IoMdCut style={{ ...iconStyle, ...s as any }} />,
-                            generateClip
-                        ],
-                        [
-                            s => <BsArrowCounterclockwise style={{ ...iconStyle, ...s as any }} />,
-                            resetSettings
-                        ]
-                    ] as [(additionalStyle: CSSProperties) => JSX.Element, () => void][])
-                        .map(([element, onClick], i) => <Flex
-                            key={`Vide-Item-${i}`}
-                            onClick={onClick}
-                            w='100%'
-                            h='100%'
-                            justifyContent='center'
-                            alignItems='center'
-                            cursor='pointer'
-                            _hover={{ "--scaleHover": "1.2" } as any}
-                        >
-                            {element({
-                                transform: "scale(var(--scaleHover, 1))",
-                                transition: transition
-                            })}
-                        </Flex>)
-                    }
-                </Flex>
             </Flex>
         </Flex>
     </Grid>

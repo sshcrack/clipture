@@ -8,7 +8,7 @@ export type Selection = {
     range: number
 }
 export type EditorState = {
-    clipName: string,
+    videoName: string,
     onBack: () => unknown,
     duration: number,
     setDuration: ReactSetState<number>
@@ -21,7 +21,7 @@ export type EditorState = {
 }
 
 export const EditorContext = React.createContext<EditorState>({
-    clipName: null as string,
+    videoName: null as string,
     duration: undefined,
     setDuration: () => {},
     onBack: (() => { }) as () => unknown,
@@ -38,11 +38,11 @@ export const EditorContext = React.createContext<EditorState>({
 })
 
 type Props = {
-    clipName: string,
+    videoName: string,
     onBack: () => unknown
 }
 
-export default function Editor({ children, clipName, onBack }: React.PropsWithChildren<Props>) {
+export default function Editor({ children, videoName, onBack }: React.PropsWithChildren<Props>) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const bgGeneratorRef = useRef<HTMLVideoElement>(null);
     const [ paused, setPaused ] = useState(true)
@@ -56,7 +56,7 @@ export default function Editor({ children, clipName, onBack }: React.PropsWithCh
 
     return <EditorContext.Provider
         value={{
-            clipName,
+            videoName,
             onBack,
             selection,
             setSelection,

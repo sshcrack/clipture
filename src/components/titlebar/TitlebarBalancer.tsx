@@ -1,10 +1,10 @@
+import { Box, BoxProps } from '@chakra-ui/react';
 import React, { useContext } from 'react';
 import { TitlebarContext } from './TitleBarProvider';
 
-export default function TitlebarBalancer(p: React.PropsWithChildren) {
+export default function TitlebarBalancer(p: BoxProps) {
     const { size } = useContext(TitlebarContext)
-    return <div style={{ height: `calc(100% - ${size})`, width: "100%" }
-    }>
+    return <Box height={`calc(100% - ${size})`} width="100%" {...p}>
         {p.children}
-    </div >
+    </Box >
 }

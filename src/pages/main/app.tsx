@@ -56,6 +56,7 @@ export default function App() {
     return <HashRouter>
         <Routes>
             <Route path="/" element={<DashboardPage data={data} />} />
+            <Route path="/:mode" element={<DashboardPage data={data} />} />
             <Route path="/editor/:videoName" element={<EditorPage />}></Route>
         </Routes>
     </HashRouter>

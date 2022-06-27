@@ -46,7 +46,7 @@ export function VideoGrid({ children }: InputProps) {
         h='100%'
         gap='1em'
         templateColumns='repeat(auto-fill, minmax(21.5em,1fr))'
-        className='sc2 videoGrid'
+        className='videoGrid'
         overflowY='auto'
         p='5'
         pr='2'

@@ -6,6 +6,7 @@ import { TitleBar } from 'src/components/titlebar';
 import TitlebarBalancer from 'src/components/titlebar/TitlebarBalancer';
 import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
 import '../../components/titlebar/style.css';
+import "src/pages/main/scrollbar.css";
 import theme from "./theme";
 import ToastNotifier from './ToastNotifier';
 
@@ -21,7 +22,7 @@ export function renderMain(Comp: () => JSX.Element) {
         <TitleBarProvider>
             <ChakraProvider theme={theme}>
                 <TitleBar icon='../assets/logo.svg' />
-                <TitlebarBalancer>
+                <TitlebarBalancer className='sc2'>
                     <ToastNotifier />
                     <Comp />
                 </TitlebarBalancer>

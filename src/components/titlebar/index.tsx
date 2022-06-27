@@ -22,13 +22,14 @@ export const TitleBar: React.FC<TitleBarProps> = ({ children, icon, disableMinim
             <div className="resize-handle resize-handle-top" />
             <div className="resize-handle resize-handle-left" />
             {!!icon && <img className="icon" src={icon} />}
-            {!!menu && <Flex
+            <Flex
                 className='no-drag'
                 alignItems='center'
                 justifyContent='center'
+                w='100%'
             >
-                {menu}
-            </Flex>}
+                {!!menu && Array.from(menu.values())}
+            </Flex>
             {children}
             <WindowControls disableMinimize={disableMinimize} disableMaximize={disableMaximize} browserWindowId={browserWindowId} />
         </div>

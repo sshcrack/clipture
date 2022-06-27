@@ -1,4 +1,4 @@
-import "src/components/obs/videos/gradientLoader.css"
+import "src/components/general/gradientLoader/gradientLoader.css"
 import { Box } from '@chakra-ui/react'
 import React from "react"
 

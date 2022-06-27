@@ -3,7 +3,7 @@ import { Flex, Text } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import { VideoGridItem } from 'src/components/general/grid/video'
-import GradientLoader from '../videos/gradientLoader'
+import GradientLoader from '../../general/gradientLoader/gradientLoader'
 
 type ClipInfoArray = [string, ClipProcessingInfo]
 export default function ClipProcessingItems() {

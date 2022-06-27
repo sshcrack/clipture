@@ -1,23 +1,23 @@
-import React from "react"
-import { useState } from 'react'
+import React, { useState } from "react"
 import { ReactSetState } from 'src/types/reactUtils'
 
+export type MenuMap = Map<number, React.ReactNode>
 export type TitlebarState = {
-    menu: React.ReactNode[],
-    setMenu: ReactSetState<React.ReactNode[]>,
+    menu: MenuMap,
+    setMenu: ReactSetState<MenuMap>,
     size: string,
     setSize: ReactSetState<string>
 }
 
 export const TitlebarContext = React.createContext<TitlebarState>({
-    menu: [],
+    menu: new Map(),
     setMenu: () => { },
     size: "28px",
     setSize: () => {}
 })
 
 export default function TitleBarProvider(p: React.PropsWithChildren) {
-    const [menu, setMenu] = useState<React.ReactNode[]>([])
+    const [menu, setMenu] = useState<MenuMap>(() => new Map())
     const [size, setSize ] = useState("28px")
     return <TitlebarContext.Provider
         value={{

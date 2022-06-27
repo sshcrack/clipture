@@ -1,9 +1,11 @@
-import { Grid } from '@chakra-ui/react';
+import { Flex, Grid, IconButton, Tooltip } from '@chakra-ui/react';
 import { GridProps } from '@chakra-ui/styled-system';
-import React, { useEffect, useRef, useState } from "react"
-import { useContext } from 'react';
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { BsArrowClockwise } from 'react-icons/bs';
+import { FaPlay } from 'react-icons/fa';
 import { ReactSetState } from 'src/types/reactUtils';
 import { EditorContext } from '../Editor';
+import EditorBarButtons from './EditorBarButtons';
 
 
 export type EditorMainBarState = {
@@ -29,7 +31,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
     const { range, offset, start, end } = selection
 
     const [seekDragging, setSeekDragging] = useState(false)
-    const [ resize, setResize ] = useState(0)
+    const [resize, setResize] = useState(0)
     const [update, setUpdate] = useState(0)
     const [canvasBackgrounds, setCanvasBackgrounds] = useState(new Map<string, string>())
     const mainBarRef = useRef<HTMLDivElement>(null)
@@ -130,13 +132,10 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
         }
     }, [update])
 
-    useEffect(() => {
-        console.log("Add")
-        const resizeListener = () => setResize(Math.random())
+    useEffect(() => {        const resizeListener = () => setResize(Math.random())
         window.addEventListener("resize", resizeListener)
 
         return () => {
-            console.log("Remove main")
             window.removeEventListener("resize", resizeListener)
         }
     }, [mainBarRef])
@@ -150,19 +149,25 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
             onEndMouseDrag: () => setUpdate(Math.random())
         }}
     >
-        <Grid
+        <Flex
             w='80%'
             h='10em'
-            backgroundRepeat='repeat'
-            bg='gray'
             {...props}
-            ref={mainBarRef}
-            onMouseDown={e => {
-                if (e.button === 2)
-                    startSeekDrag()
-            }}
         >
-            {props.children}
-        </Grid>
+            <EditorBarButtons />
+            <Grid
+                w='100%'
+                h='100%'
+                backgroundRepeat='repeat'
+                bg='#a1a1a1'
+                ref={mainBarRef}
+                onMouseDown={e => {
+                    if (e.button === 2)
+                        startSeekDrag()
+                }}
+            >
+                {props.children}
+            </Grid>
+        </Flex>
     </EditorMainBarContext.Provider>
 }

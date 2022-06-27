@@ -7,7 +7,7 @@ import { VideoGridItem } from '../general/grid/video';
 import Clips from './clips';
 import { NavBar } from '../general/NavBar';
 import Videos from './videos';
-import GradientLoader from './videos/gradientLoader';
+import GradientLoader from '../general/gradientLoader/gradientLoader';
 
 
 //TODO: Add Illustration credits to settings

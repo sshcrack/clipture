@@ -1,6 +1,7 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { NavBar } from 'src/components/general/NavBar';
 import Clips from 'src/components/obs/clips';
 import ClipProcessingItems from 'src/components/obs/progress/ClipProgressItems';
@@ -12,6 +13,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     const [currentPage, setCurrentPage] = useState(0)
     const [initialized, setInitialized] = useState(false)
     const { system } = window.api
+    const { mode } = useParams()
 
     useEffect(() => {
         if (!initialized)
@@ -22,6 +24,11 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     }, [currentPage])
 
     useEffect(() => {
+        if(mode) {
+            console.log("Mode is", mode)
+            return setCurrentPage(mode === "clips" ? 0 : 1)
+        }
+
         system.get_dashboard_page_default().then(e => {
             setCurrentPage(e)
             console.log("Setting current page to", e)
