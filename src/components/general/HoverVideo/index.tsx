@@ -19,7 +19,6 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
             return
         }
 
-        console.log("Hovered")
         setDuration(video.duration)
         const intervalId = setInterval(() => {
             setCurrentTime(video.currentTime)
@@ -27,7 +26,6 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
 
         const timeoutId = setTimeout(() => {
             setOpacity(1)
-            console.log("Play")
             video.play()
         }, 100)
         return () => {

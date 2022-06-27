@@ -23,7 +23,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ children, icon, disableMinim
             <div className="resize-handle resize-handle-left" />
             {!!icon && <img className="icon" src={icon} />}
             <Flex
-                className='no-drag'
+                className='no-drag-parent'
                 alignItems='center'
                 justifyContent='center'
                 w='100%'

@@ -11,6 +11,7 @@ export function notify(notification?: Notification, callback?: NotificationCallb
     return notifier.notify({
         icon: MainGlobals.iconFile,
         appID: Globals.appId,
+        sound: false,
         ...notification
     }, callback)
 }

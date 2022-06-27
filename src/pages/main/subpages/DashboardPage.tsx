@@ -27,10 +27,10 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     useEffect(() => {
         const hotkeyListener = (e: KeyboardEvent) => {
             const { key } = e
-            if(key === "v")
+            if (key === "v")
                 return setCurrentPage(1)
 
-            if(key === "c")
+            if (key === "c")
                 return setCurrentPage(0)
         }
 
@@ -39,7 +39,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     }, [])
 
     useEffect(() => {
-        if(mode)
+        if (mode)
             return setCurrentPage(mode === "videos" ? 1 : 0)
 
         system.get_dashboard_page_default().then(e => {
@@ -76,7 +76,13 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                 flexDir='column'
                 isFitted
                 index={currentPage}
-                onChange={newIndex => setCurrentPage(newIndex)}
+                onChange={newIndex => {
+                    setCurrentPage(newIndex)
+                    if (newIndex === 0)
+                        history.pushState(null, null, '#/clips');
+                    else
+                        history.pushState(null, null, '#/videos');
+                }}
             >
                 <TabList>
                     <Tab className='tabHotkey'>Clips</Tab>
