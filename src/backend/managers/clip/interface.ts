@@ -2,23 +2,20 @@ import { Progress } from '@backend/processors/events/interface';
 import { DetectableGame } from '../obs/Scene/interfaces';
 
 export interface Video {
+    modified: number,
     video: string,
     videoName: string,
-    thumbnail: string,
     info: DetectableGame | null
 }
 
 export type Clip = {
+    modified: number,
     clipName: string,
     game: DetectableGame,
     original: string,
     start: number,
     end: number,
     duration: number
-}
-
-export type ExtendedClip = Clip & {
-    thumbnail: string
 }
 
 export interface ClipCutInfo {

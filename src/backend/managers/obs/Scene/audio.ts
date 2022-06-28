@@ -33,8 +33,12 @@ export class AudioSceneManager {
         let currentTrack = 2;
 
 
-        finalDesktops.forEach(desktop => this.addAudioDevice(desktop, currentTrack, "desktop"))
-        finalMics.forEach(mic => this.addAudioDevice(mic, currentTrack, "microphone"));
+        const defaultDesktopName = allDesktopDevices.find(e => e.device_id === defaultDesktop)?.name
+        const defaultMicName = allMicrophones.find(e => e.device_id === defaultMic)?.name
+
+        log.debug("Default: Desktop", defaultDesktop, "name:", defaultDesktopName, "Microphone", defaultMic, "name:", defaultMicName, "Inputs", allDesktopDevices, allMicrophones)
+        currentTrack = this.addAudioDevice(defaultDesktop ?? finalDesktops[0], currentTrack, "desktop")
+        currentTrack = this.addAudioDevice(defaultMic ?? finalMics[0], currentTrack, "microphone")
     }
 
     private static getAudioType(type: "desktop" | "microphone") {
@@ -61,6 +65,7 @@ export class AudioSceneManager {
 
         const audioSource = InputFactory.create(osName, audioType, { device_id: device_id });
 
+        log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it`)
         setSetting(SettingsCat.Output, `Track${currTrack}Name`, device_id);
         audioSource.audioMixers = 1 | (1 << currTrack - 1); // Bit mask to output to only tracks 1 and current track
         Global.setOutputSource(currTrack, audioSource);
@@ -73,7 +78,9 @@ export class AudioSceneManager {
         const execa = (await import("execa")).execa;
         const defaultAudioSources = await execa(MainGlobals.nativeMngExe, ["audio"])
         try {
-            return JSON.parse(defaultAudioSources.stdout) as AudioReturn;
+            const res = JSON.parse(defaultAudioSources.stdout) as AudioReturn
+            log.info("Default AudioDevices are: ", res)
+            return res;
         } catch (e) {
             const errorStats = `Stderr: ${defaultAudioSources.stderr}\n
             Stdout: ${defaultAudioSources.stdout}

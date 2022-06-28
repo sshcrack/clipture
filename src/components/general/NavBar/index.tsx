@@ -1,10 +1,12 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { Flex, FlexProps, Menu } from '@chakra-ui/react';
+import { Box, Flex, FlexProps, Menu, Tooltip } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
-import { AiOutlineCompass } from "react-icons/ai";
+import { AiFillCamera, AiOutlineCompass } from "react-icons/ai";
 import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
+import { motion } from "framer-motion"
+import { MotionBox } from '../menu/base/MotionBox';
 import NavBarButton from './NavBarButton';
 
 export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
@@ -48,6 +50,37 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                     tooltip='Discover'
                     color='brand.primary'
                 />
+                <Tooltip label={recording ? "Recording..." : undefined}>
+                    <motion.div
+                        style={{
+                            marginTop: "auto",
+                            marginBottom: "auto",
+                            opacity: recording ? 1 : 0
+                        }}
+                        animate={{
+                            opacity: recording ? 1 : 0
+                        }}
+                        transition={{
+                        }}
+                    >
+                        <MotionBox
+                            w='2em'
+                            h='2em'
+                            bg='red'
+                            rounded='100%'
+                            animate={{
+                                height: "0em",
+                                width: "0em"
+                            }}
+                            transition={{
+                                repeat: Infinity,
+                                repeatType: "reverse",
+                                duration: 2.5,
+                                ease: "linear",
+                            }}
+                        />
+                    </motion.div>
+                </Tooltip>
             </Flex>
 
             <Flex

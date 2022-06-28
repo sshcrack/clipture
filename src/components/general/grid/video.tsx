@@ -1,28 +1,75 @@
-import "./video.css"
 import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { RenderLogger } from 'src/interfaces/renderLogger'
+import "./video.css"
 
-type VideoGridItem = GridItemProps & {
-    background: string,
+type BasicProps = Omit<GridItemProps, "onError"> & {
     children: React.ReactElement[] | React.ReactElement
-    onClick?: (React.MouseEventHandler<HTMLDivElement>)
+    onClick?: (React.MouseEventHandler<HTMLDivElement>),
 }
+
+type VideoGridItem = (BasicProps & {
+    type: "none"
+}) | (BasicProps & {
+    type: "videos" | "clips",
+    fileName: string,
+    onError?: () => void
+})
 type InputProps = {
     children: React.ReactNode
 }
 
+type MaxProps = Omit<GridItemProps, "onError"> & {
+    type: "videos" | "clips",
+    fileName: string,
+    onError?: () => void
+
+}
+
+const log = RenderLogger.get("Components", "General", "Grid", "Video")
 export function VideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
+    const [thumbnail, setThumbnail] = useState(undefined)
+    const api = rest.type === "none" ? undefined : window.api[rest.type as "clips" | "videos"]
+    useEffect(() => {
+        if (thumbnail !== undefined || !api || rest.type === "none")
+            return
+
+        const { fileName } = rest
+        if (!fileName)
+            return setThumbnail(null)
+        console.log("Getting thumbnail from", rest.type, "FileName", fileName)
+        api.thumbnail(fileName)
+            .then(e => setThumbnail(e))
+            .catch(e => {
+                log.error("Could not get thumbnail", e)
+                setThumbnail(null)
+                rest.onError()
+            })
+    }, [thumbnail])
+
+    const props = { ...rest } as MaxProps
+    delete props["type"]
+    delete props["fileName"]
+    delete props["key"]
+
+    const type = rest.type
+    const isLoading = thumbnail === undefined && type !== "none"
+    let bg = background ?? ""
+    if(thumbnail !== undefined)
+            bg = `url("data:image/png;base64,${thumbnail}")`
+
     return <GridItem
         display='flex'
         h='100%'
         minHeight='20em'
         w='100%'
-        background={background}
+        className='videoGridItem'
+        animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
+        background={bg}
         backgroundSize='cover'
         borderRadius="xl"
         flexDir='column'
         cursor='pointer'
-        className='videoGridItem'
         _hover={{
             filter: " drop-shadow(10px 2px 45px black)",
             transform: "scale(1.0125)"
@@ -31,7 +78,7 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
             transition: "all .2s ease-out"
         }}
         onClick={onClick ?? undefined}
-        {...rest}
+        {...props}
     >
         {children}
     </GridItem>

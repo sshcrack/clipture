@@ -1,15 +1,17 @@
-import { ExtendedClip } from '@backend/managers/clip/interface';
+import { Clip } from '@backend/managers/clip/interface';
 import { Flex, Heading, Image, Spinner, Text } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from 'react';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import HoverVideo from 'src/components/general/HoverVideo';
+import prettyMS from "pretty-ms"
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 
 export default function Clips({ additionalElements }: { additionalElements: React.ReactNode }) {
-    const [currClips, setCurrClips] = useState<ExtendedClip[]>([])
+    const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(false)
+    const [ corruptedClips, setCorruptedClips ] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const { clips, system } = window.api
 
@@ -33,18 +35,20 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
     const elements = [
         additionalElements,
         ...currClips.map((clip, i) => {
-            const { thumbnail, game, clipName } = clip ?? {}
+            const { game, clipName, modified } = clip ?? {}
             const { name, aliases, id, icon } = game ?? {}
 
             const gameName = name ?? aliases?.[0] ?? "Unknown Game"
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
 
             let element = <VideoGridItem
-                background={`url(${thumbnail})`}
+                type='clips'
+                fileName={clipName}
                 key={`VideoGrid-${i}`}
+                onError={() => setCorruptedClips([...corruptedClips, clipName])}
                 onClick={() => location.hash = `/editor/${clipName}`}
             >
-                <HoverVideo source={clipName} w='100%' h='100%' flex='1'/>
+                <HoverVideo source={clipName} w='100%' h='100%' flex='1' />
                 <Flex
                     flex='0'
                     gap='.25em'
@@ -57,9 +61,10 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                     borderTopRightRadius='0'
                     p='1'
                 >
-                    <Flex gap='1em' justifyContent='center' alignItems='center'>
+                    <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
                         <Image src={imageSrc} w="1.5em" />
                         <Text>{gameName}</Text>
+                        <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
                     </Flex>
                     <Text style={{
                         whiteSpace: "nowrap",
@@ -71,8 +76,9 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
                 </Flex>
             </VideoGridItem>
 
-            if (!thumbnail)
+            if (corruptedClips.includes(clipName))
                 element = <VideoGridItem
+                    type='none'
                     background='#3d0000'
                     boxShadow='0px 0px 10px 0px #b60000'
                     key={`corrupted-key-${i}-clips`}

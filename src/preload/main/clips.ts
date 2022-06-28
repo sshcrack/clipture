@@ -21,6 +21,7 @@ const clips = {
         }
     },
     list: () => RegManRender.emitPromise("clips_list"),
+    thumbnail: (clipName: string) => RegManRender.emitPromise("clips_thumbnail", clipName),
     exists: (name: string) => RegManRender.emitPromise("clips_exists", name),
     cut: (clipName: string, videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
         const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd, clipName })

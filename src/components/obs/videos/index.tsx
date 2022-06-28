@@ -1,6 +1,7 @@
 import { Video } from '@backend/managers/clip/interface';
 import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
+import prettyMS from "pretty-ms"
 import React, { useEffect, useState } from "react";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import HoverVideo from 'src/components/general/HoverVideo';
@@ -33,7 +34,7 @@ export default function Videos({ additionalElements }: { additionalElements?: Re
             })
     }, [retry])
 
-    const clipElements = currVideos.map(({ thumbnail, info, videoName }, i) => {
+    const clipElements = currVideos.map(({ info, videoName, modified }, i) => {
         const { id, name, aliases, icon } = info ?? {}
 
         const gameName = name ?? aliases?.[0] ?? "Unknown Game"
@@ -41,10 +42,11 @@ export default function Videos({ additionalElements }: { additionalElements?: Re
         return <VideoContextMenu videoName={videoName}>
 
             <VideoGridItem key={`${i}-videoElements`}
-                background={`url(${thumbnail})`}
+                type='videos'
+                fileName={videoName}
                 onClick={() => location.hash = `/editor/${videoName}`}
             >
-                <HoverVideo source={videoName} w='100%' h='100%' flex='1'/>
+                <HoverVideo source={videoName} w='100%' h='100%' flex='1' />
                 <Flex
                     flex='0'
                     gap='.25em'
@@ -57,9 +59,10 @@ export default function Videos({ additionalElements }: { additionalElements?: Re
                     bg='brand.bg'
                     p='1'
                 >
-                    <Flex gap='1em' justifyContent='center' alignItems='center'>
+                    <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
                         <Image src={imageSrc} w="1.5em" />
                         <Text>{gameName}</Text>
+                        <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
                     </Flex>
                     <Text style={{
                         whiteSpace: "nowrap",

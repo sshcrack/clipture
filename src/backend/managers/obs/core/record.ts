@@ -6,6 +6,7 @@ import { UseToastOptions } from '@chakra-ui/react'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
+import { app, BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import got from 'got/dist/source'
 import { MainLogger } from 'src/interfaces/mainLogger'
@@ -173,6 +174,7 @@ export class RecordManager {
         }
 
         this.recording = true
+        BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
         RegManMain.send("obs_record_change", true)
     }
 
@@ -193,6 +195,7 @@ export class RecordManager {
         this.recording = false
         this.manualControlled = manual
         RegManMain.send("obs_record_change", false)
+        BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
     }
 
     public isRecording() {
