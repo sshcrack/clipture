@@ -7,6 +7,7 @@ import clips from "./clips";
 import lock from "./lock";
 import obs from "./obs";
 import process from "./process";
+import audio from "./audio";
 import system from './system';
 import titlebar from "./titlebar";
 import videos from './videos';
@@ -26,6 +27,7 @@ export const API = {
     auth,
     process,
     titlebar,
+    audio,
     system,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),

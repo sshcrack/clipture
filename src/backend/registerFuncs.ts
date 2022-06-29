@@ -7,6 +7,7 @@ import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 import { ClipManager } from './managers/clip';
 import { SystemManager } from './managers/system';
+import { AudioSceneManager } from './managers/obs/Scene/audio';
 
 export const registerFuncs = [
     () => RegManMain.register(),
@@ -17,5 +18,6 @@ export const registerFuncs = [
     () => Scene.register(),
     () => ProcessManager.register(),
     () => ClipManager.register(),
-    () => SystemManager.register()
+    () => SystemManager.register(),
+    () => AudioSceneManager.register()
 ]

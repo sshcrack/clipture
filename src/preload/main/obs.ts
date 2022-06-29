@@ -25,7 +25,12 @@ const obs = {
 
     startRecording: (manual: boolean) => reg.emitPromise("obs_start_recording", manual),
     stopRecording: (manual: boolean) => reg.emitPromise("obs_stop_recording", manual),
-    onRecordChange: (callback: ListenerType) => listeners.push(callback),
+    onRecordChange: (callback: ListenerType) => {
+        listeners.push(callback)
+        return () => {
+            listeners.splice(listeners.indexOf(callback), 1)
+        }
+    },
     recordDescription: () => reg.emitSync("obs_get_record_description"),
     isRecording: () => reg.emitSync("obs_is_recording")
 }

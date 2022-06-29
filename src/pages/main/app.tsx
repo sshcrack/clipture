@@ -10,6 +10,7 @@ import DiscoverPage from './subpages/discover'
 import EditorPage from './subpages/editor/EditorPage'
 import { InitializePage } from './subpages/initialize'
 import LoginPage from './subpages/login'
+import RecordPage from './subpages/record'
 import SettingsPage from './subpages/settings'
 
 const log = RenderLogger.get("App")
@@ -60,6 +61,7 @@ export default function App() {
             <Route path="/" element={<DashboardPage data={data} />} />
             <Route path="/:mode" element={<DashboardPage data={data} />} />
             <Route path="/discover" element={<DiscoverPage data={data} />} />
+            <Route path="/record" element={<RecordPage data={data} />} />
             <Route path="/settings" element={<SettingsPage data={data} />} />
             <Route path="/editor/:videoName" element={<EditorPage />}></Route>
         </Routes>

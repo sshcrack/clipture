@@ -6,17 +6,18 @@ import { IconType } from 'react-icons';
 export type NavBarButtonProps = FlexProps & {
     icon: IconType,
     tooltip: string,
-    color: string,
+    color?: string,
+    chakraColor?: string,
     active?: boolean,
     onClick?: () => void
 }
 
-export default function NavBarButton({ active, icon: Icon, tooltip, color, ...props }: NavBarButtonProps) {
-    const cssColor = `--chakra-colors-${color.split(".").join("-")}`
+export default function NavBarButton({ active, icon: Icon, chakraColor, tooltip, color, ...props }: NavBarButtonProps) {
+    const cssColor = `--chakra-colors-${chakraColor?.split(".")?.join("-")}`
     const [isHovered, setHovered] = useState(false)
 
-    const colorCodeHover = getComputedStyle(document.body)
-        .getPropertyValue(cssColor)
+    const colorCodeHover = chakraColor ? getComputedStyle(document.body)
+        .getPropertyValue(cssColor) : color
 
     const transition = ".25s ease-in-out all"
     return <Tooltip label={tooltip}>

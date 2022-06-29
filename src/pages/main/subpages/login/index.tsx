@@ -31,7 +31,7 @@ export default function LoginPage() {
 
         <Flex w='100%' h='100%' justifyContent='center' alignItems='center'>
             <Image
-                src={"assets/illustrations/sign_in.gif"}
+                src={"../assets/illustrations/sign_in.gif"}
                 w='30em'
                 h='30em'
                 filter="drop-shadow(2px 4px 20px white)"

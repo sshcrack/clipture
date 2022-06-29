@@ -70,7 +70,23 @@ export class RecordManager {
             this.detectableGames = this.detectableGames ?? await this.getDetectableGames()
 
             const areSame = (detecGame: DetectableGame, winInfo: WindowInformation) => detecGame?.executables?.some(exe => winInfo?.full_exe?.toLowerCase()?.endsWith(exe?.name?.toLowerCase()) && exe?.os === os)
-            const areSameInfo = (oldInfo: WindowInformation, winInfo: WindowInformation) => JSON.stringify(oldInfo) === JSON.stringify(winInfo)
+            const areSameInfo = (oldInfo: WindowInformation, winInfo: WindowInformation) => {
+                const oldInfoReduced = {
+                    ...oldInfo,
+                    focused: false
+                }
+
+                const winInfoReduced = {
+                    ...winInfo,
+                    focused: false
+                }
+
+                const srt = (obj: any) => JSON.stringify(obj)
+                const x = srt(oldInfoReduced)
+                const y = srt(winInfoReduced)
+
+                return x === y
+            }
 
 
             const matchingGames = info.filter(winInfo => {
@@ -83,7 +99,7 @@ export class RecordManager {
             const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
             const game = this.detectableGames.find(e => areSame(e, gameToRecord))
 
-            const diffGame = areSameInfo(gameToRecord, Scene.getCurrentSetting()?.window)
+            const diffGame = !areSameInfo(gameToRecord, Scene.getCurrentSetting()?.window)
             log.info("Game is diff", diffGame, "manual", this.manualControlled, "game", gameToRecord, "curr", Scene.getCurrentSetting()?.window)
             if (gameToRecord && (diffGame || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
                 await Scene.switchWindow(gameToRecord, false)
@@ -159,7 +175,7 @@ export class RecordManager {
             }
 
             await sleepSync(50)
-            if( i % 10 === 0)
+            if (i % 10 === 0)
                 log.silly("Waiting for new video...")
         }
 

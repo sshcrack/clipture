@@ -1,22 +1,21 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { Box, Flex, FlexProps, Menu, Tooltip } from '@chakra-ui/react';
+import { Flex, FlexProps, Menu } from '@chakra-ui/react';
+import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { AiFillCamera, AiOutlineCompass } from "react-icons/ai";
 import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
-import { motion } from "framer-motion"
-import { MotionBox } from '../menu/base/MotionBox';
 import NavBarButton from './NavBarButton';
+import "src/components/general/Navbar/index.css"
 
 export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
     const { auth, obs } = window.api
     const [recording, setRecording] = useState(() => window.api.obs.isRecording())
     const [recordDesc, setRecordDesc] = useState("Unknown")
-    const computed = getComputedStyle(document.body)
 
     useEffect(() => {
-        obs.onRecordChange(r => {
+        return obs.onRecordChange(r => {
             setRecording(r)
             setRecordDesc(obs.recordDescription())
         })
@@ -41,46 +40,30 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                     icon={SiApplearcade}
                     onClick={() => location.hash = "/"}
                     tooltip='Clips'
-                    color='brand.secondary'
+                    chakraColor='brand.secondary'
                 />
                 <NavBarButton
                     active={location.hash === "#/discover"}
                     icon={AiOutlineCompass}
                     onClick={() => location.hash = "/discover"}
                     tooltip='Discover'
-                    color='brand.primary'
+                    chakraColor='brand.primary'
                 />
-                <Tooltip label={recording ? "Recording..." : undefined}>
-                    <motion.div
-                        style={{
-                            marginTop: "auto",
-                            marginBottom: "auto",
-                            opacity: recording ? 1 : 0
-                        }}
-                        animate={{
-                            opacity: recording ? 1 : 0
-                        }}
-                        transition={{
-                        }}
-                    >
-                        <MotionBox
-                            w='2em'
-                            h='2em'
-                            bg='red'
-                            rounded='100%'
-                            animate={{
-                                height: "0em",
-                                width: "0em"
-                            }}
-                            transition={{
-                                repeat: Infinity,
-                                repeatType: "reverse",
-                                duration: 2.5,
-                                ease: "linear",
-                            }}
-                        />
-                    </motion.div>
-                </Tooltip>
+                <Flex
+                    mt="auto"
+                    mb="auto"
+                >
+                    <NavBarButton
+                        active={recording}
+                        icon={AiFillCamera}
+                        onClick={() => location.hash = "/record"}
+                        tooltip="Recording..."
+                        color="red"
+                        animation={recording ? "recordingAnimate 3.5s linear infinite;" : undefined}
+                        bg={recording ? "" : undefined}
+                    />
+
+                </Flex>
             </Flex>
 
             <Flex
@@ -93,13 +76,13 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                     active={location.hash === "#/settings"}
                     tooltip='Settings'
                     onClick={() => location.hash = "/settings"}
-                    color='gray.400'
+                    chakraColor='gray.400'
                 />
                 <NavBarButton
                     active={false}
                     icon={GoSignOut}
                     tooltip='Sign Out'
-                    color='red.500'
+                    chakraColor='red.500'
                     onClick={() => auth.signOut()}
                 />
             </Flex>

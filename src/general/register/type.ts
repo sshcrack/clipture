@@ -50,16 +50,25 @@ export type RegisterEventsPromises = {
 
     system_open_clip: (path: string) => void,
     system_get_dashboard_page_default: () => number,
-    system_set_default_dashboard_page: (newIndex: number) => void
+    system_set_default_dashboard_page: (newIndex: number) => void,
+
+    audio_sources: () => string[]
 }
 
 export type MainToRender = {
     lock_update: (locked: boolean, prog: Progress) => void,
+
     auth_update: () => void,
+
     process_update: (old: WindowInformation[], details: WindowInformation[]) => void,
+
     obs_record_change: (recording: boolean) => void,
+
     toast_show: (options: UseToastOptions) => void,
-    clip_update: (clip: ClipCutInfo, prog: Progress) => void
+
+    clip_update: (clip: ClipCutInfo, prog: Progress) => void,
+
+    audio_volmeter_update: (deviceId: string, magnitude: number[], peak: number[], inputPeak: number[]) => void
 }
 
 export type Prefixes = "obs"

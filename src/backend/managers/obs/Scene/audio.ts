@@ -1,14 +1,25 @@
 import { byOS, OS } from '@backend/tools/operating-system';
+import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { Global, InputFactory, IScene } from '@streamlabs/obs-studio-node';
+import { Global, InputFactory, IScene, NodeObs as notTypedObs, VolmeterFactory } from '@streamlabs/obs-studio-node';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { SettingsCat } from 'src/types/obs/obs-enums';
+import { NodeObs } from 'src/types/obs/obs-studio-node';
 import { setOBSSetting as setSetting } from '../base';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene", "Audio");
+const NodeObs = notTypedObs as NodeObs
 export class AudioSceneManager {
+    private static sources = [] as string[]
+
+    static register() {
+        RegManMain.onPromise("audio_sources", async () => this.sources)
+    }
+
     static async initializeAudioSources(scene: IScene) {
+        NodeObs.RegisterSourceCallback(() => { })
+
         log.info("Setting up audio sources...")
         Global.setOutputSource(1, scene);
         setSetting(SettingsCat.Output, 'Track1Name', 'Mixed: all sources');
@@ -64,13 +75,20 @@ export class AudioSceneManager {
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
         const audioSource = InputFactory.create(osName, audioType, { device_id: device_id });
+        const volmeter = VolmeterFactory.create(1)
 
+        volmeter.attach(audioSource)
+        const cb = volmeter.addCallback((...args) => RegManMain.send("audio_volmeter_update", device_id, ...args))
+
+        console.log(cb)
         log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it`)
         setSetting(SettingsCat.Output, `Track${currTrack}Name`, device_id);
         audioSource.audioMixers = 1 | (1 << currTrack - 1); // Bit mask to output to only tracks 1 and current track
         Global.setOutputSource(currTrack, audioSource);
         currTrack++;
 
+        //audioSource.volume = type === "microphone" ? 1.5 : 1
+        this.sources.push(device_id)
         return currTrack
     }
 

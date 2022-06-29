@@ -24,5 +24,5 @@
 
 
 .videoGrid .videoGridItem {
-    animation: backgroundPosition 30s ease-in-out;
+    animation: backgroundPosition 30s ease-in-out infinite;
 }

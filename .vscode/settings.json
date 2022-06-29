@@ -5,6 +5,7 @@
         "maximizable",
         "minimizable",
         "titlebar",
-        "unmaximize"
+        "unmaximize",
+        "volmeter"
     ]
 }

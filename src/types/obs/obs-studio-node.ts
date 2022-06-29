@@ -32,7 +32,11 @@ export interface PerformanceStatistics {
 
 type INodeObs = {
     IPC: IIPC,
+
     SetWorkingDirectory: (dir: string) => void,
+    RegisterSourceCallback: (e: (dunno_what_arguments: string) => void) => void,
+    RemoveSourceCallback: () => void
+
     OBS_API_initAPI: (lang: string, dataPath: string, version: string) => number,
     OBS_service_removeCallback: () => void,
     OBS_settings_getSettings: (category: SettingsCat) => Settings,

@@ -52,10 +52,13 @@ function InnerPreview({ displayId, preview }: { displayId: string, preview: Muta
     }, [displayId])
 
     useEffect(() => {
-        window.addEventListener("resize", () => {
+        const handler = () => {
             log.log("Resize event")
             resize()
-        })
+        }
+
+        window.addEventListener("resize", handler)
+        return () => window.removeEventListener("resize", handler)
     }, [])
 
     return <></>
