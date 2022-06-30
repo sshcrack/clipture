@@ -81,5 +81,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         ...clipElements
     ]
 
-    return loading ? <Spinner /> : <VideoGrid length={elements.length} renderItem={i => elements[i]} />
+    return loading ? <Spinner /> : <VideoGrid>
+        {elements}
+    </VideoGrid>
 }

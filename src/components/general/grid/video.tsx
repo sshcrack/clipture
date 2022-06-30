@@ -1,6 +1,6 @@
 import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
-import ReactList from "react-list"
+import RenderIfVisible from 'react-render-if-visible'
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import "./video.css"
 
@@ -16,10 +16,7 @@ type VideoGridItem = (BasicProps & {
     fileName: string,
     onError?: () => void
 })
-type InputProps = {
-    renderItem: (index: number, key: number | string) => JSX.Element,
-    length: number
-}
+type InputProps = React.PropsWithChildren
 
 type MaxProps = Omit<GridItemProps, "onError"> & {
     type: "videos" | "clips",
@@ -29,9 +26,10 @@ type MaxProps = Omit<GridItemProps, "onError"> & {
 }
 
 const log = RenderLogger.get("Components", "General", "Grid", "Video")
-export function VideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
+function InnerVideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
     const [thumbnail, setThumbnail] = useState(undefined)
     const api = rest.type === "none" ? undefined : window.api[rest.type as "clips" | "videos"]
+
     useEffect(() => {
         if (thumbnail !== undefined || !api || rest.type === "none")
             return
@@ -63,8 +61,6 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
     return <GridItem
         display='flex'
         minHeight='20em'
-        height="20em"
-        w='10em'
         className='videoGridItem'
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
         background={bg}
@@ -86,7 +82,14 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
     </GridItem>
 }
 
-export function VideoGrid({ renderItem, length }: InputProps) {
+
+export function VideoGridItem(props: VideoGridItem) {
+    return <RenderIfVisible defaultHeight={416}>
+        <InnerVideoGridItem {...props} />
+    </RenderIfVisible>
+}
+
+export function VideoGrid({ children }: InputProps) {
 
     return <Grid
         justifyContent='start'
@@ -101,10 +104,6 @@ export function VideoGrid({ renderItem, length }: InputProps) {
         pr='2'
         mr='4'
     >
-        <ReactList
-            itemRenderer={renderItem}
-            length={length}
-            type='uniform'
-        />
+        {children}
     </Grid>
 }

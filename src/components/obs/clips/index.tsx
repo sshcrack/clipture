@@ -12,7 +12,7 @@ import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholde
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(false)
-    const [ corruptedClips, setCorruptedClips ] = useState<string[]>([])
+    const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const { clips, system } = window.api
 
@@ -128,5 +128,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
 
 
     return loading ? <Spinner /> : elements?.length === 0
-        ? <EmptyPlaceholder /> : <VideoGrid length={elements.length} renderItem={(i) => elements[i]}/>
+        ? <EmptyPlaceholder /> : <VideoGrid>
+            {elements}
+        </VideoGrid>
 }
