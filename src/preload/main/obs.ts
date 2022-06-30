@@ -1,12 +1,16 @@
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn } from '@backend/managers/obs/types';
 import { RegManRender } from '@register/render';
+import { PerformanceStatistics } from 'src/types/obs/obs-studio-node';
 
 const reg = RegManRender
 type ListenerType = (recording: boolean) => void
+type ListenerPerformance = (stats: PerformanceStatistics) => void
 const listeners = [] as ListenerType[]
+const listenersPerformance = [] as ListenerPerformance[]
 
 reg.on("obs_record_change", (_, recording: boolean) => listeners.map(e => e(recording)))
+reg.on("performance", (_, stats) => listenersPerformance.map(e => e(stats)))
 
 const obs = {
     isInitialized: () => reg.emitSync("obs_is_initialized"),
@@ -32,7 +36,14 @@ const obs = {
         }
     },
     recordDescription: () => reg.emitSync("obs_get_record_description"),
-    isRecording: () => reg.emitSync("obs_is_recording")
+    isRecording: () => reg.emitSync("obs_is_recording"),
+
+    onPerformanceReport: (callback: ListenerPerformance) => {
+        listenersPerformance.push(callback)
+        return () => {
+            listenersPerformance.splice(listenersPerformance.indexOf(callback), 1)
+        }
+    },
 }
 
 export default obs;

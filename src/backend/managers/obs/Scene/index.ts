@@ -88,7 +88,11 @@ export class Scene {
         this._setting = {
             window: null,
             monitor: monitor,
-            manual
+            manual,
+            size: {
+                width: physicalWidth,
+                height: physicalHeight
+            }
         }
     }
 
@@ -152,7 +156,11 @@ export class Scene {
         this._setting = {
             window: options,
             monitor: null,
-            manual
+            manual,
+            size: {
+                width: physicalWidth,
+                height: physicalHeight
+            }
         }
     }
 

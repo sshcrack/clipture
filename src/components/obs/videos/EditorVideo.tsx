@@ -39,6 +39,8 @@ export default function EditorVideo(props: GridItemProps) {
             log.log("Setting selection to", selection)
             setDuration(duration)
             setSelection(selection)
+            setPaused(false)
+            video.play()
         }
     }, [videoRef, setSelection, setDuration])
 

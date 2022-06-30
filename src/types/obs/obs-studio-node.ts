@@ -18,17 +18,30 @@ export interface Settings {
 
 export interface PerformanceStatistics {
     CPU: number,
+    averageTimeToRenderFrame: number,
+    diskSpaceAvailable: string,
+    frameRate: number,
+    memoryUsage: number,
     numberDroppedFrames: number,
     percentageDroppedFrames: number,
-    streamingBandwidth: number,
-    streamingDataOutput: number,
     recordingBandwidth: number,
     recordingDataOutput: number,
-    frameRate: number,
-    averageTimeToRenderFrame: number,
-    memoryUsage: number,
-    diskSpaceAvailable: string
+    streamingBandwidth: number,
+    streamingDataOutput: number,
 }
+/*
+CPU: 1.3
+averageTimeToRenderFrame: 0.911154
+diskSpaceAvailable: "48.9637 GB"
+frameRate: 60.0000024000001
+memoryUsage: 212.41015625
+numberDroppedFrames: 0
+percentageDroppedFrames: 0
+recordingBandwidth: 3661.571060753706
+recordingDataOutput: 92.81574058532715
+streamingBandwidth: 0
+streamingDataOutput: 0
+*/
 
 type INodeObs = {
     IPC: IIPC,

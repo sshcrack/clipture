@@ -1,7 +1,6 @@
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
-import { ipcMain } from 'electron'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
@@ -95,17 +94,16 @@ export class OBSManager {
         }
 
         log.info("Successfully initialized OBS!")
-        setInterval(() =>
-            ipcMain.emit("performance", NodeObs.OBS_API_getPerformanceStatistics())
-            , 2000)
+        setInterval(() => RegManMain.send("performance", NodeObs.OBS_API_getPerformanceStatistics()), 2000)
     }
 
     public async shutdown(force = false) {
         if (!this.obsInitialized && !force)
             return
 
-        await this.previewInstance.shutdown()
-        log.info("Shutting OBS down...")
+            log.info("Shutting OBS down...")
+        await this.previewInstance.shutdown().catch(log.error)
+        await this.recordManager.shutdown().catch(log.error)
         try {
             NodeObs.OBS_service_removeCallback();
             NodeObs.IPC.disconnect()

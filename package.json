@@ -6,7 +6,7 @@
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
-    "dev": "electron-forge start -- dev",
+    "dev": "electron-forge start -- --trace-warnings dev",
     "prod": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
@@ -77,14 +77,6 @@
                   "preload": {
                     "js": "./src/preload/main/index.ts"
                   }
-                },
-                {
-                  "html": "./src/pages/global/index.html",
-                  "js": "./src/pages/preview/renderer.ts",
-                  "name": "preview_window",
-                  "preload": {
-                    "js": "./src/preload/preview/index.ts"
-                  }
                 }
               ]
             }
@@ -130,6 +122,7 @@
     "@fontsource/varela-round": "^4.5.8",
     "@streamlabs/obs-studio-node": "file:../../libs/obs-studio-node-fix/archive7.tar.gz",
     "@szhsin/react-menu": "^3.1.1",
+    "chart.js": "^3.8.0",
     "classnames": "^2.3.1",
     "copy-webpack-plugin": "^10.2.4",
     "electron-log": "^4.4.6",
@@ -146,6 +139,7 @@
     "node-addon-loader": "^0.0.6",
     "node-notifier": "^10.0.1",
     "react": "^18.0.0",
+    "react-chartjs-2": "^4.2.0",
     "react-dom": "^18.0.0",
     "react-icons": "^4.4.0",
     "react-router-dom": "^6.3.0",

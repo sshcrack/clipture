@@ -223,6 +223,10 @@ export class RecordManager {
         reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
         reg.onSync("obs_is_recording", () => this.isRecording())
     }
+
+    public async shutdown() {
+        this.stopRecording()
+    }
 }
 
 function processRunning(pid: number) {

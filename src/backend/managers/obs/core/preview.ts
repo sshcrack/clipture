@@ -1,4 +1,3 @@
-import { getOS, OS } from '@backend/tools/operating-system'
 import { webContentsToWindow } from '@backend/tools/window'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { BrowserWindow, IpcMainInvokeEvent, screen } from 'electron'
@@ -13,12 +12,13 @@ import { ClientBoundRecReturn } from '../types'
 const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Preview")
 const reg = RegManMain
+
 export class PreviewManager {
     public displayWindowMap = new Map<string, BrowserWindow>()
     static instance: PreviewManager = null;
 
     constructor() {
-        if(PreviewManager.instance)
+        if (PreviewManager.instance)
             throw new Error("Preview class cannot be instantiated twice.")
 
         PreviewManager.instance = this;
@@ -35,7 +35,7 @@ export class PreviewManager {
         const window = webContentsToWindow(event.sender)
         const handle = window.getNativeWindowHandle()
         const displayId = "PREVIEW_" + uuid()
-        log.info("Initializing preview on", window.id)
+        log.info("Initializing preview on", window.id, "total", this.displayWindowMap.size + 1)
         log.info("Creating Preview Display on id", displayId)
 
         NodeObs.OBS_content_createSourcePreviewDisplay(
@@ -48,8 +48,10 @@ export class PreviewManager {
         NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255)
 
         this.displayWindowMap.set(displayId, window);
+        const setting = Scene.getCurrentSetting()
         return {
             displayId,
+            sceneSize: setting?.size,
             preview: await this.resizePreview(displayId, window, bounds)
         }
     }
@@ -58,19 +60,16 @@ export class PreviewManager {
         const winBounds = window.getBounds();
         const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
 
-        let { aspectRatio, scaleFactor } = await getDisplayInfo(currScreen);
-        if (getOS() === OS.Mac) {
-            scaleFactor = 1
-        }
+        let { aspectRatio } = await getDisplayInfo(currScreen);
         const displayWidth = Math.floor(bounds.width);
         const displayHeight = Math.round(displayWidth / aspectRatio);
         const displayX = Math.floor(bounds.x);
         const displayY = Math.floor(bounds.y);
 
         log.debug("Resizing display w:", displayWidth, "h:", displayHeight, "x:", displayX, "y:", displayY)
-        NodeObs.OBS_content_resizeDisplay(displayId, displayWidth * scaleFactor, displayHeight * scaleFactor);
-        NodeObs.OBS_content_moveDisplay(displayId, displayX * scaleFactor, displayY * scaleFactor);
-        return { height: displayHeight }
+        NodeObs.OBS_content_resizeDisplay(displayId, displayWidth, displayHeight);
+        NodeObs.OBS_content_moveDisplay(displayId, displayX, displayY);
+        return { height: displayHeight, width: displayWidth }
     }
 
     public async removePreview(displayId: string) {
@@ -84,5 +83,9 @@ export class PreviewManager {
         log.log("Destroyed display with id", displayId)
     }
 
-    public shutdown() {}
+    public async shutdown() {
+        const allPreviews = Array.from(this.displayWindowMap.keys())
+        const proms = allPreviews.map(k => this.removePreview(k))
+        await Promise.all(proms)
+    }
 }

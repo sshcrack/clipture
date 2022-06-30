@@ -1,5 +1,5 @@
 import { SessionStatus } from '@backend/managers/auth/interfaces'
-import { useToast } from '@chakra-ui/react'
+import { Box, useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { HashRouter, Route, Routes } from "react-router-dom"
 import { useLock } from 'src/components/hooks/useLock'

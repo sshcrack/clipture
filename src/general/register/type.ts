@@ -5,6 +5,7 @@ import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import { Progress } from '@backend/processors/events/interface'
 import { UseToastOptions } from '@chakra-ui/react'
+import { PerformanceStatistics } from 'src/types/obs/obs-studio-node'
 
 export type RegisterEvents = {
     obs_is_initialized: () => boolean,
@@ -27,7 +28,8 @@ export type RegisterEventsPromises = {
     obs_available_monitors: () => number,
     obs_preview_init: ({ width, height, x, y }: ClientBoundRecReturn) => {
         displayId: string,
-        preview: { height: number }
+        preview: { height: number, width: number },
+        sceneSize: { height: number, width: number }
     },
     obs_preview_destroy: (id: string) => void,
     obs_preview_resize: (displayId: string, { width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
@@ -56,6 +58,7 @@ export type RegisterEventsPromises = {
 }
 
 export type MainToRender = {
+    performance: (stats: PerformanceStatistics) => void,
     lock_update: (locked: boolean, prog: Progress) => void,
 
     auth_update: () => void,

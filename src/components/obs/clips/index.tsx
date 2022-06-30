@@ -7,6 +7,7 @@ import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import HoverVideo from 'src/components/general/HoverVideo';
 import prettyMS from "pretty-ms"
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
+import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 
 export default function Clips({ additionalElements }: { additionalElements: React.ReactNode }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
@@ -124,28 +125,10 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
             </ClipContextMenu>
         })
     ]
-    const emptyPlaceholder = <Flex
-        justifyContent='center'
-        alignItems='center'
-        w='100%'
-        h='100%'
-        flexDir='column'
-    >
-        <Flex flex='1'
-            backgroundImage='../assets/illustrations/empty.gif'
-            backgroundRepeat='no-repeat'
-            backgroundPosition='center'
-            backgroundSize='contain'
-            w='100%'
-            h='100%'
-        />
-        <Heading fontSize='2.25vw'>Pretty empty isn't it? Gonna ahead, play some games!</Heading>
-        <Heading fontSize='1.75vw'>They'll automatically be recorded</Heading>
-    </Flex>
 
 
     return loading ? <Spinner /> : elements?.length === 0
-        ? emptyPlaceholder : <VideoGrid>
+        ? <EmptyPlaceholder /> : <VideoGrid>
             {elements}
         </VideoGrid>
 }
