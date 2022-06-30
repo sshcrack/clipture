@@ -13,6 +13,12 @@ const colors = {
         primary: "#b721ff",
         secondary: "#21aefd",
         bg: "#152B3F"
+    },
+    illustration: {
+        bg: "#04294F",
+        primary: "#FFB400",
+        secondary: "#F04E23",
+        tertiary: "#00AEE0"
     }
 }
 

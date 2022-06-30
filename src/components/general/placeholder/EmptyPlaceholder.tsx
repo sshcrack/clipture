@@ -10,6 +10,8 @@ export default function EmptyPlaceholder({ img}: { img?: string }) {
     >
         <Flex flex='1'
             backgroundImage={img ?? '../assets/illustrations/empty.gif'}
+            filter='drop-shadow(2px 4px 7rem var(--chakra-colors-illustration-secondary))'
+            zIndex='-1000'
             backgroundRepeat='no-repeat'
             backgroundPosition='center'
             backgroundSize='contain'
