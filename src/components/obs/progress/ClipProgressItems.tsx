@@ -105,7 +105,5 @@ export default function ClipProcessingItems() {
         </VideoGridItem>
     })
 
-    return <>
-        {elements}
-    </>
+    return elements
 }

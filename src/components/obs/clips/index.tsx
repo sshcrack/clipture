@@ -9,7 +9,7 @@ import prettyMS from "pretty-ms"
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 
-export default function Clips({ additionalElements }: { additionalElements: React.ReactNode }) {
+export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(false)
     const [ corruptedClips, setCorruptedClips ] = useState<string[]>([])
@@ -34,7 +34,7 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
     }, [update])
 
     const elements = [
-        additionalElements,
+        ...additionalElements,
         ...currClips.map((clip, i) => {
             const { game, clipName, modified } = clip ?? {}
             const { name, aliases, id, icon } = game ?? {}
@@ -128,7 +128,5 @@ export default function Clips({ additionalElements }: { additionalElements: Reac
 
 
     return loading ? <Spinner /> : elements?.length === 0
-        ? <EmptyPlaceholder /> : <VideoGrid>
-            {elements}
-        </VideoGrid>
+        ? <EmptyPlaceholder /> : <VideoGrid length={elements.length} renderItem={(i) => elements[i]}/>
 }

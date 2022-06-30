@@ -48,7 +48,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
         })
     }, [])
 
-    const additionalElements = <ClipProcessingItems />
+    const additionalElements = ClipProcessingItems()
     return <Flex
         gap={4}
         flexDir='row'

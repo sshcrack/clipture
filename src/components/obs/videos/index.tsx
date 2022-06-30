@@ -10,7 +10,7 @@ import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("obs", "clips")
 
-export default function Videos({ additionalElements }: { additionalElements?: React.ReactNode }) {
+export default function Videos({ additionalElements }: { additionalElements?: JSX.Element[] }) {
     const toast = useToast()
     const [retry, setRetry] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
@@ -76,7 +76,10 @@ export default function Videos({ additionalElements }: { additionalElements?: Re
         </VideoContextMenu>
     })
 
-    return <VideoGrid>
-        {loading ? <Spinner /> : [additionalElements, ...clipElements]}
-    </VideoGrid>
+    const elements = [
+        ...additionalElements,
+        ...clipElements
+    ]
+
+    return loading ? <Spinner /> : <VideoGrid length={elements.length} renderItem={i => elements[i]} />
 }

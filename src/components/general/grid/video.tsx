@@ -1,5 +1,6 @@
 import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
+import ReactList from "react-list"
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import "./video.css"
 
@@ -16,7 +17,8 @@ type VideoGridItem = (BasicProps & {
     onError?: () => void
 })
 type InputProps = {
-    children: React.ReactNode
+    renderItem: (index: number, key: number | string) => JSX.Element,
+    length: number
 }
 
 type MaxProps = Omit<GridItemProps, "onError"> & {
@@ -55,14 +57,14 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
     const type = rest.type
     const isLoading = thumbnail === undefined && type !== "none"
     let bg = background ?? ""
-    if(thumbnail !== undefined)
-            bg = `url("data:image/png;base64,${thumbnail}")`
+    if (thumbnail !== undefined)
+        bg = `url("data:image/png;base64,${thumbnail}")`
 
     return <GridItem
         display='flex'
-        h='100%'
         minHeight='20em'
-        w='100%'
+        height="20em"
+        w='10em'
         className='videoGridItem'
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
         background={bg}
@@ -84,7 +86,8 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
     </GridItem>
 }
 
-export function VideoGrid({ children }: InputProps) {
+export function VideoGrid({ renderItem, length }: InputProps) {
+
     return <Grid
         justifyContent='start'
         alignItems='start'
@@ -98,6 +101,10 @@ export function VideoGrid({ children }: InputProps) {
         pr='2'
         mr='4'
     >
-        {children}
+        <ReactList
+            itemRenderer={renderItem}
+            length={length}
+            type='uniform'
+        />
     </Grid>
 }
