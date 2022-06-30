@@ -27,7 +27,22 @@ export default function EditorVideo(props: GridItemProps) {
             return
 
         const video = videoRef.current
-        video.onloadeddata = () => {
+        video.onloadeddata = async () => {
+            await new Promise<void>(resolve => {
+                if (video.duration !== Infinity)
+                    return resolve()
+
+                video.ondurationchange = () => {
+                    if(video.duration === Infinity)
+                        return
+
+                    return resolve();
+                }
+                video.load()
+                video.currentTime = 1e101
+                video.play()
+            });
+
             const duration = video.duration
             const selection = {
                 end: duration,
@@ -40,6 +55,7 @@ export default function EditorVideo(props: GridItemProps) {
             setDuration(duration)
             setSelection(selection)
             setPaused(false)
+            video.currentTime = 0
             video.play()
         }
     }, [videoRef, setSelection, setDuration])

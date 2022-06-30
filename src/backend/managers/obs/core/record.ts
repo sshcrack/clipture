@@ -6,7 +6,7 @@ import { UseToastOptions } from '@chakra-ui/react'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
-import { app, BrowserWindow } from 'electron'
+import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import got from 'got/dist/source'
 import { MainLogger } from 'src/interfaces/mainLogger'
@@ -19,6 +19,11 @@ const reg = RegManMain
 const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
 
+export type CurrentType =  Omit<VideoInfo, "duration"> & {
+    videoPath: string | null,
+    currentInfoPath: string | null
+}
+
 export class RecordManager {
     private recording = false;
     private detectableGames: DetectableGame[] = null
@@ -26,10 +31,7 @@ export class RecordManager {
         game: null,
         videoPath: null,
         currentInfoPath: null
-    } as Omit<VideoInfo, "duration"> & {
-        videoPath: string | null,
-        currentInfoPath: string | null
-    }
+    } as CurrentType
     static instance: RecordManager = null;
     private registeredAutomatic = false;
     private manualControlled = false;
@@ -110,11 +112,12 @@ export class RecordManager {
 
             log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
             if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
-                this.startRecording(false, game)
-                notify({
-                    title: "Recording started",
-                    message: `Recording started for ${gameToRecord?.productName ?? gameToRecord?.title ?? gameToRecord.executable}`
-                })
+                this.startRecording(false, game).then(() =>
+                    notify({
+                        title: "Recording started",
+                        message: `Recording started for ${gameToRecord?.productName ?? gameToRecord?.title ?? gameToRecord.executable}`
+                    })
+                )
             }
         }
 
@@ -162,8 +165,6 @@ export class RecordManager {
 
         const listVideos = () => fs.readdir(recordPath).then(e => e.filter(e => !e.endsWith(".json")))
         const currVideos = await listVideos()
-        log.silly("CurrVideos", currVideos)
-
         NodeObs.OBS_service_startRecording()
 
         let videoName = null
@@ -222,6 +223,7 @@ export class RecordManager {
         reg.onPromise("obs_start_recording", (_, e) => this.startRecording(e))
         reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
         reg.onSync("obs_is_recording", () => this.isRecording())
+        reg.onPromise("obs_get_current", async () => this.getCurrent())
     }
 
     public async shutdown() {
@@ -247,12 +249,14 @@ function sleepSync(ms: number) {
 async function getDuration(inputPath: string) {
     const execa = (await import("execa")).execa
     const res = await execa(MainGlobals.ffprobeExe, ["-i", inputPath, "-show_format"])
-    return parseFloat(
-        res
-            .stdout
-            .split("\n")
-            .find(e => e.includes("duration"))
-            .split("=")
-            .shift()
-    )
+    const numberRes = res
+        .stdout
+        ?.split("\n")
+        ?.find(e => e.includes("duration"))
+        ?.split("=")
+        ?.shift()
+
+    if (!numberRes)
+        throw new Error(`Could not get duration with ffprobe at ${MainGlobals.ffprobeExe} with clip ${inputPath}`)
+    return parseFloat(numberRes)
 }

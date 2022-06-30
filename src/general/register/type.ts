@@ -1,6 +1,7 @@
 import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
 import { Clip, ClipCutInfo, ClipProcessingInfo, Video } from '@backend/managers/clip/interface'
 import { LockedReturnType } from '@backend/managers/lock/interface'
+import type { CurrentType } from '@backend/managers/obs/core/record'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import { Progress } from '@backend/processors/events/interface'
@@ -38,6 +39,7 @@ export type RegisterEventsPromises = {
     obs_switch_window: (options: WindowInformation, manual: boolean) => void,
     obs_start_recording: (manual: boolean) => void,
     obs_stop_recording: (manual: boolean) => void,
+    obs_get_current: () => CurrentType
 
     // Returns Video in Base64
     video_thumbnail: (videoName: string) => string

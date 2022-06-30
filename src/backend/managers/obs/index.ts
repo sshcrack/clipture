@@ -121,13 +121,14 @@ export class OBSManager {
         const Video = SettingsCat.Video
 
         const availableEncoders = getAvailableValues(Output, 'Recording', 'RecEncoder');
+        const fps = Storage.get("obs")?.fps ?? 60
         setSetting(Output, "Mode", "Advanced")
         setSetting(Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
         setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
         setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
         setSetting(Output, 'RecFormat', 'mkv');
         setSetting(Output, 'VBitrate', 10000); // 10 Mbps
-        setSetting(Video, 'FPSCommon', 60);
+        setSetting(Video, 'FPSCommon', fps);
 
         log.info("Configured OBS successfully!")
     }

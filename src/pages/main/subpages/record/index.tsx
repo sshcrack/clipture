@@ -1,26 +1,38 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import { Box, Button, Flex, Heading, Text } from '@chakra-ui/react';
+import type { CurrentType } from '@backend/managers/obs/core/record';
+import { Flex, Heading } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
 import { NavBar } from 'src/components/general/NavBar';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
+import GameInfo from 'src/components/obs/recording/GameInfo';
 import PerformanceStatistics from 'src/components/obs/recording/PerformanceStats';
 import Volmeter from 'src/components/obs/recording/Volmeter';
 import Preview from 'src/components/obs/videos/preview';
 
 export default function RecordPage({ data }: { data: SessionData }) {
     const { obs } = window.api
-    const [recording, setRecording] = useState(() => window.api.obs.isRecording())
+    const [recording, setRecording] = useState(false)
+    const [current, setCurrent] = useState(undefined as CurrentType)
     const [recordDesc, setRecordDesc] = useState("Unknown")
 
     useEffect(() => {
+        const recording = window.api.obs.isRecording()
+        setRecording(recording)
+        if(recording) {
+            obs.getCurrent()
+                .then(e => setCurrent(e))
+            setRecordDesc(obs.recordDescription())
+        }
+
         return obs.onRecordChange(r => {
             setRecording(r)
             setRecordDesc(obs.recordDescription())
+            obs.getCurrent()
+                .then(e => setCurrent(e))
         })
     }, [])
 
-
-    console.log("Rerender record")
+    const { game } = current ?? {}
     return <Flex
         w='100%'
         h='100%'
@@ -62,10 +74,10 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         pl='4'
                     >
                         {
-                        recording ?
-                        <Preview /> :
-                        <EmptyPlaceholder />
-                    }
+                            recording && false as any ?
+                                <Preview /> :
+                                <EmptyPlaceholder />
+                        }
                     </Flex>
                     <Volmeter
                         mt='5'
@@ -86,6 +98,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                     alignItems='center'
                 >
                     <Heading size='xl'>{recording ? "Recording" : ""}</Heading>
+                    {!game ? null : <GameInfo game={game}/>}
                     {recording && <PerformanceStatistics />}
                 </Flex>
             </Flex>

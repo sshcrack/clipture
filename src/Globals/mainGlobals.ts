@@ -1,6 +1,7 @@
+import path from "path";
 
-const ffmpegExe = __dirname + "/assets/ffmpeg.exe";
-const ffprobeExe = __dirname + "/assets/ffprobe.exe";
+const ffmpegExe = path.join(__dirname, "assets/ffmpeg.exe");
+const ffprobeExe = path.join(__dirname, "assets/ffprobe.exe");
 
 process.env.FFMPEG_PATH = ffmpegExe
 process.env.FFPROBE_PATH = ffprobeExe
@@ -10,7 +11,6 @@ import { OBSManager } from '@backend/managers/obs';
 import { app, BrowserWindow, nativeImage } from 'electron';
 import fs from "fs";
 import os from "os";
-import path from "path";
 
 
 function isDev() {
@@ -23,11 +23,11 @@ export class MainGlobals {
     static baseUrl = isDevCached ? "http://localhost:3001" : "https://clipture.sshcrack.me"
     static gameUrl = this.baseUrl + "/api/game/detection"
 
-    static readonly nativeMngExe = __dirname + "/assets/native_mng.exe"
+    static readonly nativeMngExe = path.join(__dirname, "assets/native_mng.exe")
     static readonly ffmpegExe = ffmpegExe
     static readonly ffprobeExe = ffprobeExe
-    static readonly iconFile = __dirname + "./assets/logo.ico";
-    static readonly dotIconFile = __dirname + "./assets/dot.ico";
+    static readonly iconFile = path.join(__dirname,"assets/logo.ico");
+    static readonly dotIconFile = path.join(__dirname, "assets/dot.ico");
     static readonly dotIconNativeImage = nativeImage.createFromPath(this.dotIconFile)
     static obs: OBSManager;
 

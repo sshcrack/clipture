@@ -67,6 +67,9 @@ export const Storage = new StorageExtended({
             "desktop": [] as string[],
             "mic": [] as string[]
         },
-        "last_dashboard_page": 0
+        "last_dashboard_page": 0,
+        "obs": {
+            "fps": 60
+        }
     },
 })

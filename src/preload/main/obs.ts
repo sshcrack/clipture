@@ -44,6 +44,8 @@ const obs = {
             listenersPerformance.splice(listenersPerformance.indexOf(callback), 1)
         }
     },
+
+    getCurrent: () => reg.emitPromise("obs_get_current")
 }
 
 export default obs;
