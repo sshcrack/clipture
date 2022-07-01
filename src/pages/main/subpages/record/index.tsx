@@ -74,7 +74,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         pl='4'
                     >
                         {
-                            recording && false as any ?
+                            recording ?
                                 <Preview /> :
                                 <EmptyPlaceholder />
                         }
