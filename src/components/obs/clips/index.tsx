@@ -1,13 +1,16 @@
 import { Clip } from '@backend/managers/clip/interface';
-import { Flex, Heading, Image, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Heading, Image, Text } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
+import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from 'react';
+import RenderIfVisible from 'react-render-if-visible';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
+import VideoGridHoverVideo from 'src/components/general/grid/HoverVideo';
+import "src/components/general/grid/placeholder.css";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
-import HoverVideo from 'src/components/general/HoverVideo';
-import prettyMS from "pretty-ms"
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
+import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
@@ -49,7 +52,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 onError={() => setCorruptedClips([...corruptedClips, clipName])}
                 onClick={() => location.hash = `/editor/${clipName}`}
             >
-                <HoverVideo source={clipName} w='100%' h='100%' flex='1' />
+                <VideoGridHoverVideo source={clipName} w='100%' h='100%' flex='1' />
                 <Flex
                     flex='0'
                     gap='.25em'
@@ -120,14 +123,20 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     </Flex>
                 </VideoGridItem>
 
-            return <ClipContextMenu key={`ContextMenu-${i}`} clipName={clipName}>
-                {element}
-            </ClipContextMenu>
+            return <RenderIfVisible
+                defaultHeight={416}
+                key={`RenderIfVisible-${i}`}
+                placeholderElementClass='grid-placeholder'
+            >
+                <ClipContextMenu clipName={clipName}>
+                    {element}
+                </ClipContextMenu>
+            </RenderIfVisible>
         })
     ]
 
 
-    return loading ? <Spinner /> : elements?.length === 0
+    return loading ? <GeneralSpinner size='70' /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
             {elements}
         </VideoGrid>

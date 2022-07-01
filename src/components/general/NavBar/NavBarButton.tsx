@@ -1,4 +1,5 @@
 import { Flex, FlexProps, Tooltip } from '@chakra-ui/react';
+import { getCSSVariable } from '@general/tools';
 import classNames from 'classnames';
 import React, { useState } from 'react';
 import { IconType } from 'react-icons';
@@ -16,8 +17,7 @@ export default function NavBarButton({ active, icon: Icon, chakraColor, tooltip,
     const cssColor = `--chakra-colors-${chakraColor?.split(".")?.join("-")}`
     const [isHovered, setHovered] = useState(false)
 
-    const colorCodeHover = chakraColor ? getComputedStyle(document.body)
-        .getPropertyValue(cssColor) : color
+    const colorCodeHover = chakraColor ? getCSSVariable(cssColor) : color
 
     const transition = ".25s ease-in-out all"
     return <Tooltip label={tooltip}>

@@ -31,3 +31,8 @@ export function scaleKeepRatioSpecific(width: number, height: number, max: { hei
     const ratio = (lowest ? Math.max : Math.min)(width / maxWidth, height / maxHeight);
     return [width / ratio, height / ratio];
 }
+
+export function getCSSVariable(variable: string) {
+    return getComputedStyle(document.body)
+        .getPropertyValue(variable)
+}

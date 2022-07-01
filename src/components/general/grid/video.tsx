@@ -1,7 +1,7 @@
 import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
-import React, { useEffect, useState } from 'react'
-import RenderIfVisible from 'react-render-if-visible'
+import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { RenderLogger } from 'src/interfaces/renderLogger'
+import { ReactSetState } from 'src/types/reactUtils'
 import "./video.css"
 
 type BasicProps = Omit<GridItemProps, "onError"> & {
@@ -25,8 +25,19 @@ type MaxProps = Omit<GridItemProps, "onError"> & {
 
 }
 
+export type VideoGridState = {
+    gridRef: MutableRefObject<HTMLDivElement>,
+    cachedDurations: Map<string, number>,
+    setCachedDurations: ReactSetState<Map<string, number>>
+}
+export const VideoGridContext = React.createContext<VideoGridState>({
+    gridRef: null,
+    cachedDurations: new Map(),
+    setCachedDurations: () => { }
+})
+
 const log = RenderLogger.get("Components", "General", "Grid", "Video")
-function InnerVideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
+export function VideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
     const [thumbnail, setThumbnail] = useState(undefined)
     const api = rest.type === "none" ? undefined : window.api[rest.type as "clips" | "videos"]
 
@@ -82,28 +93,28 @@ function InnerVideoGridItem({ background, onClick, children, ...rest }: VideoGri
     </GridItem>
 }
 
-
-export function VideoGridItem(props: VideoGridItem) {
-    return <RenderIfVisible defaultHeight={416}>
-        <InnerVideoGridItem {...props} />
-    </RenderIfVisible>
-}
-
 export function VideoGrid({ children }: InputProps) {
+    const gridRef = useRef<HTMLDivElement>(null)
+    const [cachedDurations, setCachedDurations] = useState(new Map<string, number>())
 
-    return <Grid
-        justifyContent='start'
-        alignItems='start'
-        w='100%'
-        h='100%'
-        gap='1em'
-        templateColumns='repeat(auto-fill, minmax(21.5em,1fr))'
-        className='videoGrid'
-        overflowY='auto'
-        p='5'
-        pr='2'
-        mr='4'
+    return <VideoGridContext.Provider
+        value={{ gridRef, cachedDurations, setCachedDurations }}
     >
-        {children}
-    </Grid>
+        <Grid
+            justifyContent='start'
+            alignItems='start'
+            w='100%'
+            h='100%'
+            gap='1em'
+            templateColumns='repeat(auto-fill, minmax(21.5em,1fr))'
+            className='videoGrid'
+            overflowY='auto'
+            p='5'
+            pr='2'
+            mr='4'
+            ref={gridRef}
+        >
+            {children}
+        </ Grid>
+    </VideoGridContext.Provider>
 }

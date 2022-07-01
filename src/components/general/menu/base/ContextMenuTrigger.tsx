@@ -33,16 +33,12 @@ export const ContextMenuTrigger = ({ children }: React.PropsWithChildren<Props>)
 
         document.addEventListener("contextmenu", listener)
         return () => {
-            console.log("Unregister")
             document.removeEventListener("contextmenu", listener)
         }
     }, [ref, openMenu, setPosition, isOpen, closeMenu])
     return (
         <Box
             ref={ref}
-            onContextMenu={(event: MouseEvent) => {
-
-            }}
         >
             {children}
         </Box>

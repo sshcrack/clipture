@@ -1,8 +1,10 @@
 import { Flex, Spinner, Text } from '@chakra-ui/react';
+import { getCSSVariable } from '@general/tools';
 import prettyBytes from "pretty-bytes";
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from "react";
 import { Line } from 'react-chartjs-2';
+import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { PerformanceStatistics } from 'src/types/obs/obs-studio-node';
 
 
@@ -60,11 +62,9 @@ export default function PerformanceStatistics() {
     }, [])
 
     if (!stats)
-        return <Spinner />
+        return <GeneralSpinner />
 
-    const dataColor = getComputedStyle(document.documentElement)
-        .getPropertyValue('--chakra-colors-brand-secondary');
-
+    const dataColor = getCSSVariable('--chakra-colors-brand-secondary')
     const last = stats?.[stats.length - 1]
     const labels = stats.map(e => prettyMS(last.time - e.time))
 

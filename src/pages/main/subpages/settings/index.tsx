@@ -1,11 +1,17 @@
 import { SessionData } from '@backend/managers/auth/interfaces'
 import { Flex, Heading, Icon } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
-import React from "react"
+import React, { useEffect, useState } from "react"
 import { FaCog } from 'react-icons/fa'
 import { NavBar } from 'src/components/general/NavBar'
 
 export default function SettingsPage({ data }: { data: SessionData }) {
+    const [ recording, setRecording] = useState(false)
+    const { obs } = window.api
+    useEffect(() => {
+        setRecording(obs.isRecording())
+        return obs.onRecordChange(newRec => setRecording(newRec))
+    }, [])
     return <Flex
         h='100%'
         w='100%'

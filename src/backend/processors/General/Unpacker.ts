@@ -81,7 +81,7 @@ export interface UnpackerOptions extends AdditionalOptions {
     destination: string,
     deleteExistent?: boolean,
     messages: {
-        /** Extracting modpack... => Extracting modpack... (5/10) */
+        /** Extracting file... => Extracting file... (5/10) */
         extracting: string
     }
 }

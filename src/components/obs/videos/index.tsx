@@ -3,10 +3,12 @@ import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms"
 import React, { useEffect, useState } from "react";
+import RenderIfVisible from 'react-render-if-visible';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
-import HoverVideo from 'src/components/general/HoverVideo';
+import VideoGridHoverVideo from 'src/components/general/grid/HoverVideo';
 import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
 import { RenderLogger } from 'src/interfaces/renderLogger';
+import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 
 const log = RenderLogger.get("obs", "clips")
 
@@ -39,41 +41,47 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
 
         const gameName = name ?? aliases?.[0] ?? "Unknown Game"
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
-        return <VideoContextMenu videoName={videoName}>
+        return <RenderIfVisible
+            defaultHeight={416}
+            key={`RenderIfVisible-${i}`}
+            placeholderElementClass='grid-placeholder'
+        >
+            <VideoContextMenu videoName={videoName}>
 
-            <VideoGridItem key={`${i}-videoElements`}
-                type='videos'
-                fileName={videoName}
-                onClick={() => location.hash = `/editor/${videoName}`}
-            >
-                <HoverVideo source={videoName} w='100%' h='100%' flex='1' />
-                <Flex
-                    flex='0'
-                    gap='.25em'
-                    justifyContent='center'
-                    alignItems='center'
-                    flexDir='column'
-                    borderRadius="xl"
-                    borderTopLeftRadius='0'
-                    borderTopRightRadius='0'
-                    bg='brand.bg'
-                    p='1'
+                <VideoGridItem
+                    type='videos'
+                    fileName={videoName}
+                    onClick={() => location.hash = `/editor/${videoName}`}
                 >
-                    <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-                        <Image src={imageSrc} w="1.5em" />
-                        <Text>{gameName}</Text>
-                        <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
+                    <VideoGridHoverVideo source={videoName} w='100%' h='100%' flex='1' />
+                    <Flex
+                        flex='0'
+                        gap='.25em'
+                        justifyContent='center'
+                        alignItems='center'
+                        flexDir='column'
+                        borderRadius="xl"
+                        borderTopLeftRadius='0'
+                        borderTopRightRadius='0'
+                        bg='brand.bg'
+                        p='1'
+                    >
+                        <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
+                            <Image src={imageSrc} w="1.5em" />
+                            <Text>{gameName}</Text>
+                            <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
+                        </Flex>
+                        <Text style={{
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            width: "90%",
+                            textAlign: "center"
+                        }}>{videoName}</Text>
                     </Flex>
-                    <Text style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        width: "90%",
-                        textAlign: "center"
-                    }}>{videoName}</Text>
-                </Flex>
-            </VideoGridItem>
-        </VideoContextMenu>
+                </VideoGridItem>
+            </VideoContextMenu>
+        </RenderIfVisible>
     })
 
     const elements = [
@@ -81,7 +89,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         ...clipElements
     ]
 
-    return loading ? <Spinner /> : <VideoGrid>
+    return loading ? <GeneralSpinner size='70'/> : <VideoGrid>
         {elements}
     </VideoGrid>
 }
