@@ -98,7 +98,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                     alignItems='center'
                 >
                     <Heading size='xl'>{recording ? "Recording" : ""}</Heading>
-                    {!game ? null : <GameInfo game={game}/>}
+                    {recording && !game ? null : <GameInfo game={game}/>}
                     {recording && <PerformanceStatistics />}
                 </Flex>
             </Flex>
