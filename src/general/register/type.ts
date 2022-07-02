@@ -2,7 +2,7 @@ import { SessionData, SessionStatus } from '@backend/managers/auth/interfaces'
 import { Clip, ClipCutInfo, ClipProcessingInfo, Video } from '@backend/managers/clip/interface'
 import { LockedReturnType } from '@backend/managers/lock/interface'
 import type { CurrentType } from '@backend/managers/obs/core/record'
-import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
+import { AllAudioDevices, AudioDevice, WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import { Progress } from '@backend/processors/events/interface'
 import { UseToastOptions } from '@chakra-ui/react'
@@ -56,7 +56,8 @@ export type RegisterEventsPromises = {
     system_get_dashboard_page_default: () => number,
     system_set_default_dashboard_page: (newIndex: number) => void,
 
-    audio_sources: () => string[]
+    audio_active_sources: () => string[],
+    audio_devices: () => AllAudioDevices
 }
 
 export type MainToRender = {

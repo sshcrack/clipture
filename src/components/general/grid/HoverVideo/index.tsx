@@ -2,12 +2,15 @@ import { BoxProps, Flex, Grid, Slider, SliderFilledTrack, SliderTrack, Text } fr
 import { getVideoSourceUrl, secondsToDuration } from '@general/tools';
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { VideoGridContext } from '../video';
+import { HoverVideoContext } from './HoverVideoProvider';
 
-export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { source: string }) {
+
+export default function HoverVideo({ source, ...props }: BoxProps & { source: string }) {
     const { gridRef, cachedDurations, setCachedDurations } = useContext(VideoGridContext)
+    const { hovered } = useContext(HoverVideoContext)
 
     const [opacity, setOpacity] = useState(0)
-    const [hovered, setHovered] = useState(false)
+    const [ update, setUpdate ] = useState(0)
     const [currentTime, setCurrentTime] = useState(0)
     const [duration, setDuration] = useState(Infinity)
     const [debounced, setDebounced] = useState(false)
@@ -15,7 +18,7 @@ export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { s
     const ref = useRef<HTMLVideoElement>(null)
 
     useEffect(() => {
-        if(!gridRef.current)
+        if (!gridRef.current)
             return
 
         const grid = gridRef.current
@@ -24,7 +27,7 @@ export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { s
         let timerId: NodeJS.Timeout = setTimeout(onFinished, 300)
 
         const listener = () => {
-            if(!timerId)
+            if (!timerId)
                 clearTimeout(timerId)
 
             timerId = setTimeout(onFinished, 300)
@@ -40,10 +43,10 @@ export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { s
 
     useEffect(() => {
         const cached = cachedDurations.get(source)
-        if(cached)
+        if (cached)
             return setDuration(cached)
 
-            if (!ref.current || !debounced)
+        if (!ref.current || !debounced)
             return
 
         const listener = () => {
@@ -81,12 +84,13 @@ export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { s
             video.currentTime = 0
             setCurrentTime(0)
         }
-    }, [hovered, ref,])
+    }, [hovered, ref, update])
 
-    const videoElement = debounced ?
+    const videoElement = debounced && (!cachedDurations.has(source) || hovered) ?
         <video
             ref={ref}
             src={getVideoSourceUrl(source)}
+            onLoadedMetadata={() => setUpdate(Math.random())}
             style={{
                 width: "100%",
                 height: "100%",
@@ -101,6 +105,7 @@ export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { s
     return <Grid
         {...props}
     >
+        {props.children}
         {videoElement}
         <Flex
             gridRow='1'
@@ -117,10 +122,10 @@ export default function VideoGridHoverVideo({ source, ...props }: BoxProps & { s
             >{duration === Infinity ? "Loading..." : secondsToDuration(duration)}</Text>
         </Flex>
         <Flex
+            w='100%'
+            h='100%'
             gridRow='1'
             gridColumn='1'
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
             zIndex={100}
         >
             <Slider marginTop='auto' aria-label='slider-ex-1' value={isNaN(currentTime) ? 0 : currentTime} max={isNaN(duration) ? Infinity : duration}>

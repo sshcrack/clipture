@@ -18,7 +18,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
     useEffect(() => {
         const recording = window.api.obs.isRecording()
         setRecording(recording)
-        if(recording) {
+        if (recording) {
             obs.getCurrent()
                 .then(e => setCurrent(e))
             setRecordDesc(obs.recordDescription())
@@ -87,20 +87,23 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         flex='0'
                         gap='1em'
                         flexDir='column'
+                        displayName
                     />
                 </Flex>
-                <Flex
-                    flex='0'
-                    flexDir='column'
-                    pr='3'
-                    pl='4'
-                    justifyContent='center'
-                    alignItems='center'
-                >
-                    <Heading size='xl'>{recording ? "Recording" : ""}</Heading>
-                    {recording && !game ? null : <GameInfo game={game}/>}
-                    {recording && <PerformanceStatistics />}
-                </Flex>
+                {recording &&
+                    <Flex
+                        flex='0'
+                        flexDir='column'
+                        pr='3'
+                        pl='4'
+                        justifyContent='center'
+                        alignItems='center'
+                    >
+                        <Heading size='xl'>Recording</Heading>
+                        {!game && <GameInfo game={game} />}
+                        <PerformanceStatistics />
+                    </Flex>
+                }
             </Flex>
         </Flex>
     </Flex>

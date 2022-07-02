@@ -7,14 +7,18 @@ import { MainLogger } from 'src/interfaces/mainLogger';
 import { SettingsCat } from 'src/types/obs/obs-enums';
 import { NodeObs } from 'src/types/obs/obs-studio-node';
 import { setOBSSetting as setSetting } from '../base';
+import { AudioDevice } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene", "Audio");
 const NodeObs = notTypedObs as NodeObs
 export class AudioSceneManager {
-    private static sources = [] as string[]
+    private static activeSources = [] as string[]
+    private static allDesktops = [] as AudioDevice[]
+    private static allMics = [] as AudioDevice[]
 
     static register() {
-        RegManMain.onPromise("audio_sources", async () => this.sources)
+        RegManMain.onPromise("audio_active_sources", async () => this.activeSources)
+        RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics}))
     }
 
     static async initializeAudioSources(scene: IScene) {
@@ -26,6 +30,9 @@ export class AudioSceneManager {
 
         const allDesktopDevices = this.getAudioDevices("desktop")
         const allMicrophones = this.getAudioDevices("microphone")
+
+        AudioSceneManager.allDesktops = allDesktopDevices
+        AudioSceneManager.allMics = allMicrophones
 
         const { desktop: defaultDesktop, mic: defaultMic } = await this.getDefaultAudioDevices()
             .catch(() => ({ desktop: null, mic: null }))
@@ -88,7 +95,7 @@ export class AudioSceneManager {
         currTrack++;
 
         //audioSource.volume = type === "microphone" ? 1.5 : 1
-        this.sources.push(device_id)
+        this.activeSources.push(device_id)
         return currTrack
     }
 

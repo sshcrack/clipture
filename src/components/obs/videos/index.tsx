@@ -1,14 +1,14 @@
 import { Video } from '@backend/managers/clip/interface';
-import { Flex, Image, Spinner, Text, useToast } from '@chakra-ui/react';
+import { Flex, Image, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
-import prettyMS from "pretty-ms"
+import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from "react";
 import RenderIfVisible from 'react-render-if-visible';
+import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
-import VideoGridHoverVideo from 'src/components/general/grid/HoverVideo';
 import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
-import { RenderLogger } from 'src/interfaces/renderLogger';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
+import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("obs", "clips")
 
@@ -53,7 +53,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                     fileName={videoName}
                     onClick={() => location.hash = `/editor/${videoName}`}
                 >
-                    <VideoGridHoverVideo source={videoName} w='100%' h='100%' flex='1' />
+                    <HoverVideoWrapper source={videoName} w='100%' h='100%' flex='1' />
                     <Flex
                         flex='0'
                         gap='.25em'

@@ -94,3 +94,14 @@ export enum Distributor {
     Twitch = "twitch",
     Uplay = "uplay",
 }
+
+
+export interface AudioDevice {
+    name: string,
+    device_id: string
+}
+
+export interface AllAudioDevices {
+    desktop: AudioDevice[],
+    microphones: AudioDevice[]
+}

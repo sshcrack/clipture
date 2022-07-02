@@ -1,15 +1,22 @@
-import { Flex, FlexProps } from '@chakra-ui/react'
+import { AllAudioDevices, AudioDevice } from '@backend/managers/obs/Scene/interfaces'
+import { Box, Flex, FlexProps, Text } from '@chakra-ui/react'
 import { ExpFilter } from '@general/ExpFilter'
-import React, { useEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
+import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 
-export default function Volmeter(props: FlexProps) {
+export default function Volmeter(props: FlexProps & { displayName?: boolean }) {
     const { audio } = window.api
-    const outerVolmeter = useRef<HTMLDivElement>(null)
     const [sources, setSources] = useState(undefined as string[])
+    const [devices, setDevices] = useState(undefined as AllAudioDevices)
+    const [percentages, setPercentages] = useState(new Map<string, number>())
+    const { displayName } = props
 
     useEffect(() => {
+        console.log("Getting audio devices...")
+        audio.allDevices().then(dev => setDevices(dev))
+
         console.log("Getting sources...")
-        audio.sources()
+        audio.activeSources()
             .then(s => {
                 setSources(s)
                 console.log("Setting sources")
@@ -17,59 +24,68 @@ export default function Volmeter(props: FlexProps) {
     }, [])
 
     useEffect(() => {
-        console.log(sources, outerVolmeter, sources === undefined, !outerVolmeter.current)
-        if (!outerVolmeter.current || sources === undefined) {
-            console.log("Return")
+        if (sources === undefined)
             return
-        }
 
-        const box = outerVolmeter.current
-        box.innerHTML = ""
 
-        const map = new Map<string, HTMLDivElement>()
         const filters = new Map<string, ExpFilter>()
 
-        const addSource = () => {
-            const outerBar = document.createElement("div")
-            outerBar.setAttribute("style", `
-                height: 1em;
-                width: 100%;
-                background: var(--chakra-colors-gray-500);
-                display: flex;
-                justify-content: start;
-                align-items: center;
-                border-radius: var(--chakra-radii-xl);
-            `)
-
-            const innerBar = document.createElement("div")
-            innerBar.setAttribute("style", `
-            background: var(--chakra-colors-green-300);
-            height: 100%;
-            border-radius: var(--chakra-radii-xl);
-            `)
-            innerBar.style.background = "var(--chakra-colors-green-300)"
-            innerBar.style.height = "100%"
-            innerBar.style
-
-            outerBar.appendChild(innerBar)
-            box.appendChild(outerBar)
-            return innerBar
-        }
-
-        sources.forEach(e => map.set(e, addSource()))
         sources.forEach(e => filters.set(e, new ExpFilter(0, 0.2, 0.2)))
-
-        console.log(sources.length, "audio sources detected.")
         return audio.onVolmeterChange((source, m) => {
             const avg = Math.abs(m.reduce((a, b) => a + b, 0) / m.length);
             const max = Math.min(1, avg / 60)
-            const bar = map.get(source)
 
             const filter = filters.get(source)
             const newVal = filter.update(1 - max)
-            bar.style.width = `${newVal * 100}%`
-        })
-    }, [outerVolmeter, sources])
 
-    return <Flex {...props} ref={outerVolmeter}/>
+            percentages.set(source, newVal)
+            setPercentages(new Map(percentages.entries()))
+        })
+    }, [sources])
+
+    const displays = Array.from(percentages.entries()).map(([source, percentage]) => {
+        const devName = findAudioDevice(source, devices) ?? { name:  "Getting name..." }
+        return <Flex flexDir='column'>
+            <Flex w='100%' h='100%'>
+                <Text>{devName.name}</Text>
+            </Flex>
+            <Flex
+                w='100%'
+                h='1rem'
+                bg='gray.500'
+                justifyContent='start'
+                alignItems='center'
+                rounded='xl'
+            >
+                <Box
+                    bg='green.300'
+                    h='100%'
+                    rounded='xl'
+                    transition=".05s all linear"
+                    style={{ width: percentage * 100 + "%"}}
+                />
+            </Flex>
+        </Flex>
+    })
+
+    return <Flex
+        {...props}>
+        {sources ? displays : <GeneralSpinner loadingText='Obtaining audio inputs...'/>}
+    </Flex>
+}
+
+type FindAudioDevicesReturn = undefined | { type: "desktop" | "microphone" } & AudioDevice
+
+function findAudioDevice(id: string, audioDevices: AllAudioDevices): FindAudioDevicesReturn {
+    const { desktop, microphones} = audioDevices ?? {}
+    const deskFound = desktop.find(e => e.device_id === id)
+
+    if(deskFound)
+        return { type: "desktop", ...deskFound }
+
+    const micFound = microphones.find(e => e.device_id === id)
+    if(micFound)
+        return { type: "microphone", ...micFound}
+
+    return undefined
 }

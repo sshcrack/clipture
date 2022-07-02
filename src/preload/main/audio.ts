@@ -12,7 +12,8 @@ const audio = {
             volmeterListeners.splice(volmeterListeners.indexOf(callback), 1)
         }
     },
-    sources: () => reg.emitPromise("audio_sources")
+    activeSources: () => reg.emitPromise("audio_active_sources"),
+    allDevices: () => reg.emitPromise("audio_devices")
 }
 
 export default audio
