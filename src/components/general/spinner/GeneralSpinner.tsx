@@ -13,10 +13,9 @@ interface LoaderSizeProps extends DetailedHTMLProps<HTMLAttributes<HTMLSpanEleme
     loadingText?: string
 }
 
-export default function GeneralSpinner(props: LoaderSizeProps) {
+export default function GeneralSpinner({ loadingText, ...props}: LoaderSizeProps) {
     const color = getCSSVariable("--chakra-colors-brand-primary")
     const loader = <HashLoader {...props} color={color} />
-    const { loadingText } = props ?? {}
     if (!loadingText)
         return loader
 

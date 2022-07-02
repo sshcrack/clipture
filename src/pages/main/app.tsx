@@ -21,6 +21,7 @@ export default function App() {
     const { data, status } = useSession()
 
     const { progress, isLocked } = useLock()
+    const [ prevPage, setPrevPage ] = useState("/")
     const [tryAgain, setTryAgain] = useState(() => Math.random())
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
 
@@ -49,6 +50,19 @@ export default function App() {
             })
     }, [obsInitialized, tryAgain, isLocked]);
 
+    useEffect(() => {
+        const listener = ({ oldURL }: HashChangeEvent) => {
+            if(oldURL.includes("settings"))
+                return
+
+            const url = new URL(oldURL)
+            setPrevPage(url.hash)
+        }
+
+        window.addEventListener("hashchange", listener)
+        return () => window.removeEventListener("hashchange" ,listener)
+    }, [])
+
     const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
     if (!initialized)
         return <InitializePage progress={progress ?? { percent: 0, status: "Initializing..." }} />
@@ -62,7 +76,8 @@ export default function App() {
             <Route path="/:mode" element={<DashboardPage data={data} />} />
             <Route path="/discover" element={<DiscoverPage data={data} />} />
             <Route path="/record" element={<RecordPage data={data} />} />
-            <Route path="/settings" element={<SettingsPage data={data} />} />
+            <Route path="/settings" element={<SettingsPage data={data} prevPage={prevPage} />} />
+            <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />}/>
             <Route path="/editor/:videoName" element={<EditorPage />}></Route>
         </Routes>
     </HashRouter>

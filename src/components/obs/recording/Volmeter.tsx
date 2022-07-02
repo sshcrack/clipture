@@ -4,12 +4,11 @@ import { ExpFilter } from '@general/ExpFilter'
 import React, { useEffect, useState } from "react"
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 
-export default function Volmeter(props: FlexProps & { displayName?: boolean }) {
+export default function Volmeter({ displayName, ...props}: FlexProps & { displayName?: boolean }) {
     const { audio } = window.api
     const [sources, setSources] = useState(undefined as string[])
     const [devices, setDevices] = useState(undefined as AllAudioDevices)
     const [percentages, setPercentages] = useState(new Map<string, number>())
-    const { displayName } = props
 
     useEffect(() => {
         console.log("Getting audio devices...")
@@ -45,10 +44,10 @@ export default function Volmeter(props: FlexProps & { displayName?: boolean }) {
 
     const displays = Array.from(percentages.entries()).map(([source, percentage]) => {
         const devName = findAudioDevice(source, devices) ?? { name:  "Getting name..." }
-        return <Flex flexDir='column'>
-            <Flex w='100%' h='100%'>
+        return <Flex flexDir='column' key={source + "-volmeter"}>
+            {displayName && <Flex w='100%' h='100%'>
                 <Text>{devName.name}</Text>
-            </Flex>
+            </Flex>}
             <Flex
                 w='100%'
                 h='1rem'

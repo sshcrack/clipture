@@ -4,11 +4,14 @@ import { motion } from 'framer-motion'
 import React, { useEffect, useState } from "react"
 import { AiOutlineClose, AiOutlineCloseCircle } from 'react-icons/ai'
 import { FaCog } from 'react-icons/fa'
-import SettingsNavBar from 'src/components/settings/SettingsNavBar'
+import { useParams } from 'react-router-dom'
+import SettingsMenu from 'src/components/settings/navbar/SettingsMenu'
 
-export default function SettingsPage({ data }: { data: SessionData }) {
+export default function SettingsPage({ prevPage }: { data: SessionData, prevPage: string }) {
+    const { item } = useParams()
     const [recording, setRecording] = useState(false)
     const { obs } = window.api
+
     useEffect(() => {
         setRecording(obs.isRecording())
         return obs.onRecordChange(newRec => setRecording(newRec))
@@ -66,17 +69,17 @@ export default function SettingsPage({ data }: { data: SessionData }) {
                     aria-label='Close'
                     colorScheme='red'
                     icon={<AiOutlineClose />}
-                    onClick={() => history.back()}
+                    onClick={() => location.hash = prevPage}
                 />
             </Flex>
             <Flex flex='1' h='100%' w='100%'>
-                <SettingsNavBar />
+                <SettingsMenu />
                 <Flex
-                    flex='1'
+                    flex='1 1 800px'
                     h='100%'
                     w='100%'
                 >
-                    <Text>Text lol imagine</Text>
+                    <Text>{item ?? "General"}</Text>
                 </Flex>
             </Flex>
         </Flex>
