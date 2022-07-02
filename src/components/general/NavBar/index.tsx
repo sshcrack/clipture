@@ -52,6 +52,7 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                 <Flex
                     mt="auto"
                     mb="auto"
+                    w='100%'
                 >
                     <NavBarButton
                         active={recording}

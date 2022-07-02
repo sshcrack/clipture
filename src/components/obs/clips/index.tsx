@@ -66,7 +66,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     p='1'
                 >
                     <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-                        <Image src={imageSrc} w="1.5em" />
+                        <Image borderRadius='20%' src={imageSrc} w="1.5em" />
                         <Text>{gameName}</Text>
                         <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
                     </Flex>

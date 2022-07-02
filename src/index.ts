@@ -4,12 +4,13 @@ import { MainGlobals } from './Globals/mainGlobals';
 
 import { ProcessManager } from '@backend/managers/process';
 import { registerFuncs } from '@backend/registerFuncs';
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
 import { ClipManager } from '@backend/managers/clip';
+import { showAboutWindow } from 'electron-util';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -28,6 +29,7 @@ app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,Media
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
 
 let mainWindow: BrowserWindow;
+let trayIcon = null as Tray
 const createWindow = (): void => {
   mainWindow = new BrowserWindow({
     height: 700,
@@ -48,8 +50,36 @@ const createWindow = (): void => {
   mainWindow.setIcon(MainGlobals.iconFile)
   ClipManager.registerProtocol()
 
+  const showWindow = () => {
+    console.log("Showing window")
+    mainWindow.show()
+    mainWindow.setSkipTaskbar(false)
+    mainWindow.focus()
+  }
+
+  trayIcon = new Tray(MainGlobals.iconFile);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show app', click: () => showWindow()
+    },
+    {
+      label: 'Quit', click: () => {
+        app.quit();
+      }
+    }
+  ]);
+
+
+  trayIcon.setToolTip('Clipture')
+  trayIcon.setContextMenu(contextMenu);
+  trayIcon.on("click", () => showWindow())
+
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
+
+  mainWindow.on('minimize', () => {
+    mainWindow.setSkipTaskbar(true)
+  });
 };
 
 

@@ -1,3 +1,4 @@
+import { MainGlobals } from '@Globals/mainGlobals'
 import { ipcMain, BrowserWindow, WebContents } from 'electron'
 
 const setupEventListener = (browserWindow: BrowserWindow, sender: WebContents) => {
