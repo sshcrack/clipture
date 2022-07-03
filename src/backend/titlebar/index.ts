@@ -1,3 +1,4 @@
+import { SystemManager } from '@backend/managers/system'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { ipcMain, BrowserWindow, WebContents } from 'electron'
 
@@ -39,7 +40,7 @@ export class TitlebarManager {
 
         ipcMain.on('electron-react-titlebar/close', (event, browserWindowId) => {
             const browserWindow = browserWindowId ? BrowserWindow.fromId(browserWindowId) : BrowserWindow.fromWebContents(event.sender)
-            browserWindow?.close()
+            SystemManager.handleWindowCloseButton(browserWindow)
         })
     }
 }

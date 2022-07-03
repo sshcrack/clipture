@@ -1,7 +1,13 @@
+if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+  app.quit();
+}
+
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 import { MainGlobals } from './Globals/mainGlobals';
 
+import { ClipManager } from '@backend/managers/clip';
 import { ProcessManager } from '@backend/managers/process';
 import { registerFuncs } from '@backend/registerFuncs';
 import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
@@ -9,16 +15,10 @@ import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
-import { ClipManager } from '@backend/managers/clip';
-import { showAboutWindow } from 'electron-util';
-
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 const logger = MainLogger.get("Main")
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-  app.quit();
-}
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 if (MainGlobals.getOS() !== "Windows_NT") {
   dialog.showErrorBox("Error", "This application is only supported on Windows")
@@ -46,12 +46,10 @@ const createWindow = (): void => {
 
   mainWindow.setMenuBarVisibility(false)
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  mainWindow.maximize()
   mainWindow.setIcon(MainGlobals.iconFile)
   ClipManager.registerProtocol()
 
   const showWindow = () => {
-    console.log("Showing window")
     mainWindow.show()
     mainWindow.setSkipTaskbar(false)
     mainWindow.focus()
@@ -60,12 +58,12 @@ const createWindow = (): void => {
   trayIcon = new Tray(MainGlobals.iconFile);
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: 'Show app', click: () => showWindow()
+      label: 'Show app',
+      click: () => showWindow()
     },
     {
-      label: 'Quit', click: () => {
-        app.quit();
-      }
+      label: 'Quit',
+      click: () => app.quit()
     }
   ]);
 
@@ -76,10 +74,6 @@ const createWindow = (): void => {
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
-
-  mainWindow.on('minimize', () => {
-    mainWindow.setSkipTaskbar(true)
-  });
 };
 
 

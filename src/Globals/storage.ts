@@ -70,6 +70,7 @@ export const Storage = new StorageExtended({
         "last_dashboard_page": 0,
         "obs": {
             "fps": 60
-        }
+        },
+        "close_behavior": "unset" as "unset" | "close" | "minimize"
     },
 })

@@ -55,6 +55,8 @@ export type RegisterEventsPromises = {
     system_open_clip: (path: string) => void,
     system_get_dashboard_page_default: () => number,
     system_set_default_dashboard_page: (newIndex: number) => void,
+    system_set_close_behavior: (behavior: "minimize" | "close") => void,
+    system_close_curr_window: () => void,
 
     audio_active_sources: () => string[],
     audio_devices: () => AllAudioDevices

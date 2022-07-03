@@ -13,7 +13,8 @@ export default function SettingsMenuItem({ label, defaultItem }: SettingsMenuIte
 
     return <Button
         onClick={() => location.hash = `/settings/${label.toLowerCase()}`}
-        rounded='none'
+        rounded='xl'
+        colorScheme='brandSecondary'
         variant={active ? "solid" : "ghost"}
     >{label}</Button>
 }

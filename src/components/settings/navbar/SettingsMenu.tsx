@@ -4,18 +4,20 @@ import Category from './SettingsMenuCategory';
 import Item from './SettingsMenuItem';
 
 export default function SettingsMenu() {
+    const width = '218px'
     return <Flex
-        flex='1 0 218px'
+        flex={`1 0 ${width}`}
         flexDir='column'
         h='100%'
         justifyContent='start'
+        alignItems='end'
     >
-        <Box w='218px'>
+        <Box w={width}>
             <Flex
                 w='100%'
                 h='100%'
                 flexDir='column'
-                justifyContent='start'
+                gap='.25rem'
             >
                 <Category>OBS</Category>
                 <Item label='General' defaultItem />

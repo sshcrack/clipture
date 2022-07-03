@@ -7,6 +7,7 @@ import RenderIfVisible from 'react-render-if-visible';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
+import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
@@ -89,7 +90,8 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         ...clipElements
     ]
 
-    return loading ? <GeneralSpinner size='70'/> : <VideoGrid>
-        {elements}
-    </VideoGrid>
+    return loading ? <GeneralSpinner size='70' /> : elements?.length === 0
+        ? <EmptyPlaceholder /> : <VideoGrid>
+            {elements}
+        </VideoGrid>
 }
