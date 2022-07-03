@@ -10,6 +10,7 @@ import process from "./process";
 import audio from "./audio";
 import system from './system';
 import titlebar from "./titlebar";
+import settings from './settings';
 import videos from './videos';
 
 
@@ -29,6 +30,7 @@ export const API = {
     titlebar,
     audio,
     system,
+    settings,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean

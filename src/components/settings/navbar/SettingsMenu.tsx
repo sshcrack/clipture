@@ -1,9 +1,9 @@
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Divider, Flex, FlexProps } from '@chakra-ui/react';
 import React from "react";
 import Category from './SettingsMenuCategory';
 import Item from './SettingsMenuItem';
 
-export default function SettingsMenu() {
+export default function SettingsMenu(props: FlexProps) {
     const width = '218px'
     return <Flex
         flex={`1 0 ${width}`}
@@ -11,6 +11,8 @@ export default function SettingsMenu() {
         h='100%'
         justifyContent='start'
         alignItems='end'
+        bg='gray.900'
+        {...props}
     >
         <Box w={width}>
             <Flex
@@ -19,13 +21,18 @@ export default function SettingsMenu() {
                 flexDir='column'
                 gap='.25rem'
             >
-                <Category>OBS</Category>
-                <Item label='General' defaultItem />
-                <Item label='Video' />
-                <Item label='Audio'></Item>
-                <Category>Game</Category>
-                <Item label='List' />
-                <Item label='Behavior' />
+                <Category category='OBS'>
+                    <Item label='General' defaultItem />
+                    <Item label='Video' />
+                    <Item label='Audio'></Item>
+                </Category>
+
+                <Divider />
+
+                <Category category='Game'>
+                    <Item label='List' />
+                    <Item label='Behavior' />
+                </Category>
             </Flex>
         </Box>
     </Flex>

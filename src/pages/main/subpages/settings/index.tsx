@@ -6,11 +6,40 @@ import { AiOutlineClose, AiOutlineCloseCircle } from 'react-icons/ai'
 import { FaCog } from 'react-icons/fa'
 import { useParams } from 'react-router-dom'
 import SettingsMenu from 'src/components/settings/navbar/SettingsMenu'
+import GameBehavior from './categories/Game/Behavior'
+import GameList from './categories/Game/List'
+import OBSAudio from './categories/OBS/Audio'
+import OBSGeneral from './categories/OBS/General'
+import OBSVideo from './categories/OBS/Video'
+
+const mappings = {
+    "game": {
+        "behavior": GameBehavior,
+        "list": GameList
+    },
+    "obs": {
+        "audio": OBSAudio,
+        "general": OBSGeneral,
+        "video": OBSVideo
+    }
+}
+
+type Categories = keyof typeof mappings
+type SubCategories<T extends Categories> = keyof typeof mappings[T]
 
 export default function SettingsPage({ prevPage }: { data: SessionData, prevPage: string }) {
     const { item } = useParams()
     const [recording, setRecording] = useState(false)
     const { obs } = window.api
+
+
+    const defaultPage = GameBehavior
+    const itemParts = item?.split("-")
+    const category: Categories = itemParts?.shift() as any
+    const leftOver = itemParts?.join("-")
+
+    //@ts-ignore typescript is being weird with dictionary indexes
+    const CurrPage: () => JSX.Element = mappings?.[category]?.[leftOver] ?? defaultPage
 
     useEffect(() => {
         setRecording(obs.isRecording())
@@ -19,68 +48,43 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
     return <Flex
         h='100%'
         w='100%'
+        justifyContent='center'
+        alignItems='center'
+        flexDir='column'
     >
         <Flex
-            w='100%'
+            flex='1'
             h='100%'
-            justifyContent='center'
-            alignItems='center'
-            flexDir='column'
+            w='100%'
         >
+            <SettingsMenu padding='4' />
             <Flex
-                pt='5'
-                pr='5'
-                w='100%'
+                flex='1 1 800px'
                 h='100%'
-                flex='0'
-                justifyContent='center'
-                alignItems='center'
+                w='100%'
+                padding='4'
             >
                 <Flex
                     w='100%'
                     h='100%'
                     flex='1'
-                    justifyContent='center'
-                    alignItems='center'
                 >
-                    <motion.div
-                        style={{
-                            width: "var(--chakra-space-10)",
-                            height: "var(--chakra-space-10)",
-                            marginRight: "var(--chakra-space-3)",
-                            transform: "rotate(0deg)"
-                        }}
-                        animate={{
-                            transform: "rotate(360deg)"
-                        }}
-                        transition={{
-                            repeat: Infinity,
-                            ease: "linear",
-                            duration: 10
-                        }}
-                    >
-                        <Icon as={FaCog} w='100%' h='100%' />
-                    </motion.div>
-                    <Heading>Settings</Heading>
+                    {<CurrPage />}
                 </Flex>
-                <IconButton
-                    rounded='full'
-                    flex='0'
-                    aria-label='Close'
-                    colorScheme='red'
-                    icon={<AiOutlineClose />}
-                    onClick={() => location.hash = prevPage}
-                />
-            </Flex>
-            <Flex flex='1' h='100%' w='100%'>
-                <SettingsMenu />
                 <Flex
-                    flex='1 1 800px'
-                    h='100%'
-                    w='100%'
+                    flex='0'
                 >
-                    <Text>{item ?? "General"}</Text>
+                    <IconButton
+                        rounded='full'
+                        flex='0'
+                        aria-label='Close'
+                        colorScheme='gray'
+                        variant='outline'
+                        icon={<AiOutlineClose />}
+                        onClick={() => location.hash = prevPage}
+                    />
                 </Flex>
+
             </Flex>
         </Flex>
     </Flex>
