@@ -134,7 +134,7 @@ export class ClipManager {
             await rm(infoPath)
 
         log.log("Deleted clip", clipName, "!")
-        RegManMain.send("clip_update", { videoName: null, end: null, start: null, clipName: clipName }, null)
+        RegManMain.send("clips_update", { videoName: null, end: null, start: null, clipName: clipName }, null)
     }
 
     static async getClipThumbnail(clipName: string) {
@@ -289,7 +289,7 @@ export class ClipManager {
 
         RegManMain.onPromise("clips_list", () => this.listClips())
         RegManMain.onPromise("clips_delete", (_, clipName) => this.deleteClip(clipName))
-        RegManMain.onPromise("clips_cut", (_, e) => this.cut(e, prog => RegManMain.send("clip_update", e, prog)))
+        RegManMain.onPromise("clips_cut", (_, e) => this.cut(e, prog => RegManMain.send("clips_update", e, prog)))
         RegManMain.onPromise("clips_cutting", async () => Array.from(this.processing.entries()))
         RegManMain.onPromise("clips_thumbnail", (_, clipName) => this.getClipThumbnail(clipName))
         RegManMain.onPromise("clips_exists", (_, n) => {

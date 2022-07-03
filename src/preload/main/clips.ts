@@ -42,7 +42,7 @@ const clips = {
     delete: (clipName: string) => RegManRender.emitPromise("clips_delete", clipName)
 }
 
-RegManRender.on("clip_update", (_, x, y) => {
+RegManRender.on("clips_update", (_, x, y) => {
     listeners.map(e => e(x, y))
     console.log("Preload listeners notify")
 })

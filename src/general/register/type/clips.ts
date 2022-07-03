@@ -9,8 +9,8 @@ export type ClipsEventPromises = addPrefixUnderscoreToObject<{
     cut: (clipsOptions: ClipCutInfo) => void,
     cutting: () => [string, ClipProcessingInfo][],
     delete: (clipName: string) => void
-}, "clip">
+}, "clips">
 
 export type ClipMainToRender = addPrefixUnderscoreToObject<{
-    clip_update: (clip: ClipCutInfo, prog: Progress) => void,
-}, "clip">
+    update: (clip: ClipCutInfo, prog: Progress) => void,
+}, "clips">

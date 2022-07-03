@@ -6,7 +6,9 @@ const settings = {
     },
     set: {
         clipPath: (path: string) => RegManRender.emitPromise("settings_set_clip_path", path)
-    }
+    },
+    selectFolder: (defaultPath?: string) => RegManRender.emitPromise("settings_select_folder", defaultPath),
+    openFolder: (p: string) => RegManRender.emitPromise("settings_open_folder", p)
 }
 
 export default settings;
