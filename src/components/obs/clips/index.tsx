@@ -127,6 +127,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 defaultHeight={416}
                 key={`RenderIfVisible-${i}`}
                 placeholderElementClass='grid-placeholder'
+                rootElementClass='grid-root-element'
             >
                 <ClipContextMenu clipName={clipName}>
                     {element}

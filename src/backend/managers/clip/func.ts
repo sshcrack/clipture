@@ -31,6 +31,10 @@ export function getClipVideoPath(root: string, name: string) {
     return path.join(root, name + ".clipped.mp4")
 }
 
+export function getClipVideoProcessingPath(root: string, name: string) {
+    return path.join(root, name + ".processing.mp4")
+}
+
 export function getClipInfoPath(root: string, name: string) {
     return getClipVideoPath(root, name) + ".json"
 }

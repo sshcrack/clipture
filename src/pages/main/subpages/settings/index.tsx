@@ -1,9 +1,10 @@
 import { SessionData } from '@backend/managers/auth/interfaces'
-import { Flex, IconButton } from '@chakra-ui/react'
+import { Flex, Heading, IconButton, Kbd, Text } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { AiOutlineClose } from 'react-icons/ai'
 import { useParams } from 'react-router-dom'
 import SettingsMenu from 'src/components/settings/navbar/SettingsMenu'
+import SettingsSavePopup from 'src/components/settings/popup/SavePopup'
 import GameBehavior from './categories/Game/Behavior'
 import GameList from './categories/Game/List'
 import OBSAudio from './categories/OBS/Audio'
@@ -24,11 +25,10 @@ const mappings = {
 }
 
 type Categories = keyof typeof mappings
-type SubCategories<T extends Categories> = keyof typeof mappings[T]
 
 export default function SettingsPage({ prevPage }: { data: SessionData, prevPage: string }) {
     const { item } = useParams()
-    const [recording, setRecording] = useState(false)
+    const [recording, setRecording] = useState(true)
     const { obs } = window.api
 
 
@@ -39,13 +39,27 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
 
     //@ts-ignore typescript is being weird with dictionary indexes
     const CurrPage: () => JSX.Element = mappings?.[category]?.[leftOver] ?? defaultPage
-    console.log(CurrPage, category, leftOver)
+    const onClose = () => location.hash = prevPage
 
     useEffect(() => {
         setRecording(obs.isRecording())
         return obs.onRecordChange(newRec => setRecording(newRec))
     }, [])
+
+    useEffect(() => {
+        const listener = (e: KeyboardEvent) => {
+            if (e.key !== "Escape")
+                return
+
+            onClose()
+        }
+
+        window.addEventListener("keydown", listener)
+        return () => window.removeEventListener("keydown", listener)
+    }, [prevPage])
+
     return <SettingsSaveProvider>
+        {!recording && <SettingsSavePopup />}
         <Flex
             h='100%'
             w='100%'
@@ -73,7 +87,8 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
                         alignItems='center'
                         justifyContent='center'
                     >
-                        <CurrPage />
+                        {!recording && <CurrPage />}
+                        {recording && <Heading size='xl'>Please stop recording before changing settings.</Heading>}
                     </Flex>
                     <Flex
                         flex='0'
@@ -85,7 +100,7 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
                             colorScheme='gray'
                             variant='outline'
                             icon={<AiOutlineClose />}
-                            onClick={() => location.hash = prevPage}
+                            onClick={() => onClose()}
                         />
                     </Flex>
 

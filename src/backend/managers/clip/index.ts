@@ -7,7 +7,7 @@ import { Storage } from '@Globals/storage'
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { type execa as execaType } from "execa"
 import fs from "fs"
-import { readFile, rm, stat } from 'fs/promises'
+import { readFile, rm, stat, rename } from 'fs/promises'
 import glob from "glob"
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
@@ -15,7 +15,7 @@ import { generateThumbnail, lookupThumbnail } from "thumbsupply"
 import { promisify } from "util"
 import { RecordManager } from '../obs/core/record'
 import { DetectableGame } from '../obs/Scene/interfaces'
-import { getClipInfo, getClipInfoPath, getClipVideoPath, getVideoInfo, getVideoPath } from './func'
+import { getClipInfo, getClipInfoPath, getClipVideoPath, getVideoInfo, getVideoPath, getClipVideoProcessingPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, Video } from './interface'
 
 const globProm = promisify(glob)
@@ -45,11 +45,23 @@ export class ClipManager {
         const clipRoot = Storage.get("clip_path")
         const videoPath = getVideoPath(clipRoot, videoName)
         const clipOut = getClipVideoPath(clipRoot, clipName)
+        const clipProcessing = getClipVideoProcessingPath(clipRoot, clipName)
 
         if (!existsProm(videoPath)) {
             log.error("Can't cut, video with path", videoPath, "does not exist.")
             throw new Error(`Video with name ${videoName} does not exist in clip directory`)
         }
+
+        this.processing.set(clipOut, {
+            progress: {
+                status: "Preparing to cut clip...",
+                percent: 0
+            },
+            info: {
+                ...clipObj,
+                clipPath: clipOut
+            }
+        })
 
 
         const info = await getVideoInfo(clipRoot, videoName + ".mkv")
@@ -59,8 +71,8 @@ export class ClipManager {
         const ffmpegExe = MainGlobals.ffmpegExe
         const commandRunner = this.execa ?? (await import("execa")).execa
 
-        const args = ["-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), "-progress", "pipe:1", clipOut]
-        log.log("Cutting clip from vidoePath", videoPath, "Output", clipOut, "with info", info, "and clip info file", withClippedExt)
+        const args = ["-n", "-i", videoPath, "-ss", start.toString(), "-to", end.toString(), "-progress", "pipe:1", clipProcessing]
+        log.log("Cutting clip from vidoePath", videoPath, "Output", clipProcessing, "with info", info, "and clip info file", withClippedExt)
         log.log("Running ffmpeg:", ffmpegExe, args.join(" "))
         const commandOut = commandRunner(ffmpegExe, args)
         //? Duration in microseconds because ffmpeg is stupid and titles it as milliseconds
@@ -102,6 +114,8 @@ export class ClipManager {
 
 
         await commandOut
+        log.debug("Removing processing prefix")
+        await rename(clipProcessing, clipOut)
         this.processing.delete(clipOut)
 
         log.log("Clip was being cut successfully.")
@@ -109,6 +123,7 @@ export class ClipManager {
             status: "Clip successfully cut.",
             percent: 1
         })
+
         fs.writeFileSync(withClippedExt, JSON.stringify({
             modified: Date.now(),
             clipName: path.basename(clipOut),

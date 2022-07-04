@@ -65,7 +65,7 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
 
     const type = rest.type
     const isLoading = thumbnail === undefined && type !== "none"
-    let bg = background ?? ""
+    let bg = background ?? "brand.bg"
     if (thumbnail !== undefined)
         bg = `url("data:image/png;base64,${thumbnail}")`
 
@@ -76,7 +76,7 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
         background={bg}
         backgroundSize='cover'
-        borderRadius="xl"
+        rounded="2xl"
         flexDir='column'
         cursor='pointer'
         _hover={{

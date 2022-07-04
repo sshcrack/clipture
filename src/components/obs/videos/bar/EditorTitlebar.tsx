@@ -37,7 +37,7 @@ export default function EditorTitlebar() {
             })
     }, [])
 
-    const onBack = () => location.hash = "/"
+    const onBack = () => location.hash = "/clips"
     const generateClip = () => {
         if (isCuttingClips || isError)
             return

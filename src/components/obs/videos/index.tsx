@@ -46,6 +46,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             defaultHeight={416}
             key={`RenderIfVisible-${i}`}
             placeholderElementClass='grid-placeholder'
+            rootElementClass='grid-root-element'
         >
             <VideoContextMenu videoName={videoName}>
 
