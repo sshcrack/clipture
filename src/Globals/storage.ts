@@ -69,7 +69,8 @@ export const Storage = new StorageExtended({
         },
         "last_dashboard_page": 0,
         "obs": {
-            "fps": 60
+            "fps": 60,
+            "bitrate": 10000
         },
         "close_behavior": "unset" as "unset" | "close" | "minimize"
     },

@@ -19,16 +19,20 @@ const reg = RegManMain
 const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
 
-export type CurrentType =  Omit<VideoInfo, "duration"> & {
+type CurrentType = Omit<VideoInfo, "duration"> & {
     videoPath: string | null,
     currentInfoPath: string | null
+}
+
+export type OutCurrentType = Omit<CurrentType, "gameId"> & {
+    game: DetectableGame
 }
 
 export class RecordManager {
     private recording = false;
     private detectableGames: DetectableGame[] = null
     private current = {
-        game: null,
+        gameId: null,
         videoPath: null,
         currentInfoPath: null
     } as CurrentType
@@ -36,8 +40,13 @@ export class RecordManager {
     private registeredAutomatic = false;
     private manualControlled = false;
 
-    public getCurrent() {
-        return this.current
+    public async getCurrent() {
+        const detectable = await this.getDetectableGames()
+        const { gameId, ...left } = this.current ?? {}
+        return {
+            game: detectable.find(e => e.id === gameId),
+            ...left
+        } as OutCurrentType
     }
 
     constructor() {
@@ -48,7 +57,14 @@ export class RecordManager {
         this.register()
     }
 
-    public getDetectableGames(showToast = true) {
+    public async getDetectableGames() {
+        if (!this.detectableGames)
+            this.detectableGames = await this.refreshDetectableGames()
+
+        return this.detectableGames
+    }
+
+    private refreshDetectableGames(showToast = true) {
         return got(MainGlobals.gameUrl).then(e => JSON.parse(e.body))
             .catch(e => {
                 log.warn("Could not fetch detectable games", e)
@@ -69,7 +85,7 @@ export class RecordManager {
         log.info("Registering automatic recording")
         const onNewInfo = async (info: WindowInformation[]) => {
             const os = getOS()
-            this.detectableGames = this.detectableGames ?? await this.getDetectableGames()
+            this.detectableGames = this.detectableGames ?? await this.refreshDetectableGames()
 
             const areSame = (detecGame: DetectableGame, winInfo: WindowInformation) => detecGame?.executables?.some(exe => winInfo?.full_exe?.toLowerCase()?.endsWith(exe?.name?.toLowerCase()) && exe?.os === os)
             const areSameInfo = (oldInfo: WindowInformation, winInfo: WindowInformation) => {
@@ -186,7 +202,7 @@ export class RecordManager {
 
         this.current = {
             currentInfoPath: videoPath ? videoPath + ".json" : null,
-            game: discordGameInfo,
+            gameId: discordGameInfo?.id,
             videoPath: videoPath,
         }
 
@@ -202,11 +218,11 @@ export class RecordManager {
         log.info("Stopped recording")
         NodeObs.OBS_service_stopRecording()
         if (this.current?.currentInfoPath) {
-            const { currentInfoPath, game, videoPath } = this.current
+            const { currentInfoPath, gameId, videoPath } = this.current
             const duration = await getDuration(videoPath)
             await fs.writeFile(currentInfoPath, JSON.stringify({
                 duration,
-                game
+                gameId
             } as VideoInfo, null, 2))
         }
         this.recording = false
@@ -223,7 +239,7 @@ export class RecordManager {
         reg.onPromise("obs_start_recording", (_, e) => this.startRecording(e))
         reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
         reg.onSync("obs_is_recording", () => this.isRecording())
-        reg.onPromise("obs_get_current", async () => this.getCurrent())
+        reg.onPromise("obs_get_current", () => this.getCurrent())
     }
 
     public async shutdown() {

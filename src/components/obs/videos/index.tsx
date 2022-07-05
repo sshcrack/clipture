@@ -37,7 +37,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             })
     }, [retry])
 
-    const clipElements = currVideos.map(({ info, videoName, modified }, i) => {
+    const clipElements = currVideos.map(({ game: info, videoName, modified }, i) => {
         const { id, name, aliases, icon } = info ?? {}
 
         const gameName = name ?? aliases?.[0] ?? "Unknown Game"

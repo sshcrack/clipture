@@ -1,13 +1,12 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, FlexProps, Menu } from '@chakra-ui/react';
-import { motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { AiFillCamera, AiOutlineCompass } from "react-icons/ai";
 import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
 import { SiApplearcade } from "react-icons/si";
+import "src/components/general/Navbar/index.css";
 import NavBarButton from './NavBarButton';
-import "src/components/general/Navbar/index.css"
 
 export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
     const { auth, obs } = window.api
@@ -21,6 +20,11 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
         })
     }, [])
 
+    const defaultItem = location.hash === "#/clips"
+        || location.hash === "#/videos"
+        || location.hash === "#/"
+        || location.hash === '#'
+        || location.hash === ""
     return <Flex
         flexDir='column'
         bg="brand.bg"
@@ -36,7 +40,7 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                 alignItems='center'
             >
                 <NavBarButton
-                    active={location.hash === "#/clips" || location.hash === "#/videos" || location.hash === "#/"}
+                    active={defaultItem}
                     icon={SiApplearcade}
                     onClick={() => location.hash = "/"}
                     tooltip='Clips'

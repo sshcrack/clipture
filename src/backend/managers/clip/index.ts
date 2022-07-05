@@ -7,7 +7,7 @@ import { Storage } from '@Globals/storage'
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { type execa as execaType } from "execa"
 import fs from "fs"
-import { readFile, rm, stat, rename } from 'fs/promises'
+import { readFile, rename, rm, stat } from 'fs/promises'
 import glob from "glob"
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
@@ -15,8 +15,8 @@ import { generateThumbnail, lookupThumbnail } from "thumbsupply"
 import { promisify } from "util"
 import { RecordManager } from '../obs/core/record'
 import { DetectableGame } from '../obs/Scene/interfaces'
-import { getClipInfo, getClipInfoPath, getClipVideoPath, getVideoInfo, getVideoPath, getClipVideoProcessingPath } from './func'
-import { Clip, ClipCutInfo, ClipProcessingInfo, Video } from './interface'
+import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoInfo, getVideoPath } from './func'
+import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
 
 const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -128,12 +128,12 @@ export class ClipManager {
             modified: Date.now(),
             clipName: path.basename(clipOut),
             clipPath: clipOut,
-            game: info?.game,
+            gameId: info?.gameId,
             original: videoName,
             start: start,
             end: end,
             duration: end - start
-        } as Clip))
+        } as ClipRaw))
     }
 
     static async deleteClip(clipName: string) {
@@ -187,12 +187,18 @@ export class ClipManager {
             throw e
         })).sort((a, b) => b.modified - a.modified)
 
+        const detectable = await RecordManager.instance.getDetectableGames()
         return await Promise.all(
             sorted
                 .map(async ({ modified, file }) => {
                     let clipInfo = this.clipInfoCache.get(file) as Clip | null
-                    if (!clipInfo)
-                        clipInfo = await getClipInfo(clipPath, path.basename(file))
+                    if (!clipInfo) {
+                        const { gameId, ...rawGameInfo } = await getClipInfo(clipPath, path.basename(file))
+                        clipInfo = {
+                            ...rawGameInfo,
+                            game: detectable.find(e => e.id === gameId)
+                        }
+                    }
 
                     const fileName = path.basename(file)
                     return {
@@ -217,10 +223,11 @@ export class ClipManager {
             .map(e => path.resolve(e))
 
         log.info("Loading total of", files.length, "videos...")
+        const current = await RecordManager.instance.getCurrent()
         const sorted = (await Promise.all(
             files
                 .map(e => path.resolve(e))
-                .filter(e => e !== RecordManager.instance.getCurrent()?.videoPath)
+                .filter(e => e !== current?.videoPath)
                 .map(async e => {
                     const stats = await stat(e)
                     return {
@@ -234,17 +241,20 @@ export class ClipManager {
         })).sort((a, b) => b.modified - a.modified)
 
 
+        const detectable = await RecordManager.instance.getDetectableGames()
         return Promise.all(sorted.map(async ({ modified, file }) => {
             let gameInfo = this.videoInfoCache.get(file) as DetectableGame | null
-            if (!gameInfo)
-                gameInfo = (await getVideoInfo(videoPath, path.basename(file)))?.game
+            if (!gameInfo) {
+                const info = await getVideoInfo(videoPath, path.basename(file))
+                gameInfo = detectable.find(e => e.id === info?.gameId)
+            }
 
             const clipName = path.basename(file)
             return {
                 modified,
                 videoName: clipName,
                 video: file,
-                info: gameInfo ?? null
+                game: gameInfo ?? null
             }
         })).catch(e => {
             log.error(e)

@@ -45,7 +45,9 @@ const obs = {
         }
     },
 
-    getCurrent: () => reg.emitPromise("obs_get_current")
+    getCurrent: () => reg.emitPromise("obs_get_current"),
+    getSettings: () => reg.emitPromise("obs_get_settings"),
+    updateSettings: (fps: number, bitrate: number) => reg.emitPromise("obs_update_settings", fps, bitrate)
 }
 
 export default obs;

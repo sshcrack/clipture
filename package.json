@@ -134,6 +134,7 @@
     "electron-store": "^8.0.1",
     "electron-unhandled": "^4.0.1",
     "electron-util": "^0.17.2",
+    "electron-window-state": "^5.0.3",
     "execa": "^6.1.0",
     "exit-hook": "^3.0.0",
     "ffmetadata": "^1.7.0",

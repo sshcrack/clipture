@@ -1,7 +1,7 @@
 import { existsProm } from '@backend/tools/fs';
 import fs from "fs/promises";
 import path from 'path';
-import { Clip, VideoInfo } from './interface';
+import { Clip, ClipRaw, VideoInfo } from './interface';
 
 
 export function getVideoInfoPath(recordingPath: string, videoName: string) {
@@ -18,13 +18,13 @@ export async function getVideoInfo(recordingPath: string, videoName: string): Pr
 }
 
 
-export async function getClipInfo(recordingPath: string, clipName: string): Promise<Clip | null> {
+export async function getClipInfo(recordingPath: string, clipName: string): Promise<ClipRaw | null> {
     const infoJsonPath = getVideoInfoPath(recordingPath, clipName)
     if (!await existsProm(infoJsonPath))
         return null
 
     const infoJson = await fs.readFile(infoJsonPath, "utf8")
-    return JSON.parse(infoJson) as Clip
+    return JSON.parse(infoJson) as ClipRaw
 }
 
 export function getClipVideoPath(root: string, name: string) {

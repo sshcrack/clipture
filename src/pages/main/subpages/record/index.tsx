@@ -1,5 +1,5 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import type { CurrentType } from '@backend/managers/obs/core/record';
+import type { OutCurrentType } from '@backend/managers/obs/core/record';
 import { Flex, Heading } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
 import { NavBar } from 'src/components/general/NavBar';
@@ -12,7 +12,7 @@ import Preview from 'src/components/obs/videos/preview';
 export default function RecordPage({ data }: { data: SessionData }) {
     const { obs } = window.api
     const [recording, setRecording] = useState(false)
-    const [current, setCurrent] = useState(undefined as CurrentType)
+    const [current, setCurrent] = useState(undefined as OutCurrentType)
     const [recordDesc, setRecordDesc] = useState("Unknown")
 
     useEffect(() => {

@@ -101,7 +101,7 @@ export class OBSManager {
         if (!this.obsInitialized && !force)
             return
 
-            log.info("Shutting OBS down...")
+        log.info("Shutting OBS down...")
         await this.previewInstance.shutdown().catch(log.error)
         await this.recordManager.shutdown().catch(log.error)
         try {
@@ -121,21 +121,42 @@ export class OBSManager {
         const Video = SettingsCat.Video
 
         const availableEncoders = getAvailableValues(Output, 'Recording', 'RecEncoder');
-        const fps = Storage.get("obs")?.fps ?? 60
         setSetting(Output, "Mode", "Advanced")
         setSetting(Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
         setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
         setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
         setSetting(Output, 'RecFormat', 'mkv');
-        setSetting(Output, 'VBitrate', 10000); // 10 Mbps
-        setSetting(Video, 'FPSCommon', fps);
+
+        this.updateSettings()
 
         log.info("Configured OBS successfully!")
+    }
+
+    public updateSettings() {
+        const Output = SettingsCat.Output
+        const Video = SettingsCat.Video
+
+        const fps = Storage.get("obs")?.fps ?? 60
+        const bitrate = Storage.get("obs")?.bitrate ?? 10000
+
+        setSetting(Video, 'FPSCommon', fps);
+        setSetting(Output, 'VBitrate', 10000); // 10 Mbps
     }
 
     private register() {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
+        reg.onPromise("obs_get_settings", async () => Storage.get("obs"))
+        reg.onPromise("obs_update_settings", async (_, fps, bitrate) => {
+            if (fps <= 0)
+                throw new Error("Invalid fps number")
+
+            if (bitrate <= 0)
+                throw new Error("Invalid bitrate")
+
+            Storage.set("obs", { fps, bitrate })
+            this.updateSettings()
+        })
     }
 }

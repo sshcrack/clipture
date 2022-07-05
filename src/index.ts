@@ -15,6 +15,7 @@ import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
+import windowStateKeeper from "electron-window-state"
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -31,11 +32,18 @@ logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.
 let mainWindow: BrowserWindow;
 let trayIcon = null as Tray
 const createWindow = (): void => {
+  const { width, height, x, y, manage: manageWindow } = windowStateKeeper({
+    defaultHeight: 700,
+    defaultWidth: 1000
+  })
+
   mainWindow = new BrowserWindow({
-    height: 700,
+    height,
+    width,
+    x,
+    y,
     minHeight: 500,
     minWidth: 940,
-    width: 1000,
     darkTheme: true,
     frame: false,
     webPreferences: {
@@ -50,7 +58,7 @@ const createWindow = (): void => {
   ClipManager.registerProtocol()
 
   const showWindow = () => {
-    mainWindow.show()
+    mainWindow.restore()
     mainWindow.setSkipTaskbar(false)
     mainWindow.focus()
   }
@@ -74,6 +82,8 @@ const createWindow = (): void => {
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
+
+  manageWindow(mainWindow)
 };
 
 

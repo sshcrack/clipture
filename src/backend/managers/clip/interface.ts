@@ -1,11 +1,12 @@
 import { Progress } from '@backend/processors/events/interface';
 import { DetectableGame } from '../obs/Scene/interfaces';
 
-export interface Video {
+
+export type Video = {
     modified: number,
     video: string,
     videoName: string,
-    info: DetectableGame | null
+    game: DetectableGame | null
 }
 
 export type Clip = {
@@ -18,6 +19,10 @@ export type Clip = {
     duration: number
 }
 
+export type ClipRaw = Omit<Clip, "game"> & {
+    gameId: string
+}
+
 export interface ClipCutInfo {
     clipName: string,
     videoName: string,
@@ -26,7 +31,7 @@ export interface ClipCutInfo {
 }
 
 export interface VideoInfo {
-    game: DetectableGame | null,
+    gameId: string,
     duration: number | null
 }
 
