@@ -140,13 +140,14 @@ export class OBSManager {
         const bitrate = Storage.get("obs")?.bitrate ?? 10000
 
         setSetting(Video, 'FPSCommon', fps);
-        setSetting(Output, 'VBitrate', 10000); // 10 Mbps
+        setSetting(Output, 'VBitrate', bitrate); // 10 Mbps
     }
 
     private register() {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
+        reg.onPromise("obs_set_settings", async (_, e) => Storage.set("obs", e))
         reg.onPromise("obs_get_settings", async () => Storage.get("obs"))
         reg.onPromise("obs_update_settings", async (_, fps, bitrate) => {
             if (fps <= 0)

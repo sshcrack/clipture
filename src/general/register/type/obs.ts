@@ -1,6 +1,7 @@
 import { OutCurrentType } from '@backend/managers/obs/core/record'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
+import type { OBSSettings } from '@Globals/storage'
 import { addPrefixUnderscoreToObject } from 'src/types/additions'
 
 export type OBSEventsSync = addPrefixUnderscoreToObject<{
@@ -12,7 +13,8 @@ export type OBSEventsSync = addPrefixUnderscoreToObject<{
 export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     initialize: () => void,
     update_settings: (fps: number, bitrate: number) => void,
-    get_settings: () => { fps: number, bitrate: number },
+    get_settings: () => OBSSettings,
+    set_settings: (e : OBSSettings) => void,
     available_monitors: () => number,
     preview_init: (bounds: ClientBoundRecReturn) => ({
         displayId: string,

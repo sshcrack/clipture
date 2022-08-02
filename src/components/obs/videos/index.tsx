@@ -17,11 +17,10 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const toast = useToast()
     const [retry, setRetry] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
-    const [loading, setLoading] = React.useState(false)
+    const [loading, setLoading] = React.useState(true)
 
     const { videos } = window.api
     useEffect(() => {
-        setLoading(true)
         videos.list()
             .then(e => {
                 setVideos(e)

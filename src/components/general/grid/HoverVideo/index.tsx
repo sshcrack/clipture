@@ -63,6 +63,8 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
         if (!ref.current || !debounced)
             return
 
+        console.log("Hovered", hovered)
+
         const video = ref.current
         if (!hovered) {
             setOpacity(0)
@@ -97,7 +99,9 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
                 opacity,
                 objectFit: "cover",
                 gridRow: "1",
-                gridColumn: "1"
+                gridColumn: "1",
+                borderTopLeftRadius: "var(--chakra-radii-2xl)",
+                borderTopRightRadius: "var(--chakra-radii-2xl)",
             }}>
         </video> :
         <Flex w='100%' h='100%' gridRow='1' gridColumn='1' />

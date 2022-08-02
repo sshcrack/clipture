@@ -1,5 +1,6 @@
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn } from '@backend/managers/obs/types';
+import type { OBSSettings } from '@Globals/storage';
 import { RegManRender } from '@register/render';
 import { PerformanceStatistics } from 'src/types/obs/obs-studio-node';
 
@@ -47,6 +48,7 @@ const obs = {
 
     getCurrent: () => reg.emitPromise("obs_get_current"),
     getSettings: () => reg.emitPromise("obs_get_settings"),
+    setSettings: (e: OBSSettings) => reg.emitPromise("obs_set_settings", e),
     updateSettings: (fps: number, bitrate: number) => reg.emitPromise("obs_update_settings", fps, bitrate)
 }
 

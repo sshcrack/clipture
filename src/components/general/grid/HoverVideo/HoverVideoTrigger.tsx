@@ -7,8 +7,8 @@ export default function HoverVideoTrigger(props: FlexProps) {
 
     return <Flex
         {...props}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
+        onMouseEnter={() => { setHovered(true); console.log("Hovered true")}}
+        onMouseLeave={() => { setHovered(false); console.log("Hovered false")}}
     >
         {props.children}
     </Flex>

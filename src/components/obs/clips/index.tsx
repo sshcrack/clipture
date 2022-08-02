@@ -5,7 +5,7 @@ import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from 'react';
 import RenderIfVisible from 'react-render-if-visible';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
-import VideoGridHoverVideo from 'src/components/general/grid/HoverVideo';
+import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import "src/components/general/grid/placeholder.css";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
@@ -14,13 +14,12 @@ import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
     const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const { clips, system } = window.api
 
-    useEffect(() => {
-        setLoading(true)
+    useEffect(() => {5
         clips.add_listener((_, prog) => {
             if (prog?.percent !== 1 && prog)
                 return
@@ -52,7 +51,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 onError={() => setCorruptedClips([...corruptedClips, clipName])}
                 onClick={() => location.hash = `/editor/${clipName}`}
             >
-                <VideoGridHoverVideo source={clipName} w='100%' h='100%' flex='1' />
+                <HoverVideoWrapper source={clipName} w='100%' h='100%' flex='1' />
                 <Flex
                     flex='0'
                     gap='.25em'
