@@ -6,14 +6,13 @@ import { NavBar } from 'src/components/general/NavBar';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GameInfo from 'src/components/obs/recording/GameInfo';
 import PerformanceStatistics from 'src/components/obs/recording/PerformanceStats';
-import Volmeter from 'src/components/obs/recording/Volmeter';
+import ActiveVolmeter from 'src/components/obs/recording/Volmeter';
 import Preview from 'src/components/obs/videos/preview';
 
 export default function RecordPage({ data }: { data: SessionData }) {
     const { obs } = window.api
     const [recording, setRecording] = useState(false)
     const [current, setCurrent] = useState(undefined as OutCurrentType)
-    const [recordDesc, setRecordDesc] = useState("Unknown")
 
     useEffect(() => {
         const recording = window.api.obs.isRecording()
@@ -21,12 +20,10 @@ export default function RecordPage({ data }: { data: SessionData }) {
         if (recording) {
             obs.getCurrent()
                 .then(e => setCurrent(e))
-            setRecordDesc(obs.recordDescription())
         }
 
         return obs.onRecordChange(r => {
             setRecording(r)
-            setRecordDesc(obs.recordDescription())
             obs.getCurrent()
                 .then(e => setCurrent(e))
         })
@@ -79,7 +76,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                                 <EmptyPlaceholder />
                         }
                     </Flex>
-                    <Volmeter
+                    <ActiveVolmeter
                         mt='5'
                         mb='5'
                         w='80%'

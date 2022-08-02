@@ -13,7 +13,8 @@ const audio = {
         }
     },
     activeSources: () => reg.emitPromise("audio_active_sources"),
-    allDevices: () => reg.emitPromise("audio_devices")
+    allDevices: () => reg.emitPromise("audio_devices"),
+    deviceDefault: () => reg.emitPromise("audio_device_default")
 }
 
 export default audio

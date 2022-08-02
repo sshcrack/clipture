@@ -16,9 +16,20 @@ export class AudioSceneManager {
     private static allDesktops = [] as AudioDevice[]
     private static allMics = [] as AudioDevice[]
 
+    private static defaultDesktop = undefined as AudioDevice
+    private static defaultMic = undefined as AudioDevice
+
     static register() {
         RegManMain.onPromise("audio_active_sources", async () => this.activeSources)
-        RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics}))
+        RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics }))
+        RegManMain.onPromise("audio_device_default", async () => this.getDefaultDevices())
+    }
+
+    static getDefaultDevices() {
+        return {
+            desktop: this.defaultDesktop,
+            microphone: this.defaultMic
+        }
     }
 
     static async initializeAudioSources(scene: IScene) {
@@ -51,10 +62,12 @@ export class AudioSceneManager {
         let currentTrack = 2;
 
 
-        const defaultDesktopName = allDesktopDevices.find(e => e.device_id === defaultDesktop)?.name
-        const defaultMicName = allMicrophones.find(e => e.device_id === defaultMic)?.name
+        const defaultDesktopInfo = allDesktopDevices.find(e => e.device_id === defaultDesktop)
+        const defaultMicInfo = allMicrophones.find(e => e.device_id === defaultMic)
 
-        log.debug("Default: Desktop", defaultDesktop, "name:", defaultDesktopName, "Microphone", defaultMic, "name:", defaultMicName, "Inputs", allDesktopDevices, allMicrophones)
+        this.defaultDesktop = defaultDesktopInfo
+        this.defaultMic = defaultMicInfo
+
         currentTrack = this.addAudioDevice(defaultDesktop ?? finalDesktops[0], currentTrack, "desktop")
         currentTrack = this.addAudioDevice(defaultMic ?? finalMics[0], currentTrack, "microphone")
     }

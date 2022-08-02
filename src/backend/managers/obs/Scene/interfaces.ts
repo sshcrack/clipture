@@ -105,3 +105,8 @@ export interface AllAudioDevices {
     desktop: AudioDevice[],
     microphones: AudioDevice[]
 }
+
+export interface DefaultAudioDevice {
+    desktop: AudioDevice,
+    microphone: AudioDevice
+}
