@@ -24,7 +24,7 @@ export default function OBSVideoBitrate() {
             const settings = await obs.getSettings()
             await obs.setSettings({ ...settings, bitrate: customBitrate })
         })
-    }, [customBitrate])
+    }, [customBitrate, addSaveListener])
 
     const numberInput = <Flex
         justifyContent='center'

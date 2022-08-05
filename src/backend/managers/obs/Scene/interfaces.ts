@@ -1,3 +1,5 @@
+import { IInput, IVolmeter } from '@streamlabs/obs-studio-node'
+
 export interface WindowInformation {
     className: string,
     executable: string,
@@ -109,4 +111,12 @@ export interface AllAudioDevices {
 export interface DefaultAudioDevice {
     desktop: AudioDevice,
     microphone: AudioDevice
+}
+
+export type DeviceType = "desktop" | "microphone"
+
+export interface ActiveSource {
+    input: IInput,
+    device_id: string,
+    type: DeviceType
 }

@@ -1,6 +1,7 @@
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
+import { SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 
 
@@ -63,10 +64,7 @@ const defaults = {
     "install_dir": defaultInstall,
     "install_dir_selected": false,
     "clip_path": defaultClips,
-    "audio_devices": {
-        "desktop": [] as string[],
-        "mic": [] as string[]
-    },
+    "audio_devices": [] as SourceInfo[],
     "last_dashboard_page": 0,
     "obs": {
         "fps": 60,

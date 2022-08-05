@@ -1,14 +1,16 @@
-import { AudioDevice } from '@backend/managers/obs/Scene/interfaces';
+import { AudioDevice, DeviceType } from '@backend/managers/obs/Scene/interfaces';
 import { Button, Flex, Select } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from "react";
 import Volmeter from 'src/components/obs/recording/Volmeter/Volmeter';
+import { SourceInfo } from './interface';
 
 type Props = {
     devices: AudioDevice[],
-    onAdd: (source: AudioDevice) => void,
-    defaultDev: AudioDevice
+    onAdd: (source: SourceInfo) => void,
+    defaultDev: AudioDevice,
+    type: DeviceType
 }
-export default function AudioSelect({ devices, onAdd, defaultDev }: Props) {
+export default function AudioSelect({ devices, onAdd, defaultDev, type }: Props) {
     const [currSelected, setCurrSelected] = useState(devices[0] as AudioDevice)
     const ref = useRef<HTMLSelectElement>(null)
 
@@ -19,9 +21,10 @@ export default function AudioSelect({ devices, onAdd, defaultDev }: Props) {
         ref.current.selectedIndex = 1
     }, [ref])
 
-    const selectOptions = devices.map(e => {
-        return <option key={`audio-select-option-${e.name}`} value={e.device_id}>{e.name}</option>
-    })
+    const selectOptions = devices
+        .map(e => {
+            return <option key={`audio-select-option-${e.name}`} value={e.device_id}>{e.name}</option>
+        })
 
     const curr = currSelected.device_id
     const volmeterSource = curr.toLowerCase() === "default" ? defaultDev.device_id : curr
@@ -48,7 +51,10 @@ export default function AudioSelect({ devices, onAdd, defaultDev }: Props) {
         </Flex>
         {currSelected && <Volmeter source={volmeterSource} />}
         <Button
-            onClick={() => onAdd(currSelected)}
+            onClick={() => onAdd({
+                device_id: currSelected.device_id,
+                type
+            })}
         >Add Source</Button>
     </Flex>
 }

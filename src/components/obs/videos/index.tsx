@@ -90,7 +90,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         ...clipElements
     ]
 
-    return loading ? <GeneralSpinner size='70' /> : elements?.length === 0
+    return loading ? <GeneralSpinner size='70' loadingText='Loading videos...' /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
             {elements}
         </VideoGrid>

@@ -11,6 +11,7 @@ export default function OBSVideoFPS() {
     useEffect(() => {
         obs.getSettings()
             .then(({ fps }) => {
+                console.log("Setting fps to", fps)
                 setOriginalFPS(fps)
                 setFPS(fps)
             })
@@ -23,7 +24,7 @@ export default function OBSVideoFPS() {
             const settings = await obs.getSettings()
             await obs.setSettings({ ...settings, fps: fps })
         })
-    }, [fps])
+    }, [fps, addSaveListener])
 
     const numberInput = <Flex
         justifyContent='center'
@@ -39,6 +40,9 @@ export default function OBSVideoFPS() {
             value={fps}
             onChange={e => {
                 let i = parseInt(e)
+                if(isNaN(i))
+                    return
+
                 if (originalFPS !== fps)
                     addModified("video_fps")
                 else
@@ -61,7 +65,7 @@ export default function OBSVideoFPS() {
             w='70%'
         >
             <Text mb='8px'>FPS</Text>
-            {originalFPS && fps ?
+            {originalFPS !== undefined && fps !== undefined ?
                 numberInput :
                 <GeneralSpinner loadingText='Loading...' />
             }

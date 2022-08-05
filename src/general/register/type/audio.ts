@@ -1,10 +1,12 @@
 import { AllAudioDevices, DefaultAudioDevice } from '@backend/managers/obs/Scene/interfaces';
+import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { addPrefixUnderscoreToObject } from 'src/types/additions';
-
+import { FixedLengthArray } from 'type-fest';
 export type AudioEventsPromises = addPrefixUnderscoreToObject<{
-    active_sources: () => string[],
+    active_sources: () => FixedLengthArray<SourceInfo, 2>,
     devices: () => AllAudioDevices,
-    device_default: () => DefaultAudioDevice
+    device_default: () => DefaultAudioDevice,
+    device_set: (type: FixedSources) => void
 }, "audio">
 
 export type AudioMainToRender = addPrefixUnderscoreToObject<{

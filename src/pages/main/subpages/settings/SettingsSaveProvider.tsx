@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { v4 as uuid } from "uuid"
+import { RenderLogger } from 'src/interfaces/renderLogger';
 
 type Listener = () => Promise<unknown>
 
@@ -19,8 +21,9 @@ export const SettingsSaveContext = React.createContext<SettingsSaveState>({
     removeModified: () => { }
 })
 
+const log = RenderLogger.get("Main", "Settings", "SettingsSaveProvider")
 export default function SettingsSaveProvider({ children }: React.PropsWithChildren) {
-    const [listeners, setListeners] = useState([] as Listener[])
+    const [listeners, setListeners] = useState(new Map<string, Listener>())
     const [modified, setModified] = useState([] as string[])
     const [saving, setSaving] = useState(false)
 
@@ -38,24 +41,28 @@ export default function SettingsSaveProvider({ children }: React.PropsWithChildr
 
     const save = async () => {
         setSaving(true)
-        const err = await Promise.all(listeners.map(e => e()))
+        const err = await Promise.all(
+            Array.from(listeners.values())
+                .map(e => e())
+        )
             .then(() => undefined)
             .catch(e => e)
 
         setSaving(false)
-        if (err)
+        if (err) {
+            log.error(err)
             throw err
+        }
         setModified([])
     }
 
     return <SettingsSaveContext.Provider
         value={{
             addSaveListener: c => {
-                listeners.push(c)
-                setListeners([...listeners])
+                const id = uuid()
+                listeners.set(id, c)
                 return () => {
-                    listeners.splice(listeners.indexOf(c), 1)
-                    setListeners([...listeners])
+                    listeners.delete(id)
                 }
             },
             modified: modified.length !== 0,

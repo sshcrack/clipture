@@ -1,18 +1,19 @@
 import { findAudioDevice } from '@backend/managers/obs/Scene/audio_tools';
-import { AllAudioDevices, AudioDevice, DefaultAudioDevice } from '@backend/managers/obs/Scene/interfaces';
-import { Box, Button, CloseButton, Flex, List, ListItem, Select, Text, Tooltip, useToast } from '@chakra-ui/react';
+import { AllAudioDevices, DefaultAudioDevice } from '@backend/managers/obs/Scene/interfaces';
+import { Flex, List, useToast } from '@chakra-ui/react';
 import * as React from "react";
 import { useContext, useEffect, useState } from 'react';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
-import Volmeter from 'src/components/obs/recording/Volmeter/Volmeter';
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider';
-import AudioSelect from './AudioSelect';
+import InputListItem from './InputListItem';
+import { FixedSources } from './interface';
 
 export default function OBSInputDevices() {
     const { addSaveListener, addModified, removeModified, saving } = useContext(SettingsSaveContext)
-    const [sources, setSources] = useState(undefined as string[])
+    const [sources, setSources] = useState(undefined as FixedSources)
+    const [originalSources, setOriginalSources] = useState(undefined as FixedSources)
+
     const [update, setUpdate] = useState(0)
-    const [originalSources, setOriginalSources] = useState(undefined as string[])
     const [allDevices, setAllDevices] = useState(undefined as AllAudioDevices)
     const [defaultDevice, setDefaultDevice] = useState(undefined as DefaultAudioDevice)
 
@@ -38,8 +39,8 @@ export default function OBSInputDevices() {
 
         audio.activeSources()
             .then(e => {
-                setSources(e)
-                setOriginalSources(e)
+                setSources([...e] as any)
+                setOriginalSources([...e] as any)
             })
             .catch(e => activeCatch(e))
 
@@ -56,56 +57,70 @@ export default function OBSInputDevices() {
             .catch(e => defaultCatch(e))
     }, [saving, update])
 
+    useEffect(() => {
+        if (!sources || !originalSources)
+            return
+
+        const rawSources = JSON.stringify(sources)
+        const rawOriginal = JSON.stringify(originalSources)
+        console.log(
+            sources.map(e => findAudioDevice(e.device_id, allDevices) ?? e.device_id),
+            originalSources.map(e => findAudioDevice(e.device_id, allDevices) ?? e.device_id),
+            { depth: null })
+
+        if (rawSources !== rawOriginal)
+            addModified("audio_input_devices")
+        else
+            removeModified("audio_input_devices")
+    }, [sources, originalSources])
+
+    useEffect(() => {
+        if (!sources)
+            return
+
+        return addSaveListener(async () => {
+            await audio.setDevices(sources)
+        })
+    }, [sources])
+
     if (!sources || !originalSources || !allDevices || !defaultDevice)
         return <GeneralSpinner loadingText='Getting sources...' />
 
-    const items = sources.map(e => {
-        const { name } = findAudioDevice(e, allDevices) ?? {}
-        return <ListItem
-            key={`sources-item-${e}`}
-            display='flex'
-            alignItems='center'
-            flexDir='row'
-            w='100%'
-        >
-            <Text w='100%'>{name}</Text>
-            <Volmeter source={e} />
-            <Tooltip label='Remove source'>
-                <CloseButton
-                    size='md'
-                />
-            </Tooltip>
-        </ListItem>
-    })
 
+    const items = sources.map((e, i) => {
+        return <InputListItem
+            key={`sources-item-${e.device_id}`}
+            allDevices={allDevices}
+            defaultDevice={defaultDevice}
+            currDev={e}
+            onChange={dev => {
+                const clone = [...sources]
+                clone[i] = dev
+                setSources([...clone] as any)
+            }}
+        />
+    })
 
 
     return <Flex
         flexDir='column'
         w='70%'
+        h='100%'
+        justifyContent='space-evenly'
+        alignItems='center'
     >
         <List
             display='flex'
             flexDir='column'
             justifyContent='start'
             alignItems='center'
+            h='100%'
+            w='100%'
             spacing='3'
+            overflowY='auto'
+            flex='1'
         >
             {items}
         </List>
-        <Box h='10rem' />
-        <Text>Microphone</Text>
-        <AudioSelect
-            devices={allDevices.microphones}
-            defaultDev={defaultDevice.microphone}
-            onAdd={e => alert(`Added ${JSON.stringify(e)}`)}
-        />
-        <Box h='10rem' />
-        <Text>Desktop</Text>
-        <AudioSelect
-            devices={allDevices.desktop}
-            defaultDev={defaultDevice.desktop}
-            onAdd={e => alert(`Added ${JSON.stringify(e)}`)}
-        />
     </Flex>
 }

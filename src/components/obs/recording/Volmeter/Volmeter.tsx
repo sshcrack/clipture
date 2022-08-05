@@ -8,9 +8,9 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
 
     useEffect(() => {
         const filter = new ExpFilter(0, 0.2, 0.2)
+        console.log("New source is", source)
         setPercentage(0)
-
-        return audio.onVolmeterChange((innerSource, m) => {
+        const audioRemove = audio.onVolmeterChange((innerSource, m) => {
             const avg = Math.abs(m.reduce((a, b) => a + b, 0) / m.length);
             const max = Math.min(1, avg / 60)
             if (source !== innerSource)
@@ -19,7 +19,12 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
             const newVal = filter.update(1 - max)
             setPercentage(newVal)
         })
-    }, [ source ])
+
+        return () => {
+            audioRemove()
+            console.log("Removing audio listener frontend")
+        }
+    }, [source])
 
     return <Flex
         w='100%'
@@ -28,13 +33,13 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
         justifyContent='start'
         alignItems='center'
         rounded='xl'
+        {...props}
     >
         <Box
             bg='green.300'
             h='100%'
             rounded='xl'
             transition=".05s all linear"
-            {...props}
             w={`${percentage * 100}%`}
         />
     </Flex>

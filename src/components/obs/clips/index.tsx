@@ -136,7 +136,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     ]
 
 
-    return loading ? <GeneralSpinner size='70' /> : elements?.length === 0
+    return loading ? <GeneralSpinner size='70' loadingText='Loading clips...' /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
             {elements}
         </VideoGrid>

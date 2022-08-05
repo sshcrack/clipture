@@ -30,7 +30,7 @@ export default function OBSClipPath() {
             console.log("Adding Save listener for clip path", clipPath)
             return settings.set.clipPath(clipPath)
         })
-    }, [clipPath])
+    }, [clipPath, addSaveListener])
 
     useEffect(() => {
         settings.get.clipPath().then(e => {
