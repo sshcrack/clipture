@@ -1,6 +1,5 @@
-import { findAudioDevice } from '@backend/managers/obs/Scene/audio_tools'
 import { AllAudioDevices, DefaultAudioDevice, DeviceType } from '@backend/managers/obs/Scene/interfaces'
-import { CloseButton, ListItem, Select, Text, Tooltip } from '@chakra-ui/react'
+import { Flex, Grid, ListItem, Select, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Text } from '@chakra-ui/react'
 import React, { useEffect, useRef } from "react"
 import Volmeter from 'src/components/obs/recording/Volmeter/Volmeter'
 import { SourceInfo } from './interface'
@@ -9,7 +8,7 @@ type Props = {
     currDev: SourceInfo,
     allDevices: AllAudioDevices,
     defaultDevice: DefaultAudioDevice,
-    onChange: (source: SourceInfo) => void
+    onChange: (source: SourceInfo) => void,
 }
 
 interface OptionValue {
@@ -24,6 +23,7 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
 
 
     let findId = device_id
+    const volume = currDev.volume
     if (findId?.toLowerCase() === "default")
         findId = `default-${type}`
 
@@ -84,36 +84,81 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
 
     return <ListItem
         display='flex'
-        alignItems='center'
-        flexDir='row'
-        justifyContent='space-around'
         rounded='md'
         w='100%'
+        flexDir='column'
         p='2'
         _hover={{ background: "var(--chakra-colors-gray-700)" }}
         transition={'.1s ease-in-out all'}
+        gap='3'
     >
-        <Select
-            ref={ref}
-            flex='.5'
-            onInput={e => {
-                const curr = e.currentTarget
-                const info = optionValues[curr.selectedIndex]
-                const otherValid = optionValues.findIndex(e => e.device_id !== null)
-                const invalid = info.device_id === null && info.type === null
-
-                const finalInfo = invalid ? optionValues[otherValid] : info
-                if(invalid)
-                    curr.selectedIndex = otherValid
-
-                onChange({
-                    device_id: finalInfo.device_id,
-                    type: finalInfo.type
-                })
-            }}
+        <Flex
+            w='100%'
+            alignItems='center'
+            justifyContent='space-around'
         >
-            {options}
-        </Select>
-        <Volmeter flex='0.25' source={volSource} />
+
+            <Select
+                ref={ref}
+                flex='.5'
+                onInput={e => {
+                    const curr = e.currentTarget
+                    const info = optionValues[curr.selectedIndex]
+                    const otherValid = optionValues.findIndex(e => e.device_id !== null)
+                    const invalid = info.device_id === null && info.type === null
+
+                    const finalInfo = invalid ? optionValues[otherValid] : info
+                    if (invalid)
+                        curr.selectedIndex = otherValid
+
+                    onChange({
+                        device_id: finalInfo.device_id,
+                        type: finalInfo.type,
+                        volume
+                    })
+                }}
+            >
+                {options}
+            </Select>
+            <Volmeter flex='0.25' source={volSource} />
+        </Flex>
+        <Flex
+            w='100%'
+            alignItems='center'
+            justifyContent='space-around'
+        >
+            <Text flex='.5'>Volume</Text>
+            <Flex flex='.25' gap='3'>
+                <Grid
+                    flex='0'
+                    templateColumns='auto'
+                    templateRows='auto'
+                >
+                    <Text gridRow='1' gridColumn='1' opacity='0'>999.9%</Text>
+                    <Text gridRow='1' gridColumn='1'>{(volume * 100).toFixed(0)}%</Text>
+                </Grid>
+                <Slider
+                    w='100%'
+                    flex='1'
+                    aria-label='Device Volume'
+                    value={volume}
+                    max={2}
+                    step={0.01}
+                    min={0}
+                    onChange={e => {
+                        onChange({
+                            ...currDev,
+                            volume: e
+                        })
+                    }}
+                >
+                    <SliderTrack>
+                        <SliderFilledTrack />
+                    </SliderTrack>
+                    <SliderThumb />
+                </Slider>
+            </Flex>
+
+        </Flex>
     </ListItem>
 }

@@ -39,6 +39,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     }, [])
 
     useEffect(() => {
+        console.log("Mode is", mode)
         if (mode)
             return setCurrentPage(mode === "videos" ? 1 : 0)
 
@@ -77,6 +78,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                 index={currentPage}
                 onChange={newIndex => {
                     setCurrentPage(newIndex)
+                    console.log("Pushing state")
                     if (newIndex === 0)
                         history.pushState(null, null, '#/clips');
                     else

@@ -1,5 +1,6 @@
 import { VideoInfo } from '@backend/managers/clip/interface'
 import { GameManager } from '@backend/managers/game'
+import { GeneralGame } from '@backend/managers/game/interface'
 import { notify } from '@backend/tools/notifier'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
@@ -25,7 +26,7 @@ type CurrentType = Omit<VideoInfo, "duration"> & {
 }
 
 export type OutCurrentType = Omit<CurrentType, "gameId"> & {
-    game: DetectableGame
+    game: GeneralGame
 }
 
 export class RecordManager {
@@ -43,8 +44,16 @@ export class RecordManager {
     public async getCurrent() {
         const detectable = await GameManager.getDetectableGames()
         const { gameId, ...left } = this.current ?? {}
+        const detectableGame = detectable.find(e => e.id === gameId)
+        const winInfo = this.windowInformation.get(gameId)
         return {
-            game: detectable.find(e => e.id === gameId),
+            game: detectableGame ? {
+                type: "detectable",
+                game: detectable
+            } : winInfo ? {
+                type: "window",
+                game: winInfo
+            } : null,
             ...left
         } as OutCurrentType
     }
@@ -71,7 +80,7 @@ export class RecordManager {
         let entries = [] as [string, WindowInformation][]
         try {
             entries = JSON.parse(await fs.readFile(infoPath, "utf-8").catch(() => "[]"))
-        } catch(e) {
+        } catch (e) {
             log.warn("Could not parse info path")
         }
 
@@ -201,6 +210,8 @@ export class RecordManager {
             }
 
             await sleepSync(50)
+            if (!this.isRecording())
+                break;
             if (i % 10 === 0)
                 log.silly("Waiting for new video...")
         }

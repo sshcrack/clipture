@@ -54,7 +54,8 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
             .catch(e => {
                 log.error("Could not get thumbnail", e)
                 setThumbnail(null)
-                rest.onError()
+                //its just not important if there was an error creating that stupid thumbnail, next time it will be fine i promise
+                //rest.onError()
             })
     }, [thumbnail])
 

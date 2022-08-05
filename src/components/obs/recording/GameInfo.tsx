@@ -1,11 +1,11 @@
-import { DetectableGame } from '@backend/managers/obs/Scene/interfaces';
+import { GeneralGame } from '@backend/managers/game/interface';
 import { Flex, Image, Text } from '@chakra-ui/react';
+import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
-import React from "react"
+import React from "react";
 
-export default function GameInfo({ game }: { game: DetectableGame }) {
-    const { name, aliases, id, icon } = game ?? {}
-    const gameName = name ?? aliases?.[0] ?? "Unknown Game"
+export default function GameInfo({ game }: { game: GeneralGame }) {
+    const { gameName, icon, id } = getGameInfo(game)
     const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
 
     return <Flex

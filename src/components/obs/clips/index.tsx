@@ -1,5 +1,6 @@
 import { Clip } from '@backend/managers/clip/interface';
 import { Flex, Heading, Image, Text, useToast } from '@chakra-ui/react';
+import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from 'react';
@@ -50,22 +51,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
         ...additionalElements,
         ...currClips.map((clip, i) => {
             const { game, clipName, modified } = clip ?? {}
-            let gameName = "Unknown game"
-            let id = null
-            let icon = null
-            if (game && game.game && game?.type === "detectable") {
-                const { aliases, name, icon: innerIcon, id: innerId } = game.game ?? {}
-                const detectableName = name ?? aliases?.[0]
-                icon = innerIcon;
-                id = innerId
-                if (detectableName)
-                    gameName = detectableName
-            }
-
-            if (game && game.game && game?.type === "window") {
-                const { executable, productName, title } = game.game ?? {}
-                gameName = productName ?? executable?.replace(".exe", "") ?? title?.split("-")?.pop()
-            }
+            const { gameName, icon, id } = getGameInfo(game)
 
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
 

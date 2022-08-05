@@ -3,6 +3,7 @@ import { FixedLengthArray } from 'type-fest'
 
 export type SourceInfo = {
     device_id: string,
+    volume: number,
     type: DeviceType
 }
 

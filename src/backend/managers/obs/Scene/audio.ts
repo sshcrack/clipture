@@ -31,21 +31,23 @@ export class AudioSceneManager {
     private static defaultMic = undefined as AudioDevice
 
     static register() {
-        RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type }) => ({ device_id, type })) as unknown as FixedLengthArray<SourceInfo, 2>)
+        RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type, input }) => ({ device_id, type, volume: input.volume })) as SourceInfo[] as unknown as FixedLengthArray<SourceInfo, 2>)
         RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics }))
         RegManMain.onPromise("audio_device_default", async () => this.getDefaultDevices())
         RegManMain.onPromise("audio_device_set", async (_, devices) => this.setAudioDevices(devices))
     }
 
-    private static addVolmeter({ device_id, type }: SourceInfo) {
+    private static addVolmeter({ device_id, type, volume }: SourceInfo) {
         if (this.allVolmeters.some(e => e.device_id === device_id))
             return
 
+        log.silly("Adding volmeter with device_id", device_id)
 
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
-        const audioSource = InputFactory.create(osName, audioType, { device_id: device_id });
+        const audioSource = InputFactory.create(osName, audioType, { device_id, volume });
+        audioSource.volume = volume
         const volmeter = VolmeterFactory.create(1)
 
         volmeter.attach(audioSource)
@@ -59,8 +61,8 @@ export class AudioSceneManager {
     }
 
     static initializeVolmeter() {
-        this.allDesktops.forEach(({ device_id }) => this.addVolmeter({ device_id, type: "desktop" }))
-        this.allMics.forEach(({ device_id }) => this.addVolmeter({ device_id, type: "microphone" }))
+        this.allDesktops.forEach(({ device_id }) => this.addVolmeter({ device_id, type: "desktop", volume: 1 }))
+        this.allMics.forEach(({ device_id }) => this.addVolmeter({ device_id, type: "microphone", volume: 1 }))
     }
 
     static getDefaultDevices() {
@@ -72,8 +74,8 @@ export class AudioSceneManager {
 
     static setAudioDevices(devices: FixedSources) {
         this.removeAllDevices()
-        devices.map(({ device_id, type }) => {
-            this.currentTrack = this.addAudioDevice(device_id, this.currentTrack, type)
+        devices.map(({ device_id, type, volume }) => {
+            this.currentTrack = this.addAudioDevice(device_id, this.currentTrack, type, volume)
         })
 
         log.info("Saving Audio Devices to config:", devices)
@@ -105,7 +107,7 @@ export class AudioSceneManager {
             .catch(() => ({ desktop: null, mic: null } as AudioReturn))
 
         const devices = Storage.get("audio_devices")
-        let currDevices = [{ device_id: defaultDesktop, type: "desktop" }, { device_id: defaultMic, type: "microphone" }] as SourceInfo[]
+        let currDevices = [{ device_id: defaultDesktop, type: "desktop", volume: 1 }, { device_id: defaultMic, type: "microphone", volume: 1 }] as SourceInfo[]
         if (devices.length === 2) {
             currDevices = devices
         } else {
@@ -121,7 +123,7 @@ export class AudioSceneManager {
 
         log.info("Adding audio devices to track:", currDevices)
         currDevices.forEach(dev => {
-            this.currentTrack = this.addAudioDevice(dev.device_id, this.currentTrack, dev.type)
+            this.currentTrack = this.addAudioDevice(dev.device_id, this.currentTrack, dev.type, dev.volume ?? 1)
         })
 
         this.initializeVolmeter()
@@ -145,7 +147,7 @@ export class AudioSceneManager {
         return devices;
     };
 
-    public static addAudioDevice(device_id: string, currTrack: number, type: DeviceType) {
+    public static addAudioDevice(device_id: string, currTrack: number, type: DeviceType, volume: number) {
         if (this.activeSources.length >= 2) {
             log.error("Could not add audio device", device_id, type, "because too many devices are already added.")
             return currTrack
@@ -154,18 +156,16 @@ export class AudioSceneManager {
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
-        const audioSource = InputFactory.create(osName, audioType, { device_id: device_id });
-        const volmeter = VolmeterFactory.create(1)
+        const audioSource = InputFactory.create(osName, audioType, { device_id: device_id, volume: volume });
+        audioSource.volume = volume
 
-        volmeter.attach(audioSource)
-        volmeter.addCallback((...args) => RegManMain.send("audio_volmeter_update", device_id, ...args))
-
-        log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it`)
+        log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
         setSetting(SettingsCat.Output, `Track${currTrack}Name`, device_id);
         audioSource.audioMixers = 1 | (1 << currTrack - 1); // Bit mask to output to only tracks 1 and current track
         Global.setOutputSource(currTrack, audioSource);
         currTrack++;
 
+        log.log("Current volume of audio source is", audioSource.volume)
         //audioSource.volume = type === "microphone" ? 1.5 : 1
         this.activeSources.push({
             device_id,

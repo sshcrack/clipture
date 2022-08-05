@@ -53,6 +53,7 @@ export default function AudioSelect({ devices, onAdd, defaultDev, type }: Props)
         <Button
             onClick={() => onAdd({
                 device_id: currSelected.device_id,
+                volume: 1,
                 type
             })}
         >Add Source</Button>
