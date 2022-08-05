@@ -1,15 +1,17 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure } from '@chakra-ui/react';
 import React, { PropsWithChildren, useState } from "react";
+import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuItem } from './base/ContextMenuItem';
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
 
 type Props = {
-    videoName: string
+    videoName: string,
+    setUpdate: ReactSetState<number>
 }
 
-export default function VideoContextMenu({ children, videoName }: PropsWithChildren<Props>) {
+export default function VideoContextMenu({ children, videoName, setUpdate }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
@@ -50,7 +52,10 @@ export default function VideoContextMenu({ children, videoName }: PropsWithChild
                             onClick={() => {
                                 setDeleting(true)
                                 clips.delete(videoName)
-                                    .finally(() => setDeleting(false))
+                                    .finally(() => {
+                                        setDeleting(false)
+                                        setUpdate(Math.random())
+                                    })
                                 onClose()
                             }} ml={3}>
                             Delete

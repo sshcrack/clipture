@@ -13,8 +13,9 @@ import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
 import { promisify } from "util"
+import { GameManager } from '../game'
+import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
-import { DetectableGame } from '../obs/Scene/interfaces'
 import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoInfo, getVideoPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
 
@@ -22,7 +23,7 @@ const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
 export class ClipManager {
     private static imageData = new Map<string, string>()
-    private static videoInfoCache = new Map<string, DetectableGame>()
+    private static videoInfoCache = new Map<string, GeneralGame>()
     private static clipInfoCache = new Map<string, Clip>()
     private static execa: typeof execaType = null
     private static processing = new Map<string, ClipProcessingInfo>()
@@ -187,16 +188,32 @@ export class ClipManager {
             throw e
         })).sort((a, b) => b.modified - a.modified)
 
-        const detectable = await RecordManager.instance.getDetectableGames()
+        const detectable = await GameManager.getDetectableGames()
         return await Promise.all(
             sorted
                 .map(async ({ modified, file }) => {
                     let clipInfo = this.clipInfoCache.get(file) as Clip | null
                     if (!clipInfo) {
                         const { gameId, ...rawGameInfo } = await getClipInfo(clipPath, path.basename(file))
+                        const detec = detectable.find(e => e.id === gameId)
+                        let gameInfo = null as GeneralGame
+
+                        if (detec)
+                            gameInfo = {
+                                type: "detectable",
+                                game: detec
+                            }
+
+                        const win = RecordManager.instance.getWindowInfo()
+                            .get(gameId)
+                        if (win)
+                            gameInfo = {
+                                type: "window",
+                                game: win
+                            }
                         clipInfo = {
                             ...rawGameInfo,
-                            game: detectable.find(e => e.id === gameId)
+                            game: gameInfo
                         }
                     }
 
@@ -241,12 +258,25 @@ export class ClipManager {
         })).sort((a, b) => b.modified - a.modified)
 
 
-        const detectable = await RecordManager.instance.getDetectableGames()
+        const detectable = await GameManager.getDetectableGames()
         return Promise.all(sorted.map(async ({ modified, file }) => {
-            let gameInfo = this.videoInfoCache.get(file) as DetectableGame | null
+            let gameInfo = this.videoInfoCache.get(file) as GeneralGame | null
             if (!gameInfo) {
                 const info = await getVideoInfo(videoPath, path.basename(file))
-                gameInfo = detectable.find(e => e.id === info?.gameId)
+                const detec = detectable.find(e => e.id === info?.gameId)
+                if (detec)
+                    gameInfo = {
+                        type: "detectable",
+                        game: detec
+                    }
+
+                const win = RecordManager.instance.getWindowInfo()
+                    .get(info?.gameId)
+                if (win)
+                    gameInfo = {
+                        type: "window",
+                        game: win
+                    }
             }
 
             const clipName = path.basename(file)

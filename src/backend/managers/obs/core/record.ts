@@ -1,19 +1,19 @@
 import { VideoInfo } from '@backend/managers/clip/interface'
-import { ProcessManager } from '@backend/managers/process'
+import { GameManager } from '@backend/managers/game'
 import { notify } from '@backend/tools/notifier'
-import { getOS } from '@backend/tools/operating-system'
-import { UseToastOptions } from '@chakra-ui/react'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
+import { Storage } from '@Globals/storage'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
-import got from 'got/dist/source'
+import path from 'path'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
+import { getWindowInfoId, isDetectableGameInfo, isWindowInfoSame } from './tools'
 
 const reg = RegManMain
 const NodeObs: NodeObs = notTypedOBS
@@ -30,7 +30,6 @@ export type OutCurrentType = Omit<CurrentType, "gameId"> & {
 
 export class RecordManager {
     private recording = false;
-    private detectableGames: DetectableGame[] = null
     private current = {
         gameId: null,
         videoPath: null,
@@ -39,9 +38,10 @@ export class RecordManager {
     static instance: RecordManager = null;
     private registeredAutomatic = false;
     private manualControlled = false;
+    private windowInformation = new Map<string, WindowInformation>()
 
     public async getCurrent() {
-        const detectable = await this.getDetectableGames()
+        const detectable = await GameManager.getDetectableGames()
         const { gameId, ...left } = this.current ?? {}
         return {
             game: detectable.find(e => e.id === gameId),
@@ -57,25 +57,8 @@ export class RecordManager {
         this.register()
     }
 
-    public async getDetectableGames() {
-        if (!this.detectableGames)
-            this.detectableGames = await this.refreshDetectableGames()
-
-        return this.detectableGames
-    }
-
-    private refreshDetectableGames(showToast = true) {
-        return got(MainGlobals.gameUrl).then(e => JSON.parse(e.body))
-            .catch(e => {
-                log.warn("Could not fetch detectable games", e)
-                if (showToast)
-                    RegManMain.send("toast_show", {
-                        title: "Warning",
-                        description: "Could not fetch detectable games, please check your internet connection or click the button to manually start recording.",
-                        status: "warning"
-                    } as UseToastOptions)
-                return []
-            })
+    public getWindowInfo() {
+        return this.windowInformation
     }
 
     public async initialize() {
@@ -83,11 +66,22 @@ export class RecordManager {
             return
 
         log.info("Registering automatic recording")
-        const onNewInfo = async (info: WindowInformation[]) => {
-            const os = getOS()
-            this.detectableGames = this.detectableGames ?? await this.refreshDetectableGames()
+        const clipPath = Storage.get("clip_path")
+        const infoPath = path.join(clipPath, "window_info.json")
+        let entries = [] as [string, WindowInformation][]
+        try {
+            entries = JSON.parse(await fs.readFile(infoPath, "utf-8").catch(() => "[]"))
+        } catch(e) {
+            log.warn("Could not parse info path")
+        }
 
-            const areSame = (detecGame: DetectableGame, winInfo: WindowInformation) => detecGame?.executables?.some(exe => winInfo?.full_exe?.toLowerCase()?.endsWith(exe?.name?.toLowerCase()) && exe?.os === os)
+        this.windowInformation = new Map(entries)
+
+        const onNewInfo = async (info: WindowInformation[]) => {
+            const detectableGames = await GameManager.getDetectableGames()
+            const toExclude = GameManager.getExcludeList()
+            const toInclude = await GameManager.getIncludeList()
+
             const areSameInfo = (oldInfo: WindowInformation, winInfo: WindowInformation) => {
                 const oldInfoReduced = {
                     ...oldInfo,
@@ -108,14 +102,27 @@ export class RecordManager {
 
 
             const matchingGames = info.filter(winInfo => {
-                return this.detectableGames.some(detecGame => areSame(detecGame, winInfo))
-            })
+                return detectableGames.some(detecGame => isDetectableGameInfo(detecGame, winInfo))
+            }).concat(info.filter(winInfo => {
+                return toInclude.some(e => {
+                    if (e.type === "detectable")
+                        return isDetectableGameInfo(e.game, winInfo)
+                    return isWindowInfoSame(e.game, winInfo)
+                })
+            }))
 
             if (matchingGames.length === 0)
                 return
 
+            const isExcluded = (e: WindowInformation) => toExclude.some(x => {
+                if (x.type === "window")
+                    return JSON.stringify(x.game) === JSON.stringify(e)
+
+                return isDetectableGameInfo(x.game, e)
+            })
+
             const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
-            const game = this.detectableGames.find(e => areSame(e, gameToRecord))
+            const game = detectableGames.find(e => isDetectableGameInfo(e, gameToRecord))
 
             const diffGame = !areSameInfo(gameToRecord, Scene.getCurrentSetting()?.window)
             log.info("Game is diff", diffGame, "manual", this.manualControlled, "game", gameToRecord, "curr", Scene.getCurrentSetting()?.window)
@@ -125,10 +132,12 @@ export class RecordManager {
                     await this.stopRecording()
             }
 
+            if (isExcluded(gameToRecord))
+                return
 
             log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
             if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
-                this.startRecording(false, game).then(() =>
+                this.startRecording(false, game, gameToRecord).then(() =>
                     notify({
                         title: "Recording started",
                         message: `Recording started for ${gameToRecord?.productName ?? gameToRecord?.title ?? gameToRecord.executable}`
@@ -152,14 +161,14 @@ export class RecordManager {
             }
         }, 2500)
 
-        ProcessManager.addUpdateListener(e => onNewInfo(e))
-        const curr = await ProcessManager.getAvailableWindows(true)
+        GameManager.addUpdateListener(e => onNewInfo(e))
+        const curr = await GameManager.getAvailableWindows(true)
         onNewInfo(curr)
 
         this.registeredAutomatic = true
     }
 
-    public async startRecording(manual = false, discordGameInfo: DetectableGame = null) {
+    public async startRecording(manual = false, discordGameInfo: DetectableGame = null, windowInfo: WindowInformation = null) {
         if (this.recording) {
             log.debug("Tried to record even though already recording")
             return
@@ -197,13 +206,17 @@ export class RecordManager {
         }
 
         const videoPath = recordPath + "/" + videoName
-        if (!videoPath)
+        const infoPathAvailable = recordPath && videoName
+        if (!infoPathAvailable)
             log.warn("Video Path could not be obtained")
 
+        const windowId = getWindowInfoId(windowInfo)
+        if (!discordGameInfo?.id)
+            this.windowInformation.set(windowId, windowInfo)
         this.current = {
-            currentInfoPath: videoPath ? videoPath + ".json" : null,
-            gameId: discordGameInfo?.id,
-            videoPath: videoPath,
+            currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
+            gameId: discordGameInfo?.id ?? windowId,
+            videoPath: infoPathAvailable ? videoPath : null,
         }
 
         this.recording = true
@@ -243,6 +256,10 @@ export class RecordManager {
     }
 
     public async shutdown() {
+        const clipPath = Storage.get("clip_path")
+        const infoPath = path.join(clipPath, "window_info.json")
+
+        await fs.writeFile(infoPath, JSON.stringify(Array.from(this.windowInformation.entries())))
         this.stopRecording()
     }
 }

@@ -1,4 +1,5 @@
 import { Progress } from '@backend/processors/events/interface';
+import { GeneralGame } from '../game/interface';
 import { DetectableGame } from '../obs/Scene/interfaces';
 
 
@@ -6,13 +7,13 @@ export type Video = {
     modified: number,
     video: string,
     videoName: string,
-    game: DetectableGame | null
+    game: GeneralGame | null
 }
 
 export type Clip = {
     modified: number,
     clipName: string,
-    game: DetectableGame,
+    game: GeneralGame | null,
     original: string,
     start: number,
     end: number,

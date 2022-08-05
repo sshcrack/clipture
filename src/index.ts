@@ -8,7 +8,7 @@ require('source-map-support').install();
 import { MainGlobals } from './Globals/mainGlobals';
 
 import { ClipManager } from '@backend/managers/clip';
-import { ProcessManager } from '@backend/managers/process';
+import { GameManager } from '@backend/managers/game';
 import { registerFuncs } from '@backend/registerFuncs';
 import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
 import exitHook from 'exit-hook';
@@ -126,7 +126,7 @@ const handleExit = () => {
   alreadyShutdown = true
   ClipManager.shutdown()
   MainGlobals.obs.shutdown()
-  ProcessManager.exit()
+  GameManager.exit()
 }
 
 ipcMain.handle("quit-app", () => handleExit())

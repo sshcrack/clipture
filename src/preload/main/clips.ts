@@ -15,7 +15,7 @@ const clips = {
         return () => {
             const index = listeners.indexOf(func)
             if (index === -1)
-                return console.log("Could not remove manual listener")
+                return console.error("Could not remove manual listener")
 
             listeners.splice(index, 1)
         }

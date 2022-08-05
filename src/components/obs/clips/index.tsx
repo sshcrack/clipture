@@ -1,5 +1,5 @@
 import { Clip } from '@backend/managers/clip/interface';
-import { Flex, Heading, Image, Text } from '@chakra-ui/react';
+import { Flex, Heading, Image, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from 'react';
@@ -11,15 +11,19 @@ import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
+import { RenderLogger } from 'src/interfaces/renderLogger';
 
+const log = RenderLogger.get("obs", "clips")
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(true)
     const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const { clips, system } = window.api
+    const toast =  useToast()
 
-    useEffect(() => {5
+    useEffect(() => {
+        5
         clips.add_listener((_, prog) => {
             if (prog?.percent !== 1 && prog)
                 return
@@ -32,6 +36,13 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
         clips.list().then(e => {
             setLoading(false)
             setCurrClips(e)
+        }).catch(e => {
+            log.error(e)
+            toast({
+                title: "Could not list videos",
+                description: `${e.message}. Retrying in 5 seconds`,
+            })
+            setTimeout(() => setUpdate(Math.random()), 5000)
         })
     }, [update])
 
@@ -39,9 +50,23 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
         ...additionalElements,
         ...currClips.map((clip, i) => {
             const { game, clipName, modified } = clip ?? {}
-            const { name, aliases, id, icon } = game ?? {}
+            let gameName = "Unknown game"
+            let id = null
+            let icon = null
+            if (game && game.game && game?.type === "detectable") {
+                const { aliases, name, icon: innerIcon, id: innerId } = game.game ?? {}
+                const detectableName = name ?? aliases?.[0]
+                icon = innerIcon;
+                id = innerId
+                if (detectableName)
+                    gameName = detectableName
+            }
 
-            const gameName = name ?? aliases?.[0] ?? "Unknown Game"
+            if (game && game.game && game?.type === "window") {
+                const { executable, productName, title } = game.game ?? {}
+                gameName = productName ?? executable?.replace(".exe", "") ?? title?.split("-")?.pop()
+            }
+
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
 
             let element = <VideoGridItem
@@ -116,7 +141,10 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                             <PromiseButton
                                 colorScheme="red"
                                 loadingText='Deleting clip...'
-                                onClick={() => clips.delete(clipName)}
+                                onClick={() => {
+                                    return clips.delete(clipName)
+                                        .finally(() => setUpdate(Math.random()))
+                                }}
                             >Delete Clip</PromiseButton>
                         </Flex>
                     </Flex>
@@ -128,7 +156,10 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 placeholderElementClass='grid-placeholder'
                 rootElementClass='grid-root-element'
             >
-                <ClipContextMenu clipName={clipName}>
+                <ClipContextMenu
+                    clipName={clipName}
+                    setUpdate={setUpdate}
+                >
                     {element}
                 </ClipContextMenu>
             </RenderIfVisible>

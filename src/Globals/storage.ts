@@ -1,3 +1,5 @@
+import { GeneralGame } from '@backend/managers/game/interface';
+import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
@@ -64,6 +66,8 @@ const defaults = {
     "install_dir": defaultInstall,
     "install_dir_selected": false,
     "clip_path": defaultClips,
+    "games_exclude": [] as GeneralGame[],
+    "games_include": [] as GeneralGame[],
     "audio_devices": [] as SourceInfo[],
     "last_dashboard_page": 0,
     "obs": {

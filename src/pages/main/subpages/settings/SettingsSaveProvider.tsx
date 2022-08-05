@@ -23,7 +23,7 @@ export const SettingsSaveContext = React.createContext<SettingsSaveState>({
 
 const log = RenderLogger.get("Main", "Settings", "SettingsSaveProvider")
 export default function SettingsSaveProvider({ children }: React.PropsWithChildren) {
-    const [listeners, setListeners] = useState(new Map<string, Listener>())
+    const [listeners, _] = useState(new Map<string, Listener>())
     const [modified, setModified] = useState([] as string[])
     const [saving, setSaving] = useState(false)
 
@@ -50,7 +50,7 @@ export default function SettingsSaveProvider({ children }: React.PropsWithChildr
 
         setSaving(false)
         if (err) {
-            log.error(err)
+            log.error(err?.stack ?? err?.message ?? err)
             throw err
         }
         setModified([])

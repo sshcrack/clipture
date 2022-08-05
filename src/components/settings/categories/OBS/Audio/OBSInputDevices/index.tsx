@@ -20,6 +20,9 @@ export default function OBSInputDevices() {
     const { audio } = window.api
     const toast = useToast()
     useEffect(() => {
+        if (saving)
+            return
+
         const handleCatch = (title: string) => {
             return (e: any) => {
                 toast({

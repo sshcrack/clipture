@@ -4,7 +4,7 @@ import { AuthManager } from './managers/auth';
 import { ClipManager } from './managers/clip';
 import { Scene } from './managers/obs/Scene';
 import { AudioSceneManager } from './managers/obs/Scene/audio';
-import { ProcessManager } from './managers/process';
+import { GameManager } from './managers/game';
 import { SettingsManager } from './managers/settings';
 import { SystemManager } from './managers/system';
 import { registerProcessorEvents } from './processors/eventRegister';
@@ -17,7 +17,7 @@ export const registerFuncs = [
     () => AuthManager.register(),
     () => TitlebarManager.register(),
     () => Scene.register(),
-    () => ProcessManager.register(),
+    () => GameManager.register(),
     () => ClipManager.register(),
     () => SystemManager.register(),
     () => AudioSceneManager.register(),

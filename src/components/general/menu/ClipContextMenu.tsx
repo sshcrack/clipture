@@ -1,15 +1,17 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure } from '@chakra-ui/react';
 import React, { PropsWithChildren, useState } from "react";
+import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuItem } from './base/ContextMenuItem';
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
 
 type Props = {
-    clipName: string
+    clipName: string,
+    setUpdate: ReactSetState<number>
 }
 
-export default function ClipContextMenu({ children, clipName }: PropsWithChildren<Props>) {
+export default function ClipContextMenu({ children, clipName, setUpdate }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
@@ -49,7 +51,10 @@ export default function ClipContextMenu({ children, clipName }: PropsWithChildre
                             onClick={() => {
                                 setDeleting(true)
                                 clips.delete(clipName)
-                                    .finally(() => setDeleting(false))
+                                    .finally(() => {
+                                        setDeleting(false)
+                                        setUpdate(Math.random())
+                                    })
                                 onClose()
                             }} ml={3}>
                             Delete

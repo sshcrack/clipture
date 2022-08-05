@@ -4,7 +4,6 @@ import React, { useContext, useState } from "react";
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider';
 
-const log = RenderLogger.get("components", "settings", "popup", "SavePopup")
 export default function SettingsSavePopup() {
     const { save, saving, modified } = useContext(SettingsSaveContext)
     const toast = useToast()
@@ -15,7 +14,6 @@ export default function SettingsSavePopup() {
 
         save()
             .catch(e => {
-                log.error(e)
                 toast({
                     title: "Could not save",
                     description: e?.message ?? e,

@@ -5,7 +5,7 @@ import { AuthEventsPromises, AuthMainToRender } from './auth'
 import { ClipMainToRender, ClipsEventPromises } from './clips'
 import { LockEventsSync, LockMainToRender } from './lock'
 import { OBSEventsPromises, OBSEventsSync, OBSMainToRender } from './obs'
-import { ProcessEventsPromises, ProcessMainToRender } from './process'
+import { GameEventsPromises, GameMainToRender } from './game'
 import { SettingsEventsPromises } from './settings'
 import { SystemEventsPromises } from './system'
 import { VideoEventsPromises } from './video'
@@ -14,7 +14,7 @@ export type RegisterEvents = LockEventsSync & OBSEventsSync
 
 export type RegisterEventsPromises = AuthEventsPromises & AudioEventsPromises
     & VideoEventsPromises & SystemEventsPromises
-    & ProcessEventsPromises & OBSEventsPromises
+    & GameEventsPromises & OBSEventsPromises
     & SettingsEventsPromises & ClipsEventPromises
 
 export type MainToRender = {
@@ -23,4 +23,4 @@ export type MainToRender = {
 }
     & AuthMainToRender & ClipMainToRender
     & LockMainToRender & AudioMainToRender
-    & ProcessMainToRender & OBSMainToRender
+    & GameMainToRender & OBSMainToRender

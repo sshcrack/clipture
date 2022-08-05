@@ -150,6 +150,7 @@
     "react-list": "^0.8.17",
     "react-render-if-visible": "^2.1.0",
     "react-router-dom": "^6.3.0",
+    "react-select": "^5.4.0",
     "react-spinners": "^0.13.3",
     "source-map-support": "^0.5.21",
     "thumbsupply": "https://github.com/sshcrack/thumbsupply-webpack-fix",

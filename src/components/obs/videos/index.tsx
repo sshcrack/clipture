@@ -32,14 +32,28 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                     title: "Could not list videos",
                     description: `${e.message}. Retrying in 5 seconds`,
                 })
-                setTimeout(() => setRetry(Math.random()))
+                setTimeout(() => setRetry(Math.random()), 5000)
             })
     }, [retry])
 
-    const clipElements = currVideos.map(({ game: info, videoName, modified }, i) => {
-        const { id, name, aliases, icon } = info ?? {}
+    const clipElements = currVideos.map(({ game, videoName, modified }, i) => {
+        let gameName = "Unknown game"
+        let id = null
+        let icon = null
+        if (game && game.game && game?.type === "detectable") {
+            const { aliases, name, icon: innerIcon, id: innerId } = game.game ?? {}
+            const detectableName = name ?? aliases?.[0]
+            icon = innerIcon;
+            id = innerId
+            if (detectableName)
+                gameName = detectableName
+        }
 
-        const gameName = name ?? aliases?.[0] ?? "Unknown Game"
+        if (game && game.game && game?.type === "window") {
+            const { executable, productName, title } = game.game ?? {}
+            gameName = productName ?? executable?.replace(".exe", "") ?? title?.split("-")?.pop()
+        }
+
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         return <RenderIfVisible
             defaultHeight={416}
@@ -47,7 +61,10 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             placeholderElementClass='grid-placeholder'
             rootElementClass='grid-root-element'
         >
-            <VideoContextMenu videoName={videoName}>
+            <VideoContextMenu
+                videoName={videoName}
+                setUpdate={setRetry}
+            >
 
                 <VideoGridItem
                     type='videos'

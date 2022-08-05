@@ -6,7 +6,7 @@ import auth from "./auth";
 import clips from "./clips";
 import lock from "./lock";
 import obs from "./obs";
-import process from "./process";
+import game from "./game";
 import audio from "./audio";
 import system from './system';
 import titlebar from "./titlebar";
@@ -26,7 +26,7 @@ export const API = {
     lock,
     obs,
     auth,
-    process,
+    game,
     titlebar,
     audio,
     system,

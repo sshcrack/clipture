@@ -25,6 +25,20 @@ const mappings = {
 }
 
 type Categories = keyof typeof mappings
+const onlyAvailableWhenNotRecording = [
+    {
+        category: "obs",
+        name: "general"
+    },
+    {
+        category: "obs",
+        name: "video"
+    }
+] as {
+    category: Categories,
+    name: string
+}[]
+
 
 export default function SettingsPage({ prevPage }: { data: SessionData, prevPage: string }) {
     const { item } = useParams()
@@ -39,6 +53,7 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
 
     //@ts-ignore typescript is being weird with dictionary indexes
     const CurrPage: () => JSX.Element = mappings?.[category]?.[leftOver] ?? defaultPage
+
     const onClose = () => location.hash = prevPage
 
     useEffect(() => {
@@ -58,8 +73,10 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
         return () => window.removeEventListener("keydown", listener)
     }, [prevPage])
 
+    const pageAvailable = !onlyAvailableWhenNotRecording.some(e => e.category === category && e.name === leftOver)
+    const displayPage = !recording || pageAvailable
     return <SettingsSaveProvider>
-        {!recording && <SettingsSavePopup />}
+        {displayPage && <SettingsSavePopup />}
         <Flex
             h='100%'
             w='100%'
@@ -87,8 +104,15 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
                         alignItems='center'
                         justifyContent='center'
                     >
-                        {!recording && <CurrPage />}
-                        {recording && <Heading size='xl'>Please stop recording before changing settings.</Heading>}
+                        {displayPage && <CurrPage />}
+                        {!displayPage && <Flex
+                            flexDir='column'
+                            justifyContent='center'
+                            alignItems='center'
+                        >
+                            <Heading size='xl'>This page is only available when not recording.</Heading>
+                            <Heading size='md'>Please stop the game you are running.</Heading>
+                        </Flex>}
                     </Flex>
                     <Flex
                         flex='0'
