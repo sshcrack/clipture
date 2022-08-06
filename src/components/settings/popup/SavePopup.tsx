@@ -1,15 +1,15 @@
-import { Button, Portal, Text, useToast } from '@chakra-ui/react';
+import { Button, Flex, Portal, Text, useToast } from '@chakra-ui/react';
 import { motion } from "framer-motion";
 import React, { useContext, useState } from "react";
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider';
 
-export default function SettingsSavePopup() {
-    const { save, saving, modified } = useContext(SettingsSaveContext)
+export default function SettingsSavePopup({ onReset }: { onReset: () => void }) {
+    const { save, saving, modified, reset } = useContext(SettingsSaveContext)
     const toast = useToast()
 
     const saveSettings = () => {
-        if(saving)
+        if (saving)
             return
 
         save()
@@ -51,14 +51,24 @@ export default function SettingsSavePopup() {
             }}
         >
             <Text fontSize='xl'>You have unsaved changes.</Text>
-            <Button
+            <Flex
                 ml='auto'
-                colorScheme='green'
-                justifySelf='left'
-                isLoading={saving}
-                loadingText='Saving...'
-                onClick={() => saveSettings()}
-            >Save Changes</Button>
+                justifySelf='right'
+                gap='5'
+                justifyContent='center'
+                alignItems='center'
+            >
+                <Button
+                    colorScheme='red'
+                    onClick={() => { reset(); onReset() }}
+                >Reset</Button>
+                <Button
+                    colorScheme='green'
+                    isLoading={saving}
+                    loadingText='Saving...'
+                    onClick={() => saveSettings()}
+                >Save Changes</Button>
+            </Flex>
         </motion.div>
     </Portal>
 }

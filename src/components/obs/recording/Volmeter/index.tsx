@@ -48,7 +48,7 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
 
         return <Flex flexDir='column' key={volSource + "-volmeter"}>
             {displayName && <Flex w='100%' h='100%'>
-                <Text>{devName}</Text>
+                <Text>{devName ?? "[Device is not connected or could not be found]"}</Text>
             </Flex>}
             <Volmeter source={volSource} />
         </Flex>

@@ -124,7 +124,7 @@
     "@emotion/react": "11",
     "@emotion/styled": "11",
     "@fontsource/varela-round": "^4.5.8",
-    "@streamlabs/obs-studio-node": "file:../../libs/obs-studio-node-fix/archive7.tar.gz",
+    "@streamlabs/obs-studio-node": "file:../../libs/obs-studio-node-fix/archive8.tar.gz",
     "@szhsin/react-menu": "^3.1.1",
     "chart.js": "^3.8.0",
     "classnames": "^2.3.1",

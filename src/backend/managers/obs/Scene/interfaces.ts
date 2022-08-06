@@ -118,5 +118,6 @@ export type DeviceType = "desktop" | "microphone"
 export interface ActiveSource {
     input: IInput,
     device_id: string,
+    volume: number,
     type: DeviceType
 }

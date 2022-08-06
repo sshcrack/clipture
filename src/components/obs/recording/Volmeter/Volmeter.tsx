@@ -11,6 +11,8 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
         console.log("New source is", source)
         setPercentage(0)
         const audioRemove = audio.onVolmeterChange((innerSource, m) => {
+            if(innerSource === source)
+                console.log(m)
             const avg = Math.abs(m.reduce((a, b) => a + b, 0) / m.length);
             const max = Math.min(1, avg / 60)
             if (source !== innerSource)

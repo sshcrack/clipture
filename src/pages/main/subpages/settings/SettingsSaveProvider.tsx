@@ -10,6 +10,7 @@ export type SettingsSaveState = {
     saving: boolean,
     addModified: (str: string) => void,
     removeModified: (str: string) => void,
+    reset: () => void
     modified: boolean
 }
 export const SettingsSaveContext = React.createContext<SettingsSaveState>({
@@ -18,7 +19,8 @@ export const SettingsSaveContext = React.createContext<SettingsSaveState>({
     saving: false,
     modified: false,
     addModified: () => { },
-    removeModified: () => { }
+    removeModified: () => { },
+    reset: () => { }
 })
 
 const log = RenderLogger.get("Main", "Settings", "SettingsSaveProvider")
@@ -56,6 +58,8 @@ export default function SettingsSaveProvider({ children }: React.PropsWithChildr
         setModified([])
     }
 
+    const reset = () => setModified([])
+
     return <SettingsSaveContext.Provider
         value={{
             addSaveListener: c => {
@@ -69,7 +73,8 @@ export default function SettingsSaveProvider({ children }: React.PropsWithChildr
             saving,
             addModified,
             removeModified,
-            save
+            save,
+            reset
         }}
     >
         {children}
