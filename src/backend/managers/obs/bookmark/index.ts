@@ -49,10 +49,13 @@ export class BookmarkManager {
 
     static initialize() {
         const hotkey = Storage.get("bookmark_hotkey", "F9")
-        this.registerHotkey(hotkey)
+        this.registerHotkey(hotkey ?? "F9")
     }
 
     private static unregisterHotkey(hotkey: string) {
+        if (!hotkey)
+            return log.info("cannot unregister, Hotkey is undefined")
+
         const registered = globalShortcut.isRegistered(hotkey)
         if (!registered)
             return log.info("Could not unregister hotkey", hotkey, ", already unregistered")
@@ -62,15 +65,19 @@ export class BookmarkManager {
     }
 
     private static registerHotkey(hotkey: string) {
+        if (!hotkey)
+            return log.info("cannot unregister, Hotkey is undefined")
+
         const curr = this.currHotkey
-        const registered = globalShortcut.isRegistered(curr)
+        const registered = curr && globalShortcut.isRegistered(curr)
         if (curr) {
             if (registered)
-                return log.info("Trying to register hotkey", hotkey, "but it is already registed.")
+                return log.info("Trying to register hotkey", hotkey, "but it is already registered.")
             log.info("Trying to register hotkey", hotkey, "but", curr, "is already registered.")
             this.unregisterHotkey(hotkey)
         }
 
+        log.info("Registering hotkey", hotkey)
         globalShortcut.register(hotkey, () => this.onHotkey())
     }
 

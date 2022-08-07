@@ -10,6 +10,7 @@ import { LockManager } from '../lock'
 import { getAvailableValues, setOBSSetting as setSetting } from './base'
 import { BookmarkManager } from './bookmark'
 import { PreviewManager } from './core/preview'
+import prettyMS from "pretty-ms"
 import { RecordManager } from './core/record'
 import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
@@ -70,12 +71,17 @@ export class OBSManager {
 
         for (let i = 0; i < steps.length; i++) {
             const { title, func } = steps[i]
+            const percent = i / steps.length
             inst.updateListeners({
-                percent: i / steps.length,
+                percent,
                 status: title
             })
 
+            log.info(`Step ${i +1}/${steps.length} (${(percent * 100).toFixed(1)}): ${title}`)
+            let start = Date.now()
             await func()
+            let diff = Date.now() - start
+            log.info(`Step ${i +1}/${steps.length} done after ${prettyMS(diff)}`)
         }
 
         inst.unlock({
