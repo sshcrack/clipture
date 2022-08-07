@@ -8,9 +8,11 @@ import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
 import { LockManager } from '../lock'
 import { getAvailableValues, setOBSSetting as setSetting } from './base'
+import { BookmarkManager } from './bookmark'
 import { PreviewManager } from './core/preview'
 import { RecordManager } from './core/record'
 import { Scene } from './Scene'
+import { SignalsManager } from './Signals'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 
 
@@ -34,32 +36,52 @@ export class OBSManager {
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
+        const steps = [
+            {
+                title: "Initializing OBS...",
+                func: () => this.initOBS()
+            },
+            {
+                title: "Configuring OBS...",
+                func: () => this.configure()
+            },
+            {
+                title: "Connecting signals...",
+                func: () => SignalsManager.initialize()
+            },
+            {
+                title: "Initializing scene...",
+                func: () => Scene.initialize()
+            },
+            {
+                title: "Setting up auto record...",
+                func: () => RecordManager.instance.initialize()
+            },
+            {
+            title: "Registering hotkeys...",
+            func: () => BookmarkManager.initialize()
+            }
+        ] as { title: string, func: () => Promise<unknown> }[]
+
         inst.lock({
             percent: 0,
-            status: "Initializing OBS..."
+            status: "Loading.."
         })
-        await this.initOBS()
 
+        for (let i = 0; i < steps.length; i++) {
+            const { title, func } = steps[i]
+            inst.updateListeners({
+                percent: i / steps.length,
+                status: title
+            })
 
-        inst.updateListeners({
-            percent: .3,
-            status: "Configuring OBS..."
-        })
-        this.configure()
-
-
-        inst.updateListeners({
-            percent: .6,
-            status: "Initializing scene..."
-        })
-        await Scene.initialize()
+            await func()
+        }
 
         inst.unlock({
             percent: 1,
             status: "OBS initialized"
         })
-
-        this.recordManager.initialize()
         this.obsInitialized = true
     }
 

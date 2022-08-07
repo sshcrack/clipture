@@ -9,6 +9,7 @@ import { SettingsManager } from './managers/settings';
 import { SystemManager } from './managers/system';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
+import { BookmarkManager } from './managers/obs/bookmark';
 
 export const registerFuncs = [
     () => RegManMain.register(),
@@ -21,5 +22,6 @@ export const registerFuncs = [
     () => ClipManager.register(),
     () => SystemManager.register(),
     () => AudioSceneManager.register(),
-    () => SettingsManager.register()
+    () => SettingsManager.register(),
+    () => BookmarkManager.register()
 ]

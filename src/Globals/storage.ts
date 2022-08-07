@@ -1,5 +1,4 @@
 import { GeneralGame } from '@backend/managers/game/interface';
-import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
@@ -74,7 +73,8 @@ const defaults = {
         "fps": 60,
         "bitrate": 10000
     },
-    "close_behavior": "unset" as "unset" | "close" | "minimize"
+    "close_behavior": "unset" as "unset" | "close" | "minimize",
+    "bookmark_hotkey": "F9"
 }
 export const Storage = new StorageExtended({
     defaults

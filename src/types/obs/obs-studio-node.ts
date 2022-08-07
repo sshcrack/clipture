@@ -1,5 +1,5 @@
 import { IIPC } from '@streamlabs/obs-studio-node';
-import { SettingsCat } from './obs-enums';
+import { EOBSOutputSignal, EOBSOutputType, EOutputCode, SettingsCat } from './obs-enums';
 
 export interface SettingsParameter {
     name: string,
@@ -18,38 +18,29 @@ export interface Settings {
 
 export interface PerformanceStatistics {
     CPU: number,
-    averageTimeToRenderFrame: number,
-    diskSpaceAvailable: string,
-    frameRate: number,
-    memoryUsage: number,
     numberDroppedFrames: number,
     percentageDroppedFrames: number,
-    recordingBandwidth: number,
-    recordingDataOutput: number,
     streamingBandwidth: number,
     streamingDataOutput: number,
+    recordingBandwidth: number,
+    recordingDataOutput: number,
+    frameRate: number,
+    averageTimeToRenderFrame: number,
+    memoryUsage: number,
+    diskSpaceAvailable: string
 }
-/*
-CPU: 1.3
-averageTimeToRenderFrame: 0.911154
-diskSpaceAvailable: "48.9637 GB"
-frameRate: 60.0000024000001
-memoryUsage: 212.41015625
-numberDroppedFrames: 0
-percentageDroppedFrames: 0
-recordingBandwidth: 3661.571060753706
-recordingDataOutput: 92.81574058532715
-streamingBandwidth: 0
-streamingDataOutput: 0
-*/
+
+
+export interface IOBSOutputSignalInfo {
+    type: EOBSOutputType;
+    signal: EOBSOutputSignal;
+    code: EOutputCode;
+    error: string;
+}
 
 type INodeObs = {
     IPC: IIPC,
-
     SetWorkingDirectory: (dir: string) => void,
-    RegisterSourceCallback: (e: (dunno_what_arguments: string) => void) => void,
-    RemoveSourceCallback: () => void
-
     OBS_API_initAPI: (lang: string, dataPath: string, version: string) => number,
     OBS_service_removeCallback: () => void,
     OBS_settings_getSettings: (category: SettingsCat) => Settings,
@@ -68,6 +59,8 @@ type INodeObs = {
     OBS_content_moveDisplay: (displayId: string, x: number, y: number) => void,
     OBS_content_setBackgroundColor: (displayId: string, r: number, g: number, b: number, alpha: number) => void,
     OBS_API_getPerformanceStatistics: () => PerformanceStatistics;
+    OBS_service_connectOutputSignals: (listener: (signal: IOBSOutputSignalInfo) => unknown) => void;
+    RegisterSourceCallback: (callback: () => void) => void;
 }
 
 export type NodeObs = INodeObs;

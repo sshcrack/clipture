@@ -38,6 +38,7 @@ const obs = {
     },
     recordDescription: () => reg.emitSync("obs_get_record_description"),
     isRecording: () => reg.emitSync("obs_is_recording"),
+    recordTime: () => reg.emitPromise("obs_record_time"),
 
     onPerformanceReport: (callback: ListenerPerformance) => {
         listenersPerformance.push(callback)

@@ -1,6 +1,6 @@
 import { ipcRenderer, IpcRendererEvent } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
-import { MainToRender, RegisterEvents, RegisterEventsPromises } from './type';
+import { MainToRender, RegisterEvents, RegisterEventsPromises } from './type/index';
 
 const log = MainLogger.get("RegisterManager", "Render");
 

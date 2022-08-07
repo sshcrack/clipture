@@ -28,7 +28,9 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     switch_window: (options: WindowInformation, manual: boolean) => void,
     start_recording: (manual: boolean) => void,
     stop_recording: (manual: boolean) => void,
-    get_current: () => OutCurrentType
+    get_current: () => OutCurrentType,
+
+    record_time: () => number | undefined
 }, "obs">
 
 export type OBSMainToRender = addPrefixUnderscoreToObject<{

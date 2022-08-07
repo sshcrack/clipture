@@ -1,5 +1,5 @@
 import { Flex, Spinner, Text } from '@chakra-ui/react';
-import { getCSSVariable } from '@general/tools';
+import { getCSSVariable, secondsToDuration } from '@general/tools';
 import prettyBytes from "pretty-bytes";
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from "react";
@@ -45,6 +45,7 @@ const bandWidthOptions = optionsWithFunc(e => prettyBytes(parseFloat(e)))
 
 export default function PerformanceStatistics() {
     const [stats, setStats] = useState([] as PerformanceWithDate[])
+    const [recordTime, setRecordTime] = useState<number>(undefined)
     const { obs } = window.api
 
     useEffect(() => {
@@ -59,6 +60,15 @@ export default function PerformanceStatistics() {
 
             setStats([...stats])
         })
+    }, [])
+
+    useEffect(() => {
+        const id = setInterval(() => {
+            obs.recordTime()
+                .then(e => setRecordTime(e))
+                .catch(() => { })
+        }, 1000)
+        return clearInterval(id)
     }, [])
 
     if (!stats)
@@ -111,5 +121,10 @@ export default function PerformanceStatistics() {
         <Line data={fpsData} options={generalOptions} />
         <Text>Bandwidth</Text>
         <Line data={bandwidthData} options={bandWidthOptions} />
+        {
+            recordTime && <Text>
+                {secondsToDuration(recordTime / 1000)}
+            </Text>
+        }
     </Flex>
 }

@@ -2,7 +2,9 @@ import { UseToastOptions } from '@chakra-ui/react';
 import { RegManRender } from '@general/register/render';
 import { contextBridge, ipcRenderer } from 'electron';
 import log from "electron-log";
+
 import auth from "./auth";
+import bookmark from "./bookmark";
 import clips from "./clips";
 import lock from "./lock";
 import obs from "./obs";
@@ -31,6 +33,7 @@ export const API = {
     audio,
     system,
     settings,
+    bookmark,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean

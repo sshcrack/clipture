@@ -1,5 +1,6 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
+import GameHotkey from 'src/components/settings/categories/Game/Behavior/GameHotkey'
 
 export default function GameBehavior() {
     return <>
@@ -10,7 +11,7 @@ export default function GameBehavior() {
             flexDir='column'
             alignItems='center'
         >
-            <></>
+            <GameHotkey />
         </Flex>
     </>
 }

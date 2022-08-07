@@ -10,10 +10,11 @@ import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import path from 'path'
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { SettingsCat } from 'src/types/obs/obs-enums'
+import { EOBSOutputSignal, SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
+import { SignalsManager } from '../Signals'
 import { getWindowInfoId, isDetectableGameInfo, isWindowInfoSame } from './tools'
 
 const reg = RegManMain
@@ -39,6 +40,7 @@ export class RecordManager {
     static instance: RecordManager = null;
     private registeredAutomatic = false;
     private manualControlled = false;
+    private recordTimer: number = undefined;
     private windowInformation = new Map<string, WindowInformation>()
 
     public async getCurrent() {
@@ -201,6 +203,11 @@ export class RecordManager {
         const currVideos = await listVideos()
         NodeObs.OBS_service_startRecording()
 
+        const signal = await SignalsManager.getNextSignalInfo();
+        if(signal.signal === EOBSOutputSignal.Stop)
+            throw new Error("Could not start recording.")
+
+        this.recordTimer = Date.now()
         let videoName = null
         for (let i = 0; i < 1000; i++) {
             const newVideos = await listVideos()
@@ -250,6 +257,7 @@ export class RecordManager {
             } as VideoInfo, null, 2))
         }
         this.recording = false
+        this.recordTimer = undefined
         this.manualControlled = manual
         RegManMain.send("obs_record_change", false)
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
@@ -264,6 +272,7 @@ export class RecordManager {
         reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
         reg.onSync("obs_is_recording", () => this.isRecording())
         reg.onPromise("obs_get_current", () => this.getCurrent())
+        reg.onPromise("obs_record_time", async () => this.recordTimer && Date.now() - this.recordTimer)
     }
 
     public async shutdown() {
