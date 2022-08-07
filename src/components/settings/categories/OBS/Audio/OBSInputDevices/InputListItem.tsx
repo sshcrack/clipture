@@ -14,7 +14,8 @@ type Props = {
 interface OptionValue {
     device_id: string,
     name: string,
-    type: DeviceType
+    type: DeviceType,
+    disabled?: boolean
 }
 
 export default function InputListItem({ currDev: currDev, allDevices, defaultDevice, onChange }: Props) {
@@ -35,21 +36,38 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
             volSource = defaultDevice.desktop.device_id
     }
 
+    const notAvailableDesktop = type === "desktop" && !allDevices.desktop.some(e => e.device_id === device_id)
+    const notAvailableMicrophone = type === "microphone" && !allDevices.microphones.some(e => e.device_id === device_id)
+
     const optionValues = [
         {
             device_id: null,
             name: "======Desktop======",
-            type: null
+            type: null,
+            disabled: true
         },
         ...allDevices.desktop.map(({ device_id, name }) => ({
             device_id,
             name: device_id.toLowerCase() === "default" ? "Default Desktop" : name,
             type: "desktop"
         })),
+        notAvailableDesktop && {
+            device_id: device_id,
+            type: "desktop",
+            name: "[Device not connected]",
+            disabled: true
+        },
         {
             device_id: null,
             name: "======Microphone======",
-            type: null
+            type: null,
+            disabled: true
+        },
+        notAvailableMicrophone && {
+            device_id: device_id,
+            type: "microphone",
+            name: "[Device not connected]",
+            disabled: true
         },
         ...allDevices.microphones.map(({ device_id, name }) => ({
             device_id,
@@ -58,13 +76,17 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
         }))
     ] as OptionValue[]
 
-    const options = optionValues.map(({ name, device_id, type }, i) => {
+    const options = optionValues.map(({ name, device_id, type, disabled }, i) => {
         let value = device_id
         const lowerCase = device_id?.toLowerCase()
         if (lowerCase === "default")
             value = `default-${type}`
 
-        return <option key={`device-select-${device_id}-${name}-${i}`} value={value}>{name}</option>
+        return <option
+            key={`device-select-${device_id}-${name}-${i}`}
+            value={value}
+            disabled={disabled ?? false}
+        >{name}</option>
     })
 
     useEffect(() => {
@@ -75,12 +97,9 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
         if (index === -1)
             return
 
-        //@ts-ignore
-        window.options = options
-        //@ts-ignore
-        window.optionsValues = optionValues
         ref.current.selectedIndex = index
     }, [ref, options, optionValues, findId])
+
 
     return <ListItem
         display='flex'

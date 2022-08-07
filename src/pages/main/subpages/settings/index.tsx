@@ -43,6 +43,7 @@ const onlyAvailableWhenNotRecording = [
 export default function SettingsPage({ prevPage }: { data: SessionData, prevPage: string }) {
     const { item } = useParams()
     const [recording, setRecording] = useState(true)
+    const [ update, setUpdate ] = useState(0)
     const { obs } = window.api
 
 
@@ -76,7 +77,7 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
     const pageAvailable = !onlyAvailableWhenNotRecording.some(e => e.category === category && e.name === leftOver)
     const displayPage = !recording || pageAvailable
     return <SettingsSaveProvider>
-        {displayPage && <SettingsSavePopup />}
+        {displayPage && <SettingsSavePopup onReset={() => setUpdate(Math.random())}/>}
         <Flex
             h='100%'
             w='100%'
@@ -104,7 +105,7 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
                         alignItems='center'
                         justifyContent='center'
                     >
-                        {displayPage && <CurrPage />}
+                        {displayPage && <CurrPage key={update}/>}
                         {!displayPage && <Flex
                             flexDir='column'
                             justifyContent='center'

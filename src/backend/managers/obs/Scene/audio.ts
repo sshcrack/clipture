@@ -31,7 +31,7 @@ export class AudioSceneManager {
     private static defaultMic = undefined as AudioDevice
 
     static register() {
-        RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type, input }) => ({ device_id, type, volume: input.volume })) as SourceInfo[] as unknown as FixedLengthArray<SourceInfo, 2>)
+        RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type, input, volume }) => ({ device_id, type, volume })) as SourceInfo[] as unknown as FixedLengthArray<SourceInfo, 2>)
         RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics }))
         RegManMain.onPromise("audio_device_default", async () => this.getDefaultDevices())
         RegManMain.onPromise("audio_device_set", async (_, devices) => this.setAudioDevices(devices))
@@ -48,16 +48,23 @@ export class AudioSceneManager {
 
         const audioSource = InputFactory.create(osName, audioType, { device_id, volume });
         audioSource.volume = volume
-        const volmeter = VolmeterFactory.create(1)
 
-        volmeter.attach(audioSource)
-        volmeter.addCallback((...args) => RegManMain.send("audio_volmeter_update", device_id, ...args))
-
+        const volmeter = this.attachVolmeter(audioSource, device_id)
         this.allVolmeters.push({
             device_id,
             input: audioSource,
             volmeter
         })
+    }
+
+    private static attachVolmeter(audioSource: IInput, device_id: string) {
+        const volmeter = VolmeterFactory.create(1)
+
+        volmeter.attach(audioSource)
+        volmeter.addCallback((...args) =>{
+            RegManMain.send("audio_volmeter_update", device_id, ...args)
+        })
+        return volmeter
     }
 
     static initializeVolmeter() {
@@ -167,10 +174,19 @@ export class AudioSceneManager {
 
         log.log("Current volume of audio source is", audioSource.volume)
         //audioSource.volume = type === "microphone" ? 1.5 : 1
+
+        const volmeter = this.attachVolmeter(audioSource, device_id)
+        this.allVolmeters.push({
+            device_id,
+            input: audioSource,
+            volmeter
+        })
+
         this.activeSources.push({
             device_id,
             input: audioSource,
-            type
+            type,
+            volume
         })
         return currTrack
     }

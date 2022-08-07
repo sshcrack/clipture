@@ -1476,6 +1476,10 @@
   version "0.3.101"
   resolved "file:../obs-studio-node-fix/out.tar.gz#0b2d2e44a388b7743e142ae25b6fd45a7e0d4c4d"
 
+"@streamlabs/obs-studio-node@file:../../libs/obs-studio-node-fix/archive8.tar.gz":
+  version "0.3.101"
+  resolved "file:../../libs/obs-studio-node-fix/archive8.tar.gz#3914b25ed84e09bb635414bbf780bf2dba3f3d65"
+
 "@szhsin/react-menu@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@szhsin/react-menu/-/react-menu-3.1.1.tgz#8218fdb4bb2f55cc066392ccd31613125357af8d"
