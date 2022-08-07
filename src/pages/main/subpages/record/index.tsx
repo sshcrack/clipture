@@ -1,5 +1,5 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
-import type { OutCurrentType } from '@backend/managers/obs/core/record';
+import { OutCurrentType } from '@backend/managers/obs/core/interface';
 import { Flex, Heading } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
 import { NavBar } from 'src/components/general/NavBar';

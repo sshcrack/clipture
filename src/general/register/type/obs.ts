@@ -1,4 +1,4 @@
-import { OutCurrentType } from '@backend/managers/obs/core/record'
+import { OutCurrentType } from '@backend/managers/obs/core/interface'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import type { OBSSettings } from '@Globals/storage'

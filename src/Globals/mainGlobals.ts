@@ -27,6 +27,7 @@ export class MainGlobals {
     static readonly ffmpegExe = ffmpegExe
     static readonly ffprobeExe = ffprobeExe
     static readonly iconFile = path.join(__dirname,"assets/logo.ico");
+    static readonly bookmarkedSound = path.join(__dirname,"assets/bookmarked.mp3");
     static readonly dotIconFile = path.join(__dirname, "assets/dot.ico");
     static readonly dotIconNativeImage = nativeImage.createFromPath(this.dotIconFile)
     static obs: OBSManager;

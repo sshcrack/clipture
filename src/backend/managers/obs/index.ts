@@ -59,8 +59,8 @@ export class OBSManager {
                 func: () => RecordManager.instance.initialize()
             },
             {
-            title: "Registering hotkeys...",
-            func: () => BookmarkManager.initialize()
+                title: "Registering hotkeys...",
+                func: () => BookmarkManager.initialize()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 
@@ -77,11 +77,19 @@ export class OBSManager {
                 status: title
             })
 
-            log.info(`Step ${i +1}/${steps.length} (${(percent * 100).toFixed(1)}): ${title}`)
+            log.info(`Step ${i + 1}/${steps.length} (${(percent * 100).toFixed(1)}%): ${title}`)
             let start = Date.now()
-            await func()
+            for (let i = 0; i <10; i++) {
+                const res = await (func()
+                    ?.then(() => undefined)
+                    ?.catch(e => e))
+                if (!res)
+                    break;
+                log.error("Could not complete step, retrying... (try: ", i, ")")
+                log.error(res)
+            }
             let diff = Date.now() - start
-            log.info(`Step ${i +1}/${steps.length} done after ${prettyMS(diff)}`)
+            log.info(`Step ${i + 1}/${steps.length} done after ${prettyMS(diff)}`)
         }
 
         inst.unlock({

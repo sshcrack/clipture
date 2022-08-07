@@ -4,38 +4,34 @@ import { GeneralGame } from '@backend/managers/game/interface'
 import { notify } from '@backend/tools/notifier'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
+import { BookmarkManager} from "@backend/managers/obs/bookmark"
 import { Storage } from '@Globals/storage'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
+import sound from "sound-play"
 import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import path from 'path'
+import { OutCurrentType, CurrentType } from "./interface"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { EOBSOutputSignal, SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
-import { getWindowInfoId, isDetectableGameInfo, isWindowInfoSame } from './tools'
+import { getDuration, processRunning } from "./backend_only_tools"
+import { getWindowInfoId, isDetectableGameInfo, isWindowInfoSame, sleepSync } from './tools'
 
 const reg = RegManMain
 const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
-
-type CurrentType = Omit<VideoInfo, "duration"> & {
-    videoPath: string | null,
-    currentInfoPath: string | null
-}
-
-export type OutCurrentType = Omit<CurrentType, "gameId"> & {
-    game: GeneralGame
-}
 
 export class RecordManager {
     private recording = false;
     private current = {
         gameId: null,
         videoPath: null,
-        currentInfoPath: null
+        currentInfoPath: null,
+        bookmarks: [] as number[]
     } as CurrentType
     static instance: RecordManager = null;
     private registeredAutomatic = false;
@@ -235,6 +231,7 @@ export class RecordManager {
             currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
             gameId: discordGameInfo?.id ?? windowId,
             videoPath: infoPathAvailable ? videoPath : null,
+            bookmarks: []
         }
 
         this.recording = true
@@ -249,16 +246,24 @@ export class RecordManager {
         log.info("Stopped recording")
         NodeObs.OBS_service_stopRecording()
         if (this.current?.currentInfoPath) {
-            const { currentInfoPath, gameId, videoPath } = this.current
+            const { currentInfoPath, gameId, videoPath, bookmarks } = this.current
             const duration = await getDuration(videoPath)
             await fs.writeFile(currentInfoPath, JSON.stringify({
                 duration,
-                gameId
+                gameId,
+                bookmarks
             } as VideoInfo, null, 2))
         }
         this.recording = false
         this.recordTimer = undefined
         this.manualControlled = manual
+        this.current = {
+            gameId: null,
+            videoPath: null,
+            currentInfoPath: null,
+            bookmarks: []
+        }
+
         RegManMain.send("obs_record_change", false)
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
     }
@@ -273,6 +278,7 @@ export class RecordManager {
         reg.onSync("obs_is_recording", () => this.isRecording())
         reg.onPromise("obs_get_current", () => this.getCurrent())
         reg.onPromise("obs_record_time", async () => this.recordTimer && Date.now() - this.recordTimer)
+        this.registerHotkey()
     }
 
     public async shutdown() {
@@ -280,36 +286,22 @@ export class RecordManager {
         const infoPath = path.join(clipPath, "window_info.json")
 
         await fs.writeFile(infoPath, JSON.stringify(Array.from(this.windowInformation.entries())))
-        this.stopRecording()
+        await this.stopRecording()
     }
-}
 
-function processRunning(pid: number) {
-    try {
-        process.kill(pid, 0)
-        return true
-    } catch {
-        return false
+    public registerHotkey() {
+        BookmarkManager.addHotkeyHook(() => {
+            if(!this.isRecording() || !this.current)
+                return
+
+            const currTime = Date.now() - this.recordTimer
+            if(!this.current?.bookmarks)
+                this.current.bookmarks = []
+
+
+            log.info("New Bookmark at time", currTime, "added")
+            this.current.bookmarks.push(currTime)
+            sound.play(MainGlobals.bookmarkedSound)
+        })
     }
-}
-
-function sleepSync(ms: number) {
-    return new Promise(resolve => {
-        setTimeout(resolve, ms)
-    });
-}
-
-async function getDuration(inputPath: string) {
-    const execa = (await import("execa")).execa
-    const res = await execa(MainGlobals.ffprobeExe, ["-i", inputPath, "-show_format"])
-    const numberRes = res
-        .stdout
-        ?.split("\n")
-        ?.find(e => e.includes("duration"))
-        ?.split("=")
-        ?.shift()
-
-    if (!numberRes)
-        throw new Error(`Could not get duration with ffprobe at ${MainGlobals.ffprobeExe} with clip ${inputPath}`)
-    return parseFloat(numberRes)
 }

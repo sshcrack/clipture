@@ -1476,10 +1476,6 @@
   version "0.3.101"
   resolved "file:../obs-studio-node-fix/out.tar.gz#0b2d2e44a388b7743e142ae25b6fd45a7e0d4c4d"
 
-"@streamlabs/obs-studio-node@file:../../libs/obs-studio-node-fix/archive8.tar.gz":
-  version "0.3.101"
-  resolved "file:../../libs/obs-studio-node-fix/archive8.tar.gz#3914b25ed84e09bb635414bbf780bf2dba3f3d65"
-
 "@szhsin/react-menu@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@szhsin/react-menu/-/react-menu-3.1.1.tgz#8218fdb4bb2f55cc066392ccd31613125357af8d"
@@ -1802,6 +1798,13 @@
   version "0.3.33"
   resolved "https://registry.yarnpkg.com/@types/sockjs/-/sockjs-0.3.33.tgz#570d3a0b99ac995360e3136fd6045113b1bd236f"
   integrity sha512-f0KEEe05NvUnat+boPTZ0dgaLZ4SfSouXUgv5noUiefG2ajgKjmETo9ZJyuqsl7dfl2aHlLJUiki6B4ZYldiiw==
+  dependencies:
+    "@types/node" "*"
+
+"@types/sound-play@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/sound-play/-/sound-play-1.1.0.tgz#5e8a8354c92492b40a477c747ac6059d9e251768"
+  integrity sha512-r9BuZ7T8KmS3qxW52hg3LoFX8kl+jUPZilI2QawmjnNEjbHLDYrGOX1HOguF5BRI8ECM0OSXONl13UwT0XkPgw==
   dependencies:
     "@types/node" "*"
 
@@ -7494,6 +7497,11 @@ socks@^2.6.2:
   dependencies:
     ip "^1.1.5"
     smart-buffer "^4.2.0"
+
+sound-play@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/sound-play/-/sound-play-1.1.0.tgz#58ffa31d1bf51822d49d91ff7865591fd9376381"
+  integrity sha512-Bd/L0AoCwITFeOnpNLMsfPXrV5GG5NhrC/T6odveahYbhPZkdTnrFXRia9FCC5WBWdUTw1d+yvLBvi4wnD1xOA==
 
 source-map-js@^1.0.2:
   version "1.0.2"

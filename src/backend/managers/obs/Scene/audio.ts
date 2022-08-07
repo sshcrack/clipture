@@ -38,11 +38,13 @@ export class AudioSceneManager {
     }
 
     private static addVolmeter({ device_id, type, volume }: SourceInfo) {
+        if(device_id.toLowerCase() === "default")
+            return log.warn("Cannot add volmeter with device id default.")
+
         if (this.allVolmeters.some(e => e.device_id === device_id))
             return
 
         log.silly("Adding volmeter with device_id", device_id)
-
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
@@ -64,12 +66,16 @@ export class AudioSceneManager {
         volmeter.addCallback((...args) =>{
             RegManMain.send("audio_volmeter_update", device_id, ...args)
         })
+
+        log.debug("Added volmeter for device", device_id)
         return volmeter
     }
 
     static initializeVolmeter() {
+        log.info("Initializing voltmeter")
         this.allDesktops.forEach(({ device_id }) => this.addVolmeter({ device_id, type: "desktop", volume: 1 }))
         this.allMics.forEach(({ device_id }) => this.addVolmeter({ device_id, type: "microphone", volume: 1 }))
+        log.info("Initialized a total of", this.allVolmeters.length, "volmeters")
     }
 
     static getDefaultDevices() {
@@ -163,7 +169,8 @@ export class AudioSceneManager {
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
-        const audioSource = InputFactory.create(osName, audioType, { device_id: device_id, volume: volume });
+        const audioSource = InputFactory.create(osName, audioType, { device_id: device_id });
+        const volmeter = this.attachVolmeter(audioSource, device_id)
         audioSource.volume = volume
 
         log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
@@ -173,9 +180,7 @@ export class AudioSceneManager {
         currTrack++;
 
         log.log("Current volume of audio source is", audioSource.volume)
-        //audioSource.volume = type === "microphone" ? 1.5 : 1
 
-        const volmeter = this.attachVolmeter(audioSource, device_id)
         this.allVolmeters.push({
             device_id,
             input: audioSource,

@@ -7,9 +7,10 @@ import { MainLogger } from "src/interfaces/mainLogger";
 const log = MainLogger.get("Backend", "Managers", "OBS", "Bookmark")
 export class BookmarkManager {
     private static currHotkey = undefined as string
+    private static listeners = [] as (() => unknown)[]
 
     static register() {
-        RegManMain.onPromise("bookmark_hotkey_get", async () => Storage.get("bookmark_hotkey"))
+        RegManMain.onPromise("bookmark_hotkey_get", async () => Storage.get("bookmark_hotkey", "F9"))
         RegManMain.onPromise("bookmark_hotkey_set", async (_, hotkey) => this.changeHotkey(hotkey))
 
         RegManMain.onPromise("bookmark_listen_key", ({ sender }) => {
@@ -26,7 +27,10 @@ export class BookmarkManager {
                     if (meta)
                         hotkey.push("meta")
 
-                    hotkey.push(key)
+                    if(!hotkey.some(e => e.toLowerCase() === key.toLowerCase()) &&
+                        !(control && key.toLowerCase() === "control")
+                        )
+                        hotkey.push(key)
                     e.preventDefault()
 
                     resolve(hotkey.join("+"))
@@ -43,6 +47,7 @@ export class BookmarkManager {
     }
 
     static changeHotkey(hotkey: string) {
+        log.info("Changing hotkey to", hotkey)
         Storage.set("bookmark_hotkey", hotkey)
         this.registerHotkey(hotkey)
     }
@@ -81,7 +86,16 @@ export class BookmarkManager {
         globalShortcut.register(hotkey, () => this.onHotkey())
     }
 
+    static addHotkeyHook(cb: () => unknown) {
+        this.listeners.push(cb)
+
+        return () => {
+            const index = this.listeners.indexOf(cb)
+            this.listeners.splice(index, 1)
+        }
+    }
+
     private static onHotkey() {
-        log.log("Hotkey fired!")
+        this.listeners.map(e => e())
     }
 }

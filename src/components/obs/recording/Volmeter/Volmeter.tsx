@@ -5,21 +5,31 @@ import React, { useEffect, useState } from "react"
 export default function Volmeter({ source, ...props }: { source: string } & BoxProps) {
     const { audio } = window.api
     const [percentage, setPercentage] = useState(0)
+    const [ currVal, setCurrVal] = useState(-Infinity)
 
     useEffect(() => {
         const filter = new ExpFilter(0, 0.2, 0.2)
         console.log("New source is", source)
         setPercentage(0)
-        const audioRemove = audio.onVolmeterChange((innerSource, m) => {
-            if(innerSource === source)
-                console.log(m)
-            const avg = Math.abs(m.reduce((a, b) => a + b, 0) / m.length);
-            const max = Math.min(1, avg / 60)
-            if (source !== innerSource)
+        const audioRemove = audio.onVolmeterChange((innerSource, ...channels) => {
+            if(innerSource !== source)
                 return
+
+            const getAvg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length
+             
+            const averages = channels.map(e => getAvg(e))
+            const maxInChannels = Math.max(...averages)
+            const maxChannelIndex = averages.findIndex(e => e === maxInChannels)
+            const m = channels[maxChannelIndex]
+            if(!m)
+                return console.error("Could not find m", maxChannelIndex, maxInChannels, averages)
+
+            const avg = Math.abs(getAvg(m));
+            const max = Math.min(1, avg / 60)
 
             const newVal = filter.update(1 - max)
             setPercentage(newVal)
+            setCurrVal(avg)
         })
 
         return () => {

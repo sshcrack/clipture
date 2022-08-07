@@ -13,3 +13,9 @@ export function isWindowInfoSame(a: WindowInformation, b: WindowInformation) {
 export function getWindowInfoId(info: WindowInformation) {
     return `${info.className}-${info.full_exe}`
 }
+
+export function sleepSync(ms: number) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms)
+    });
+}
