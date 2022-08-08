@@ -1,6 +1,8 @@
+import { GeneralGame } from '@backend/managers/game/interface';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
+import { SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 
 
@@ -58,14 +60,30 @@ function getEncryptKey(key: string) {
 const defaultInstall = app.getPath("userData")
 const defaultClips = path.join(defaultInstall, "clips")
 
+
+const defaults = {
+    "install_dir": defaultInstall,
+    "install_dir_selected": false,
+    "clip_path": defaultClips,
+    "games_exclude": [] as GeneralGame[],
+    "games_include": [] as GeneralGame[],
+    "audio_devices": [] as SourceInfo[],
+    "last_dashboard_page": 0,
+    "obs": {
+        "fps": 60,
+        "bitrate": 10000
+    },
+    "close_behavior": "unset" as "unset" | "close" | "minimize",
+    "bookmark_hotkey": "F9",
+    "auto_launch": true,
+    "discord_rpc": true
+}
 export const Storage = new StorageExtended({
-    defaults: {
-        "install_dir": defaultInstall,
-        "install_dir_selected": false,
-        "clip_path": defaultClips,
-        "audio_devices": {
-            "desktop": [] as string[],
-            "mic": [] as string[]
-        }
-    }
+    defaults
 })
+
+
+export type SettingsType = typeof defaults
+export type OBSSettings = {
+    [key in keyof SettingsType["obs"]]: SettingsType["obs"][key]
+}

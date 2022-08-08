@@ -1,0 +1,28 @@
+@keyframes backgroundPosition {
+    0% {
+        background-position-x: 0%;
+    }
+
+    50% {
+        background-position-x: 100%;
+    }
+
+    100% {
+        background-position-x: 0%;
+    }
+
+}
+
+@keyframes backgroundSkeleton {
+    0% {
+        background: rgb(26, 32, 44) none repeat scroll 0% 0%;
+    }
+    100% {
+        background: rgb(74, 85, 104) none repeat scroll 0% 0%;
+    }
+}
+
+
+.videoGrid .videoGridItem {
+    animation: backgroundPosition 30s ease-in-out infinite;
+}

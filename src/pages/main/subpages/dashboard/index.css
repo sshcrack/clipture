@@ -1,0 +1,7 @@
+.tabHotkey {
+    display: block;
+}
+
+.tabHotkey::first-letter {
+    text-decoration: underline;
+}

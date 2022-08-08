@@ -1,7 +1,6 @@
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
-import { ipcMain } from 'electron'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
@@ -9,10 +8,14 @@ import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
 import { LockManager } from '../lock'
 import { getAvailableValues, setOBSSetting as setSetting } from './base'
+import { BookmarkManager } from './bookmark'
 import { PreviewManager } from './core/preview'
+import prettyMS from "pretty-ms"
 import { RecordManager } from './core/record'
 import { Scene } from './Scene'
+import { SignalsManager } from './Signals'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
+import { DiscordManager } from '../discord'
 
 
 const NodeObs: NodeObs = notTypedOBS
@@ -35,32 +38,69 @@ export class OBSManager {
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
+        const steps = [
+            {
+                title: "Initializing OBS...",
+                func: () => this.initOBS()
+            },
+            {
+                title: "Configuring OBS...",
+                func: () => this.configure()
+            },
+            {
+                title: "Connecting signals...",
+                func: () => SignalsManager.initialize()
+            },
+            {
+                title: "Initializing scene...",
+                func: () => Scene.initialize()
+            },
+            {
+                title: "Setting up auto record...",
+                func: () => RecordManager.instance.initialize()
+            },
+            {
+                title: "Registering hotkeys...",
+                func: () => BookmarkManager.initialize()
+            },
+            {
+                title: "Adding discord presence",
+                func: () => DiscordManager.initialize()
+            }
+        ] as { title: string, func: () => Promise<unknown> }[]
+
         inst.lock({
             percent: 0,
-            status: "Initializing OBS..."
+            status: "Loading.."
         })
-        await this.initOBS()
 
+        for (let i = 0; i < steps.length; i++) {
+            const { title, func } = steps[i]
+            const percent = i / steps.length
+            inst.updateListeners({
+                percent,
+                status: title
+            })
 
-        inst.updateListeners({
-            percent: .3,
-            status: "Configuring OBS..."
-        })
-        this.configure()
-
-
-        inst.updateListeners({
-            percent: .6,
-            status: "Initializing scene..."
-        })
-        await Scene.initialize()
+            log.info(`Step ${i + 1}/${steps.length} (${(percent * 100).toFixed(1)}%): ${title}`)
+            let start = Date.now()
+            for (let i = 0; i <10; i++) {
+                const res = await (func()
+                    ?.then(() => undefined)
+                    ?.catch(e => e))
+                if (!res)
+                    break;
+                log.error("Could not complete step, retrying... (try: ", i, ")")
+                log.error(res)
+            }
+            let diff = Date.now() - start
+            log.info(`Step ${i + 1}/${steps.length} done after ${prettyMS(diff)}`)
+        }
 
         inst.unlock({
             percent: 1,
             status: "OBS initialized"
         })
-
-        this.recordManager.initialize()
         this.obsInitialized = true
     }
 
@@ -95,17 +135,16 @@ export class OBSManager {
         }
 
         log.info("Successfully initialized OBS!")
-        setInterval(() =>
-            ipcMain.emit("performance", NodeObs.OBS_API_getPerformanceStatistics())
-            , 2000)
+        setInterval(() => RegManMain.send("performance", NodeObs.OBS_API_getPerformanceStatistics()), 2000)
     }
 
     public async shutdown(force = false) {
         if (!this.obsInitialized && !force)
             return
 
-        await this.previewInstance.shutdown()
         log.info("Shutting OBS down...")
+        await this.previewInstance.shutdown().catch(log.error)
+        await this.recordManager.shutdown().catch(log.error)
         try {
             NodeObs.OBS_service_removeCallback();
             NodeObs.IPC.disconnect()
@@ -128,15 +167,38 @@ export class OBSManager {
         setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
         setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
         setSetting(Output, 'RecFormat', 'mkv');
-        setSetting(Output, 'VBitrate', 10000); // 10 Mbps
-        setSetting(Video, 'FPSCommon', 60);
+
+        this.updateSettings()
 
         log.info("Configured OBS successfully!")
+    }
+
+    public updateSettings() {
+        const Output = SettingsCat.Output
+        const Video = SettingsCat.Video
+
+        const fps = Storage.get("obs")?.fps ?? 60
+        const bitrate = Storage.get("obs")?.bitrate ?? 10000
+
+        setSetting(Video, 'FPSCommon', fps);
+        setSetting(Output, 'VBitrate', bitrate); // 10 Mbps
     }
 
     private register() {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
+        reg.onPromise("obs_set_settings", async (_, e) => Storage.set("obs", e))
+        reg.onPromise("obs_get_settings", async () => Storage.get("obs"))
+        reg.onPromise("obs_update_settings", async (_, fps, bitrate) => {
+            if (fps <= 0)
+                throw new Error("Invalid fps number")
+
+            if (bitrate <= 0)
+                throw new Error("Invalid bitrate")
+
+            Storage.set("obs", { fps, bitrate })
+            this.updateSettings()
+        })
     }
 }

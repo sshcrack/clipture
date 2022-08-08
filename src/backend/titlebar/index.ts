@@ -1,3 +1,5 @@
+import { SystemManager } from '@backend/managers/system'
+import { MainGlobals } from '@Globals/mainGlobals'
 import { ipcMain, BrowserWindow, WebContents } from 'electron'
 
 const setupEventListener = (browserWindow: BrowserWindow, sender: WebContents) => {
@@ -22,7 +24,6 @@ export class TitlebarManager {
 
         ipcMain.on('electron-react-titlebar/maximize/set', (event, browserWindowId) => {
             const browserWindow = browserWindowId ? BrowserWindow.fromId(browserWindowId) : BrowserWindow.fromWebContents(event.sender)
-            console.log("Maximizable", browserWindow?.isMaximizable())
             if (browserWindow?.isMaximizable()) {
                 if (browserWindow.isMaximized()) {
                     browserWindow.unmaximize()
@@ -39,7 +40,7 @@ export class TitlebarManager {
 
         ipcMain.on('electron-react-titlebar/close', (event, browserWindowId) => {
             const browserWindow = browserWindowId ? BrowserWindow.fromId(browserWindowId) : BrowserWindow.fromWebContents(event.sender)
-            browserWindow?.close()
+            SystemManager.handleWindowCloseButton(browserWindow)
         })
     }
 }

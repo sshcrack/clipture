@@ -2,12 +2,18 @@ import { UseToastOptions } from '@chakra-ui/react';
 import { RegManRender } from '@general/register/render';
 import { contextBridge, ipcRenderer } from 'electron';
 import log from "electron-log";
+
 import auth from "./auth";
+import bookmark from "./bookmark";
 import clips from "./clips";
 import lock from "./lock";
 import obs from "./obs";
-import process from "./process";
+import game from "./game";
+import audio from "./audio";
+import system from './system';
 import titlebar from "./titlebar";
+import settings from './settings';
+import videos from './videos';
 
 
 
@@ -18,11 +24,16 @@ RegManRender.on("toast_show", (_, options) => toastHandlers.map(e => e(options))
 
 export const API = {
     clips,
+    videos,
     lock,
     obs,
     auth,
-    process,
+    game,
     titlebar,
+    audio,
+    system,
+    settings,
+    bookmark,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean

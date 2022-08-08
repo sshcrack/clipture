@@ -1,0 +1,13 @@
+@keyframes recordingAnimate {
+    0% {
+        background-color: transparent;
+    }
+
+    50% {
+        background-color: rgb(255, 0, 0);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}

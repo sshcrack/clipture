@@ -4,7 +4,6 @@ import { RegManRender } from '@general/register/render';
 
 const listeners: ((clip: ClipCutInfo, prog: Progress) => void)[] = []
 const clips = {
-    list: () => RegManRender.emitPromise("clips_list"),
     currently_cutting: () => RegManRender.emitPromise("clips_cutting"),
     add_listener: (onUpdate: (clip: ClipCutInfo, prog: Progress) => void) => {
         const func = (clip: ClipCutInfo, prog: Progress) => {
@@ -16,15 +15,18 @@ const clips = {
         return () => {
             const index = listeners.indexOf(func)
             if (index === -1)
-                return console.log("Could not remove manual listener")
+                return console.error("Could not remove manual listener")
 
             listeners.splice(index, 1)
         }
     },
-    cut: (clipName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
-        const prom = RegManRender.emitPromise("clips_cut", { clipName, start: selectStart, end: selectEnd })
+    list: () => RegManRender.emitPromise("clips_list"),
+    thumbnail: (clipName: string) => RegManRender.emitPromise("clips_thumbnail", clipName),
+    exists: (name: string) => RegManRender.emitPromise("clips_exists", name),
+    cut: (clipName: string, videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
+        const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd, clipName })
         const listener = (clip: ClipCutInfo, prog: Progress) => {
-            if (clip.clipName !== clipName || clip.start !== selectStart || clip.end !== selectEnd)
+            if (clip.videoName !== videoName || clip.start !== selectStart || clip.end !== selectEnd)
                 return
 
             onProgress(prog)
@@ -33,13 +35,14 @@ const clips = {
         return prom.finally(() => {
             const index = listeners.indexOf(listener)
             if (index === -1)
-                return console.log("Invalid index for listener with clip", clipName)
+                return console.log("Invalid index for listener with video", videoName)
             listeners.splice(index, 1)
         })
-    }
+    },
+    delete: (clipName: string) => RegManRender.emitPromise("clips_delete", clipName)
 }
 
-RegManRender.on("clip_update", (_, x, y) => {
+RegManRender.on("clips_update", (_, x, y) => {
     listeners.map(e => e(x, y))
     console.log("Preload listeners notify")
 })

@@ -1,3 +1,5 @@
+import { IInput, IVolmeter } from '@streamlabs/obs-studio-node'
+
 export interface WindowInformation {
     className: string,
     executable: string,
@@ -17,7 +19,11 @@ export interface WindowInformation {
 export type CurrentSetting = null | {
     window: WindowInformation,
     monitor?: number,
-    manual: boolean
+    manual: boolean,
+    size: {
+        width: number,
+        height: number
+    }
 }
 
 export interface CurrentSettingDescription {
@@ -89,4 +95,29 @@ export enum Distributor {
     Steam = "steam",
     Twitch = "twitch",
     Uplay = "uplay",
+}
+
+
+export interface AudioDevice {
+    name: string,
+    device_id: string
+}
+
+export interface AllAudioDevices {
+    desktop: AudioDevice[],
+    microphones: AudioDevice[]
+}
+
+export interface DefaultAudioDevice {
+    desktop: AudioDevice,
+    microphone: AudioDevice
+}
+
+export type DeviceType = "desktop" | "microphone"
+
+export interface ActiveSource {
+    input: IInput,
+    device_id: string,
+    volume: number,
+    type: DeviceType
 }

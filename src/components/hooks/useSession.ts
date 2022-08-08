@@ -18,10 +18,8 @@ export function useSession() {
     useEffect(() => {
         const { auth } = window.api
 
-        console.log("Session get")
         auth.getSession()
             .then(({ status, data }) => {
-                console.log(status, data)
                 setStatus(status)
                 setData(data)
             })

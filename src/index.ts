@@ -1,37 +1,52 @@
+if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
+  app.quit();
+}
+
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 import { MainGlobals } from './Globals/mainGlobals';
 
-import { ProcessManager } from '@backend/managers/process';
+import { ClipManager } from '@backend/managers/clip';
+import { GameManager } from '@backend/managers/game';
 import { registerFuncs } from '@backend/registerFuncs';
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
-import { ClipManager } from '@backend/managers/clip';
-
-declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
-declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+import windowStateKeeper from "electron-window-state"
+import { SystemManager } from '@backend/managers/system';
 
 const logger = MainLogger.get("Main")
-if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-  app.quit();
-}
+declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
+declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 
 if (MainGlobals.getOS() !== "Windows_NT") {
   dialog.showErrorBox("Error", "This application is only supported on Windows")
   app.quit()
 }
 
+SystemManager.initialize()
 
+app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSession')
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
 
 let mainWindow: BrowserWindow;
+let trayIcon = null as Tray
 const createWindow = (): void => {
+  const { width, height, x, y, manage: manageWindow } = windowStateKeeper({
+    defaultHeight: 700,
+    defaultWidth: 1000
+  })
+
   mainWindow = new BrowserWindow({
-    height: 700,
-    width: 1000,
+    height,
+    width,
+    x,
+    y,
+    minHeight: 500,
+    minWidth: 940,
     darkTheme: true,
     frame: false,
     webPreferences: {
@@ -42,12 +57,41 @@ const createWindow = (): void => {
 
   mainWindow.setMenuBarVisibility(false)
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  mainWindow.maximize()
   mainWindow.setIcon(MainGlobals.iconFile)
   ClipManager.registerProtocol()
 
+  const showWindow = () => {
+    mainWindow.restore()
+    mainWindow.setSkipTaskbar(false)
+    mainWindow.focus()
+  }
+
+  trayIcon = new Tray(MainGlobals.iconFile);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show app',
+      click: () => showWindow()
+    },
+    {
+      label: 'Quit',
+      click: () => app.quit()
+    }
+  ]);
+
+
+  trayIcon.setToolTip('Clipture')
+  trayIcon.setContextMenu(contextMenu);
+  trayIcon.on("click", () => showWindow())
+
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
+
+  manageWindow(mainWindow)
+
+  if (process.argv.includes("--hidden")) {
+    mainWindow.minimize()
+    mainWindow.setSkipTaskbar(true)
+  }
 };
 
 
@@ -90,7 +134,7 @@ const handleExit = () => {
   alreadyShutdown = true
   ClipManager.shutdown()
   MainGlobals.obs.shutdown()
-  ProcessManager.exit()
+  GameManager.exit()
 }
 
 ipcMain.handle("quit-app", () => handleExit())

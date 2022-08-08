@@ -1,5 +1,5 @@
 import { IIPC } from '@streamlabs/obs-studio-node';
-import { SettingsCat } from './obs-enums';
+import { EOBSOutputSignal, EOBSOutputType, EOutputCode, SettingsCat } from './obs-enums';
 
 export interface SettingsParameter {
     name: string,
@@ -30,6 +30,14 @@ export interface PerformanceStatistics {
     diskSpaceAvailable: string
 }
 
+
+export interface IOBSOutputSignalInfo {
+    type: EOBSOutputType;
+    signal: EOBSOutputSignal;
+    code: EOutputCode;
+    error: string;
+}
+
 type INodeObs = {
     IPC: IIPC,
     SetWorkingDirectory: (dir: string) => void,
@@ -51,6 +59,8 @@ type INodeObs = {
     OBS_content_moveDisplay: (displayId: string, x: number, y: number) => void,
     OBS_content_setBackgroundColor: (displayId: string, r: number, g: number, b: number, alpha: number) => void,
     OBS_API_getPerformanceStatistics: () => PerformanceStatistics;
+    OBS_service_connectOutputSignals: (listener: (signal: IOBSOutputSignalInfo) => unknown) => void;
+    RegisterSourceCallback: (callback: () => void) => void;
 }
 
 export type NodeObs = INodeObs;

@@ -2,8 +2,8 @@ import { autoUpdater, dialog } from 'electron'
 import unhandled from "electron-unhandled"
 import { debugInfo, openNewGitHubIssue } from 'electron-util'
 import { MainLogger } from './interfaces/mainLogger'
-
 const logger = MainLogger.get("Main", "Updater")
+
 
 export function addUpdater() {
 

@@ -105,7 +105,7 @@ export interface DownloaderOptions extends AdditionalOptions {
     destination: string | (() => string),
     sha?: string;
     messages: {
-        /**E.g. Downloading modpack... */
+        /**E.g. Downloading file... */
         downloading: string
     }
 }

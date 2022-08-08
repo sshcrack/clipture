@@ -4,7 +4,7 @@ if (!process)
 
 import { BrowserWindow, ipcMain, IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { MainToRender, RegisterEvents, RegisterEventsPromises } from "./type"
+import { MainToRender, RegisterEvents, RegisterEventsPromises } from "./type/index"
 
 const log = MainLogger.get("RegisterManager", "Main")
 
@@ -14,8 +14,6 @@ export class RegManMain {
     static eventProm = [] as string[]
 
     static onSync<T extends keyof RegisterEvents, K extends Parameters<RegisterEvents[T]>, X extends ReturnType<RegisterEvents[T]>>(event: T, callback: (event: IpcMainEvent, ...args: K) => X) {
-        log.debug("Registering sync event:", event)
-
         if (!this.eventSync.includes(event))
             this.eventSync.push(event)
 
@@ -33,7 +31,6 @@ export class RegManMain {
             log.error(new Error(`Tried to register event '${event}' more than once. `))
             return
         }
-        log.debug("Registering prom event:", event)
 
         this.eventProm.push(event)
         return ipcMain.handle(event, (e, ...args) => callback(e, ...args as any)

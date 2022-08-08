@@ -52,10 +52,8 @@ export class AuthManager {
                 return reject(new Error("Timeout of " + this.TIMEOUT + "ms exceeded"))
             }
 
-            if (id !== this.currId) {
-                log.warn("AutoFetch has been aborted, because another one started")
-                return reject(new Error("AutoFetch has been aborted, because another one started"))
-            }
+            if (id !== this.currId)
+                return log.warn("AutoFetch has been aborted, because another one started")
 
             const apiUrl = `${baseUrl}/api/validation/report?id=${id}`
             const res: CheckReturnBody | null = await got(apiUrl)
@@ -105,12 +103,22 @@ export class AuthManager {
             }
         }).then(e => JSON.parse(e.body) as SessionData)
 
-        if (Object.keys(response).length === 0)
+        if (Object.keys(response).length === 0) {
+            log.info("UNAUTHENTICATED: No Keys in Response")
             return {
                 data: undefined,
                 status: SessionStatus.UNAUTHENTICATED
             }
+        }
 
+
+        log.info("AUTHENTICATED: with session", {
+            ...response,
+            user: {
+                ...response.user,
+                email: "REDACTED"
+            }
+        })
         return {
             data: response,
             status: SessionStatus.AUTHENTICATED
@@ -119,7 +127,7 @@ export class AuthManager {
 
     static async signOut() {
         const { recordManager } = MainGlobals.obs
-        for (const key in availableCookieTypes) {
+        for (const key of availableCookieTypes) {
             const id = getID(key, "key")
             const value = getID(key, "value")
 
@@ -128,7 +136,7 @@ export class AuthManager {
         }
 
         const isRecording = recordManager.isRecording()
-        if(isRecording) {
+        if (isRecording) {
             await recordManager.stopRecording(true)
             notify({
                 title: "Recording stopped",
