@@ -261,8 +261,10 @@ export class ClipManager {
         const detectable = await GameManager.getDetectableGames()
         return Promise.all(sorted.map(async ({ modified, file }) => {
             let gameInfo = this.videoInfoCache.get(file) as GeneralGame | null
+            let bookmarks = null
             if (!gameInfo) {
                 const info = await getVideoInfo(videoPath, path.basename(file))
+                bookmarks = info.bookmarks
                 const detec = detectable.find(e => e.id === info?.gameId)
                 if (detec)
                     gameInfo = {
@@ -284,7 +286,8 @@ export class ClipManager {
                 modified,
                 videoName: clipName,
                 video: file,
-                game: gameInfo ?? null
+                game: gameInfo ?? null,
+                bookmarks
             }
         })).catch(e => {
             log.error(e)

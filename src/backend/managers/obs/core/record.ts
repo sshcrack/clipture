@@ -38,6 +38,7 @@ export class RecordManager {
     private manualControlled = false;
     private recordTimer: number = undefined;
     private windowInformation = new Map<string, WindowInformation>()
+    private listeners = [] as ((isRecording: boolean) => unknown)[]
 
     public async getCurrent() {
         const detectable = await GameManager.getDetectableGames()
@@ -66,6 +67,10 @@ export class RecordManager {
 
     public getWindowInfo() {
         return this.windowInformation
+    }
+
+    public getRecordStart() {
+        return this.recordTimer
     }
 
     public async initialize() {
@@ -161,6 +166,7 @@ export class RecordManager {
         this.recording = true
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
         RegManMain.send("obs_record_change", true)
+        this.listeners.map(e => e(true))
     }
 
     public async stopRecording(manual = false) {
@@ -189,7 +195,19 @@ export class RecordManager {
         }
 
         RegManMain.send("obs_record_change", false)
+        this.listeners.map(e => e(false))
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
+    }
+
+    public addRecordListener(func: (isRecording: boolean) => unknown) {
+        this.listeners.push(func)
+
+        return () => {
+            const index = this.listeners.indexOf(func)
+            if(index === -1)
+                return 
+            this.listeners.splice(index, 1)
+        }
     }
 
     public isRecording() {
@@ -217,7 +235,7 @@ export class RecordManager {
         await this.stopRecording()
     }
 
-    public registerHotkey() {
+    private registerHotkey() {
         BookmarkManager.addHotkeyHook(() => {
             if (!this.isRecording() || !this.current)
                 return
@@ -229,12 +247,15 @@ export class RecordManager {
 
             log.info("New Bookmark at time", currTime, "added")
             this.current.bookmarks.push(currTime)
-            sound.play(MainGlobals.bookmarkedSound)
+            sound.play(path.resolve(MainGlobals.bookmarkedSound))
         })
     }
 
     public async onGameUpdate(info: WindowInformation[]) {
-        const { diff, winInfo, game } = await getAvailableGame(info) ?? {}
+        const available = await getAvailableGame(info)
+        if(!available)
+            return
+        const { diff, winInfo, game } = available ?? {}
 
         log.info("Game is diff", diff, "manual", this.manualControlled,
         "game", winInfo, "curr", Scene.getCurrentSetting()?.window)

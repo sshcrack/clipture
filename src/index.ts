@@ -16,6 +16,7 @@ import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
 import windowStateKeeper from "electron-window-state"
+import { SystemManager } from '@backend/managers/system';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -25,6 +26,8 @@ if (MainGlobals.getOS() !== "Windows_NT") {
   dialog.showErrorBox("Error", "This application is only supported on Windows")
   app.quit()
 }
+
+SystemManager.initialize()
 
 app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSession')
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
@@ -84,6 +87,11 @@ const createWindow = (): void => {
   MainGlobals.obs = new OBSManager()
 
   manageWindow(mainWindow)
+
+  if (process.argv.includes("--hidden")) {
+    mainWindow.minimize()
+    mainWindow.setSkipTaskbar(true)
+  }
 };
 
 

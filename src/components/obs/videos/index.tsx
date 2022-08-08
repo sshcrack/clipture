@@ -37,7 +37,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             })
     }, [retry])
 
-    const clipElements = currVideos.map(({ game, videoName, modified }, i) => {
+    const clipElements = currVideos.map(({ game, videoName, modified, bookmarks }, i) => {
         const { gameName, icon, id } = getGameInfo(game)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         return <RenderIfVisible
@@ -56,7 +56,13 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                     fileName={videoName}
                     onClick={() => location.hash = `/editor/${videoName}`}
                 >
-                    <HoverVideoWrapper source={videoName} w='100%' h='100%' flex='1' />
+                    <HoverVideoWrapper
+                        source={videoName}
+                        bookmarks={bookmarks}
+                        w='100%'
+                        h='100%'
+                        flex='1'
+                    />
                     <Flex
                         flex='0'
                         gap='.25em'

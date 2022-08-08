@@ -1,13 +1,13 @@
 import { Progress } from '@backend/processors/events/interface';
 import { GeneralGame } from '../game/interface';
-import { DetectableGame } from '../obs/Scene/interfaces';
 
 
 export type Video = {
     modified: number,
     video: string,
     videoName: string,
-    game: GeneralGame | null
+    game: GeneralGame | null,
+    bookmarks: number[] | null
 }
 
 export type Clip = {

@@ -16,6 +16,8 @@ const system = {
         }
     },
     setCloseBehavior: (behavior: "minimize" | "close") => RegManRender.emitPromise("system_set_close_behavior", behavior),
-    closeCurrWindow: () => RegManRender.emitPromise("system_close_curr_window")
+    closeCurrWindow: () => RegManRender.emitPromise("system_close_curr_window"),
+    setAutolaunch: (launch: boolean) => RegManRender.emitPromise("system_set_autolaunch", launch),
+    isAutolaunch: () => RegManRender.emitPromise("system_is_autolaunch")
 }
 export default system;

@@ -74,7 +74,9 @@ const defaults = {
         "bitrate": 10000
     },
     "close_behavior": "unset" as "unset" | "close" | "minimize",
-    "bookmark_hotkey": "F9"
+    "bookmark_hotkey": "F9",
+    "auto_launch": true,
+    "discord_rpc": true
 }
 export const Storage = new StorageExtended({
     defaults

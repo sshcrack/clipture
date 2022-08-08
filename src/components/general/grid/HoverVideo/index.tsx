@@ -3,14 +3,14 @@ import { getVideoSourceUrl, secondsToDuration } from '@general/tools';
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { VideoGridContext } from '../video';
 import { HoverVideoContext } from './HoverVideoProvider';
+import { MdPlace } from "react-icons/md"
 
-
-export default function HoverVideo({ source, ...props }: BoxProps & { source: string }) {
+export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & { source: string, bookmarks?: number[] }) {
     const { gridRef, cachedDurations, setCachedDurations } = useContext(VideoGridContext)
     const { hovered } = useContext(HoverVideoContext)
 
     const [opacity, setOpacity] = useState(0)
-    const [ update, setUpdate ] = useState(0)
+    const [update, setUpdate] = useState(0)
     const [currentTime, setCurrentTime] = useState(0)
     const [duration, setDuration] = useState(Infinity)
     const [debounced, setDebounced] = useState(false)
@@ -111,6 +111,29 @@ export default function HoverVideo({ source, ...props }: BoxProps & { source: st
     >
         {props.children}
         {videoElement}
+        {
+            bookmarks &&
+            <Flex
+                gridRow='1'
+                gridColumn='1'
+                w='100%'
+                h='100%'
+                justifyContent='start'
+                alignItems='end'
+            >
+                <Flex
+                    bg='rgba(0,0,0,0.75)'
+                    borderTopRightRadius='xl'
+                    justifyContent='center'
+                    alignItems='center'
+                    gap='2'
+                    p='2'
+                >
+                    <MdPlace style={{ height: "1.5rem", width: "100%" }}/>
+                    <Text>{bookmarks.length}</Text>
+                </Flex>
+            </Flex>
+        }
         <Flex
             gridRow='1'
             gridColumn='1'

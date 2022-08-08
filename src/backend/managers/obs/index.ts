@@ -15,6 +15,7 @@ import { RecordManager } from './core/record'
 import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
+import { DiscordManager } from '../discord'
 
 
 const NodeObs: NodeObs = notTypedOBS
@@ -61,6 +62,10 @@ export class OBSManager {
             {
                 title: "Registering hotkeys...",
                 func: () => BookmarkManager.initialize()
+            },
+            {
+                title: "Adding discord presence",
+                func: () => DiscordManager.initialize()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 

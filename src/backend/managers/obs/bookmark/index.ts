@@ -91,6 +91,8 @@ export class BookmarkManager {
 
         return () => {
             const index = this.listeners.indexOf(cb)
+            if(index === -1)
+                return
             this.listeners.splice(index, 1)
         }
     }

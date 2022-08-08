@@ -2,7 +2,16 @@ import { RegManMain } from '@general/register/main';
 import { Storage } from '@Globals/storage';
 import { BrowserWindow, shell } from 'electron';
 import path from 'path';
+import AutoLaunch from "auto-launch"
+import { MainLogger } from 'src/interfaces/mainLogger';
 
+
+const launcher = new AutoLaunch({
+    name: "Clipture",
+    isHidden: true,
+})
+
+const log = MainLogger.get("Backend", "Managers", "System")
 export class SystemManager {
     static register() {
         RegManMain.onPromise("system_open_clip", async (_, p) => {
@@ -23,6 +32,9 @@ export class SystemManager {
             Storage.set("last_dashboard_page", newPage)
             console.log("Setting last dashboard page to", newPage)
         })
+
+        RegManMain.onPromise("system_set_autolaunch", (_, e) => this.setAutoLaunch(e))
+        RegManMain.onPromise("system_is_autolaunch", () => launcher.isEnabled())
     }
 
     static openPath(p: string) {
@@ -40,5 +52,23 @@ export class SystemManager {
 
         window.minimize()
         window.setSkipTaskbar(true)
+    }
+
+    static async setAutoLaunch(shouldLaunch: boolean) {
+        const enabled = await launcher.isEnabled()
+        log.info("Setting autoLaunch to", shouldLaunch, "curr is", enabled)
+
+        if (enabled && !shouldLaunch)
+            await launcher.disable()
+
+        if (!enabled && shouldLaunch)
+            await launcher.enable()
+
+        Storage.set("auto_launch", shouldLaunch)
+    }
+
+    static async initialize() {
+        const isAutoLaunch = Storage.get("auto_launch", false)
+        this.setAutoLaunch(isAutoLaunch)
     }
 }

@@ -22,6 +22,7 @@ export class MainGlobals {
     static window: BrowserWindow
     static baseUrl = isDevCached ? "http://localhost:3001" : "https://clipture.sshcrack.me"
     static gameUrl = this.baseUrl + "/api/game/detection"
+    static dcClientId = "964216174135103528"
 
     static readonly nativeMngExe = path.join(__dirname, "assets/native_mng.exe")
     static readonly ffmpegExe = ffmpegExe
