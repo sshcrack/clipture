@@ -29,24 +29,23 @@ Build:
 
 Start: 
 ```bash
-  yarn start -p 3001
+  yarn start
 ```
 
-Build the client with your server (replace url in Globals.ts):
-<a href="#developing-this-project">Click here</a>
+Build the client: 
+<a href="#building">Click here</a>
 
-## Developing this project:
-Building obs-studio-node and adding it to the project:
+## Building
+Replace url and other information with yours in file src/Globals/MainGlobals.ts
+
+Build obs-studio-node and add it to the project:
 ```
 git clone https://github.com/sshcrack/obs-studio-node-fix && cd obs-studio-node-fix && yarn local:config && yarn local:build && cd obs-studio-node && tar -cvf ../out.tar.gz . && cd .. && cd .. && yarn add ./obs-studio-node-fix/out.tar.gz
 ```
 
-Packaging:
-```bash
-yarn package
-```
-
-Generate Setup.EXE
+### Releasing
+Generate setup files:
 ```bash
 yarn make
 ```
+Your files will be available in out/make
