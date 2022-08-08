@@ -1,25 +1,24 @@
 import { VideoInfo } from '@backend/managers/clip/interface'
 import { GameManager } from '@backend/managers/game'
-import { GeneralGame } from '@backend/managers/game/interface'
+import { BookmarkManager } from "@backend/managers/obs/bookmark"
 import { notify } from '@backend/tools/notifier'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
-import { BookmarkManager} from "@backend/managers/obs/bookmark"
 import { Storage } from '@Globals/storage'
 import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
-import sound from "sound-play"
 import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import path from 'path'
-import { OutCurrentType, CurrentType } from "./interface"
+import sound from "sound-play"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { EOBSOutputSignal, SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
-import { getDuration, processRunning } from "./backend_only_tools"
-import { getWindowInfoId, isDetectableGameInfo, isWindowInfoSame, sleepSync } from './tools'
+import { getAvailableGame, getDuration, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
+import { CurrentType, OutCurrentType } from "./interface"
+import { getWindowInfoId } from './tools'
 
 const reg = RegManMain
 const NodeObs: NodeObs = notTypedOBS
@@ -84,74 +83,6 @@ export class RecordManager {
 
         this.windowInformation = new Map(entries)
 
-        const onNewInfo = async (info: WindowInformation[]) => {
-            const detectableGames = await GameManager.getDetectableGames()
-            const toExclude = GameManager.getExcludeList()
-            const toInclude = await GameManager.getIncludeList()
-
-            const areSameInfo = (oldInfo: WindowInformation, winInfo: WindowInformation) => {
-                const oldInfoReduced = {
-                    ...oldInfo,
-                    focused: false
-                }
-
-                const winInfoReduced = {
-                    ...winInfo,
-                    focused: false
-                }
-
-                const srt = (obj: any) => JSON.stringify(obj)
-                const x = srt(oldInfoReduced)
-                const y = srt(winInfoReduced)
-
-                return x === y
-            }
-
-
-            const matchingGames = info.filter(winInfo => {
-                return detectableGames.some(detecGame => isDetectableGameInfo(detecGame, winInfo))
-            }).concat(info.filter(winInfo => {
-                return toInclude.some(e => {
-                    if (e.type === "detectable")
-                        return isDetectableGameInfo(e.game, winInfo)
-                    return isWindowInfoSame(e.game, winInfo)
-                })
-            }))
-
-            if (matchingGames.length === 0)
-                return
-
-            const isExcluded = (e: WindowInformation) => toExclude.some(x => {
-                if (x.type === "window")
-                    return JSON.stringify(x.game) === JSON.stringify(e)
-
-                return isDetectableGameInfo(x.game, e)
-            })
-
-            const gameToRecord = matchingGames.find(e => e.focused) ?? matchingGames[0]
-            const game = detectableGames.find(e => isDetectableGameInfo(e, gameToRecord))
-
-            const diffGame = !areSameInfo(gameToRecord, Scene.getCurrentSetting()?.window)
-            log.info("Game is diff", diffGame, "manual", this.manualControlled, "game", gameToRecord, "curr", Scene.getCurrentSetting()?.window)
-            if (gameToRecord && (diffGame || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
-                await Scene.switchWindow(gameToRecord, false)
-                if (this.isRecording())
-                    await this.stopRecording()
-            }
-
-            if (isExcluded(gameToRecord))
-                return
-
-            log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
-            if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
-                this.startRecording(false, game, gameToRecord).then(() =>
-                    notify({
-                        title: "Recording started",
-                        message: `Recording started for ${gameToRecord?.productName ?? gameToRecord?.title ?? gameToRecord.executable}`
-                    })
-                )
-            }
-        }
 
         log.debug("Registering automatic recording stop")
         setInterval(() => {
@@ -168,9 +99,9 @@ export class RecordManager {
             }
         }, 2500)
 
-        GameManager.addUpdateListener(e => onNewInfo(e))
+        GameManager.addUpdateListener(e => this.onGameUpdate(e))
         const curr = await GameManager.getAvailableWindows(true)
-        onNewInfo(curr)
+        this.onGameUpdate(curr)
 
         this.registeredAutomatic = true
     }
@@ -195,30 +126,16 @@ export class RecordManager {
         else
             await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
-        const listVideos = () => fs.readdir(recordPath).then(e => e.filter(e => !e.endsWith(".json")))
-        const currVideos = await listVideos()
+        const currVideos = await listVideos(recordPath)
         NodeObs.OBS_service_startRecording()
 
         const signal = await SignalsManager.getNextSignalInfo();
-        if(signal.signal === EOBSOutputSignal.Stop)
+        if (signal.signal === EOBSOutputSignal.Stop)
             throw new Error("Could not start recording.")
 
         this.recordTimer = Date.now()
-        let videoName = null
-        for (let i = 0; i < 1000; i++) {
-            const newVideos = await listVideos()
-            if (newVideos.length > currVideos.length) {
-                videoName = newVideos.find(e => currVideos.indexOf(e) === -1)
-                break
-            }
 
-            await sleepSync(50)
-            if (!this.isRecording())
-                break;
-            if (i % 10 === 0)
-                log.silly("Waiting for new video...")
-        }
-
+        const videoName = await waitForVideo(recordPath, currVideos)
         const videoPath = recordPath + "/" + videoName
         const infoPathAvailable = recordPath && videoName
         if (!infoPathAvailable)
@@ -227,6 +144,7 @@ export class RecordManager {
         const windowId = getWindowInfoId(windowInfo)
         if (!discordGameInfo?.id)
             this.windowInformation.set(windowId, windowInfo)
+
         this.current = {
             currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
             gameId: discordGameInfo?.id ?? windowId,
@@ -272,12 +190,16 @@ export class RecordManager {
         return this.recording;
     }
 
+    public getCurrTime() {
+        return this.recordTimer && Date.now() - this.recordTimer
+    }
+
     private register() {
         reg.onPromise("obs_start_recording", (_, e) => this.startRecording(e))
         reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
         reg.onSync("obs_is_recording", () => this.isRecording())
         reg.onPromise("obs_get_current", () => this.getCurrent())
-        reg.onPromise("obs_record_time", async () => this.recordTimer && Date.now() - this.recordTimer)
+        reg.onPromise("obs_record_time", async () => this.getCurrTime())
         this.registerHotkey()
     }
 
@@ -291,11 +213,11 @@ export class RecordManager {
 
     public registerHotkey() {
         BookmarkManager.addHotkeyHook(() => {
-            if(!this.isRecording() || !this.current)
+            if (!this.isRecording() || !this.current)
                 return
 
-            const currTime = Date.now() - this.recordTimer
-            if(!this.current?.bookmarks)
+            const currTime = this.getCurrTime()
+            if (!this.current?.bookmarks)
                 this.current.bookmarks = []
 
 
@@ -303,5 +225,30 @@ export class RecordManager {
             this.current.bookmarks.push(currTime)
             sound.play(MainGlobals.bookmarkedSound)
         })
+    }
+
+    public async onGameUpdate(info: WindowInformation[]) {
+        const { diff, winInfo, game } = await getAvailableGame(info)
+
+        log.info("Game is diff", diff, "manual", this.manualControlled,
+        "game", winInfo, "curr", Scene.getCurrentSetting()?.window)
+        if (winInfo && (diff || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
+            await Scene.switchWindow(winInfo, false)
+            if (this.isRecording())
+                await this.stopRecording()
+        }
+
+        if (GameManager.winInfoExcluded(winInfo))
+            return
+
+        log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
+        if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
+            this.startRecording(false, game, winInfo).then(() =>
+                notify({
+                    title: "Recording started",
+                    message: `Recording started for ${winInfo?.productName ?? winInfo?.title ?? winInfo.executable}`
+                })
+            )
+        }
     }
 }

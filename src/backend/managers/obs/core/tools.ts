@@ -19,3 +19,21 @@ export function sleepSync(ms: number) {
         setTimeout(resolve, ms)
     });
 }
+
+export function compareWinInfo(a: WindowInformation, b: WindowInformation) {
+    const oldInfoReduced = {
+        ...a,
+        focused: false
+    }
+
+    const winInfoReduced = {
+        ...b,
+        focused: false
+    }
+
+    const srt = (obj: any) => JSON.stringify(obj)
+    const x = srt(oldInfoReduced)
+    const y = srt(winInfoReduced)
+
+    return x === y
+}

@@ -81,7 +81,14 @@ export class GameManager {
     }
 
 
+    static winInfoExcluded(info: WindowInformation) {
+        return this.getExcludeList().some(x => {
+            if (x.type === "window")
+                return JSON.stringify(x.game) === JSON.stringify(info)
 
+            return isDetectableGameInfo(x.game, info)
+        })
+    }
 
     private static hasExcluded(info: GeneralGame) {
         return this.excludeGames.some(e => JSON.stringify(e) === JSON.stringify(info))
