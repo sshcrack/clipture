@@ -140,7 +140,7 @@ export class RecordManager {
 
         this.recordTimer = Date.now()
 
-        const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording())
+        const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
         const videoPath = recordPath + "/" + videoName
         const infoPathAvailable = recordPath && videoName
         if (!infoPathAvailable)
