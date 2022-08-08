@@ -32,12 +32,13 @@ export default function OBSAutostart() {
         return addSaveListener(() => system.setAutolaunch(current))
     }, [current])
 
-    if (!original || !current)
+    if (original === undefined || current === undefined)
         return <GeneralSpinner loadingText='Loading autostart...' />
 
     return <Flex
-        justifyContent='center'
+        justifyContent='space-around'
         alignItems='center'
+        w='70%'
     >
         <Text>Autostart</Text>
         <Switch onChange={newVal => {

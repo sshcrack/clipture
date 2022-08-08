@@ -264,7 +264,7 @@ export class ClipManager {
             let bookmarks = null
             if (!gameInfo) {
                 const info = await getVideoInfo(videoPath, path.basename(file))
-                bookmarks = info.bookmarks
+                bookmarks = info?.bookmarks
                 const detec = detectable.find(e => e.id === info?.gameId)
                 if (detec)
                     gameInfo = {
@@ -287,7 +287,7 @@ export class ClipManager {
                 videoName: clipName,
                 video: file,
                 game: gameInfo ?? null,
-                bookmarks
+                bookmarks: bookmarks ?? null
             }
         })).catch(e => {
             log.error(e)

@@ -37,33 +37,47 @@ export class DiscordManager {
             instance: false,
             largeImageText: "Clipture",
             largeImageKey: "logo",
+            details: "Waiting for a game to record..."
         } as DiscordRPC.Presence
 
-        if (!recording)
+        if (!recording) {
+            logger.info("Setting activity", generalInfo)
             return this.rpc.setActivity(generalInfo)
+        }
 
         const { game } = await RecordManager.instance.getCurrent() ?? {}
         const { gameName } = getGameInfo(game)
 
         const startTime = RecordManager.instance.getRecordStart()
-        this.rpc.setActivity({
+        const recordJson = {
             ...generalInfo,
             smallImageText: "Recording...",
             details: "Recording...",
             state: gameName,
             smallImageKey: "recording",
             startTimestamp: startTime,
-        })
+        }
+
+        logger.info("Setting activity", recordJson)
+        this.rpc.setActivity(recordJson)
     }
 
-    static enable() {
+    static async enable() {
         if (!this.rpc)
             this.rpc = new DiscordRPC.Client({ transport: "ipc" })
 
-        this.rpc.login({ clientId })
-        this.rpc.on("ready", () => this.loggedIn = true)
+        let isReady = false
+        this.rpc.on("ready", () => { this.loggedIn = true; isReady = true})
+        for(let i = 0; i < 10; i++) {
+            await this.rpc.login({ clientId })
+              .catch(() => logger.log(`Could not login. Retrying (${i +1}/10)...`))
+              .then(() => isReady = true)
+            if(isReady)
+                break;
+        }
 
         Storage.set("discord_rpc", true)
+        this.update(RecordManager.instance.isRecording())
     }
 
     static disable() {
