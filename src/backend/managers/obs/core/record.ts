@@ -33,6 +33,7 @@ export class RecordManager {
         bookmarks: [] as number[]
     } as CurrentType
     static instance: RecordManager = null;
+    private recordingInitializing = false
     private registeredAutomatic = false;
     private manualControlled = false;
     private recordTimer: number = undefined;
@@ -112,6 +113,10 @@ export class RecordManager {
             return
         }
 
+        if(this.recordingInitializing)
+            return log.warn("Could not start record, another instance is already starting")
+
+        this.recordingInitializing = true
         this.manualControlled = manual;
         const recordPath = NodeObs.OBS_settings_getSettings(SettingsCat.Output)
             .data
@@ -135,7 +140,7 @@ export class RecordManager {
 
         this.recordTimer = Date.now()
 
-        const videoName = await waitForVideo(recordPath, currVideos)
+        const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording())
         const videoPath = recordPath + "/" + videoName
         const infoPathAvailable = recordPath && videoName
         if (!infoPathAvailable)
@@ -152,6 +157,7 @@ export class RecordManager {
             bookmarks: []
         }
 
+        this.recordingInitializing = false
         this.recording = true
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
         RegManMain.send("obs_record_change", true)
@@ -228,7 +234,7 @@ export class RecordManager {
     }
 
     public async onGameUpdate(info: WindowInformation[]) {
-        const { diff, winInfo, game } = await getAvailableGame(info)
+        const { diff, winInfo, game } = await getAvailableGame(info) ?? {}
 
         log.info("Game is diff", diff, "manual", this.manualControlled,
         "game", winInfo, "curr", Scene.getCurrentSetting()?.window)

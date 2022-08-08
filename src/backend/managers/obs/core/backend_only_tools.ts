@@ -36,7 +36,7 @@ export function listVideos(dir: string) {
     return fs.readdir(dir).then(e => e.filter(e => !e.endsWith(".json")))
 }
 
-export async function waitForVideo(dir: string, currVideos: string[]) {
+export async function waitForVideo(dir: string, currVideos: string[], isRecording: () => boolean) {
     let videoName = null
     for (let i = 0; i < 1000; i++) {
         const newVideos = await listVideos(dir)
@@ -46,7 +46,7 @@ export async function waitForVideo(dir: string, currVideos: string[]) {
         }
 
         await sleepSync(50)
-        if (!this.isRecording())
+        if (!isRecording())
             break;
         if (i % 10 === 0)
             log.silly("Waiting for new video...")
