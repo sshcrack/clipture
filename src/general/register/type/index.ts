@@ -7,11 +7,11 @@ import { LockEventsSync, LockMainToRender } from './lock'
 import { OBSEventsPromises, OBSEventsSync, OBSMainToRender } from './obs'
 import { GameEventsPromises, GameMainToRender } from './game'
 import { SettingsEventsPromises } from './settings'
-import { SystemEventsPromises, SystemMainToRender } from './system'
+import { SystemEventsSync, SystemEventsPromises, SystemMainToRender } from './system'
 import { VideoEventsPromises } from './video'
 import { BookmarkEventsPromises, BookmarkMainToRender } from './bookmark'
 
-export type RegisterEvents = LockEventsSync & OBSEventsSync
+export type RegisterEvents = LockEventsSync & OBSEventsSync & SystemEventsSync
 
 export type RegisterEventsPromises = AuthEventsPromises & AudioEventsPromises
     & VideoEventsPromises & SystemEventsPromises

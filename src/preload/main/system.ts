@@ -35,6 +35,8 @@ const system = {
 
             trayIconListeners.splice(index, 1)
         }
-    }
+    },
+    setLanguage: (lang: string) => RegManRender.emitPromise("system_change_language", lang),
+    getLanguage: () => RegManRender.emitSync("system_get_language")
 }
 export default system;

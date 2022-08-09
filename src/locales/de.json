@@ -1,5 +1,177 @@
 {
-    "translation": {
-        
+    "app": {
+        "obs_initialize_error": "OBS konnte nicht initialiiert werden",
+        "initializing": "Initialisierung..."
+    },
+    "obs": {
+        "recording": {
+            "volmeter": {
+                "loading": "Suchen Audioeingang...",
+                "default_mic": "Standard Eingang",
+                "default_desktop": "Standard Ausgang ",
+                "not_connected": "[Das Gerät ist nicht eingesteckt oder konnte nicht gefunden werden]"
+            },
+            "performance_stats": {
+                "cpu": "CPU in %",
+                "bandwidth": "Bandweite",
+                "fps": "FPS"
+            }
+        }
+    },
+    "general": {
+        "menu": {
+            "context_menu": {
+                "show_folder": "In Ordner anzeigen",
+                "deleted": "Gelöscht.",
+                "delete": "Löschen",
+                "dialog": {
+                    "title": "Löschen bestätigen",
+                    "body": "Bist du sicher? Es wird für immer gelöscht sein.",
+                    "cancel": "Abbrechen"
+                }
+            }
+        },
+        "placeholder": {
+            "title": "Ziemlich leer hier oder? Komm schon, spiele doch mal eine Runde!",
+            "subtitle": "Wir nehmen das Spiel automatisch auf"
+        }
+    },
+    "dashboard": {
+        "clips": {
+            "title": "Clips",
+            "could_not_list": "Clips konnten nicht gelistet werden",
+            "retry": "{{message}}. Neuer Versuch in 5 Sekunden",
+            "corrupted_clip": "Clip Beschädigt",
+            "deleting_clip": "Lösche Clip...",
+            "delete_clip": "Clip löschen",
+            "opening_folder": "Order wird geöffnet...",
+            "open_folder": "Ausgwählten Clip öffnen",
+            "loading": "Lade Clips..."
+        },
+        "videos": {
+            "title": "Videos",
+            "could_not_list": "Videos konnten nicht gelistet werden",
+            "retry": "{{message}}. Neuer Versuch in 5 Sekunden",
+            "loading": "Lade Videos..."
+        }
+    },
+    "navbar": {
+        "settings": "Einstellungen",
+        "discover": "Entdecken",
+        "clips": "Clips",
+        "sign_out": "Abmelden",
+        "recording": "Aufnahme..."
+    },
+    "record": {
+        "title": "Aufnahmeübersicht"
+    },
+    "settings": {
+        "game": {
+            "behavior": {
+                "title": "Hotkey",
+                "hotkey": {
+                    "loading": "Erkenne akutellen Hotkey...",
+                    "rebind": "{{hotkey}} - Drücke deine gewünschte Taste",
+                    "error": {
+                        "title": "Hotkey konnte nicht erkannt werden",
+                        "description": "Neuer Versuch in 5 Sekunden..."
+                    }
+                }
+            },
+            "list": {
+                "title": "Liste",
+                "exclude": {
+                    "loading": "Laden...",
+                    "error": {
+                        "list": "Ausgeblendete Spiele konnten nicht gelistet werden",
+                        "available": "Ausgeblendete Spiele konnten nicht gelistet werden"
+                    },
+                    "title": "Ausgeblendete Spiele",
+                    "placeholder": "Spiele zum ausblenden"
+                },
+                "include": {
+                    "title": "Eingeblendete Spiele",
+                    "placeholder": "Spiele zum einblenden",
+                    "require_restart": "Du musst das Spiel neustarten, damit wir es aufnehmen können",
+                    "loading": "Laden...",
+                    "error": {
+                        "list": "Eingeblendete Spiele konnten nicht gelistet werden",
+                        "available": "Eingeblendete Spiele konnten nicht gelistet werden"
+                    }
+                }
+            }
+        },
+        "obs": {
+            "audio": {
+                "title": "Audio",
+                "input_devices": {
+                    "loading": "Erkenne Quellen...",
+                    "error": {
+                        "active": "Aktive Quellen konnten nicht gefunden werden",
+                        "devices": "Geräte konnten nicht gelistet werden",
+                        "default": "Geräte konnten nicht gelistet werden"
+                    }
+                }
+            },
+            "general": {
+                "title": "Generell",
+                "autostart": {
+                    "title": "Autostart",
+                    "loading": "Lade Autostart...",
+                    "error": {
+                        "title": "Fehler",
+                        "description": "Der Status des Autostarts konnte nicht abgerufen werden. Versuche erneut..."
+                    }
+                },
+                "clip_path": {
+                    "title": "Clip Pfad",
+                    "placeholder": "Lade Pfad...",
+                    "browse": "Durchsuchen"
+                }
+            },
+            "video": {
+                "title": "Video",
+                "bitrate": {
+                    "title": "Bitrate",
+                    "loading": "Laden..."
+                },
+                "fps": {
+                    "title": "FPS",
+                    "loading": "Laden..."
+                }
+            }
+        },
+        "recording_must_be_stopped": {
+            "title": "Diese Seite ist nur erreichbar wenn keine Aufnahme läuft.",
+            "subtitle": "Bitte schließe das Spiel, was gerade offen ist."
+        }
+    },
+    "editor": {
+        "loading": "Laden...",
+        "titlebar": {
+            "generate": {
+                "no_end": {
+                    "title": "Ungültige Auswahl",
+                    "description": "Ungültige Auswahl von {{start}}s bis {{end}}s"
+                },
+                "name_invalid": {
+                    "title": "Ungültiger Clipname",
+                    "description": "Ein Clip mit dem selben Namen gibt es bereits."
+                }
+            },
+            "exit": "Editor verlassen",
+            "loading": "Laden...",
+            "saving": "Speichern...",
+            "save_share": "Speichern & Teilen",
+            "save_dialog": {
+                "title": "Speichern & Teilen",
+                "cancel": "Abbrechen",
+                "clip_name": "Clip Name",
+                "clip_name_prompt": "Wie soll der Clip heißen?",
+                "exists": "Den Clipnamen gibt es bereits",
+                "empty": "Du musst einen Namen eingeben",
+                "invalid_characters": "Der Clipname darf nur Buchstaben, Leerzeichen und Nummern beinhalten"
+            }
+        }
     }
 }

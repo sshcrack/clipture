@@ -8,7 +8,12 @@ export type SystemEventsPromises = addPrefixUnderscoreToObject<{
     close_curr_window: () => void,
 
     set_autolaunch: (shouldLaunch: boolean) => void,
-    is_autolaunch: () => boolean
+    is_autolaunch: () => boolean,
+    change_language: (lang: string) => void
+}, "system">
+
+export type SystemEventsSync = addPrefixUnderscoreToObject<{
+	get_language: () => string
 }, "system">
 
 

@@ -1,11 +1,30 @@
 import { Flex, Select, Text } from "@chakra-ui/react"
-import React from "react"
+import React, { useContext, useState, useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import options from "src/locales/list.json"
+import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
 export default function LanguageSelector() {
+    return <> </>
+    const { addModified, removeModified, saving, addSaveListener } = useContext(SettingsSaveContext)
     const { t, i18n } = useTranslation("settings", { keyPrefix: "obs.language" })
-    const currLang = i18n.language
+    const { system } = window.api
+
+    const [original, setOriginal] = useState(undefined)
+    const [current, setCurrent] = useState(undefined)
+
+    useEffect(() => {
+        const lang = i18n.resolvedLanguage
+        setOriginal(lang)
+        setCurrent(lang)
+    }, [ saving ])
+
+    useEffect(() => {
+        return addSaveListener(async () => {
+             i18n.changeLanguage(current)
+             await system.setLanguage(current)
+        })
+    }, [ current ])
 
     return <Flex
         w='70%'
@@ -15,9 +34,15 @@ export default function LanguageSelector() {
     >
         <Text>{t("language")}</Text>
         <Select
-            defaultValue={currLang}
+            value={current}
             onChange={e => {
-                i18n.changeLanguage(e.target.value)
+               const val = e.target.value
+               if(val !== original)
+                     addModified("language")
+               else
+                     removeModified("language")
+
+               setCurrent(val)
             }}
         >
             {Object.entries(options)
