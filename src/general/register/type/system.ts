@@ -6,6 +6,12 @@ export type SystemEventsPromises = addPrefixUnderscoreToObject<{
     set_default_dashboard_page: (newIndex: number) => void,
     set_close_behavior: (behavior: "minimize" | "close") => void,
     close_curr_window: () => void,
+
     set_autolaunch: (shouldLaunch: boolean) => void,
     is_autolaunch: () => boolean
+}, "system">
+
+
+export type SystemMainToRender = addPrefixUnderscoreToObject<{
+    tray_event: (hidden: boolean) => void
 }, "system">

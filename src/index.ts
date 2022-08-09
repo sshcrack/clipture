@@ -1,3 +1,4 @@
+import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
@@ -10,7 +11,6 @@ import { MainGlobals } from './Globals/mainGlobals';
 import { ClipManager } from '@backend/managers/clip';
 import { GameManager } from '@backend/managers/game';
 import { registerFuncs } from '@backend/registerFuncs';
-import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
@@ -27,10 +27,16 @@ if (MainGlobals.getOS() !== "Windows_NT") {
   app.quit()
 }
 
-SystemManager.initialize()
 
 app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSession')
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
+
+SystemManager.initialize()
+addCrashHandler()
+addUpdater()
+
+
+exitHook(() => handleExit())
 
 let mainWindow: BrowserWindow;
 let trayIcon = null as Tray
@@ -60,17 +66,11 @@ const createWindow = (): void => {
   mainWindow.setIcon(MainGlobals.iconFile)
   ClipManager.registerProtocol()
 
-  const showWindow = () => {
-    mainWindow.restore()
-    mainWindow.setSkipTaskbar(false)
-    mainWindow.focus()
-  }
-
   trayIcon = new Tray(MainGlobals.iconFile);
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show app',
-      click: () => showWindow()
+      click: () => SystemManager.toTray(mainWindow, false)
     },
     {
       label: 'Quit',
@@ -81,17 +81,15 @@ const createWindow = (): void => {
 
   trayIcon.setToolTip('Clipture')
   trayIcon.setContextMenu(contextMenu);
-  trayIcon.on("click", () => showWindow())
+  trayIcon.on("click", () => SystemManager.toTray(mainWindow, false))
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
 
   manageWindow(mainWindow)
 
-  if (process.argv.includes("--hidden")) {
-    mainWindow.minimize()
-    mainWindow.setSkipTaskbar(true)
-  }
+  if (process.argv.includes("--hidden"))
+    SystemManager.toTray(mainWindow, true)
 };
 
 
@@ -145,10 +143,4 @@ app.on("will-quit", () => {
   handleExit()
 })
 
-logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())
-addCrashHandler()
-addUpdater()
-
-
-exitHook(() => handleExit())
 registerFuncs.map(e => e())

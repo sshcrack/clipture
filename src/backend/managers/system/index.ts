@@ -41,6 +41,19 @@ export class SystemManager {
         shell.showItemInFolder(p)
     }
 
+    static toTray(window: BrowserWindow, hidden: boolean) {
+        if (hidden) {
+            window.minimize()
+            window.setSkipTaskbar(true)
+        } else {
+            window.restore()
+            window.setSkipTaskbar(false)
+            window.focus()
+        }
+
+        RegManMain.send("system_tray_event", hidden)
+    }
+
     static handleWindowCloseButton(window: BrowserWindow) {
         const currSetting = Storage.get("close_behavior") ?? "unset"
         if (currSetting === "close")
@@ -49,9 +62,7 @@ export class SystemManager {
         if (currSetting === "unset")
             return window.webContents.send("close_behavior_dialog")
 
-
-        window.minimize()
-        window.setSkipTaskbar(true)
+        this.toTray(window, true)
     }
 
     static async setAutoLaunch(shouldLaunch: boolean) {

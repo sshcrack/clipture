@@ -7,7 +7,7 @@ import { LockEventsSync, LockMainToRender } from './lock'
 import { OBSEventsPromises, OBSEventsSync, OBSMainToRender } from './obs'
 import { GameEventsPromises, GameMainToRender } from './game'
 import { SettingsEventsPromises } from './settings'
-import { SystemEventsPromises } from './system'
+import { SystemEventsPromises, SystemMainToRender } from './system'
 import { VideoEventsPromises } from './video'
 import { BookmarkEventsPromises, BookmarkMainToRender } from './bookmark'
 
@@ -26,4 +26,5 @@ export type MainToRender = {
     & AuthMainToRender & ClipMainToRender
     & LockMainToRender & AudioMainToRender
     & GameMainToRender & OBSMainToRender
-    & BookmarkMainToRender
+    & BookmarkMainToRender &
+    SystemMainToRender

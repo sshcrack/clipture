@@ -8,6 +8,7 @@ import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
 import '../../components/titlebar/style.css';
 import "src/pages/main/scrollbar.css";
 import theme from "./theme";
+import OnlyUnminimizedRender from "./OnlyUnminimizedRender";
 import ToastNotifier from './ToastNotifier';
 
 
@@ -24,7 +25,9 @@ export function renderMain(Comp: () => JSX.Element) {
                 <TitleBar icon='../assets/logo.svg' />
                 <TitlebarBalancer className='sc2' style={{ overflowY: "hidden" }}>
                     <ToastNotifier />
-                    <Comp />
+                    <OnlyUnminimizedRender>
+                        <Comp />
+                    </OnlyUnminimizedRender>
                 </TitlebarBalancer>
             </TitleBarProvider>
         </ChakraProvider>
