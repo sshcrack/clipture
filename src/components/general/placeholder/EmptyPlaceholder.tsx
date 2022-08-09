@@ -2,10 +2,12 @@ import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
 import { motion } from "framer-motion"
 import { getCSSVariable } from '@general/tools'
+import { useTranslation } from 'react-i18next'
 
 
 const FlexMotion = motion(Flex)
 export default function EmptyPlaceholder({ img }: { img?: string }) {
+    const { t } = useTranslation("general", { keyPrefix: "placeholder" })
 
     const primary = getCSSVariable("--chakra-colors-illustration-primary")
     const secondary = getCSSVariable("--chakra-colors-illustration-secondary")
@@ -37,7 +39,7 @@ export default function EmptyPlaceholder({ img }: { img?: string }) {
                 duration: 20
             }}
         />
-        <Heading fontSize='2.25vw'>Pretty empty isn't it? Gonna ahead, play some games!</Heading>
-        <Heading fontSize='1.75vw'>They'll automatically be recorded</Heading>
+        <Heading fontSize='2.25vw'>{t("title")}</Heading>
+        <Heading fontSize='1.75vw'>{t("subtitle")}</Heading>
     </Flex>
 }

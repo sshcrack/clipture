@@ -1,0 +1,177 @@
+{
+    "app": {
+        "obs_initialize_error": "OBS could not be initialized",
+        "initializing": "Initializing..."
+    },
+    "obs": {
+        "recording": {
+            "volmeter": {
+                "loading": "Obtaining audio inputs...",
+                "default_mic": "Default Microphone",
+                "default_desktop": "Default Desktop",
+                "not_connected": "[Device is not connected or could not be found]"
+            },
+            "performance_stats": {
+                "cpu": "CPU in %",
+                "bandwidth": "Bandwidth",
+                "fps": "FPS"
+            }
+        }
+    },
+    "general": {
+        "menu": {
+            "context_menu": {
+                "show_folder": "Show in Explorer",
+                "deleted": "Deleted.",
+                "delete": "Delete",
+                "dialog": {
+                    "title": "Confirm deletion",
+                    "body": "Are you sue? The video/clip will be deleted forever.",
+                    "cancel": "Cancel"
+                }
+            }
+        },
+        "placeholder": {
+            "title": "Pretty empty isn't it? Gonna ahead, play some games!",
+            "subtitle": "They'll automatically be recorded"
+        }
+    },
+    "dashboard": {
+        "clips": {
+            "title": "Clips",
+            "could_not_list": "Could not list clips",
+            "retry": "{{message}}. Retrying in 5 seconds",
+            "corrupted_clip": "CORRUPTED CLIP",
+            "deleting_clip": "Deleting clip...",
+            "delete_clip": "Delete Clip",
+            "opening_folder": "Opening folder...",
+            "open_folder": "Open affected clip",
+            "loading": "Loading clips..."
+        },
+        "videos": {
+            "title": "Videos",
+            "could_not_list": "Could not list videos",
+            "retry": "{{message}}. Retrying in 5 seconds",
+            "loading": "Loading videos..."
+        }
+    },
+    "navbar": {
+        "settings": "Settings",
+        "discover": "Discover",
+        "clips": "Clips",
+        "sign_out": "Sign Out",
+        "recording": "Recording..."
+    },
+    "record": {
+        "title": "Recording Overview"
+    },
+    "settings": {
+        "game": {
+            "behavior": {
+                "title": "Behavior",
+                "hotkey": {
+                    "loading": "Getting current hotkey...",
+                    "rebind": "{{hotkey}} - press key to rebind",
+                    "error": {
+                        "title": "Could not get hotkey",
+                        "description": "Trying again in 5 seconds..."
+                    }
+                }
+            },
+            "list": {
+                "title": "List",
+                "exclude": {
+                    "loading": "Loading...",
+                    "error": {
+                        "list": "Could not list excluded games",
+                        "available": "Could not get windows"
+                    },
+                    "title": "Excluded games",
+                    "placeholder": "Games to exclude"
+                },
+                "include": {
+                    "title": "Included games",
+                    "placeholder": "Games to include",
+                    "require_restart": "You have to restart the game in order for it to get recorded",
+                    "loading": "Loading...",
+                    "error": {
+                        "list": "Could not list included games",
+                        "available": "Could not get windows"
+                    }
+                }
+            }
+        },
+        "obs": {
+            "audio": {
+                "title": "Audio",
+                "input_devices": {
+                    "loading": "Getting sources...",
+                    "error": {
+                        "active": "Could not get active sources",
+                        "devices": "Could not list devices",
+                        "default": "Could not get default devices"
+                    }
+                }
+            },
+            "general": {
+                "title": "General",
+                "autostart": {
+                    "title": "Autostart",
+                    "loading": "Loading autostart...",
+                    "error": {
+                        "title": "Error",
+                        "description": "Could not obtain autostart status. Retrying..."
+                    }
+                },
+                "clip_path": {
+                    "title": "Clip Path",
+                    "placeholder": "Loading path...",
+                    "browse": "Browse"
+                }
+            },
+            "video": {
+                "title": "Video",
+                "bitrate": {
+                    "title": "Bitrate",
+                    "loading": "Loading..."
+                },
+                "fps": {
+                    "title": "FPS",
+                    "loading": "Loading..."
+                }
+            }
+        },
+        "recording_must_be_stopped": {
+            "title": "This page is only available when not recording.",
+            "subtitle": "Please stop the game you are running."
+        }
+    },
+    "editor": {
+        "loading": "Loading...",
+        "titlebar": {
+            "generate": {
+                "no_end": {
+                    "title": "Invalid selection",
+                    "description": "Invalid selection from {{start}}s to {{end}}s"
+                },
+                "name_invalid": {
+                    "title": "Clip Name invalid",
+                    "description": "A clip with that name exists already."
+                }
+            },
+            "exit": "Exit Editor",
+            "loading": "Loading...",
+            "saving": "Saving...",
+            "save_share": "Save & Share",
+            "save_dialog": {
+                "title": "Save & Share",
+                "cancel": "Cancel",
+                "clip_name": "Clip Name",
+                "clip_name_prompt": "Enter how the clip should be named",
+                "exists": "Clip Name exists already",
+                "empty": "Clip Name can not be empty",
+                "invalid_characters": "Clip Name can only contain letters, whitespaces and numbers"
+            }
+        }
+    }
+}

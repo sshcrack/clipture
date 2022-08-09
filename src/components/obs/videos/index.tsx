@@ -4,6 +4,7 @@ import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
@@ -21,6 +22,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const [loading, setLoading] = React.useState(true)
 
     const { videos } = window.api
+    const { t } = useTranslation("dashboard", { "keyPrefix": "videos" })
     useEffect(() => {
         videos.list()
             .then(e => {
@@ -30,8 +32,8 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             .catch(e => {
                 log.error(e)
                 toast({
-                    title: "Could not list videos",
-                    description: `${e.message}. Retrying in 5 seconds`,
+                    title: t("could_not_list"),
+                    description: t("retry", { message: e.message }),
                 })
                 setTimeout(() => setRetry(Math.random()), 5000)
             })
@@ -98,7 +100,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         ...clipElements
     ]
 
-    return loading ? <GeneralSpinner size='70' loadingText='Loading videos...' /> : elements?.length === 0
+    return loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
             {elements}
         </VideoGrid>

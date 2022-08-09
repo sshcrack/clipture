@@ -2,12 +2,15 @@ import { findAudioDevice } from '@backend/managers/obs/Scene/audio_tools'
 import { AllAudioDevices, DefaultAudioDevice } from '@backend/managers/obs/Scene/interfaces'
 import { Flex, FlexProps, Text } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { FixedSources } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface'
 import Volmeter from './Volmeter'
 
 export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { displayName?: boolean }) {
     const { audio } = window.api
+    const { t } = useTranslation("obs", { keyPrefix: "recording.volmeter"})
+
     const [sources, setSources] = useState(undefined as FixedSources)
     const [devices, setDevices] = useState(undefined as AllAudioDevices)
     const [defaultDev, setDefaultDev] = useState(undefined as DefaultAudioDevice)
@@ -29,7 +32,7 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
 
     if (!sources)
         return <Flex {...props}>
-            <GeneralSpinner loadingText='Obtaining audio inputs...' />
+            <GeneralSpinner loadingText={t("loading")} />
         </Flex>
 
     const displays = sources.map(({ device_id, type }) => {
@@ -37,18 +40,18 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
         let volSource = device_id
         if (device_id.toLowerCase() === "default") {
             if (type === "microphone") {
-                devName = "Default Microphone"
+                devName = t("default_mic")
                 volSource = defaultDev.microphone.device_id
             }
             else {
-                devName = "Default Desktop"
+                devName = t("default_desktop")
                 volSource = defaultDev.desktop.device_id
             }
         }
 
         return <Flex flexDir='column' key={volSource + "-volmeter"}>
             {displayName && <Flex w='100%' h='100%'>
-                <Text>{devName ?? "[Device is not connected or could not be found]"}</Text>
+                <Text>{devName ?? t("not_connected")}</Text>
             </Flex>}
             <Volmeter source={volSource} />
         </Flex>

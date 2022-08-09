@@ -3,6 +3,7 @@ import { AllAudioDevices, DefaultAudioDevice } from '@backend/managers/obs/Scene
 import { Flex, List, useToast } from '@chakra-ui/react';
 import * as React from "react";
 import { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider';
 import InputListItem from './InputListItem';
@@ -18,6 +19,7 @@ export default function OBSInputDevices() {
     const [defaultDevice, setDefaultDevice] = useState(undefined as DefaultAudioDevice)
 
     const { audio } = window.api
+    const { t } = useTranslation("settings", { keyPrefix: "obs.audio.input_devices"})
     const toast = useToast()
     useEffect(() => {
         if (saving)
@@ -36,9 +38,9 @@ export default function OBSInputDevices() {
             }
         }
 
-        const activeCatch = handleCatch("Could not get active sources")
-        const devCatch = handleCatch("Could not list devices")
-        const defaultCatch = handleCatch("Could not get default devices")
+        const activeCatch = handleCatch(t("error.active"))
+        const devCatch = handleCatch(t("error.devices"))
+        const defaultCatch = handleCatch(t("error.default"))
 
         audio.activeSources()
             .then(e => {
@@ -87,7 +89,7 @@ export default function OBSInputDevices() {
     }, [sources])
 
     if (!sources || !originalSources || !allDevices || !defaultDevice)
-        return <GeneralSpinner loadingText='Getting sources...' />
+        return <GeneralSpinner loadingText={t("loading")} />
 
 
     const items = sources.map((e, i) => {

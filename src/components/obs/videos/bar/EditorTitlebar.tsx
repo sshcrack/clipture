@@ -1,5 +1,6 @@
 import { Button, Flex, FormControl, FormErrorMessage, FormHelperText, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { ChangeEvent, useContext, useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import { BiPencil } from 'react-icons/bi'
 import { GoChevronLeft } from 'react-icons/go'
 import TitleBarItem from 'src/components/titlebar/TitleBarItem'
@@ -18,6 +19,8 @@ export default function EditorTitlebar() {
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [loading, setLoading] = useState(false)
     const { clips } = window.api
+    const { t } = useTranslation("editor", { keyPrefix: "titlebar" })
+
     const toast = useToast()
 
     useEffect(() => {
@@ -44,9 +47,9 @@ export default function EditorTitlebar() {
 
         if (!end)
             return toast({
-                title: "Invalid selection",
+                title: t("generate.no_end.title"),
                 status: "error",
-                description: `Invalid selection from ${start}s to ${end}s`
+                description: t("generate.no_end.description", { start, end})
             })
 
         clips.exists(desiredClipName)
@@ -54,8 +57,8 @@ export default function EditorTitlebar() {
                 if (exists) {
                     setClipExists(true)
                     return toast({
-                        title: "Clip Name invalid",
-                        description: "A clip with that name exists already.",
+                        title: t("generate.name_invalid.title"),
+                        description: t("generate.name_invalid.description"),
                         status: "error"
                     })
                 }
@@ -95,7 +98,7 @@ export default function EditorTitlebar() {
             colorScheme='red'
             ml='2'
         >
-            Exit Editor
+            {t("exit")}
         </Button>
         <Flex w='100%' />
         <Button
@@ -104,37 +107,38 @@ export default function EditorTitlebar() {
             colorScheme='green'
             mr='2'
             onClick={onOpen}
-            loadingText={loading ? "Loading..." : "Saving..."}
+            loadingText={loading ? t("loading") : t("saving")}
             isLoading={loading || isCuttingClips}
         >
-            Save & Share
+            {t("save_share")}
         </Button>
 
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Save & Share</ModalHeader>
+                <ModalHeader>{t("save_dialog.title")}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                     <FormControl isRequired isInvalid={isError}>
-                        <FormLabel htmlFor='clip-name'>Clip Name</FormLabel>
+                        <FormLabel htmlFor='clip-name'>{t("save_dialog.clip_name")}</FormLabel>
                         <Input
                             id='clip-name'
-                            placeholder='Clip Name'
+                            placeholder={t("save_dialog.clip_name")}
                             onChange={handleInputChange}
                             value={desiredClipName}
                             autoFocus
                         />
                         {!isError ? (
                             <FormHelperText>
-                                Enter how the clip should be named
+                                {t("save_dialog.clip_name_prompt")}
                             </FormHelperText>
                         ) : (
                             <FormErrorMessage>{
                                 clipExists ?
-                                    "Clip Name exists already" :
+                                    t("save_dialog.exists") :
                                     isEmpty ?
-                                        "Clip Name cannot be empty" : "Clip Name can only contain letters, whitespaces and numbers"
+                                        t("save_dialog.empty") :
+                                        t("save_dialog.invalid_characters")
                             }</FormErrorMessage>
                         )}
                     </FormControl>
@@ -142,9 +146,9 @@ export default function EditorTitlebar() {
 
                 <ModalFooter>
                     <Button colorScheme='green' mr={3} onClick={generateClip}>
-                        Save & Share
+                        {t("save_share")}
                     </Button>
-                    <Button variant='ghost' onClick={onClose}>Cancel</Button>
+                    <Button variant='ghost' onClick={onClose}>{t("save_dialog.cancel")}</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

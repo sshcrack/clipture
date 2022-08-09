@@ -2,6 +2,7 @@ import { SessionData } from '@backend/managers/auth/interfaces';
 import { OutCurrentType } from '@backend/managers/obs/core/interface';
 import { Flex, Heading } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { NavBar } from 'src/components/general/NavBar';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GameInfo from 'src/components/obs/recording/GameInfo';
@@ -11,6 +12,8 @@ import Preview from 'src/components/obs/videos/preview';
 
 export default function RecordPage({ data }: { data: SessionData }) {
     const { obs } = window.api
+    const { t } = useTranslation("record")
+
     const [recording, setRecording] = useState(false)
     const [current, setCurrent] = useState(undefined as OutCurrentType)
 
@@ -46,7 +49,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
             justifyContent='start'
             alignItems='center'
         >
-            <Heading>Recording Overview</Heading>
+            <Heading>{t("title")}</Heading>
             <Flex
                 w='100%'
                 flex='1'

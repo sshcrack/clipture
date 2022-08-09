@@ -1,5 +1,6 @@
 import { Flex, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Text } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
@@ -7,7 +8,9 @@ export default function OBSVideoFPS() {
     const { addSaveListener, addModified, removeModified, saving } = useContext(SettingsSaveContext)
     const [originalFPS, setOriginalFPS] = useState(undefined)
     const [fps, setFPS] = useState(undefined)
+
     const { obs } = window.api
+    const { t } = useTranslation("settings", { keyPrefix: "obs.video.fps" })
     useEffect(() => {
         obs.getSettings()
             .then(({ fps }) => {
@@ -64,10 +67,10 @@ export default function OBSVideoFPS() {
             flexDir='column'
             w='70%'
         >
-            <Text mb='8px'>FPS</Text>
+            <Text mb='8px'>{t("title")}</Text>
             {originalFPS !== undefined && fps !== undefined ?
                 numberInput :
-                <GeneralSpinner loadingText='Loading...' />
+                <GeneralSpinner loadingText={t("loading")} />
             }
         </Flex>
     </>

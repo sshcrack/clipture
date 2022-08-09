@@ -1,6 +1,7 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { NavBar } from 'src/components/general/NavBar';
 import Clips from 'src/components/obs/clips';
@@ -15,6 +16,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     const [initialized, setInitialized] = useState(false)
     const { system } = window.api
     const { mode } = useParams()
+    const { t } = useTranslation("dashboard")
 
     useEffect(() => {
         if (!initialized)
@@ -86,8 +88,8 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                 }}
             >
                 <TabList>
-                    <Tab className='tabHotkey'>Clips</Tab>
-                    <Tab className='tabHotkey'>Videos</Tab>
+                    <Tab className='tabHotkey'>{t("clips.title")}</Tab>
+                    <Tab className='tabHotkey'>{t("videos.title")}</Tab>
                 </TabList>
                 <TabPanels
                     display='flex'
@@ -118,7 +120,6 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                         <Videos additionalElements={additionalElements} />
                     </TabPanel>
                 </TabPanels>
-
             </Tabs>
         </Flex>
     </Flex>

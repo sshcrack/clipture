@@ -4,6 +4,7 @@ import prettyBytes from "pretty-bytes";
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from "react";
 import { Line } from 'react-chartjs-2';
+import { useTranslation } from 'react-i18next';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { PerformanceStatistics } from 'src/types/obs/obs-studio-node';
 
@@ -46,7 +47,9 @@ const bandWidthOptions = optionsWithFunc(e => prettyBytes(parseFloat(e)))
 export default function PerformanceStatistics() {
     const [stats, setStats] = useState([] as PerformanceWithDate[])
     const [recordTime, setRecordTime] = useState<number>(undefined)
+
     const { obs } = window.api
+    const { t } = useTranslation("obs", { keyPrefix: "recording.performance_stats"})
 
     useEffect(() => {
         let stats = [] as PerformanceWithDate[]
@@ -81,7 +84,7 @@ export default function PerformanceStatistics() {
     const cpuData = {
         labels: labels,
         datasets: [{
-            label: "CPU in %",
+            label: t("cpu"),
             data: stats.map(e => Math.round(e.CPU * 100) / 100),
             borderColor: dataColor,
             backgroundColor: dataColor
@@ -91,7 +94,7 @@ export default function PerformanceStatistics() {
     const fpsData = {
         labels: labels,
         datasets: [{
-            label: "FPS",
+            label: t("fps"),
             data: stats.map(e => e.frameRate),
             borderColor: dataColor,
             backgroundColor: dataColor
@@ -101,7 +104,7 @@ export default function PerformanceStatistics() {
     const bandwidthData = {
         labels: labels,
         datasets: [{
-            label: "Bandwidth",
+            label: t("bandwidth"),
             data: stats.map(e => e.recordingBandwidth),
             borderColor: dataColor,
             backgroundColor: dataColor
@@ -115,11 +118,11 @@ export default function PerformanceStatistics() {
         justifyContent='center'
         alignItems='center'
     >
-        <Text>CPU</Text>
+        <Text>{t("cpu")}</Text>
         <Line data={cpuData} options={cpuOptions} />
-        <Text>FPS</Text>
+        <Text>{t("fps")}</Text>
         <Line data={fpsData} options={generalOptions} />
-        <Text>Bandwidth</Text>
+        <Text>{t("bandwidth")}</Text>
         <Line data={bandwidthData} options={bandWidthOptions} />
         {
             recordTime && <Text>

@@ -26,7 +26,5 @@ export default function EditorCutHighlight(props: BoxProps) {
         gridRow='1'
         gridColumn='1'
         ref={highlight}
-    >
-
-    </Box>
+    />
 }

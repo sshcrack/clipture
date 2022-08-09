@@ -3,6 +3,7 @@ import { isDetectableGameInfo } from '@backend/managers/obs/core/tools'
 import { DetectableGame } from '@backend/managers/obs/Scene/interfaces'
 import { Box, Flex, Heading, useToast } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import Select from 'react-select'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
@@ -11,6 +12,8 @@ import CustomSelect from './CustomSelect'
 export default function GameExcludeList() {
     const { addModified, removeModified, addSaveListener, saving } = useContext(SettingsSaveContext)
     const { game } = window.api
+    const { t } = useTranslation("settings", { keyPrefix: "game.list.exclude" })
+
     const toast = useToast()
 
     const [update, setUpdate] = useState(0)
@@ -37,8 +40,8 @@ export default function GameExcludeList() {
             }
         }
 
-        const listCatch = handleCatch("Could not list excluded games")
-        const availableCatch = handleCatch("Could not get detectable games")
+        const listCatch = handleCatch(t("error.list"))
+        const availableCatch = handleCatch(t("error.available"))
         game.listExclude()
             .then(e => {
                 setList([...e])
@@ -61,7 +64,7 @@ export default function GameExcludeList() {
     useEffect(() => addSaveListener(() => game.setExclude(list)), [list])
     if (!list || !originalList || !available)
         return <Flex w='100%' h='100%' justifyContent='center' alignItems='center'>
-            <GeneralSpinner loadingText='Loading...' />
+            <GeneralSpinner loadingText={t("loading")} />
         </Flex>
 
     const listOptions = available
@@ -91,7 +94,7 @@ export default function GameExcludeList() {
         gap='5'
         alignItems='center'
     >
-        <Heading size='md'>Excluded games</Heading>
+        <Heading size='md'>{t("title")}</Heading>
         <CustomSelect
             defaultValue={filtered}
             isMulti
@@ -105,9 +108,9 @@ export default function GameExcludeList() {
             }}
             options={listOptions}
             className="basic-multi-select"
-            placeholder='Games to exclude'
+            placeholder={t("placeholder")}
             classNamePrefix="select"
         />
-        <Box h='10rem'></Box>
+        <Box h='10rem' />
     </Flex>
 }

@@ -1,6 +1,7 @@
 import { SessionStatus } from '@backend/managers/auth/interfaces'
 import { Box, useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import { HashRouter, Route, Routes } from "react-router-dom"
 import { useLock } from 'src/components/hooks/useLock'
 import { useSession } from 'src/components/hooks/useSession'
@@ -16,8 +17,10 @@ import SettingsPage from './subpages/settings'
 const log = RenderLogger.get("App")
 export default function App() {
     const { obs } = window.api
+    const { t } = useTranslation("app")
 
     const toast = useToast()
+
     const { data, status } = useSession()
 
     const { progress, isLocked } = useLock()
@@ -25,6 +28,7 @@ export default function App() {
     const [tryAgain, setTryAgain] = useState(() => Math.random())
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
 
+    console.log(t)
     useEffect(() => {
         const curr = obs.isInitialized()
         if (curr !== obsInitialized)
@@ -41,7 +45,7 @@ export default function App() {
 
                 log.error("Failed to initialize OBS", err)
                 toast({
-                    title: "OBS could not be initialized",
+                    title: t("obs_initialize_error"),
                     description: err?.stack ?? err?.message ?? JSON.stringify(err),
                     duration: 15000
                 })
@@ -65,7 +69,7 @@ export default function App() {
 
     const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
     if (!initialized)
-        return <InitializePage progress={progress ?? { percent: 0, status: "Initializing..." }} />
+        return <InitializePage progress={progress ?? { percent: 0, status: t("initializing")}} />
 
     if (status === SessionStatus.UNAUTHENTICATED)
         return <LoginPage />
@@ -78,7 +82,7 @@ export default function App() {
             <Route path="/record" element={<RecordPage data={data} />} />
             <Route path="/settings" element={<SettingsPage data={data} prevPage={prevPage} />} />
             <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />}/>
-            <Route path="/editor/:videoName" element={<EditorPage />}></Route>
+            <Route path="/editor/:videoName" element={<EditorPage />} />
         </Routes>
     </HashRouter>
 }

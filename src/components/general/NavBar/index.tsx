@@ -1,6 +1,7 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, FlexProps, Menu } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { AiFillCamera, AiOutlineCompass } from "react-icons/ai";
 import { FaCog } from "react-icons/fa";
 import { GoSignOut } from "react-icons/go";
@@ -10,13 +11,13 @@ import NavBarButton from './NavBarButton';
 
 export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
     const { auth, obs } = window.api
+    const { t } = useTranslation("navbar")
+
     const [recording, setRecording] = useState(() => window.api.obs.isRecording())
-    const [recordDesc, setRecordDesc] = useState("Unknown")
 
     useEffect(() => {
         return obs.onRecordChange(r => {
             setRecording(r)
-            setRecordDesc(obs.recordDescription())
         })
     }, [])
 
@@ -43,14 +44,14 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                     active={defaultItem}
                     icon={SiApplearcade}
                     onClick={() => location.hash = "/"}
-                    tooltip='Clips'
+                    tooltip={t("clips")}
                     chakraColor='brand.secondary'
                 />
                 <NavBarButton
                     active={location.hash === "#/discover"}
                     icon={AiOutlineCompass}
                     onClick={() => location.hash = "/discover"}
-                    tooltip='Discover'
+                    tooltip={t("discover")}
                     chakraColor='brand.primary'
                 />
                 <Flex
@@ -62,7 +63,7 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                         active={recording}
                         icon={AiFillCamera}
                         onClick={() => location.hash = "/record"}
-                        tooltip="Recording..."
+                        tooltip={t("recording")}
                         color="red"
                         animation={recording ? "recordingAnimate 3.5s linear infinite;" : undefined}
                         bg={recording ? "" : undefined}
@@ -79,14 +80,14 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
                 <NavBarButton
                     icon={FaCog}
                     active={location.hash === "#/settings"}
-                    tooltip='Settings'
+                    tooltip={t("settings")}
                     onClick={() => location.hash = "/settings"}
                     chakraColor='gray.400'
                 />
                 <NavBarButton
                     active={false}
                     icon={GoSignOut}
-                    tooltip='Sign Out'
+                    tooltip={t("sign_out")}
                     chakraColor='red.500'
                     onClick={() => auth.signOut()}
                 />

@@ -1,5 +1,6 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure, useToast } from '@chakra-ui/react';
 import React, { PropsWithChildren, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuItem } from './base/ContextMenuItem';
@@ -13,6 +14,8 @@ type Props = {
 
 export default function ClipContextMenu({ children, clipName, setUpdate }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
+    const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
+
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
     const cancelRef = React.useRef()
@@ -23,8 +26,8 @@ export default function ClipContextMenu({ children, clipName, setUpdate }: Props
             {children}
         </ContextMenuTrigger>
         <ContextMenuList>
-            <ContextMenuItem onClick={() => system.open_clip(clipName)}>Show in Explorer</ContextMenuItem>
-            <ContextMenuItem colorScheme='red' onClick={onOpen}>Delete</ContextMenuItem>
+            <ContextMenuItem onClick={() => system.open_clip(clipName)}>{t("show_folder")}</ContextMenuItem>
+            <ContextMenuItem colorScheme='red' onClick={onOpen}>{t("delete")}</ContextMenuItem>
         </ContextMenuList>
     </ContextMenu>
         <AlertDialog
@@ -35,16 +38,16 @@ export default function ClipContextMenu({ children, clipName, setUpdate }: Props
             <AlertDialogOverlay>
                 <AlertDialogContent>
                     <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                        Delete Clip
+                        {t("dialog.title")}
                     </AlertDialogHeader>
 
                     <AlertDialogBody>
-                        Are you sure? The clip will be deleted forever.
+                        {t("dialog.body")}
                     </AlertDialogBody>
 
                     <AlertDialogFooter>
                         <Button ref={cancelRef} onClick={onClose}>
-                            Cancel
+                            {t("dialog.cancel")}
                         </Button>
                         <Button
                             colorScheme='red'
@@ -52,14 +55,14 @@ export default function ClipContextMenu({ children, clipName, setUpdate }: Props
                             onClick={() => {
                                 setDeleting(true)
                                 clips.delete(clipName)
-                                    .then(() => toast({ title: "Deleted clip", status: "success"}))
+                                    .then(() => toast({ title: t("deleted"), status: "success"}))
                                     .finally(() => {
                                         setDeleting(false)
                                         setUpdate(Math.random())
                                     })
                                 onClose()
                             }} ml={3}>
-                            Delete
+                            {t("delete")}
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>

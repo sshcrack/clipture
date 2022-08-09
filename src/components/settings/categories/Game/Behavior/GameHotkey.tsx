@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useRef, useState } from "react"
 import { RenderLogger } from "src/interfaces/renderLogger"
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from "src/pages/main/subpages/settings/SettingsSaveProvider"
+import { useTranslation } from "react-i18next"
 
 const log = RenderLogger.get("Components", "Settings", "Categories", "Game", "Behavior", "GameHotkey")
 export default function GameHotkey() {
@@ -17,6 +18,8 @@ export default function GameHotkey() {
 
     const { saving, addModified, removeModified, addSaveListener } = useContext(SettingsSaveContext)
     const { bookmark } = window.api
+    const { t } = useTranslation("settings", { keyPrefix: "game.behavior.hotkey" })
+
 
     useEffect(() => {
         bookmark.getHotkey()
@@ -27,8 +30,8 @@ export default function GameHotkey() {
             .catch(e => {
                 log.error("Could not get hotkey", e)
                 toast({
-                    title: "Could not get hotkey",
-                    description: "Trying again in 5 seconds..",
+                    title: t("error.title"),
+                    description: t("error.description"),
                     status: "error"
                 })
 
@@ -63,10 +66,10 @@ export default function GameHotkey() {
         w='80%'
     >
         { !hotkey ?
-            <GeneralSpinner loadingText='Getting current hotkey...'/> :
+            <GeneralSpinner loadingText={t("loading")}/> :
             <Input
                 w='100%'
-                value={!listening ? hotkey : `${hotkey} - press key to rebind`}
+                value={!listening ? hotkey : t("rebind", { hotkey })}
                 borderColor={listening ? "green" : "inherit"}
                 onClick={() => {
                     setListening(true)

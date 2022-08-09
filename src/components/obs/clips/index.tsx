@@ -4,6 +4,7 @@ import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
 import PromiseButton from 'src/components/general/buttons/PromiseButton';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
@@ -21,10 +22,11 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const { clips, system } = window.api
+    const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
+
     const toast =  useToast()
 
     useEffect(() => {
-        5
         clips.add_listener((_, prog) => {
             if (prog?.percent !== 1 && prog)
                 return
@@ -40,8 +42,8 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
         }).catch(e => {
             log.error(e)
             toast({
-                title: "Could not list videos",
-                description: `${e.message}. Retrying in 5 seconds`,
+                title: t("could_not_list"),
+                description: t("retry", { message: e.message }),
             })
             setTimeout(() => setUpdate(Math.random()), 5000)
         })
@@ -106,7 +108,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                         bg='brand.bg'
                         flexDir='column'
                     >
-                        <Heading>CORRUPTED CLIP</Heading>
+                        <Heading>{t("corrupted_clip")}</Heading>
                         <Flex
                             w='100%'
                             h='100%'
@@ -122,16 +124,16 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                             mb='3'
                         >
                             <PromiseButton
-                                loadingText='Opening folder...'
-                                onClick={() => system.open_clip(clipName)}>Open affected clip</PromiseButton>
+                                loadingText={t("opening_folder")}
+                                onClick={() => system.open_clip(clipName)}>{t("open_folder")}</PromiseButton>
                             <PromiseButton
                                 colorScheme="red"
-                                loadingText='Deleting clip...'
+                                loadingText={t("deleting_clip")}
                                 onClick={() => {
                                     return clips.delete(clipName)
                                         .finally(() => setUpdate(Math.random()))
                                 }}
-                            >Delete Clip</PromiseButton>
+                            >{t("delete_clip")}</PromiseButton>
                         </Flex>
                     </Flex>
                 </VideoGridItem>
@@ -153,7 +155,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     ]
 
 
-    return loading ? <GeneralSpinner size='70' loadingText='Loading clips...' /> : elements?.length === 0
+    return loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
             {elements}
         </VideoGrid>

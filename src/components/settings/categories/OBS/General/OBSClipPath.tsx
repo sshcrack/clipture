@@ -1,13 +1,16 @@
 import { Button, Flex, Input, InputGroup, Text } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
 
 export default function OBSClipPath() {
     const [clipPath, setClipPath] = useState(undefined as string)
     const [originalClipPath, setOriginalClipPath] = useState(undefined as string)
+
     const { addSaveListener, addModified, removeModified, saving } = useContext(SettingsSaveContext)
     const { settings } = window.api
+    const { t } = useTranslation("settings", { keyPrefix: "obs.general.clip_path" })
 
     const openFolder = (p: string) => settings.openFolder(p)
     const handleClick = () => {
@@ -40,14 +43,14 @@ export default function OBSClipPath() {
     }, [saving])
 
     return <Flex w='70%' flexDir='column'>
-        <Text mb='8px'>Clip Path</Text>
+        <Text mb='8px'>{t("title")}</Text>
         <InputGroup size='md'>
             <Input
                 value={clipPath ?? ""}
                 type={"text"}
                 cursor='pointer'
                 isReadOnly
-                placeholder='Loading path...'
+                placeholder={t("placeholder")}
                 onClick={() => clipPath && openFolder(clipPath)}
             />
             <Button
@@ -57,7 +60,7 @@ export default function OBSClipPath() {
                 size='sm'
                 onClick={handleClick}
             >
-                Browse
+                {t("browse")}
             </Button>
         </InputGroup>
     </Flex>

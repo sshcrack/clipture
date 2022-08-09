@@ -1,8 +1,8 @@
 import { GeneralGame } from '@backend/managers/game/interface'
-import { isDetectableGameInfo } from '@backend/managers/obs/core/tools'
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { Box, Flex, Heading, Text, useToast } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 import CustomSelect from './CustomSelect'
@@ -12,6 +12,8 @@ type SelectItem = { value: GeneralGame, label: string }
 export default function GameIncludeList() {
     const { addModified, removeModified, addSaveListener, saving } = useContext(SettingsSaveContext)
     const { game } = window.api
+    const { t } = useTranslation("settings", { keyPrefix: "game.list.include" })
+
     const toast = useToast()
 
     const [update, setUpdate] = useState(0)
@@ -43,8 +45,8 @@ export default function GameIncludeList() {
             }
         }
 
-        const listCatch = handleCatch("Could not list included games")
-        const availableCatch = handleCatch("Could not get windows")
+        const listCatch = handleCatch(t("error.list"))
+        const availableCatch = handleCatch(t("error.available"))
         game.listInclude()
             .then(e => {
                 setList([...e])
@@ -67,7 +69,7 @@ export default function GameIncludeList() {
     useEffect(() => addSaveListener(() => game.setInclude(list)), [list])
     if (!list || !originalList || !available)
         return <Flex w='100%' h='100%' justifyContent='center' alignItems='center'>
-            <GeneralSpinner loadingText='Loading...' />
+            <GeneralSpinner loadingText={t("loading")} />
         </Flex>
 
     const listOptions = available
@@ -103,7 +105,7 @@ export default function GameIncludeList() {
         gap='5'
         alignItems='center'
     >
-        <Heading size='md'>Included games</Heading>
+        <Heading size='md'>{t("title")}</Heading>
         <CustomSelect
             defaultValue={filtered}
             isMulti
@@ -112,10 +114,10 @@ export default function GameIncludeList() {
             onChange={e => setList(e.map(e => e.value))}
             options={listOptions}
             className="basic-multi-select"
-            placeholder='Games to include'
+            placeholder={t("placeholder")}
             classNamePrefix="select"
         />
-        <Text>You have to restart the game in order for it to get recorded</Text>
-        <Box h='10rem'></Box>
+        <Text>{t("require_restart")}</Text>
+        <Box h='10rem' />
     </Flex>
 }

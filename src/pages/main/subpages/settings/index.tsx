@@ -1,6 +1,7 @@
 import { SessionData } from '@backend/managers/auth/interfaces'
 import { Flex, Heading, IconButton, Kbd, Text } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import { AiOutlineClose } from 'react-icons/ai'
 import { useParams } from 'react-router-dom'
 import SettingsMenu from 'src/components/settings/navbar/SettingsMenu'
@@ -44,6 +45,8 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
     const { item } = useParams()
     const [recording, setRecording] = useState(true)
     const [ update, setUpdate ] = useState(0)
+
+    const { t } = useTranslation("settings")
     const { obs } = window.api
 
 
@@ -111,8 +114,8 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
                             justifyContent='center'
                             alignItems='center'
                         >
-                            <Heading size='xl'>This page is only available when not recording.</Heading>
-                            <Heading size='md'>Please stop the game you are running.</Heading>
+                            <Heading size='xl'>{t("recording_must_be_stopped.title")}</Heading>
+                            <Heading size='md'>{t("recording_must_be_stopped.subtitle")}</Heading>
                         </Flex>}
                     </Flex>
                     <Flex
@@ -128,7 +131,6 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
                             onClick={() => onClose()}
                         />
                     </Flex>
-
                 </Flex>
             </Flex>
         </Flex>

@@ -7,6 +7,7 @@ import TitlebarBalancer from 'src/components/titlebar/TitlebarBalancer';
 import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
 import '../../components/titlebar/style.css';
 import "src/pages/main/scrollbar.css";
+import "src/locales/i18n"
 import theme from "./theme";
 import OnlyUnminimizedRender from "./OnlyUnminimizedRender";
 import ToastNotifier from './ToastNotifier';

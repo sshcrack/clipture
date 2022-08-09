@@ -1,10 +1,13 @@
 import { Flex, Heading, Switch, Text, useToast } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
 export default function OBSAutostart() {
     const { addModified, removeModified, saving, addSaveListener } = useContext(SettingsSaveContext)
+    const { t } = useTranslation("settings", { keyPrefix: "obs.general.autostart" })
+
     const [original, setOriginal] = useState(undefined)
     const [current, setCurrent] = useState(undefined)
 
@@ -20,8 +23,8 @@ export default function OBSAutostart() {
             })
             .catch(() => {
                 toast({
-                    title: "Error",
-                    description: "Could not obtain autostart status. Retrying..."
+                    title: t("error.title"),
+                    description: t("error.description")
                 })
 
                 setTimeout(() => setUpdate(Math.random()), 5000)
@@ -33,14 +36,14 @@ export default function OBSAutostart() {
     }, [current])
 
     if (original === undefined || current === undefined)
-        return <GeneralSpinner loadingText='Loading autostart...' />
+        return <GeneralSpinner loadingText={t("loading")} />
 
     return <Flex
         justifyContent='space-around'
         alignItems='center'
         w='70%'
     >
-        <Text>Autostart</Text>
+        <Text>{t("title")}</Text>
         <Switch onChange={newVal => {
             const e = newVal.target.checked
             setCurrent(e)
