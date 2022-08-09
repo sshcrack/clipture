@@ -5,14 +5,15 @@ import { SettingsMenuCategoryContext } from './SettingsMenuCategory';
 
 export type SettingsMenuItemProps = {
     label: string,
+    link: string,
     defaultItem?: boolean
 }
 
-export default function SettingsMenuItem({ label, defaultItem }: SettingsMenuItemProps) {
+export default function SettingsMenuItem({ label, link, defaultItem }: SettingsMenuItemProps) {
     const { item } = useParams()
     const { category } = useContext(SettingsMenuCategoryContext)
 
-    const hashLink = `${category.toLowerCase()}-${label.toLowerCase()}`
+    const hashLink = `${category.toLowerCase()}-${link.toLowerCase()}`
     const active = item === hashLink || (defaultItem && !item)
 
     return <Button

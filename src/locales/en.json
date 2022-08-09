@@ -66,6 +66,26 @@
         "title": "Recording Overview"
     },
     "settings": {
+        "menu": {
+            "obs_clipture": {
+                "title": "OBS / Clipture",
+                "general": "General",
+                "video": "Video",
+                "audio": "Audio"
+            },
+            "game": {
+                "title": "Game",
+                "list": "List",
+                "behavior": "Behavior"
+            }
+        },
+        "popup": {
+            "error": "Could not save",
+            "unsaved": "You have unsaved changes.",
+            "saving": "Saving...",
+            "save": "Save Changes",
+            "reset": "Reset"
+        },
         "game": {
             "behavior": {
                 "title": "Behavior",
@@ -102,6 +122,9 @@
             }
         },
         "obs": {
+            "language": {
+                "language": "Language"
+            },
             "audio": {
                 "title": "Audio",
                 "input_devices": {

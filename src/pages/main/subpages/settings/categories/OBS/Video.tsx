@@ -13,6 +13,7 @@ export default function OBSVideo() {
             h='100%'
             flexDir='column'
             alignItems='center'
+            gap='5'
         >
             <OBSVideoBitrate />
             <OBSVideoFPS />

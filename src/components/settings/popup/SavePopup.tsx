@@ -1,11 +1,12 @@
 import { Button, Flex, Portal, Text, useToast } from '@chakra-ui/react';
 import { motion } from "framer-motion";
-import React, { useContext, useState } from "react";
-import { RenderLogger } from 'src/interfaces/renderLogger';
+import React, { useContext } from "react";
+import { useTranslation } from 'react-i18next';
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider';
 
 export default function SettingsSavePopup({ onReset }: { onReset: () => void }) {
     const { save, saving, modified, reset } = useContext(SettingsSaveContext)
+    const { t } = useTranslation("settings", { keyPrefix: "popup"})
     const toast = useToast()
 
     const saveSettings = () => {
@@ -15,7 +16,7 @@ export default function SettingsSavePopup({ onReset }: { onReset: () => void }) 
         save()
             .catch(e => {
                 toast({
-                    title: "Could not save",
+                    title: t("error"),
                     description: e?.message ?? e,
                     duration: 15 * 1000,
                     status: "error"
@@ -50,7 +51,7 @@ export default function SettingsSavePopup({ onReset }: { onReset: () => void }) 
                 damping: 12
             }}
         >
-            <Text fontSize='xl'>You have unsaved changes.</Text>
+            <Text fontSize='xl'>{t("unsaved")}</Text>
             <Flex
                 ml='auto'
                 justifySelf='right'
@@ -61,13 +62,13 @@ export default function SettingsSavePopup({ onReset }: { onReset: () => void }) 
                 <Button
                     colorScheme='red'
                     onClick={() => { reset(); onReset() }}
-                >Reset</Button>
+                >{t("reset")}</Button>
                 <Button
                     colorScheme='green'
                     isLoading={saving}
-                    loadingText='Saving...'
+                    loadingText={t("saving")}
                     onClick={() => saveSettings()}
-                >Save Changes</Button>
+                >{t("save")}</Button>
             </Flex>
         </motion.div>
     </Portal>
