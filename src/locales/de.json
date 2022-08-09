@@ -66,6 +66,26 @@
         "title": "Aufnahmeübersicht"
     },
     "settings": {
+        "menu": {
+            "obs_clipture": {
+                "title": "OBS / Clipture",
+                "general": "Allgemein",
+                "video": "Video",
+                "audio": "Audio"
+            },
+            "game": {
+                "title": "Spiel",
+                "list": "Liste",
+                "behavior": "Hotkey"
+            }
+        },
+        "popup": {
+            "error": "Konnte nicht gespeichert wrden",
+            "unsaved": "Änderungen noch nicht gespeichert.",
+            "saving": "Speichert...",
+            "save": "Speichern",
+            "reset": "Zurücksetzen"
+        },
         "game": {
             "behavior": {
                 "title": "Hotkey",
