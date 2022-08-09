@@ -126,7 +126,6 @@
     "electron": "18.0.3",
     "eslint": "^7.6.0",
     "eslint-plugin-import": "^2.20.0",
-    "exe-icon-extractor": "^1.0.8",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.0.1",
     "native-ext-loader": "^2.3.0",
