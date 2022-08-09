@@ -3842,6 +3842,11 @@ events@^3.2.0:
   resolved "https://registry.yarnpkg.com/events/-/events-3.3.0.tgz#31a95ad0a924e2d2c419a813aeb2c4e878ea7400"
   integrity sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==
 
+exe-icon-extractor@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/exe-icon-extractor/-/exe-icon-extractor-1.0.8.tgz#d949683c0c76044c2a48bc6bb9b84370789429fc"
+  integrity sha512-Ww9kDYN3goiWEMovTWV1s0p3we0Xp1jJyJSnW4KH+Z+0KxuhWTSL8f1u5bpPsSunSUeqC+RACbmBk6l5EuBR1g==
+
 execa@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/execa/-/execa-1.0.0.tgz#c6236a5bb4df6d6f15e88e7f017798216749ddd8"
