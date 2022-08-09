@@ -141,7 +141,7 @@
     "@emotion/react": "11",
     "@emotion/styled": "11",
     "@fontsource/varela-round": "^4.5.8",
-    "@streamlabs/obs-studio-node": "file:../obs-studio-node-fix/out.tar.gz",
+    "@streamlabs/obs-studio-node": "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.6/out.tar.gz",
     "@szhsin/react-menu": "^3.1.1",
     "auto-launch": "^5.0.5",
     "chart.js": "^3.8.0",
