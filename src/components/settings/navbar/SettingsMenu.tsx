@@ -24,7 +24,7 @@ export default function SettingsMenu(props: FlexProps) {
                 flexDir='column'
                 gap='.25rem'
             >
-                <Category category={t("obs_clipture.title")}>
+                <Category category={t("obs_clipture.title")} link='obs'>
                     <Item link='general' label={t("obs_clipture.general")} defaultItem />
                     <Item link='video' label={t("obs_clipture.video")} />
                     <Item link='audio' label={t("obs_clipture.audio")}></Item>
@@ -32,7 +32,7 @@ export default function SettingsMenu(props: FlexProps) {
 
                 <Divider />
 
-                <Category category='Game'>
+                <Category category={t("game.title")} link='game'>
                     <Item link='list' label={t("game.list")} />
                     <Item link='behavior' label={t("game.behavior")} />
                 </Category>

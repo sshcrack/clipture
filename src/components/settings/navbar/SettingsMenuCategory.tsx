@@ -9,9 +9,9 @@ export const SettingsMenuCategoryContext = React.createContext<SettingsMenuCateg
     category: "null"
 })
 
-export default function SettingsMenuCategory({ children, category }: React.PropsWithChildren<{ category: string }>) {
+export default function SettingsMenuCategory({ children, category, link }: React.PropsWithChildren<{ category: string, link: string }>) {
     return <SettingsMenuCategoryContext.Provider
-        value={{ category }}
+        value={{ category: link }}
     >
         <Flex
             pt='4'
