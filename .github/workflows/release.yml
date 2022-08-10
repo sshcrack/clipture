@@ -11,8 +11,16 @@ jobs:
     - uses: actions/checkout@v2       
     - uses: actions/setup-node@master
       with:
-        node-version: 16
+        node-version: 16.16.0
         cache: 'yarn'
+    - name: Set Path for candle and light
+      run: $GITHUB_PATH=$GITHUB_PATH + ";" + $((Get-ChildItem "C:\Program Files (x86)\" | Where-Object { $_.PSIsContainer -and $_.Name.StartsWith("WiX")}).FullName + "\bin")
+    - name: Download and copy headers
+      run: |
+        Invoke-WebRequest -Uri "https://nodejs.org/dist/v16.16.0/node-v16.16.0-headers.tar.gz" -OutFile $env:temp\headers.tar.gz
+        mkdir $env:temp\headers
+        tar -xvf $env:temp\headers.tar.gz -C $env:temp\headers\
+        cp $env:temp\headers\node-v16.16.0\include $env:userprofile\AppData\Local\node-gyp\Cache\16.16.0\ -r -ErrorAction SilentlyContinue
     - name: install
       run: yarn install
     - name: publish
