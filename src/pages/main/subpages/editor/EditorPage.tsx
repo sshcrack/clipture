@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react';
+import { Flex, Grid } from '@chakra-ui/react';
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import EditorCutBar from 'src/components/obs/videos/bar/EditorCutBar';
@@ -6,6 +6,7 @@ import EditorCutHighlight from 'src/components/obs/videos/bar/EditorCutHighlight
 import EditorMainBar from 'src/components/obs/videos/bar/EditorMainBar';
 import EditorSeekBar from 'src/components/obs/videos/bar/EditorSeekBar';
 import EditorTitlebar from 'src/components/obs/videos/bar/EditorTitlebar';
+import EditorBookmarks from 'src/components/obs/videos/bookmarks';
 import Editor from 'src/components/obs/videos/Editor';
 import EditorVideo from 'src/components/obs/videos/EditorVideo';
 import EditorTimelineTop from 'src/components/obs/videos/timelineTop/EditorTimelineTop';
@@ -30,6 +31,7 @@ export default function EditorPage() {
                 onBack={() => window.history.back()}>
                 <EditorVideo h='100%' />
                 <EditorMainBar>
+                    <EditorBookmarks />
                     <EditorCutHighlight bg='editor.highlight' opacity={.5} />
                     <EditorSeekBar />
                     <EditorCutBar
@@ -45,7 +47,7 @@ export default function EditorPage() {
                         h='100%'
                     />
                 </EditorMainBar>
-                <EditorTimelineTop />
+                <EditorTimelineTop/>
                 <EditorTitlebar />
             </Editor>
         </Flex>

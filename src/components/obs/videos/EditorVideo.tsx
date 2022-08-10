@@ -38,6 +38,7 @@ export default function EditorVideo(props: GridItemProps) {
 
                     return resolve();
                 }
+
                 video.load()
                 video.currentTime = 1e101
                 video.play()

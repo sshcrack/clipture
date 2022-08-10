@@ -1,4 +1,6 @@
-import React, { useRef, useState } from "react"
+import { Flex, Heading } from "@chakra-ui/react"
+import React, { useEffect, useRef, useState } from "react"
+import GeneralSpinner from "src/components/general/spinner/GeneralSpinner"
 import { ReactSetState } from 'src/types/reactUtils'
 
 export type Selection = {
@@ -17,7 +19,8 @@ export type EditorState = {
     videoRef?: React.MutableRefObject<HTMLVideoElement>,
     bgGeneratorRef?: React.MutableRefObject<HTMLVideoElement>,
     paused: boolean,
-    setPaused: ReactSetState<boolean>
+    setPaused: ReactSetState<boolean>,
+    bookmarks: number[]
 }
 
 export const EditorContext = React.createContext<EditorState>({
@@ -34,7 +37,8 @@ export const EditorContext = React.createContext<EditorState>({
     setSelection: () => { },
     videoRef: undefined,
     paused: true,
-    setPaused: () => {}
+    setPaused: () => {},
+    bookmarks: []
 })
 
 type Props = {
@@ -47,12 +51,41 @@ export default function Editor({ children, videoName, onBack }: React.PropsWithC
     const bgGeneratorRef = useRef<HTMLVideoElement>(null);
     const [ paused, setPaused ] = useState(true)
     const [ duration, setDuration ] = useState<number>(undefined)
+    const [ bookmarks, setBookmarks ] = useState<number[]>(undefined)
+    const [ loaded, setLoaded ] = useState(false)
     const [selection, setSelection] = useState<Selection>({
         end: 0,
         offset: 0,
         start: 0,
         range: 0
     })
+
+    const { videos } = window.api
+    useEffect(() => {
+        videos.list()
+            .then(e => {
+                console.log("Vid", e)
+                const vid = e.find(x => x.videoName === videoName)
+                if(!vid)
+                    return
+
+                console.log("Vid", vid)
+                setBookmarks(vid.bookmarks ?? [])
+            })
+            .finally(() => setLoaded(true))
+    }, [])
+
+    if(!loaded)
+        return <Flex>
+            <GeneralSpinner loadingText='Getting video info...'/>
+        </Flex>
+
+    if(!bookmarks) {
+        return <Flex>
+            <Heading>Video information could not be loaded.</Heading>
+            <Heading size='sm'>This video seems to be deleted.</Heading>
+        </Flex>
+    }
 
     return <EditorContext.Provider
         value={{
@@ -65,7 +98,8 @@ export default function Editor({ children, videoName, onBack }: React.PropsWithC
             setPaused,
             duration,
             setDuration,
-            bgGeneratorRef
+            bgGeneratorRef,
+            bookmarks
         }}
     >
         {children}
