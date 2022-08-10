@@ -38,7 +38,7 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
     const displays = sources.map(({ device_id, type }) => {
         let devName = findAudioDevice(device_id, devices)?.name
         let volSource = device_id
-        if (device_id.toLowerCase() === "default") {
+        if (device_id?.toLowerCase() === "default") {
             if (type === "microphone") {
                 devName = t("default_mic")
                 volSource = defaultDev.microphone.device_id
