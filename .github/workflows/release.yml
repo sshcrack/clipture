@@ -25,7 +25,7 @@ jobs:
         echo Copying...
         New-Item $env:userprofile\AppData\Local\node-gyp\Cache\16.16.0\include\node\ -ItemType Directory
         cp $env:temp\headers\node-v16.16.0\include C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -r
-        ls C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\include\node\
+        cp C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\include\node\*.gypi C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\
     - name: install
       run: yarn install
     - name: publish
