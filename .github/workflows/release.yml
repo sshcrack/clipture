@@ -16,13 +16,15 @@ jobs:
     - name: Set Path for candle and light
       run: $GITHUB_PATH=$GITHUB_PATH + ";" + $((Get-ChildItem "C:\Program Files (x86)\" | Where-Object { $_.PSIsContainer -and $_.Name.StartsWith("WiX")}).FullName + "\bin")
     - name: Download and copy headers
+      continue-on-error: true
       run: |
         echo Downloading headers...
         Invoke-WebRequest -Uri "https://nodejs.org/dist/v16.16.0/node-v16.16.0-headers.tar.gz" -OutFile $env:temp\headers.tar.gz
         mkdir $env:temp\headers
         tar -xvf $env:temp\headers.tar.gz -C $env:temp\headers\
         echo Copying...
-        cp $env:temp\headers\node-v16.16.0\include C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -r -ErrorAction SilentlyContinue
+        New-Item $env:userprofile\AppData\Local\node-gyp\Cache\16.16.0\include\node\ -ItemType Directory
+        cp $env:temp\headers\node-v16.16.0\include C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -r
         ls C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\include\node\
     - name: install
       run: yarn install
