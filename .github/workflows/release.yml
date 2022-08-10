@@ -14,7 +14,7 @@ jobs:
         node-version: 16.16.0
         cache: 'yarn'
     - name: Set Path for candle and light
-      run: $GITHUB_PATH=$GITHUB_PATH + ";" + $((Get-ChildItem "C:\Program Files (x86)\" | Where-Object { $_.PSIsContainer -and $_.Name.StartsWith("WiX")}).FullName + "\bin")
+      run: echo $((Get-ChildItem "C:\Program Files (x86)\" | Where-Object { $_.PSIsContainer -and $_.Name.StartsWith("WiX")}).FullName + "\bin") | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
     - name: Download and copy headers
       continue-on-error: true
       run: |
@@ -24,7 +24,6 @@ jobs:
         tar -xvf $env:temp\headers.tar.gz -C $env:temp\headers\
         echo Copying...
         New-Item $env:userprofile\AppData\Local\node-gyp\Cache\16.16.0\include\node\ -ItemType Directory
-        cp $env:temp\headers\node-v16.16.0\include C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -r
         cp C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\include\node\*.gypi C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\
     - name: install
       run: yarn install
