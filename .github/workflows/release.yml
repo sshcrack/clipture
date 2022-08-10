@@ -13,6 +13,8 @@ jobs:
       with:
         node-version: 16
         cache: 'yarn'
+    - name: Set Path for candle and light
+      run: $GITHUB_PATH=$GITHUB_PATH + ";" + $((Get-ChildItem "C:\Program Files (x86)\" | Where-Object { $_.PSIsContainer -and $_.Name.StartsWith("WiX")}).FullName + "\bin")
     - name: install
       run: yarn install
     - name: publish
