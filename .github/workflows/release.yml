@@ -23,8 +23,8 @@ jobs:
         mkdir $env:temp\headers
         tar -xvf $env:temp\headers.tar.gz -C $env:temp\headers\
         echo Copying...
-        New-Item $env:userprofile\AppData\Local\node-gyp\Cache\16.16.0\include\node\ -ItemType Directory
-        cp C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\include\node\*.gypi C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\
+        New-Item C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -ItemType Directory
+        cp $env:temp\headers\node-v16.16.0\include\node\*.gypi C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -verbose
     - name: install
       run: yarn install
     - name: publish
