@@ -1424,6 +1424,10 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.6.0.tgz#3c7c9c46e678feefe7a2e5bb609d3dbd665ffb3f"
   integrity sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==
 
+"@streamlabs/obs-studio-node@https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.6/out.tar.gz":
+  version "0.3.101"
+  resolved "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.6/out.tar.gz#0b2d2e44a388b7743e142ae25b6fd45a7e0d4c4d"
+
 "@szhsin/react-menu@^3.1.1":
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/@szhsin/react-menu/-/react-menu-3.1.2.tgz#3a791e7e6c672d113c298985bec5185e9c7aa8a7"
