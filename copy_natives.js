@@ -1,7 +1,6 @@
 const fs = require("fs/promises")
 const path = require("path")
 
-
 const native = "node_modules/@streamlabs/obs-studio-node"
 module.exports = async (buildPath, _, _1, _2, callback) => {
     const src = path.join(__dirname, native)
