@@ -18,9 +18,9 @@ import { RegManMain } from "@general/register/main";
 const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl } = MainGlobals
 
 const ffmpegUrl = `${baseUrl}/ffmpeg.exe`
-const ffmpegHash = `${baseUrl}/ffmpeg.exe`
+const ffmpegHash = `${baseUrl}/ffmpeg.exe.hash`
 const ffprobeUrl = `${baseUrl}/ffprobe.exe`
-const ffprobeHash = `${baseUrl}/ffmpeg.exe`
+const ffprobeHash = `${baseUrl}/ffmpeg.exe.hash`
 const downloadUrl = `${baseUrl}/obs-studio-node.zip`
 const hashUrl = `${baseUrl}/obs-studio-node.zip.hash`
 const hashFile = path.join(obsRequirePath, "hash")
@@ -45,7 +45,9 @@ export class Prerequisites {
             obs: this.validateOBS()
         }
 
+        log.info("Validating...")
         const res = await Promise.all(Object.values(checksProm)).catch(e => {
+            log.error("Prerequisites error:")
             log.error(e)
             return [false]
         })
@@ -60,19 +62,27 @@ export class Prerequisites {
 
     private static async validateFFmpeg() {
          const exists = await existsProm(ffmpegExe)
+         log.info("Checking for ffmpeg", exists)
          if(!exists)
             return false
+         log.info("Getting current hash")
          const currHash = crypto.createHash("sha256").update(await fs.readFile(ffmpegExe)).digest("hex")
+         log.info("Getting online ffmpeg hash")
          const onlineHash = await got(ffmpegHash).then(e => e.body)
+         log.info("Got info ffmpeg")
          return currHash === onlineHash
     }
 
     private static async validateFFprobe() {
          const exists = await existsProm(ffprobeExe)
+         log.info("Checking for ffprobe", exists)
          if(!exists)
             return false
+         log.info("Getting current hash")
          const currHash = crypto.createHash("sha256").update(await fs.readFile(ffprobeExe)).digest("hex")
+         log.info("Getting online ffprobe hash")
          const onlineHash = await got(ffprobeHash).then(e => e.body)
+         log.info("Got info ffprobe")
          return currHash === onlineHash
     }
 
@@ -87,9 +97,9 @@ export class Prerequisites {
 
         this.initializing = true
         const installMethods = {
-            "ffmpeg": this.downloadFFMpeg,
-            "ffprobe": this.downloadFFProbe,
-            "obs": this.installOBS
+            "ffmpeg": (e: (prog: Progress) => unknown) => this.downloadFFMpeg(e),
+            "ffprobe": (e: (prog: Progress) => unknown) => this.downloadFFProbe(e),
+            "obs": (e: (prog: Progress) => unknown) => this.installOBS(e)
         }
 
         const { errors, valid} = await this.validate()

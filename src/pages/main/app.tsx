@@ -33,9 +33,11 @@ export default function App() {
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
     const [downloadedModules, setModulesDownloaded] = useState(undefined as boolean)
 
+    console.log("Current Status is: OBS:", obsInitialized, "Modules:", downloadedModules, "Progress:", progress, "Status", status)
     useEffect(() => {
+        console.log("Checking if prerequisites are valid")
         prerequisites.isValid()
-            .then(e => setModulesDownloaded(e.valid))
+            .then(e => {console.log("Valid", e); setModulesDownloaded(e.valid)})
             .catch(e => {
                 log.error(e)
                 toast({
