@@ -1,4 +1,4 @@
-import { IInput, IVolmeter } from '@streamlabs/obs-studio-node'
+import type { IInput } from '@streamlabs/obs-studio-node'
 
 export interface WindowInformation {
     className: string,

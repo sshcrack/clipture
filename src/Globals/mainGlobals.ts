@@ -1,14 +1,17 @@
 import path from "path";
+import { getWebpackDir } from "@backend/tools/fs";
+import { app, BrowserWindow, nativeImage } from 'electron';
 
-const ffmpegExe = path.join(__dirname, "assets/ffmpeg.exe");
-const ffprobeExe = path.join(__dirname, "assets/ffprobe.exe");
+const wDir = getWebpackDir()
+const packaged = app.isPackaged
+const ffmpegExe = packaged ? path.join(wDir, "assets/ffmpeg.exe") : path.join(process.cwd(), "devAssets", "ffmpeg.exe");
+const ffprobeExe = packaged ? path.join(wDir, "assets/ffprobe.exe") : path.join(process.cwd(), "devAssets", "ffprobe.exe");
 
 process.env.FFMPEG_PATH = ffmpegExe
 process.env.FFPROBE_PATH = ffprobeExe
 
 
 import { OBSManager } from '@backend/managers/obs';
-import { app, BrowserWindow, nativeImage } from 'electron';
 import fs from "fs";
 import os from "os";
 
@@ -24,14 +27,14 @@ export class MainGlobals {
     static gameUrl = this.baseUrl + "/api/game/detection"
     static dcClientId = "964216174135103528"
 
-    static readonly nativeMngExe = path.join(__dirname, "assets/native_mng.exe")
+    static readonly nativeMngExe = path.join(wDir, "assets/native_mng.exe")
     static readonly ffmpegExe = ffmpegExe
     static readonly ffprobeExe = ffprobeExe
-    static readonly obsRequirePath = path.join(__dirname, "assets/obs-studio-node");
+    static readonly obsRequirePath = packaged ? path.join(wDir, "assets/obs-studio-node") : "@streamlabs/obs-studio-node";
 
-    static readonly iconFile = path.join(__dirname,"assets/logo.ico");
-    static readonly bookmarkedSound = path.join(__dirname,"assets/bookmarked.mp3");
-    static readonly dotIconFile = path.join(__dirname, "assets/dot.ico");
+    static readonly iconFile = path.join(wDir,"assets/logo.ico");
+    static readonly bookmarkedSound = path.join(wDir,"assets/bookmarked.mp3");
+    static readonly dotIconFile = path.join(wDir, "assets/dot.ico");
     static readonly dotIconNativeImage = nativeImage.createFromPath(this.dotIconFile)
     static obs: OBSManager;
 

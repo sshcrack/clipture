@@ -1,4 +1,4 @@
-import { IIPC } from '@streamlabs/obs-studio-node';
+import type { IIPC } from '@streamlabs/obs-studio-node';
 import { EOBSOutputSignal, EOBSOutputType, EOutputCode, SettingsCat } from './obs-enums';
 
 export interface SettingsParameter {

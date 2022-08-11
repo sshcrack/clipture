@@ -170,12 +170,12 @@ export class OBSManager {
         const Output = SettingsCat.Output
         const Video = SettingsCat.Video
 
-        const availableEncoders = getAvailableValues(Output, 'Recording', 'RecEncoder');
-        setSetting(Output, "Mode", "Advanced")
-        setSetting(Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
-        setSetting(Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
-        setSetting(Output, 'RecFilePath', Storage.get("clip_path"));
-        setSetting(Output, 'RecFormat', 'mkv');
+        const availableEncoders = getAvailableValues(this.NodeObs, Output, 'Recording', 'RecEncoder');
+        setSetting(this.NodeObs, Output, "Mode", "Advanced")
+        setSetting(this.NodeObs, Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
+        setSetting(this.NodeObs, Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
+        setSetting(this.NodeObs, Output, 'RecFilePath', Storage.get("clip_path"));
+        setSetting(this.NodeObs, Output, 'RecFormat', 'mkv');
 
         this.updateSettings()
 
@@ -189,8 +189,8 @@ export class OBSManager {
         const fps = Storage.get("obs")?.fps ?? 60
         const bitrate = Storage.get("obs")?.bitrate ?? 10000
 
-        setSetting(Video, 'FPSCommon', fps);
-        setSetting(Output, 'VBitrate', bitrate); // 10 Mbps
+        setSetting(this.NodeObs, Video, 'FPSCommon', fps);
+        setSetting(this.NodeObs, Output, 'VBitrate', bitrate); // 10 Mbps
     }
 
     private register() {

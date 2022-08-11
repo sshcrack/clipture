@@ -1,6 +1,7 @@
 import { MainGlobals } from '@Globals/mainGlobals'
 import fs from "fs/promises"
 import path from 'path'
+import { app } from "electron"
 
 export function existsProm(file: string) {
     return fs.stat(file)
@@ -19,4 +20,15 @@ export function getClipInfoCachePath() {
 
 export function getSharedImageCachePath() {
     return path.join(MainGlobals.getTempDir(), "clip_image.json")
+}
+6
+export function getWebpackDir() {
+    const packaged = app.isPackaged
+    const appDir = app.getAppPath()
+
+    if(packaged)
+        return path.join(appDir, ".webpack", "main")
+
+    // only for dev
+    return path.join(process.cwd(), ".webpack", "main")
 }

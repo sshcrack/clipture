@@ -1,19 +1,18 @@
-import { existsProm } from "@backend/tools/fs";
-import { MainGlobals } from "@Globals/mainGlobals";
-import fs from "fs/promises"
-import path from "path"
-import got from "got"
-import crypto from "crypto"
-import { v4 as uuid } from "uuid"
-import { MainLogger } from "src/interfaces/mainLogger";
-import { LockManager } from "../lock";
-import { BsArrowReturnLeft } from "react-icons/bs";
-import { Downloader } from "@backend/processors/General/Downloader";
-import { app } from "electron";
 import { Progress } from "@backend/processors/events/interface";
 import { ProcessHandler } from "@backend/processors/events/ProcessHandler";
+import { Downloader } from "@backend/processors/General/Downloader";
 import { Unpacker } from "@backend/processors/General/Unpacker";
+import { existsProm } from "@backend/tools/fs";
 import { RegManMain } from "@general/register/main";
+import { MainGlobals } from "@Globals/mainGlobals";
+import crypto from "crypto";
+import { app } from "electron";
+import fs from "fs/promises";
+import got from "got";
+import path from "path";
+import { MainLogger } from "src/interfaces/mainLogger";
+import { v4 as uuid } from "uuid";
+import { LockManager } from "../lock";
 
 const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl } = MainGlobals
 
@@ -61,29 +60,29 @@ export class Prerequisites {
     }
 
     private static async validateFFmpeg() {
-         const exists = await existsProm(ffmpegExe)
-         log.info("Checking for ffmpeg", exists)
-         if(!exists)
+        const exists = await existsProm(ffmpegExe)
+        log.info("Checking for ffmpeg", exists)
+        if (!exists)
             return false
-         log.info("Getting current hash")
-         const currHash = crypto.createHash("sha256").update(await fs.readFile(ffmpegExe)).digest("hex")
-         log.info("Getting online ffmpeg hash")
-         const onlineHash = await got(ffmpegHash).then(e => e.body)
-         log.info("Got info ffmpeg")
-         return currHash === onlineHash
+        log.info("Getting current hash")
+        const currHash = crypto.createHash("sha256").update(await fs.readFile(ffmpegExe)).digest("hex")
+        log.info("Getting online ffmpeg hash")
+        const onlineHash = await got(ffmpegHash).then(e => e.body)
+        log.info("Got info ffmpeg")
+        return currHash === onlineHash
     }
 
     private static async validateFFprobe() {
-         const exists = await existsProm(ffprobeExe)
-         log.info("Checking for ffprobe", exists)
-         if(!exists)
+        const exists = await existsProm(ffprobeExe)
+        log.info("Checking for ffprobe", exists)
+        if (!exists)
             return false
-         log.info("Getting current hash")
-         const currHash = crypto.createHash("sha256").update(await fs.readFile(ffprobeExe)).digest("hex")
-         log.info("Getting online ffprobe hash")
-         const onlineHash = await got(ffprobeHash).then(e => e.body)
-         log.info("Got info ffprobe")
-         return currHash === onlineHash
+        log.info("Getting current hash")
+        const currHash = crypto.createHash("sha256").update(await fs.readFile(ffprobeExe)).digest("hex")
+        log.info("Getting online ffprobe hash")
+        const onlineHash = await got(ffprobeHash).then(e => e.body)
+        log.info("Got info ffprobe")
+        return currHash === onlineHash
     }
 
     private static getOBSHash() {
@@ -92,7 +91,7 @@ export class Prerequisites {
     }
 
     static async initialize(onProgress: (prog: Progress) => unknown) {
-        if(this.initializing)
+        if (this.initializing)
             return log.warn("Already initializing. Skipping.")
 
         this.initializing = true
@@ -102,14 +101,14 @@ export class Prerequisites {
             "obs": (e: (prog: Progress) => unknown) => this.installOBS(e)
         }
 
-        const { errors, valid} = await this.validate()
-        if(valid) {
+        const { errors, valid } = await this.validate()
+        if (valid) {
             this.initializing = false
             return
         }
 
         const locked = LockManager.instance.isLocked()
-        if(locked)
+        if (locked)
             throw new Error("Could not acquire lock.")
 
         LockManager.instance.lock({
@@ -118,12 +117,12 @@ export class Prerequisites {
         })
 
         const partPercent = 1 / errors.length
-        for(let i = 0; i < errors.length; i++) {
+        for (let i = 0; i < errors.length; i++) {
             const name = errors[i]
             const method = installMethods[name]
 
-            log.info(`Running ${name}(${i +1}/${errors.length})`)
-            const error = await method(({ percent, status}) => {
+            log.info(`Running ${name}(${i + 1}/${errors.length})`)
+            const error = await method(({ percent, status }) => {
                 const prog = {
                     percent: i * partPercent + partPercent * percent,
                     status
@@ -135,16 +134,18 @@ export class Prerequisites {
                 .then(() => undefined)
                 .catch(e => e)
 
-            if(error) {
+            if (error) {
                 log.error("Could not run method", name, "error is", error)
                 LockManager.instance.unlock({ status: "Error installing", percent: 1 })
                 throw error
             }
         }
-        LockManager.instance.unlock({ status: "Prerequisites installed", percent: 1})
+        LockManager.instance.unlock({ status: "Prerequisites installed", percent: 1 })
     }
 
     static async validateOBS() {
+        if(!app.isPackaged)
+            return true
         const exists = await existsProm(obsRequirePath)
         if (!exists)
             return false

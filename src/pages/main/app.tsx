@@ -32,12 +32,17 @@ export default function App() {
 
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
     const [downloadedModules, setModulesDownloaded] = useState(undefined as boolean)
+    const [originalDownloadedModules, setOriginalModulesDownload] = useState(undefined as boolean)
 
     console.log("Current Status is: OBS:", obsInitialized, "Modules:", downloadedModules, "Progress:", progress, "Status", status)
     useEffect(() => {
         console.log("Checking if prerequisites are valid")
         prerequisites.isValid()
-            .then(e => {console.log("Valid", e); setModulesDownloaded(e.valid)})
+            .then(e => {
+                console.log("Valid", e)
+                setOriginalModulesDownload(e.valid)
+                setModulesDownloaded(e.valid)
+            })
             .catch(e => {
                 log.error(e)
                 toast({
@@ -97,9 +102,11 @@ export default function App() {
     }, [])
 
     const initialized = !isLocked && obsInitialized && downloadedModules && status !== SessionStatus.LOADING
+
     const { status: progStat, percent } = progress ?? { percent: 0, status: t("initializing")}
+    const relativePercentage = downloadedModules ? percent * 0.5 + 0.5 : percent * 0.5
     if (!initialized)
-        return <InitializePage progress={{status: progStat, percent: downloadedModules ? percent * 0.5 + 0.5 : percent * 0.5}} />
+        return <InitializePage progress={{status: progStat, percent: originalDownloadedModules ? percent : relativePercentage}} />
 
     if (status === SessionStatus.UNAUTHENTICATED)
         return <LoginPage />

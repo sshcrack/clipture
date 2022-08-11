@@ -2,9 +2,10 @@ import { Globals } from '@Globals/index';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { NotificationCallback, WindowsToaster } from 'node-notifier';
 import { Notification } from 'node-notifier/notifiers/notificationcenter';
+import { getWebpackDir } from './fs';
 
 const notifier = new WindowsToaster({
-    customPath: __dirname + "/vendor/snoreToast/snoretoast-x64.exe",
+    customPath: getWebpackDir() + "/vendor/snoreToast/snoretoast-x64.exe",
 })
 
 export function notify(notification?: Notification, callback?: NotificationCallback) {

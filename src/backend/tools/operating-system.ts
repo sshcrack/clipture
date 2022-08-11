@@ -1,5 +1,8 @@
 // Modified from https://github.com/stream-labs/streamlabs-obs/blob/staging/app/util/operating-systems.ts
 
+import { app } from "electron";
+import path from "path"
+
 export const OS = {
     Windows: 'win32',
     Mac: 'darwin',

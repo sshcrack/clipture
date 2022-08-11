@@ -1,12 +1,14 @@
-import { NodeObs as notTypedOBS } from "@streamlabs/obs-studio-node";
-import { IOBSOutputSignalInfo, NodeObs } from "src/types/obs/obs-studio-node";
+import { IOBSOutputSignalInfo, NodeObs as typedObs } from "src/types/obs/obs-studio-node";
 import { Subject } from "rxjs"
 import { first } from "rxjs/operators";
+import { MainGlobals } from "@Globals/mainGlobals";
 
-const NodeObs: NodeObs = notTypedOBS
+const { obsRequirePath} = MainGlobals
 export class SignalsManager {
     private static signals = new Subject<IOBSOutputSignalInfo>()
-    static initialize() {
+    private static NodeObs: typedObs
+    static async initialize() {
+        this.NodeObs = (await import(obsRequirePath)).NodeObs
         this.connectOutputSignals()
     }
 
@@ -18,7 +20,7 @@ export class SignalsManager {
     }
 
     private static connectOutputSignals() {
-        NodeObs.OBS_service_connectOutputSignals((signalInfo: IOBSOutputSignalInfo) => {
+        this.NodeObs.OBS_service_connectOutputSignals((signalInfo: IOBSOutputSignalInfo) => {
             this.signals.next(signalInfo);
         });
     }

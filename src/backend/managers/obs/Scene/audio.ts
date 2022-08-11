@@ -132,7 +132,7 @@ export class AudioSceneManager {
 
         log.info("Setting up audio sources...")
         this.Global.setOutputSource(1, scene);
-        setSetting(SettingsCat.Output, 'Track1Name', 'Mixed: all sources');
+        setSetting(this.NodeObs, SettingsCat.Output, 'Track1Name', 'Mixed: all sources');
 
         const allDesktopDevices = this.getAudioDevices("desktop")
         const allMicrophones = this.getAudioDevices("microphone")
@@ -205,7 +205,7 @@ export class AudioSceneManager {
         audioSource.volume = volume
 
         log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
-        setSetting(SettingsCat.Output, `Track${currTrack}Name`, device_id);
+        setSetting(this.NodeObs, SettingsCat.Output, `Track${currTrack}Name`, device_id);
         audioSource.audioMixers = 1 | (1 << currTrack - 1); // Bit mask to output to only tracks 1 and current track
         this.Global.setOutputSource(currTrack, audioSource);
         currTrack++;

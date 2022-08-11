@@ -1,17 +1,19 @@
 import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
-import { InputFactory, IScene, SceneFactory } from '@streamlabs/obs-studio-node';
+import { MainGlobals } from '@Globals/mainGlobals';
+import type { InputFactory as inputType, IScene, SceneFactory as sceneType } from '@streamlabs/obs-studio-node';
 import { screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { EAlignment, EBoundsType, SettingsCat } from 'src/types/obs/obs-enums';
 import { v4 as uuid } from "uuid";
 import { setOBSSetting as setSetting } from '../base';
 import { AudioSceneManager } from './audio';
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { getDisplayInfoFromIndex } from "./display";
 import { CurrentSetting, WindowInformation } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene")
-
+const { obsRequirePath } = MainGlobals
 export class Scene {
     private static readonly SCENE_ID = `main_scene_clipture-${uuid()}`
     private static readonly MAIN_WIN_SOURCE = "main_source"
@@ -19,13 +21,23 @@ export class Scene {
     private static _scene: IScene;
     private static _setting: CurrentSetting = null;
 
+    private static SceneFactory: typeof sceneType
+    private static InputFactory: typeof inputType
+    private static NodeObs: typedObs
+
     static async initialize() {
+        log.info("Importing obs...")
+        const e = await import(obsRequirePath)
+        this.SceneFactory = e.SceneFactory
+        this.InputFactory = e.InputFactory
+        this.NodeObs = e.NodeObs
         log.info("Initializing scene...")
+
         try {
-            this._scene = SceneFactory.fromName(this.SCENE_ID)
+            this._scene = this.SceneFactory.fromName(this.SCENE_ID)
             this.removeAllItems()
         } catch (e) {
-            this._scene = SceneFactory.create(this.SCENE_ID)
+            this._scene = this.SceneFactory.create(this.SCENE_ID)
         }
 
         await AudioSceneManager.initialize()
@@ -62,7 +74,7 @@ export class Scene {
 
     static async switchDesktop(monitor: number, manual: boolean) {
         log.log("Switching to Desktop View with monitor", monitor)
-        const videoSource = InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
+        const videoSource = this.InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
         const { physicalWidth, physicalHeight } = await getDisplayInfoFromIndex(monitor)
 
         const settings = videoSource.settings;
@@ -75,8 +87,8 @@ export class Scene {
 
 
         const resolution = `${physicalWidth}x${physicalHeight}`
-        setSetting(SettingsCat.Video, "Base", resolution)
-        setSetting(SettingsCat.Video, "Output", resolution)
+        setSetting(this.NodeObs, SettingsCat.Video, "Base", resolution)
+        setSetting(this.NodeObs, SettingsCat.Video, "Output", resolution)
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)
@@ -101,8 +113,8 @@ export class Scene {
         const { className, executable, title, monitorDimensions, intersectsMultiple } = options
         const windowId = `${title}:${className}:${executable}`;
         log.debug("Window id is", windowId)
-        const windowSource = InputFactory.create("window_capture", this.MAIN_WIN_SOURCE);
-        const gameSource = InputFactory.create("game_capture", this.MAIN_GAME_SOURCE)
+        const windowSource = this.InputFactory.create("window_capture", this.MAIN_WIN_SOURCE);
+        const gameSource = this.InputFactory.create("game_capture", this.MAIN_GAME_SOURCE)
 
         const windowSettings = windowSource.settings;
         windowSettings["capture_mode"] = "window"
@@ -138,8 +150,8 @@ export class Scene {
 
 
         const resolution = `${physicalWidth}x${physicalHeight}`
-        setSetting(SettingsCat.Video, "Base", resolution)
-        setSetting(SettingsCat.Video, "Output", resolution)
+        setSetting(this.NodeObs, SettingsCat.Video, "Base", resolution)
+        setSetting(this.NodeObs, SettingsCat.Video, "Output", resolution)
         log.log("Switching to Window View with id ", windowId, "and resolution", resolution)
 
         this.removeMainSource()

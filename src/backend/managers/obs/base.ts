@@ -1,11 +1,9 @@
-import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { SettingsCat } from 'src/types/obs/obs-enums';
-import { NodeObs } from 'src/types/obs/obs-studio-node';
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 
-const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Manager", "OBS", "Base");
-export function setOBSSetting(category: SettingsCat, parameter: string, value: string | number) {
+export function setOBSSetting(NodeObs: typedObs, category: SettingsCat, parameter: string, value: string | number) {
     let oldValue: string | number;
     const settings = NodeObs.OBS_settings_getSettings(category).data;
 
@@ -24,7 +22,7 @@ export function setOBSSetting(category: SettingsCat, parameter: string, value: s
     NodeObs.OBS_settings_saveSettings(category, settings);
 }
 
-export function getAvailableValues(category: SettingsCat, subcategory: string, parameter: string) {
+export function getAvailableValues(NodeObs: typedObs, category: SettingsCat, subcategory: string, parameter: string) {
     const categorySettings = NodeObs.OBS_settings_getSettings(category).data;
     if (!categorySettings) {
         log.warn(`There is no category ${category} in OBS settings`);

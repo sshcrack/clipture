@@ -29,10 +29,7 @@
     "forge": {
       "packagerConfig": {
         "icon": "./src/assets/main/logo.ico",
-        "appBundleId": "me.sshcrack.clipture",
-        "afterExtract": [
-          "copy_natives.js"
-        ]
+        "appBundleId": "me.sshcrack.clipture"
       },
       "makers": [
         {
