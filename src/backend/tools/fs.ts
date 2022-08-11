@@ -21,7 +21,7 @@ export function getClipInfoCachePath() {
 export function getSharedImageCachePath() {
     return path.join(MainGlobals.getTempDir(), "clip_image.json")
 }
-6
+
 export function getWebpackDir() {
     const packaged = app.isPackaged
     const appDir = app.getAppPath()

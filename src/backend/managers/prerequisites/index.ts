@@ -1,5 +1,5 @@
 import { Progress } from "@backend/processors/events/interface";
-import { ProcessHandler } from "@backend/processors/events/ProcessHandler";
+import { ProcessEventEmitter } from "@backend/processors/events/Processor";
 import { Downloader } from "@backend/processors/General/Downloader";
 import { Unpacker } from "@backend/processors/General/Unpacker";
 import { existsProm } from "@backend/tools/fs";
@@ -207,7 +207,10 @@ export class Prerequisites {
             const downloadedFile = path.join(tempDir, uuid() + ".tar.gz")
 
             const hash = await this.getOBSHash()
-            const handler = new ProcessHandler([
+            log.info("Adding downloader url: ", downloadUrl, "to", downloadedFile)
+            log.info("Adding unpacker src", downloadedFile, "dest", obsRequirePath)
+
+            await ProcessEventEmitter.runMultiple([
                 new Downloader({
                     destination: downloadedFile,
                     url: downloadUrl,
@@ -225,9 +228,9 @@ export class Prerequisites {
                         extracting: "Extracting OBS..."
                     }
                 })
-            ])
+            ], onProgress)
 
-            await handler.runAll(onProgress)
+            log.info("Writing hashFile", hashFile, "with hash", hash)
             await fs.writeFile(hashFile, hash)
         }
 
