@@ -6,6 +6,7 @@ import { Scene } from './managers/obs/Scene';
 import { AudioSceneManager } from './managers/obs/Scene/audio';
 import { GameManager } from './managers/game';
 import { SettingsManager } from './managers/settings';
+import { Prerequisites } from './managers/prerequisites';
 import { SystemManager } from './managers/system';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
@@ -15,6 +16,7 @@ export const registerFuncs = [
     () => RegManMain.register(),
     registerLockEvents,
     registerProcessorEvents,
+    () => Prerequisites.register(),
     () => AuthManager.register(),
     () => TitlebarManager.register(),
     () => Scene.register(),

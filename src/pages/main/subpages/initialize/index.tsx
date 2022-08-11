@@ -1,5 +1,5 @@
 import { Progress } from '@backend/processors/events/interface';
-import { Flex, Heading, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Heading, useColorModeValue, Progress as ProgressBar, Text } from '@chakra-ui/react';
 import { motion } from "framer-motion";
 import * as React from "react";
 
@@ -15,9 +15,19 @@ export function InitializePage({ progress }: { progress: Progress }) {
 
     return <Flex
         alignItems='center'
-        justifyContent='center'
+        justifyContent='space-around'
+        w='100%'
+        h='100%'
+        flexDir='column'
     >
-        <svg xmlns="http://www.w3.org/2000/svg"
+        <Flex
+            alignItems='center'
+            justifyContent='center'
+            w='100%'
+            h='100%'
+            gap='5'
+        >
+            <svg xmlns="http://www.w3.org/2000/svg"
             width='1'
             height='1'
             style={{ width: "5em", height: "5em" }}
@@ -27,24 +37,29 @@ export function InitializePage({ progress }: { progress: Progress }) {
                 cx={50}
                 cy={50}
                 fill={primary}
-                animate={{ r: [0, percent * 50] }}
+                animate={{ r: [0, 40] }}
             />
             <motion.circle
                 cx={50}
                 cy={50}
                 fill={secondary}
-                animate={{ r: [0, percent * 45, 0] }}
+                animate={{ r: [0,  35, 0] }}
                 transition={{ repeat: Infinity, duration: 2 }}
             />
             <motion.circle
                 cx={50}
                 cy={50}
                 fill={third}
-                animate={{ r: [0, percent * 40, 0] }}
+                animate={{ r: [0, 30, 0] }}
                 transition={{ repeat: Infinity, duration: 2, delay: 1 }}
             />
         </svg>
 
         <Heading marginLeft='1em'>{status}</Heading>
+        </Flex>
+        <Flex w='75%' h='100%' gap='5' alignItems='center'>
+            <ProgressBar w='100%' colorScheme='green' size='md' value={percent} max={1} />
+            <Text justifySelf='end'>{(percent * 100).toFixed(1)}%</Text>
+        </Flex>
     </Flex >
 }

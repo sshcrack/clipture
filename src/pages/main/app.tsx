@@ -16,7 +16,7 @@ import SettingsPage from './subpages/settings'
 
 const log = RenderLogger.get("App")
 export default function App() {
-    const { obs } = window.api
+    const { obs, prerequisites } = window.api
     const { t } = useTranslation("app")
 
     const toast = useToast()
@@ -24,39 +24,66 @@ export default function App() {
     const { data, status } = useSession()
 
     const { progress, isLocked } = useLock()
-    const [ prevPage, setPrevPage ] = useState("/")
-    const [tryAgain, setTryAgain] = useState(() => Math.random())
+    const [prevPage, setPrevPage] = useState("/")
+
+    const [tryAgainInit, setTryAgainInit] = useState(() => Math.random())
+    const [tryAgainValid, setTryAgainValid] = useState(() => Math.random())
+    const [tryAgainObs, setTryAgainObs] = useState(() => Math.random())
+
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
+    const [downloadedModules, setModulesDownloaded] = useState(undefined as boolean)
 
-    console.log(t)
     useEffect(() => {
-        const curr = obs.isInitialized()
-        if (curr !== obsInitialized)
-            setOBSInitialized(curr)
+        prerequisites.isValid()
+            .then(e => setModulesDownloaded(e.valid))
+            .catch(e => {
+                log.error(e)
+                toast({
+                    title: t("valid_error"),
+                    description: t("retrying", { error: e })
+                })
+                setTimeout(() => setTryAgainValid(Math.random()), 5000)
+            })
+    }, [tryAgainValid])
 
-        console.log("Checking if locked")
-        if (obsInitialized || isLocked)
+    useEffect(() => {
+        if (downloadedModules !== false)
             return
 
-        log.info("Initializing OBS...")
+        console.log("Initializing prerequisites")
+        prerequisites.initialize()
+            .catch(e => {
+                log.error(e)
+                toast({
+                    title: t("pre_init_error"),
+                    description: t("retrying", { error: e?.stack ?? e?.message ?? e })
+                })
+                setTimeout(() => {
+                    setTryAgainInit(Math.random())
+                }, 5000)
+            })
+    }, [downloadedModules, tryAgainInit])
+
+    useEffect(() => {
+        if (obsInitialized || !downloadedModules)
+            return
+
+        console.log("Initializing obs...")
         obs.initialize()
             .then(() => setOBSInitialized(true))
-            .catch((err: Error) => {
-
-                log.error("Failed to initialize OBS", err)
+            .catch(e => {
+                log.error(e)
                 toast({
                     title: t("obs_initialize_error"),
-                    description: err?.stack ?? err?.message ?? JSON.stringify(err),
-                    duration: 15000
+                    description: t("retrying", { error: e?.stack ?? e?.message ?? e })
                 })
-
-                setTimeout(() => setTryAgain(Math.random()), 10000)
+                setTimeout(() => setTryAgainObs(Math.random()), 5000)
             })
-    }, [obsInitialized, tryAgain, isLocked]);
+    }, [downloadedModules, obsInitialized, tryAgainObs])
 
     useEffect(() => {
         const listener = ({ oldURL }: HashChangeEvent) => {
-            if(oldURL.includes("settings"))
+            if (oldURL.includes("settings"))
                 return
 
             const url = new URL(oldURL)
@@ -64,12 +91,13 @@ export default function App() {
         }
 
         window.addEventListener("hashchange", listener)
-        return () => window.removeEventListener("hashchange" ,listener)
+        return () => window.removeEventListener("hashchange", listener)
     }, [])
 
-    const initialized = !isLocked && obsInitialized && status !== SessionStatus.LOADING
+    const initialized = !isLocked && obsInitialized && downloadedModules && status !== SessionStatus.LOADING
+    const { status: progStat, percent } = progress ?? { percent: 0, status: t("initializing")}
     if (!initialized)
-        return <InitializePage progress={progress ?? { percent: 0, status: t("initializing")}} />
+        return <InitializePage progress={{status: progStat, percent: downloadedModules ? percent * 0.5 + 0.5 : percent * 0.5}} />
 
     if (status === SessionStatus.UNAUTHENTICATED)
         return <LoginPage />
@@ -81,7 +109,7 @@ export default function App() {
             <Route path="/discover" element={<DiscoverPage data={data} />} />
             <Route path="/record" element={<RecordPage data={data} />} />
             <Route path="/settings" element={<SettingsPage data={data} prevPage={prevPage} />} />
-            <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />}/>
+            <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />} />
             <Route path="/editor/:videoName" element={<EditorPage />} />
         </Routes>
     </HashRouter>

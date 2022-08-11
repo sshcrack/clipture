@@ -2,17 +2,16 @@ import { byOS, OS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { Global, IInput, InputFactory, IScene, IVolmeter, NodeObs as notTypedObs, VolmeterFactory } from '@streamlabs/obs-studio-node';
+import type { IInput, IScene, IVolmeter, Global as globalType, InputFactory as inputType, VolmeterFactory as volType} from "@streamlabs/obs-studio-node"
 import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { SettingsCat } from 'src/types/obs/obs-enums';
-import { NodeObs } from 'src/types/obs/obs-studio-node';
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { FixedLengthArray } from 'type-fest';
 import { setOBSSetting as setSetting } from '../base';
 import { ActiveSource, AudioDevice, DeviceType } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene", "Audio");
-const NodeObs = notTypedObs as NodeObs
 
 type VolmeterInfo = {
     device_id: string,
@@ -20,6 +19,7 @@ type VolmeterInfo = {
     volmeter: IVolmeter
 }
 
+const { obsRequirePath } = MainGlobals
 export class AudioSceneManager {
     private static activeSources = [] as ActiveSource[]
     private static allVolmeters = [] as VolmeterInfo[]
@@ -30,6 +30,23 @@ export class AudioSceneManager {
     private static defaultDesktop = undefined as AudioDevice
     private static defaultMic = undefined as AudioDevice
 
+    private static initialized = false
+    private static NodeObs: typedObs
+    private static VolmeterFactory: typeof volType
+    private static InputFactory: typeof inputType
+    private static Global: typeof globalType
+
+    static async initialize() {
+        if(this.initialized)
+            return
+
+        const { NodeObs, VolmeterFactory, InputFactory, Global } = await import(obsRequirePath)
+        this.VolmeterFactory = VolmeterFactory
+        this.NodeObs = NodeObs
+        this.InputFactory = InputFactory
+        this.Global = Global
+    }
+
     static register() {
         RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type, input, volume }) => ({ device_id, type, volume })) as SourceInfo[] as unknown as FixedLengthArray<SourceInfo, 2>)
         RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics }))
@@ -38,6 +55,9 @@ export class AudioSceneManager {
     }
 
     private static addVolmeter({ device_id, type, volume }: SourceInfo) {
+        if(!this.initialized)
+            throw new Error("Could not add volmeter, not initialized")
+
         if(device_id.toLowerCase() === "default")
             return log.warn("Cannot add volmeter with device id default.")
 
@@ -48,7 +68,7 @@ export class AudioSceneManager {
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
-        const audioSource = InputFactory.create(osName, audioType, { device_id, volume });
+        const audioSource = this.InputFactory.create(osName, audioType, { device_id, volume });
         audioSource.volume = volume
 
         const volmeter = this.attachVolmeter(audioSource, device_id)
@@ -60,7 +80,9 @@ export class AudioSceneManager {
     }
 
     private static attachVolmeter(audioSource: IInput, device_id: string) {
-        const volmeter = VolmeterFactory.create(1)
+        if(!this.initialized)
+            throw new Error("Could not attach volmeter, not initialized")
+        const volmeter = this.VolmeterFactory.create(1)
 
         volmeter.attach(audioSource)
         volmeter.addCallback((...args) =>{
@@ -104,10 +126,12 @@ export class AudioSceneManager {
     }
 
     static async initializeAudioSources(scene: IScene) {
-        NodeObs.RegisterSourceCallback(() => { })
+        if(!this.initialized)
+            throw new Error("Could not initialize audio sources, not initialized")
+        this.NodeObs.RegisterSourceCallback(() => { })
 
         log.info("Setting up audio sources...")
-        Global.setOutputSource(1, scene);
+        this.Global.setOutputSource(1, scene);
         setSetting(SettingsCat.Output, 'Track1Name', 'Mixed: all sources');
 
         const allDesktopDevices = this.getAudioDevices("desktop")
@@ -149,10 +173,13 @@ export class AudioSceneManager {
     }
 
     static getAudioDevices(type: DeviceType): { device_id: string, name: string }[] {
+        if(!this.initialized)
+            throw new Error("Could not get audio devices, not initialized")
+
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
-        const dummyDevice = InputFactory.create(osName, audioType, { device_id: 'does_not_exist' });
+        const dummyDevice = this.InputFactory.create(osName, audioType, { device_id: 'does_not_exist' });
         const devices = (dummyDevice.properties.get('device_id') as any).details.items.map(({ name, value }: { name: string, value: string }) => {
             return { device_id: value, name, };
         });
@@ -166,17 +193,21 @@ export class AudioSceneManager {
             return currTrack
         }
 
+        if(!this.initialized) {
+            throw new Error("Couldn't add audio sources, not initialized")
+        }
+
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
-        const audioSource = InputFactory.create(osName, audioType, { device_id: device_id });
+        const audioSource = this.InputFactory.create(osName, audioType, { device_id: device_id });
         const volmeter = this.attachVolmeter(audioSource, device_id)
         audioSource.volume = volume
 
         log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
         setSetting(SettingsCat.Output, `Track${currTrack}Name`, device_id);
         audioSource.audioMixers = 1 | (1 << currTrack - 1); // Bit mask to output to only tracks 1 and current track
-        Global.setOutputSource(currTrack, audioSource);
+        this.Global.setOutputSource(currTrack, audioSource);
         currTrack++;
 
         log.log("Current volume of audio source is", audioSource.volume)

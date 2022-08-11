@@ -1,7 +1,10 @@
 {
     "app": {
         "obs_initialize_error": "OBS could not be initialized",
-        "initializing": "Initializing..."
+        "initializing": "Initializing...",
+        "valid_error": "Could not check if installation is valid",
+        "retrying": "{{error}}. Retrying in 5s",
+        "pre_init_error": "Could not download packages."
     },
     "obs": {
         "recording": {

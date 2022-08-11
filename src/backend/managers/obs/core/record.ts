@@ -1,31 +1,31 @@
 import { VideoInfo } from '@backend/managers/clip/interface'
 import { GameManager } from '@backend/managers/game'
 import { BookmarkManager } from "@backend/managers/obs/bookmark"
+import { Prerequisites } from '@backend/managers/prerequisites'
 import { notify } from '@backend/tools/notifier'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
-import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import path from 'path'
 import sound from "sound-play"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { EOBSOutputSignal, SettingsCat } from 'src/types/obs/obs-enums'
-import { NodeObs } from 'src/types/obs/obs-studio-node'
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
-import { getAvailableGame, getDuration, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
+import { getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
 import { CurrentType, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
 
 const reg = RegManMain
-const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
-
+const { obsRequirePath } = MainGlobals
 export class RecordManager {
     private recording = false;
+    private NodeObs: typedObs = null
     private current = {
         gameId: null,
         videoPath: null,
@@ -34,7 +34,7 @@ export class RecordManager {
     } as CurrentType
     static instance: RecordManager = null;
     private recordingInitializing = false
-    private registeredAutomatic = false;
+    private initialized = false;
     private manualControlled = false;
     private recordTimer: number = undefined;
     private windowInformation = new Map<string, WindowInformation>()
@@ -74,7 +74,7 @@ export class RecordManager {
     }
 
     public async initialize() {
-        if (this.registeredAutomatic)
+        if (this.initialized)
             return
 
         log.info("Registering automatic recording")
@@ -109,7 +109,12 @@ export class RecordManager {
         const curr = await GameManager.getAvailableWindows(true)
         this.onGameUpdate(curr)
 
-        this.registeredAutomatic = true
+        const obsInstalled = await Prerequisites.validateOBS()
+        if(!obsInstalled)
+            throw new Error("OBS-Installation is not valid.")
+
+        this.NodeObs = (await import(obsRequirePath)).NodeObs
+        this.initialized = true
     }
 
     public async startRecording(manual = false, discordGameInfo: DetectableGame = null, windowInfo: WindowInformation = null) {
@@ -118,12 +123,15 @@ export class RecordManager {
             return
         }
 
+        if (!this.initialized)
+            return log.warn("Could not start recording, not initialized")
+
         if(this.recordingInitializing)
             return log.warn("Could not start record, another instance is already starting")
 
         this.recordingInitializing = true
         this.manualControlled = manual;
-        const recordPath = NodeObs.OBS_settings_getSettings(SettingsCat.Output)
+        const recordPath = this.NodeObs.OBS_settings_getSettings(SettingsCat.Output)
             .data
             .find(e => e.nameSubCategory === "Recording")
             .parameters
@@ -137,7 +145,7 @@ export class RecordManager {
             await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
         const currVideos = await listVideos(recordPath)
-        NodeObs.OBS_service_startRecording()
+        this.NodeObs.OBS_service_startRecording()
 
         const signal = await SignalsManager.getNextSignalInfo();
         if (signal.signal === EOBSOutputSignal.Stop)
@@ -173,13 +181,14 @@ export class RecordManager {
         if (!this.recording)
             return
 
+        if (!this.initialized)
+            return log.warn("Could not stop recording, not initialized")
+
         log.info("Stopped recording")
-        NodeObs.OBS_service_stopRecording()
+        this.NodeObs.OBS_service_stopRecording()
         if (this.current?.currentInfoPath) {
-            const { currentInfoPath, gameId, videoPath, bookmarks } = this.current
-            const duration = await getDuration(videoPath)
+            const { currentInfoPath, gameId, bookmarks } = this.current
             await fs.writeFile(currentInfoPath, JSON.stringify({
-                duration,
                 gameId,
                 bookmarks
             } as VideoInfo, null, 2))
@@ -205,7 +214,7 @@ export class RecordManager {
         return () => {
             const index = this.listeners.indexOf(func)
             if(index === -1)
-                return 
+                return
             this.listeners.splice(index, 1)
         }
     }

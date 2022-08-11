@@ -1,20 +1,22 @@
 import { webContentsToWindow } from '@backend/tools/window'
-import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
+import { MainGlobals } from '@Globals/mainGlobals'
 import { BrowserWindow, IpcMainInvokeEvent, screen } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { NodeObs } from 'src/types/obs/obs-studio-node'
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../../general/register/main'
 import { Scene } from '../Scene'
 import { getDisplayInfo } from '../Scene/display'
 import { ClientBoundRecReturn } from '../types'
 
-const NodeObs: NodeObs = notTypedOBS
 const log = MainLogger.get("Backend", "Managers", "OBS", "Preview")
 const reg = RegManMain
+const { obsRequirePath } = MainGlobals
 
 export class PreviewManager {
     public displayWindowMap = new Map<string, BrowserWindow>()
+    private NodeObs: typedObs;
+    private initialized = false
     static instance: PreviewManager = null;
 
     constructor() {
@@ -25,6 +27,14 @@ export class PreviewManager {
         this.register()
     }
 
+    public async initialize() {
+        if(this.initialized)
+            return
+
+        this.NodeObs = (await import(obsRequirePath)).NodeObs
+        this.initialized = true
+    }
+
     private register() {
         reg.onPromise("obs_preview_init", (e, bounds) => this.initPreview(e, bounds))
         reg.onPromise("obs_preview_resize", (e, id, bounds) => this.resizePreview(id, webContentsToWindow(e.sender), bounds))
@@ -32,20 +42,23 @@ export class PreviewManager {
     }
 
     public async initPreview(event: IpcMainInvokeEvent, bounds: ClientBoundRecReturn) {
+        if(!this.NodeObs)
+            throw new Error("NodeObs not initialized yet.")
+
         const window = webContentsToWindow(event.sender)
         const handle = window.getNativeWindowHandle()
         const displayId = "PREVIEW_" + uuid()
         log.info("Initializing preview on", window.id, "total", this.displayWindowMap.size + 1)
         log.info("Creating Preview Display on id", displayId)
 
-        NodeObs.OBS_content_createSourcePreviewDisplay(
+        this.NodeObs.OBS_content_createSourcePreviewDisplay(
             handle,
             Scene.get().name,
             displayId
         )
-        NodeObs.OBS_content_setShouldDrawUI(displayId, false)
-        NodeObs.OBS_content_setPaddingSize(displayId, 0)
-        NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255)
+        this.NodeObs.OBS_content_setShouldDrawUI(displayId, false)
+        this.NodeObs.OBS_content_setPaddingSize(displayId, 0)
+        this.NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255)
 
         this.displayWindowMap.set(displayId, window);
         const setting = Scene.getCurrentSetting()
@@ -57,6 +70,9 @@ export class PreviewManager {
     }
 
     public async resizePreview(displayId: string, window: BrowserWindow, bounds: ClientBoundRecReturn) {
+        if(!this.NodeObs)
+            throw new Error("could not resize. OBS is not initialized yet.")
+
         const winBounds = window.getBounds();
         const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
 
@@ -67,18 +83,21 @@ export class PreviewManager {
         const displayY = Math.floor(bounds.y);
 
         log.debug("Resizing display w:", displayWidth, "h:", displayHeight, "x:", displayX, "y:", displayY)
-        NodeObs.OBS_content_resizeDisplay(displayId, displayWidth, displayHeight);
-        NodeObs.OBS_content_moveDisplay(displayId, displayX, displayY);
+        this.NodeObs.OBS_content_resizeDisplay(displayId, displayWidth, displayHeight);
+        this.NodeObs.OBS_content_moveDisplay(displayId, displayX, displayY);
         return { height: displayHeight, width: displayWidth }
     }
 
     public async removePreview(displayId: string) {
+        if(!this.NodeObs)
+            throw new Error("could not remove. OBS is not initialized yet.")
+
         log.debug("Destroying display with id", displayId)
         const window = this.displayWindowMap.get(displayId)
         if (!window)
             throw new Error("Window with id " + displayId + " could not be found.")
 
-        NodeObs.OBS_content_destroyDisplay(displayId)
+        this.NodeObs.OBS_content_destroyDisplay(displayId)
 
         log.log("Destroyed display with id", displayId)
     }

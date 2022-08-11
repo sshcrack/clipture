@@ -14,6 +14,7 @@ import system from './system';
 import titlebar from "./titlebar";
 import settings from './settings';
 import videos from './videos';
+import prerequisites from './prerequisites';
 
 
 
@@ -34,6 +35,7 @@ export const API = {
     system,
     settings,
     bookmark,
+    prerequisites,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean

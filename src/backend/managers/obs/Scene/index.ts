@@ -28,6 +28,7 @@ export class Scene {
             this._scene = SceneFactory.create(this.SCENE_ID)
         }
 
+        await AudioSceneManager.initialize()
         await AudioSceneManager.initializeAudioSources(this._scene)
     }
 

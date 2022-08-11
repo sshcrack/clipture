@@ -33,7 +33,6 @@ export interface ClipCutInfo {
 
 export interface VideoInfo {
     gameId: string,
-    duration: number | null,
     bookmarks: number[]
 }
 

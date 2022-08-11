@@ -27,12 +27,13 @@ export class MainGlobals {
     static readonly nativeMngExe = path.join(__dirname, "assets/native_mng.exe")
     static readonly ffmpegExe = ffmpegExe
     static readonly ffprobeExe = ffprobeExe
+    static readonly obsRequirePath = path.join(__dirname, "assets/obs-studio-node");
+
     static readonly iconFile = path.join(__dirname,"assets/logo.ico");
     static readonly bookmarkedSound = path.join(__dirname,"assets/bookmarked.mp3");
     static readonly dotIconFile = path.join(__dirname, "assets/dot.ico");
     static readonly dotIconNativeImage = nativeImage.createFromPath(this.dotIconFile)
     static obs: OBSManager;
-
 
     static getTempDir(shouldDelete = false) {
         const tempPath = path.join(app.getPath("userData"), "temp");

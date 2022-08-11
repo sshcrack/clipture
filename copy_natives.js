@@ -1,3 +1,7 @@
+//! No longer needed as it is handled in the script itself.
+return
+
+
 const fs = require("fs/promises")
 const path = require("path")
 

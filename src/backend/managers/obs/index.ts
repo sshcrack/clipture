@@ -1,8 +1,7 @@
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
-import { NodeObs as notTypedOBS } from '@streamlabs/obs-studio-node'
 import { SettingsCat } from 'src/types/obs/obs-enums'
-import { NodeObs } from 'src/types/obs/obs-studio-node'
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
@@ -16,14 +15,16 @@ import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 import { DiscordManager } from '../discord'
+import { MainGlobals } from '@Globals/mainGlobals'
 
 
-const NodeObs: NodeObs = notTypedOBS
 const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
 
+const { obsRequirePath } = MainGlobals
 export class OBSManager {
     private obsInitialized = false
+    private NodeObs: typedObs
     public previewInstance = new PreviewManager()
     public recordManager = new RecordManager()
 
@@ -39,6 +40,10 @@ export class OBSManager {
             return log.warn("OBS already initialized")
 
         const steps = [
+            {
+                title: "Importing OBS...",
+                func: async () => this.NodeObs = (await import(obsRequirePath)).NodeObs
+            },
             {
                 title: "Initializing OBS...",
                 func: () => this.initOBS()
@@ -66,6 +71,10 @@ export class OBSManager {
             {
                 title: "Adding discord presence",
                 func: () => DiscordManager.initialize()
+            },
+            {
+                title: "Initializing Preview...",
+                func: () => this.previewInstance.initialize()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 
@@ -112,12 +121,12 @@ export class OBSManager {
         log.debug(`Initializing OBS... (${hostId}}`);
         log.debug("WorkDir is", workDir)
 
-        NodeObs.IPC.setServerPath(binary, workDir)
-        NodeObs.IPC.host(hostId);
-        NodeObs.SetWorkingDirectory(workDir);
+        this.NodeObs.IPC.setServerPath(binary, workDir)
+        this.NodeObs.IPC.host(hostId);
+        this.NodeObs.SetWorkingDirectory(workDir);
 
         const obsDataPath = getOBSDataPath()
-        const initResult = NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
+        const initResult = this.NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
         if (initResult !== 0) {
             const errorReasons = {
                 "-2": "DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.",
@@ -135,7 +144,7 @@ export class OBSManager {
         }
 
         log.info("Successfully initialized OBS!")
-        setInterval(() => RegManMain.send("performance", NodeObs.OBS_API_getPerformanceStatistics()), 2000)
+        setInterval(() => RegManMain.send("performance", this.NodeObs.OBS_API_getPerformanceStatistics()), 2000)
     }
 
     public async shutdown(force = false) {
@@ -146,8 +155,8 @@ export class OBSManager {
         await this.previewInstance.shutdown().catch(log.error)
         await this.recordManager.shutdown().catch(log.error)
         try {
-            NodeObs.OBS_service_removeCallback();
-            NodeObs.IPC.disconnect()
+            this.NodeObs.OBS_service_removeCallback();
+            this.NodeObs.IPC.disconnect()
         } catch (e) {
             const newErr = new Error(`Exception when shutting down OBS process${e}`)
             log.error(newErr)

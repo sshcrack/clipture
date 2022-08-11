@@ -9,7 +9,6 @@ export default function EditorTimelineTop(props: FlexProps) {
     const { t } = useTranslation("editor")
     const { end, start } = selection
 
-    console.log(start, end)
     return <Flex w='80%' {...props}>
         <Text alignSelf='start' whiteSpace='nowrap'>{prettyMS(start * 1000)}</Text>
         <Box w='100%' />
