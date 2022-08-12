@@ -20,7 +20,8 @@ export function getOBSBinary() {
 }
 
 export async function importOBS() {
-    const prom = packaged ? import(path.join(obsRequirePath, "index.js")) :  eval(`import("${obsRequirePath}")`)
+    console.log("OBS Require path is", obsRequirePath, "split", obsRequirePath.split("\\").join("/"))
+    const prom = packaged ? eval(`import("${"file:///" + path.join(obsRequirePath, "index.js").split("\\").join("/")}")`) :  eval(`import("${obsRequirePath}")`)
     const res = await prom as typeof import("@streamlabs/obs-studio-node")
     log.info("Imported OBS", Object.keys(res ?? {})?.length, "elements")
     return res
