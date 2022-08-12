@@ -144,8 +144,10 @@ export class Prerequisites {
                 LockManager.instance.unlock({ status: "Error installing", percent: 1 })
                 throw error
             }
+            log.info(name, "is done. Continuing...")
         }
         LockManager.instance.unlock({ status: "Prerequisites installed", percent: 1 })
+        log.info("Unlocked. Done installing.")
     }
 
     static async validateOBS() {
@@ -173,7 +175,7 @@ export class Prerequisites {
             })
     }
 
-    private static installOBS(onProgress: (prog: Progress) => unknown) {
+    private static async installOBS(onProgress: (prog: Progress) => unknown) {
         if (this.obsInstalling) {
             log.warn("Could not install obs as it is already installing")
             return Promise.reject(new Error("OBS is already installing."))
@@ -209,12 +211,11 @@ export class Prerequisites {
 
             log.info("Writing hashFile", hashFile, "with hash", hash)
             await fs.writeFile(hashFile, hash)
+            log.info("Install func done.")
         }
 
-        return installFunc()
-            .finally(() => {
-                log.debug("OBS Install errored/done, returning...")
-                this.obsInstalling = false
-            })
+        await installFunc()
+		.finally(() => this.obsInstalling = false)
+        log.info("Returning obs install")
     }
 }

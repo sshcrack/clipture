@@ -58,6 +58,7 @@ export default function App() {
 
         console.log("Initializing prerequisites")
         prerequisites.initialize()
+            .then(() => setModulesDownloaded(true))
             .catch(e => {
                 log.error(e)
                 toast({
