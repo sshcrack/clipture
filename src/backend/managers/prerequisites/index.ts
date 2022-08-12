@@ -154,16 +154,19 @@ export class Prerequisites {
         if (!app.isPackaged)
             return true
         const exists = await existsProm(obsRequirePath)
+        log.info("Exists", exists)
         if (!exists)
             return false
 
         const hashFileExists = await existsProm(hashFile)
+        log.info("HashFile", hashFileExists)
         if (!hashFileExists)
             return false
 
         const hash = await fs.readFile(hashFile, "utf-8")
         const onlineHash = await this.getOBSHash()
 
+        log.info("Local", hash, "Online", onlineHash)
         if (hash !== onlineHash)
             return false
 
