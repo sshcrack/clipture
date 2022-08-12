@@ -16,6 +16,7 @@ import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
+import { importOBS } from '../tool'
 import { getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
 import { CurrentType, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
@@ -113,7 +114,7 @@ export class RecordManager {
         if(!obsInstalled)
             throw new Error("OBS-Installation is not valid.")
 
-        this.NodeObs = (await import(obsRequirePath)).NodeObs
+        this.NodeObs = (await importOBS()).NodeObs
         this.initialized = true
     }
 

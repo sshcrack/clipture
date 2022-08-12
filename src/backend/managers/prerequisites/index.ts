@@ -13,6 +13,7 @@ import path from "path";
 import { MainLogger } from "src/interfaces/mainLogger";
 import { v4 as uuid } from "uuid";
 import { LockManager } from "../lock";
+import { importOBS } from "../obs/tool";
 
 const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl, nativeMngExe } = MainGlobals
 
@@ -164,26 +165,12 @@ export class Prerequisites {
         if (hash !== onlineHash)
             return false
 
-        return await import(obsRequirePath)
+        return await importOBS()
             .then(() => true)
             .catch(e => {
                 log.error("Could not import obs", e)
                 return false
             })
-    }
-
-    private static downloadFFMpeg(onProgress: (prog: Progress) => unknown) {
-        const downloader = new Downloader({
-            destination: ffmpegExe,
-            url: ffmpegUrl,
-            overwrite: true,
-            messages: {
-                downloading: "Downloading FFmpeg..."
-            }
-        })
-
-        downloader.addListener("progress", e => onProgress(e))
-        return downloader.startProcessing()
     }
 
     private static installOBS(onProgress: (prog: Progress) => unknown) {
@@ -194,7 +181,7 @@ export class Prerequisites {
 
         const installFunc = async () => {
             const tempDir = app.getPath("temp")
-            const downloadedFile = path.join(tempDir, uuid() + ".tar.gz")
+            const downloadedFile = path.join(tempDir, uuid() + ".zip")
 
             const hash = await this.getOBSHash()
             log.info("Adding downloader url: ", downloadUrl, "to", downloadedFile)
@@ -226,7 +213,7 @@ export class Prerequisites {
 
         return installFunc()
             .finally(() => {
-                log.debug("OBS Install done, returning...")
+                log.debug("OBS Install errored/done, returning...")
                 this.obsInstalling = false
             })
     }

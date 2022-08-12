@@ -9,6 +9,7 @@ import { SettingsCat } from 'src/types/obs/obs-enums';
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { FixedLengthArray } from 'type-fest';
 import { setOBSSetting as setSetting } from '../base';
+import { importOBS } from '../tool';
 import { ActiveSource, AudioDevice, DeviceType } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene", "Audio");
@@ -40,11 +41,12 @@ export class AudioSceneManager {
         if(this.initialized)
             return
 
-        const { NodeObs, VolmeterFactory, InputFactory, Global } = await import(obsRequirePath)
+        const { NodeObs, VolmeterFactory, InputFactory, Global } = await importOBS()
         this.VolmeterFactory = VolmeterFactory
         this.NodeObs = NodeObs
         this.InputFactory = InputFactory
         this.Global = Global
+        this.initialized = true
     }
 
     static register() {

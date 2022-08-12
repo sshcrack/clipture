@@ -2,7 +2,9 @@ import { getWebpackDir } from "@backend/tools/fs";
 import { app } from "electron"
 import { MainGlobals } from "@Globals/mainGlobals";
 import path from "path";
+import { MainLogger } from "src/interfaces/mainLogger";
 
+const log = MainLogger.get("Backend", "Maangers", "OBS", "tools")
 const { obsRequirePath } = MainGlobals
 const packaged = app.isPackaged
 export function getOBSDataPath() {
@@ -15,4 +17,11 @@ export function getOBSWorkingDir() {
 
 export function getOBSBinary() {
     return path.join(getOBSWorkingDir(), "obs64.exe");
+}
+
+export async function importOBS() {
+    const prom = packaged ? import(obsRequirePath) :  eval(`import("${obsRequirePath}")`)
+    const res = await prom as typeof import("@streamlabs/obs-studio-node")
+    log.info("Imported OBS", Object.keys(res ?? {})?.length, "elements")
+    return res
 }

@@ -2,13 +2,14 @@ import { IOBSOutputSignalInfo, NodeObs as typedObs } from "src/types/obs/obs-stu
 import { Subject } from "rxjs"
 import { first } from "rxjs/operators";
 import { MainGlobals } from "@Globals/mainGlobals";
+import { importOBS } from "../tool";
 
 const { obsRequirePath} = MainGlobals
 export class SignalsManager {
     private static signals = new Subject<IOBSOutputSignalInfo>()
     private static NodeObs: typedObs
     static async initialize() {
-        this.NodeObs = (await import(obsRequirePath)).NodeObs
+        this.NodeObs = (await importOBS()).NodeObs
         this.connectOutputSignals()
     }
 

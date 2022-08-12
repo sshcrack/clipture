@@ -1,5 +1,4 @@
 import { webContentsToWindow } from '@backend/tools/window'
-import { MainGlobals } from '@Globals/mainGlobals'
 import { BrowserWindow, IpcMainInvokeEvent, screen } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
@@ -7,11 +6,11 @@ import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../../general/register/main'
 import { Scene } from '../Scene'
 import { getDisplayInfo } from '../Scene/display'
+import { importOBS } from '../tool'
 import { ClientBoundRecReturn } from '../types'
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Preview")
 const reg = RegManMain
-const { obsRequirePath } = MainGlobals
 
 export class PreviewManager {
     public displayWindowMap = new Map<string, BrowserWindow>()
@@ -31,7 +30,7 @@ export class PreviewManager {
         if(this.initialized)
             return
 
-        this.NodeObs = (await import(obsRequirePath)).NodeObs
+        this.NodeObs = (await importOBS()).NodeObs
         this.initialized = true
     }
 

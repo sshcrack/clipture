@@ -13,7 +13,7 @@ import prettyMS from "pretty-ms"
 import { RecordManager } from './core/record'
 import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
-import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
+import { getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
 import { DiscordManager } from '../discord'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { app } from "electron"
@@ -22,8 +22,6 @@ import { app } from "electron"
 const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
 
-const { obsRequirePath } = MainGlobals
-const packaged = app.isPackaged
 export class OBSManager {
     private obsInitialized = false
     private NodeObs: typedObs
@@ -41,15 +39,10 @@ export class OBSManager {
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
-        log.info("Importing obs from", obsRequirePath)
-        
         const steps = [
             {
                 title: "Importing OBS...",
-                func: async () => {
-                     const prom = packaged ? import(obsRequirePath) :  eval(`import("${obsRequirePath}")`)
-                     this.NodeObs = (await prom).NodeObs
-                }
+                func: async () => this.NodeObs = (await importOBS()).NodeObs
             },
             {
                 title: "Initializing OBS...",
@@ -107,7 +100,7 @@ export class OBSManager {
                     ?.then(() => undefined)
                     ?.catch(e => e))
                 if (!res) {
-                   succes = true
+                   success = true
                    break;
                 }
                 log.error("Could not complete step, retrying... (try: ", i, ")")

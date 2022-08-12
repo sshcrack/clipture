@@ -1,7 +1,7 @@
 {
   "name": "clipture",
   "productName": "clipture",
-  "version": "1.6.5",
+  "version": "1.6.4",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
@@ -11,6 +11,7 @@
     "prod": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
+    "makeTest": "electron-forge make --targets @electron-forge/maker-squirrel",
     "publish": "electron-forge publish",
     "publishApp": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
