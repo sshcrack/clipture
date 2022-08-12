@@ -1,18 +1,22 @@
 import path from "path";
+import fs from "fs"
 import { getWebpackDir } from "@backend/tools/fs";
 import { app, BrowserWindow, nativeImage } from 'electron';
 
 const wDir = getWebpackDir()
+const cliptureDir = path.join(app.getPath("appData"), "clipture")
+const assetsDir = path.join(cliptureDir, "assets")
+if(!fs.existsSync(assetsDir))
+    fs.mkdirSync(assetsDir, { recursive: true })
 const packaged = app.isPackaged
-const ffmpegExe = packaged ? path.join(wDir, "assets/ffmpeg.exe") : path.join(process.cwd(), "devAssets", "ffmpeg.exe");
-const ffprobeExe = packaged ? path.join(wDir, "assets/ffprobe.exe") : path.join(process.cwd(), "devAssets", "ffprobe.exe");
+const ffmpegExe = packaged ? path.join(assetsDir, "ffmpeg.exe") : path.join(process.cwd(), "devAssets", "ffmpeg.exe");
+const ffprobeExe = packaged ? path.join(assetsDir, "ffprobe.exe") : path.join(process.cwd(), "devAssets", "ffprobe.exe");
 
 process.env.FFMPEG_PATH = ffmpegExe
 process.env.FFPROBE_PATH = ffprobeExe
 
 
 import { OBSManager } from '@backend/managers/obs';
-import fs from "fs";
 import os from "os";
 
 
@@ -30,7 +34,7 @@ export class MainGlobals {
     static readonly nativeMngExe = path.join(wDir, "assets/native_mng.exe")
     static readonly ffmpegExe = ffmpegExe
     static readonly ffprobeExe = ffprobeExe
-    static readonly obsRequirePath = packaged ? path.join(wDir, "assets/obs-studio-node") : "@streamlabs/obs-studio-node";
+    static readonly obsRequirePath = packaged ? path.join(assetsDir, "obs-studio-node") : "@streamlabs/obs-studio-node";
 
     static readonly iconFile = path.join(wDir,"assets/logo.ico");
     static readonly bookmarkedSound = path.join(wDir,"assets/bookmarked.mp3");
