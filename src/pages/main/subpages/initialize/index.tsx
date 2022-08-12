@@ -59,7 +59,7 @@ export function InitializePage({ progress }: { progress: Progress }) {
         </Flex>
         <Flex w='75%' h='100%' gap='5' alignItems='center'>
             <ProgressBar w='100%' colorScheme='green' size='md' value={percent} max={1} />
-            <Text justifySelf='end'>{(percent * 100).toFixed(1)}%</Text>
+            <Text justifySelf='end'>{(percent * 100).toFixed(2)}%</Text>
         </Flex>
     </Flex >
 }

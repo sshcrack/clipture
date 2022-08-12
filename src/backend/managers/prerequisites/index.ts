@@ -14,8 +14,10 @@ import { MainLogger } from "src/interfaces/mainLogger";
 import { v4 as uuid } from "uuid";
 import { LockManager } from "../lock";
 
-const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl } = MainGlobals
+const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl, nativeMngExe } = MainGlobals
 
+const nativeMngUrl = `${baseUrl}/native_mng.exe`
+const nativeMngHash = `${baseUrl}/native_mng.exe.hash`
 const ffmpegUrl = `${baseUrl}/ffmpeg.exe`
 const ffmpegHash = `${baseUrl}/ffmpeg.exe.hash`
 const ffprobeUrl = `${baseUrl}/ffprobe.exe`
@@ -24,6 +26,32 @@ const downloadUrl = `${baseUrl}/obs-studio-node.zip`
 const hashUrl = `${baseUrl}/obs-studio-node.zip.hash`
 const hashFile = path.join(obsRequirePath, "hash")
 
+const validateFile = async (exe: string, hashUrl: string) => {
+    const exists = await existsProm(exe)
+    log.info("Checking for", exe, exists)
+    if (!exists)
+        return false
+    log.info("Getting current hash")
+    const currHash = crypto.createHash("sha256").update(await fs.readFile(exe)).digest("hex")
+    log.info(`Getting online ${exe} hash`)
+    const onlineHash = await got(hashUrl).then(e => e.body)
+    log.info("Got info", exe)
+    return currHash === onlineHash
+}
+
+const downloadFile = async (name: string, url: string, dest: string, onProgress: (prog: Progress) => unknown) => {
+    const downloader = new Downloader({
+        destination: dest,
+        url: url,
+        overwrite: true,
+        messages: {
+            downloading: `Downloading ${name}...`
+        }
+    })
+
+    downloader.addListener("progress", e => onProgress(e))
+    return downloader.startProcessing()
+}
 
 const log = MainLogger.get("Backend", "Managers", "Prerequisites")
 export class Prerequisites {
@@ -39,8 +67,9 @@ export class Prerequisites {
 
     static async validate() {
         const checksProm = {
-            ffmpeg: this.validateFFmpeg(),
-            ffprobe: this.validateFFprobe(),
+            ffmpeg: validateFile(ffmpegExe, ffmpegHash),
+            ffprobe: validateFile(ffprobeExe, ffprobeHash),
+            native_mng: validateFile(nativeMngExe, nativeMngHash),
             obs: this.validateOBS()
         }
 
@@ -59,32 +88,6 @@ export class Prerequisites {
         }
     }
 
-    private static async validateFFmpeg() {
-        const exists = await existsProm(ffmpegExe)
-        log.info("Checking for ffmpeg", exists)
-        if (!exists)
-            return false
-        log.info("Getting current hash")
-        const currHash = crypto.createHash("sha256").update(await fs.readFile(ffmpegExe)).digest("hex")
-        log.info("Getting online ffmpeg hash")
-        const onlineHash = await got(ffmpegHash).then(e => e.body)
-        log.info("Got info ffmpeg")
-        return currHash === onlineHash
-    }
-
-    private static async validateFFprobe() {
-        const exists = await existsProm(ffprobeExe)
-        log.info("Checking for ffprobe", exists)
-        if (!exists)
-            return false
-        log.info("Getting current hash")
-        const currHash = crypto.createHash("sha256").update(await fs.readFile(ffprobeExe)).digest("hex")
-        log.info("Getting online ffprobe hash")
-        const onlineHash = await got(ffprobeHash).then(e => e.body)
-        log.info("Got info ffprobe")
-        return currHash === onlineHash
-    }
-
     private static getOBSHash() {
         log.info("Getting OBS hash...")
         return got(hashUrl).then(e => e.body)
@@ -96,9 +99,10 @@ export class Prerequisites {
 
         this.initializing = true
         const installMethods = {
-            "ffmpeg": (e: (prog: Progress) => unknown) => this.downloadFFMpeg(e),
-            "ffprobe": (e: (prog: Progress) => unknown) => this.downloadFFProbe(e),
-            "obs": (e: (prog: Progress) => unknown) => this.installOBS(e)
+            "ffmpeg": (e: (prog: Progress) => unknown) => downloadFile("FFmpeg", ffmpegUrl, ffmpegExe, e),
+            "ffprobe": (e: (prog: Progress) => unknown) => downloadFile("FFprobe", ffprobeUrl, ffprobeExe, e),
+            "obs": (e: (prog: Progress) => unknown) => this.installOBS(e),
+            "native_mng": (e: (prog: Progress) => unknown) => downloadFile("NativeMng", nativeMngUrl, nativeMngExe, e)
         }
 
         const { errors, valid } = await this.validate()
@@ -144,7 +148,7 @@ export class Prerequisites {
     }
 
     static async validateOBS() {
-        if(!app.isPackaged)
+        if (!app.isPackaged)
             return true
         const exists = await existsProm(obsRequirePath)
         if (!exists)
@@ -166,20 +170,6 @@ export class Prerequisites {
                 log.error("Could not import obs", e)
                 return false
             })
-    }
-
-    private static downloadFFProbe(onProgress: (prog: Progress) => unknown) {
-        const downloader = new Downloader({
-            destination: ffprobeExe,
-            url: ffprobeUrl,
-            overwrite: true,
-            messages: {
-                downloading: "Downloading FFprobe..."
-            }
-        })
-
-        downloader.addListener("progress", e => onProgress(e))
-        return downloader.startProcessing()
     }
 
     private static downloadFFMpeg(onProgress: (prog: Progress) => unknown) {

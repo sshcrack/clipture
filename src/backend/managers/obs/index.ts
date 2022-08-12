@@ -16,12 +16,14 @@ import { SignalsManager } from './Signals'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir } from './tool'
 import { DiscordManager } from '../discord'
 import { MainGlobals } from '@Globals/mainGlobals'
+import { app } from "electron"
 
 
 const reg = RegManMain
 const log = MainLogger.get("Managers", "OBS")
 
 const { obsRequirePath } = MainGlobals
+const packaged = app.isPackaged
 export class OBSManager {
     private obsInitialized = false
     private NodeObs: typedObs
@@ -39,10 +41,15 @@ export class OBSManager {
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
+        log.info("Importing obs from", obsRequirePath)
+        
         const steps = [
             {
                 title: "Importing OBS...",
-                func: async () => this.NodeObs = (await import(obsRequirePath)).NodeObs
+                func: async () => {
+                     const prom = packaged ? import(obsRequirePath) :  eval(`import("${obsRequirePath}")`)
+                     this.NodeObs = (await prom).NodeObs
+                }
             },
             {
                 title: "Initializing OBS...",
@@ -93,14 +100,23 @@ export class OBSManager {
 
             log.info(`Step ${i + 1}/${steps.length} (${(percent * 100).toFixed(1)}%): ${title}`)
             let start = Date.now()
+            let success = false
+            let lastErr = undefined
             for (let i = 0; i <10; i++) {
                 const res = await (func()
                     ?.then(() => undefined)
                     ?.catch(e => e))
-                if (!res)
-                    break;
+                if (!res) {
+                   succes = true
+                   break;
+                }
                 log.error("Could not complete step, retrying... (try: ", i, ")")
                 log.error(res)
+                lastErr = res
+            }
+            if(!success) {
+                  inst.unlock({ percent: 0, status: lastErr?.message ?? "Error"})
+                  throw lastErr
             }
             let diff = Date.now() - start
             log.info(`Step ${i + 1}/${steps.length} done after ${prettyMS(diff)}`)

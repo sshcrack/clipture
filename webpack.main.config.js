@@ -3,9 +3,11 @@ const CopyWebpackPlugin = require("copy-webpack-plugin")
 const path = require("path")
 const webpack = require('webpack');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 
 const assets = ["assets"]
+const shouldAnalyze = process.argv.includes("--analyze")
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -20,6 +22,9 @@ module.exports = {
     __dirname: false,
   },
   plugins: [
+    shouldAnalyze && new BundleAnalyzerPlugin({
+      analyzerPort: "auto"
+    }),
     new webpack.DefinePlugin({
       'process.env.FLUENTFFMPEG_COV': false
     }),
@@ -38,7 +43,7 @@ module.exports = {
       ]
     }),
     ...plugins
-  ],
+  ].filter(e => e),
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
     plugins: [

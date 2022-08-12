@@ -3,8 +3,10 @@ const plugins = require('./webpack.plugins');
 const CopyWebpackPlugin = require("copy-webpack-plugin")
 const path = require("path")
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 const assets = ["assets"]
+const shouldAnalyze = process.argv.includes("--analyze")
 module.exports = {
   module: {
     rules: [
@@ -20,6 +22,9 @@ module.exports = {
     ],
   },
   plugins: [
+    shouldAnalyze && new BundleAnalyzerPlugin({
+      analyzerPort: "auto"
+    }),
     new CopyWebpackPlugin({
       patterns: assets.map(asset => {
         return {
@@ -29,7 +34,7 @@ module.exports = {
       })
     }),
     ...plugins
-  ],
+  ].filter(e => e),
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
     plugins: [
