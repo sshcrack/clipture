@@ -25,6 +25,7 @@ jobs:
         echo Copying...
         New-Item C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -ItemType Directory
         cp $env:temp\headers\node-v16.16.0\include\node\*.gypi C:\Users\runneradmin\AppData\Local\node-gyp\Cache\16.16.0\ -verbose
+    - uses: c-hive/gha-yarn-cache@v2
     - name: install
       run: yarn install
     - name: publish
