@@ -8,7 +8,7 @@ import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { type execa as execaType } from "execa"
 import fs from "fs"
 import { readFile, rename, rm, stat } from 'fs/promises'
-import glob from "glob"
+import glob from "fast-glob"
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
