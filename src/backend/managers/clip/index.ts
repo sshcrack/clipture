@@ -165,11 +165,11 @@ export class ClipManager {
 
     static async listClips() {
         const clipPath = Storage.get("clip_path")
-        const globPattern = `${clipPath}/**/*.clipped.mp4!(.json)`
+        const globPattern = `${clipPath}/**/*.clipped.mp4!(.json)`.split("\\").join("/")
         const files = (await glob(globPattern))
             .map(e => path.resolve(e))
 
-        log.info("Loading total of", files.length, "clips...")
+        log.info("Loading total of", files.length, "clips... (", globPattern, ")")
         const sorted = (await Promise.all(
             files
                 .filter(e => e.endsWith(".mp4"))
@@ -233,11 +233,11 @@ export class ClipManager {
 
     static async listVideos() {
         const videoPath = Storage.get("clip_path")
-        const globPattern = `${videoPath}/**/*!(.clipped).mkv`
+        const globPattern = `${videoPath}/**/*!(.clipped).mkv`.split("\\").join("/")
         const files = (await glob(globPattern))
             .map(e => path.resolve(e))
 
-        log.info("Loading total of", files.length, "videos...")
+        log.info("Loading total of", files.length, "videos... (", globPattern, ")")
         const current = await RecordManager.instance.getCurrent()
         const sorted = (await Promise.all(
             files
