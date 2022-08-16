@@ -60,11 +60,15 @@ export default function App() {
         prerequisites.initialize()
             .then(() => setModulesDownloaded(true))
             .catch(e => {
-                log.error(e)
-                toast({
+                const msg = e?.message
+
+                const silent = typeof msg === "string" && msg.startsWith("[I] ")
+                !silent && log.error(e)
+                !silent && toast({
                     title: t("pre_init_error"),
                     description: t("retrying", { error: e?.stack ?? e?.message ?? e })
                 })
+
                 setTimeout(() => {
                     setTryAgainInit(Math.random())
                 }, 5000)

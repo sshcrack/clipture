@@ -7,6 +7,7 @@ import { RegManMain } from "@general/register/main";
 import { MainGlobals } from "@Globals/mainGlobals";
 import crypto from "crypto";
 import { app } from "electron";
+import { createWriteStream } from "fs";
 import fs from "fs/promises";
 import got from "got";
 import path from "path";
@@ -94,9 +95,25 @@ export class Prerequisites {
         return got(hashUrl).then(e => e.body)
     }
 
+    static async fixNativeMng() {
+        const isValid = await validateFile(nativeMngExe, nativeMngHash)
+        if(isValid)
+            return
+
+        if(await existsProm(nativeMngExe))
+            await fs.unlink(nativeMngExe)
+
+        const read = createWriteStream(nativeMngExe)
+        const out = got.stream(nativeMngHash).pipe(read)
+
+        await new Promise<void>((resolve, reject) => {
+            out.on("end", () => resolve())
+        })
+    }
+
     static async initialize(onProgress: (prog: Progress) => unknown) {
         if (this.initializing)
-            return log.warn("Already initializing. Skipping.")
+            throw new Error("[I] Already initializing.")
 
         this.initializing = true
         const installMethods = {

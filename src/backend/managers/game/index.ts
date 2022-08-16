@@ -7,6 +7,7 @@ import { DetectableGame, WindowInformation } from '../obs/Scene/interfaces';
 import { UseToastOptions } from '@chakra-ui/react';
 import { isDetectableGameInfo } from '../obs/core/tools';
 import { GeneralGame } from './interface';
+import { Prerequisites } from '../prerequisites';
 
 export type ProcessManagerCallback = (info: WindowInformation[]) => void
 
@@ -170,19 +171,23 @@ export class GameManager {
 
     static async updateLoop() {
         log.info("Initializing update loop...")
+        let reportedError = false
         while (!this.shouldExit) {
             await this.timeout(1000)
             const curr = await this.getAvailableWindows(true)
                 .catch(e => {
-                    log.error("Failed to get available windows", e)
+                    !reportedError && log.error("Failed to get available windows", e)
+                    reportedError = true
                     return undefined
                 }) as WindowInformation[]
 
-            if (!curr)
-                continue;
+            if (!curr) {
+                await Prerequisites.fixNativeMng()
+            }
 
+            reportedError = false
             const diff = [
-                // New processes
+                // New processes (either completely new or focused another window)
                 ...(curr.filter(e =>
                     !this.prevProcesses.some(f => f.pid === e.pid)
                     || this.prevProcesses.some(f => f.pid === e.pid && f.focused !== e.focused)

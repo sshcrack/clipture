@@ -4,6 +4,7 @@
         "Chakra",
         "chartjs",
         "clipture",
+        "execa",
         "ffprobe",
         "maximizable",
         "minimizable",
