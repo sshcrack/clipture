@@ -12,14 +12,12 @@ import glob from "fast-glob"
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
-import { promisify } from "util"
 import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
 import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoInfo, getVideoPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
 
-const globProm = promisify(glob)
 const log = MainLogger.get("Backend", "Managers", "Clips")
 export class ClipManager {
     private static imageData = new Map<string, string>()
@@ -168,7 +166,7 @@ export class ClipManager {
     static async listClips() {
         const clipPath = Storage.get("clip_path")
         const globPattern = `${clipPath}/**/*.clipped.mp4!(.json)`
-        const files = (await globProm(globPattern))
+        const files = (await glob(globPattern))
             .map(e => path.resolve(e))
 
         log.info("Loading total of", files.length, "clips...")
@@ -236,7 +234,7 @@ export class ClipManager {
     static async listVideos() {
         const videoPath = Storage.get("clip_path")
         const globPattern = `${videoPath}/**/*!(.clipped).mkv`
-        const files = (await globProm(globPattern))
+        const files = (await glob(globPattern))
             .map(e => path.resolve(e))
 
         log.info("Loading total of", files.length, "videos...")

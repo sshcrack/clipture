@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react"
 export default function Volmeter({ source, ...props }: { source: string } & BoxProps) {
     const { audio } = window.api
     const [percentage, setPercentage] = useState(0)
-    const [ currVal, setCurrVal] = useState(-Infinity)
+    const [currVal, setCurrVal] = useState(-Infinity)
 
     useEffect(() => {
         const filter = new ExpFilter(0, 0.2, 0.2)
@@ -16,7 +16,7 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
                 return
 
             const getAvg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length
-             
+
             const averages = channels.map(e => getAvg(e))
             const maxInChannels = Math.max(...averages)
             const maxChannelIndex = averages.findIndex(e => e === maxInChannels)
