@@ -1,4 +1,4 @@
-# Clipture
+<img src="https://github.com/sshcrack/clipture/blob/master/src/assets/renderer/logo_text.svg?raw=true" width="300"></img>
 ## ☄ Record your favourite moments self-hosted!
 [![discordBadge](https://img.shields.io/discord/638769122330804234?style=for-the-badge&color=7289da)](https://discord.gg/WHYhUF4)
 ![codeBadge](https://img.shields.io/github/languages/code-size/sshcrack/clipture?style=for-the-badge)
