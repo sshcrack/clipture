@@ -21,6 +21,16 @@ export class GameManager {
     private static detectableGames: DetectableGame[] = null
     private static initialized = false
     private static shouldExit = false
+    private static hasUpdateLoop = false;
+
+    // Called at obs/index.
+    static addUpdateLoop() {
+        if(this.hasUpdateLoop)
+            return
+
+        this.updateLoop()
+        this.hasUpdateLoop = true
+    }
 
 
     static async getDetectableGames() {
@@ -54,8 +64,6 @@ export class GameManager {
         if (this.initialized)
             return
 
-        log.debug("Initializing game manager")
-        this.updateLoop()
         RegManMain.onPromise("game_detectable_games", () => this.getDetectableGames())
         RegManMain.onPromise("game_curr_detectable", async () => {
             const available = await this.getAvailableWindows(true)

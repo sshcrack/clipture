@@ -49,7 +49,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -148,6 +148,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="dstr.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="validators.cpp" />
@@ -156,8 +157,10 @@
     <ClCompile Include="WindowInformation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cmdLine.h" />
     <ClInclude Include="dstr.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="NtQueries.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="validators.h" />
     <ClInclude Include="window.h" />

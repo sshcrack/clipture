@@ -17,6 +17,7 @@ import { getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './too
 import { DiscordManager } from '../discord'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { app } from "electron"
+import { GameManager } from '../game'
 
 
 const reg = RegManMain
@@ -75,6 +76,10 @@ export class OBSManager {
             {
                 title: "Initializing Preview...",
                 func: () => this.previewInstance.initialize()
+            },
+            {
+                title: "Listening to game changes...",
+                func: () => GameManager.addUpdateLoop()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 

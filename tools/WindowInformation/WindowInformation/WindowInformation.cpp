@@ -21,7 +21,8 @@
 #include "dstr.h"
 #include "validators.h"
 #include "window.h"
-#include  "game.h"
+#include "game.h"
+#include "cmdline.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -39,7 +40,7 @@ public:
 
 
 bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
-    string full_exe, title, className, productName, icoHex;
+    string full_exe, title, className, productName, icoPath, arguments;
     HMONITOR monitor;
 
     if (!GetExe(hwnd, full_exe, true))
@@ -76,25 +77,27 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
     const char* outIco = GetIconForFile(full_exe.c_str(), ShellIconSize::SmallIcon, icoFile);
     bool couldGetIco = outIco != NULL;
     if(couldGetIco) {
-        icoHex = outIco;
+        icoPath = outIco;
     }
 
     bool productNameRes = GetProductNameFromExe(full_exe, productName);
     bool monitorRes = HWNDToMonitor(hwnd, monitor);
     bool intersects = InterceptsWithMultipleMonitors(hwnd);
+    bool couldGetCmdLine = GetArgumentsHWND(hwnd, arguments);
 
 
 
-    replace_json_specals(className);
-    replace_json_specals(full_exe);
-    replace_json_specals(exe);
-    replace_json_specals(title);
-    replace_json_specals(productName);
+    replace_json_specials(className);
+    replace_json_specials(full_exe);
+    replace_json_specials(exe);
+    replace_json_specials(title);
+    replace_json_specials(productName);
+    replace_json_specials(icoPath);
 
 
-    string final_ico_hex = "null";
+    string final_ico_path = "null";
     if(couldGetIco) {
-        final_ico_hex = "\"" + icoHex + "\"";
+        final_ico_path = "\"" + icoPath + "\"";
     }
 
     string final_product_name = "null";
@@ -117,13 +120,13 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
 
     string hwnd_str = to_string((int)hwnd);
     string is_focused = IsFocused(hwnd) ? "true" : "false";
-
-    str = std::format("{{\"className\": \"{}\", \"executable\": \"{}\", \"title\": \"{}\", \"pid\": {}, \"productName\": {}, \"hwnd\": {}, \"full_exe\": \"{}\", \"monitorDimensions\": {}, \"intersectsMultiple\": {}, \"focused\": {}, \"icon\": {}}}",
+    str = std::format("{{\"className\": \"{}\", \"executable\": \"{}\", \"title\": \"{}\", \"pid\": {}, \"productName\": {}, \"hwnd\": {}, \"full_exe\": \"{}\", \"monitorDimensions\": {}, \"intersectsMultiple\": {}, \"focused\": {}, \"icon\": {}, \"arguments\": {}}}",
     className, exe, title,
     str_pid, final_product_name,
     hwnd_str, full_exe,
     final_monitor, intersects,
-    is_focused, final_ico_hex
+    is_focused, final_ico_path,
+        arguments
     );
     return true;
 }

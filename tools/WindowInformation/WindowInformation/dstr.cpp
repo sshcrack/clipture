@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include <numeric>
 #include <windows.h>
 #include <WinUser.h>
 
@@ -102,8 +104,20 @@ void stripUnicode(string& str)
 	str.erase(remove_if(str.begin(), str.end(), invalidChar), str.end());
 }
 
+extern string join_vector(vector<string> const& strings, string delim)
+{
+	if (strings.empty()) {
+		return std::string();
+	}
 
-extern void replace_json_specals(string& input)
+	return std::accumulate(strings.begin() + 1, strings.end(), strings[0],
+		[&delim](std::string x, std::string y) {
+			return x + delim + y;
+		}
+	);
+}
+
+extern void replace_json_specials(string& input)
 {
 	replace_str(input, "\\", "BACKSLASHREPLACEMENTNOONEISGONNAUSEIT");
 	replace_str(input, "\"", "DOUBLEQUOTEREPLACEMENTNOONEISGONNAUSE");
