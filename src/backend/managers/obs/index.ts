@@ -100,21 +100,21 @@ export class OBSManager {
             let start = Date.now()
             let success = false
             let lastErr = undefined
-            for (let i = 0; i <10; i++) {
+            for (let i = 0; i < 10; i++) {
                 const res = await (func()
                     ?.then(() => undefined)
                     ?.catch(e => e))
                 if (!res) {
-                   success = true
-                   break;
+                    success = true
+                    break;
                 }
                 log.error("Could not complete step, retrying... (try: ", i, ")")
                 log.error(res)
                 lastErr = res
             }
-            if(!success) {
-                  inst.unlock({ percent: 0, status: lastErr?.message ?? "Error"})
-                  throw lastErr
+            if (!success) {
+                inst.unlock({ percent: 0, status: lastErr?.message ?? "Error" })
+                throw lastErr
             }
             let diff = Date.now() - start
             log.info(`Step ${i + 1}/${steps.length} done after ${prettyMS(diff)}`)
@@ -212,7 +212,13 @@ export class OBSManager {
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
         reg.onPromise("obs_set_settings", async (_, e) => Storage.set("obs", e))
-        reg.onPromise("obs_get_settings", async () => Storage.get("obs"))
+        reg.onPromise("obs_get_settings", async () => {
+            const e = Storage.get("obs")
+            return {
+                ...e,
+                capture_method: e.capture_method ?? "window"
+            }
+        })
         reg.onPromise("obs_update_settings", async (_, fps, bitrate) => {
             if (fps <= 0)
                 throw new Error("Invalid fps number")

@@ -57,7 +57,7 @@ int GetMonitorIndex(HMONITOR hMonitor)
     info.hMonitor = hMonitor;
 
     if (EnumDisplayMonitors(NULL, NULL, GetMonitorByHandle, (LPARAM)&info)) return -1;
-    return info.iIndex + 1; // 1-based index
+    return info.iIndex; // 0-based index
 }
 
 

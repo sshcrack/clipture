@@ -276,7 +276,7 @@ export class RecordManager {
                 "winInfo", JSON.stringify(winInfo), "curr", JSON.stringify(Scene.getCurrentSetting()?.window), "Game", JSON.stringify(game))
         if (winInfo && (diff || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
             if (this.isDesktopView())
-                await Scene.switchDesktop(winInfo.monitorDimensions.index, false)
+                await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, false, winInfo)
             else
                 await Scene.switchWindow(winInfo, false)
 

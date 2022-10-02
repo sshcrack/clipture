@@ -72,6 +72,10 @@ export class Scene {
     }
 
     static async switchDesktop(monitor: number, manual: boolean) {
+        return this.switchDesktopWindow(monitor, manual)
+    }
+
+    static async switchDesktopWindow(monitor: number, manual: boolean, winInfo?: WindowInformation) {
         log.log("Switching to Desktop View with monitor", monitor)
         const videoSource = this.InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
         const { physicalWidth, physicalHeight } = await getDisplayInfoFromIndex(monitor)
@@ -98,7 +102,7 @@ export class Scene {
 
 
         this._setting = {
-            window: null,
+            window: winInfo,
             monitor: monitor,
             manual,
             size: {
