@@ -9,3 +9,5 @@ export type CurrentType = Omit<VideoInfo, "duration"> & {
 export type OutCurrentType = Omit<CurrentType, "gameId"> & {
     game: GeneralGame
 }
+
+export type CaptureMethod = "desktop" | "window"

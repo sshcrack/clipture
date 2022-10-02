@@ -63,7 +63,7 @@
         "discover": "Discover",
         "clips": "Clips",
         "sign_out": "Sign Out",
-        "recording": "Recording..."
+        "recording": "Record Overview"
     },
     "record": {
         "title": "Recording Overview"
@@ -95,6 +95,7 @@
                 "hotkey": {
                     "loading": "Getting current hotkey...",
                     "rebind": "{{hotkey}} - press key to rebind",
+                    "label": "Bookmark Hotkey",
                     "error": {
                         "title": "Could not get hotkey",
                         "description": "Trying again in 5 seconds..."
@@ -164,6 +165,12 @@
                 "fps": {
                     "title": "FPS",
                     "loading": "Loading..."
+                },
+                "capture_method": {
+                    "title": "Capture Method",
+                    "loading": "Loading...",
+                    "window": "Window capture",
+                    "desktop": "Desktop capture"
                 }
             }
         },

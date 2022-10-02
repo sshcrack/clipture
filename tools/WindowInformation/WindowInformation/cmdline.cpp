@@ -56,14 +56,14 @@ string getArguments(string cmdLine) {
 		args.push_back('"' + outerArg + '"');
 	}
 
-	return "[" + join_vector(args, ",") + "]";
+	return join_vector(args, ",");
 }
 
 extern bool GetArgumentsHWND(HWND wnd, string &argumentsStr) {
 	DWORD id[MAX_PATH];
 	GetWindowThreadProcessId(wnd, id);
 
-	HANDLE handle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, *id);
+	HANDLE handle = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, *id);
 	if (handle == 0)
 		return false;
 
@@ -99,20 +99,19 @@ extern bool GetArgumentsHWND(HWND wnd, string &argumentsStr) {
 		// we're running as a 32-bit process in a 64-bit OS
 		PROCESS_BASIC_INFORMATION_WOW64 pbi{};
 
+		// read PEB from 64-bit address space
+		auto read = (_NtWow64ReadVirtualMemory64)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtWow64ReadVirtualMemory64");
+
 		// get process information from 64-bit world
 		auto query = (_NtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtWow64QueryInformationProcess64");
 		err = query(handle, 0, &pbi, sizeof(pbi), NULL);
 		if (err != 0) {
-			cout << "load lib";
 			CloseHandle(handle);
 			return false;
 		}
 
-		// read PEB from 64-bit address space
-		auto read = (_NtWow64ReadVirtualMemory64)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtWow64ReadVirtualMemory64");
 		err = read(handle, pbi.PebBaseAddress, peb, pebSize, NULL);
 		if (err != 0) {
-			cout << "read 64bit";
 			CloseHandle(handle);
 			return false;
 		}
@@ -121,7 +120,6 @@ extern bool GetArgumentsHWND(HWND wnd, string &argumentsStr) {
 		auto parameters = (PBYTE*)*(LPVOID*)(peb + ProcessParametersOffset); // address in remote process adress space
 		err = read(handle, parameters, pp, ppSize, NULL);
 		if (err != 0) {
-			cout << "read params";
 			CloseHandle(handle);
 			return false;
 		}
@@ -131,27 +129,25 @@ extern bool GetArgumentsHWND(HWND wnd, string &argumentsStr) {
 		cmdLine = (PWSTR) new char[pCommandLine->MaximumLength];
 		err = read(handle, pCommandLine->Buffer, cmdLine, pCommandLine->MaximumLength, NULL);
 		if (err != 0) {
-			cout << "read cmdline";
 			CloseHandle(handle);
 			return false;
 		}
 	}
 	else {
+		// get process information
+		auto query = (_NtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryInformationProcess");
+
 		// we're running as a 32-bit process in a 32-bit OS, or as a 64-bit process in a 64-bit OS
 		PROCESS_BASIC_INFORMATION pbi{};
 
-		// get process information
-		auto query = (_NtQueryInformationProcess)GetProcAddress(GetModuleHandleA("ntdll.dll"), "NtQueryInformationProcess");
 		err = query(handle, 0, &pbi, sizeof(pbi), NULL);
 		if (err != 0) {
-			cout << "read basic x32";
 			CloseHandle(handle);
 			return false;
 		}
 
 		// read PEB
 		if (!ReadProcessMemory(handle, pbi.PebBaseAddress, peb, pebSize, NULL)) {
-			cout << "read peb x32";
 			CloseHandle(handle);
 			return false;
 		}
@@ -159,7 +155,6 @@ extern bool GetArgumentsHWND(HWND wnd, string &argumentsStr) {
 		// read ProcessParameters
 		auto parameters = (PBYTE*)*(LPVOID*)(peb + ProcessParametersOffset); // address in remote process adress space
 		if (!ReadProcessMemory(handle, parameters, pp, ppSize, NULL)) {
-			cout << "read 2 x32";
 			CloseHandle(handle);
 			return false;
 		}
@@ -168,7 +163,6 @@ extern bool GetArgumentsHWND(HWND wnd, string &argumentsStr) {
 		auto pCommandLine = (UNICODE_STRING*)(pp + CommandLineOffset);
 		cmdLine = (PWSTR) new char[pCommandLine->MaximumLength];
 		if (!ReadProcessMemory(handle, pCommandLine->Buffer, cmdLine, pCommandLine->MaximumLength, NULL)) {
-			cout << "read cmdline x32";
 			CloseHandle(handle);
 			return false;
 		}

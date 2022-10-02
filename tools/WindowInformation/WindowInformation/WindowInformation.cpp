@@ -27,6 +27,11 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+struct sEnumInfo {
+    int iIndex = 0;
+    HMONITOR hMonitor = NULL;
+};
+
 class CCoInitialize {
 private:
     HRESULT m_hr;
@@ -37,6 +42,23 @@ public:
     }
     ~CCoInitialize() { if (SUCCEEDED(m_hr)) { CoUninitialize(); } }
 };
+
+BOOL CALLBACK GetMonitorByHandle(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
+{
+    auto info = (sEnumInfo*)dwData;
+    if (info->hMonitor == hMonitor) return FALSE;
+    ++info->iIndex;
+    return TRUE;
+}
+
+int GetMonitorIndex(HMONITOR hMonitor)
+{
+    sEnumInfo info;
+    info.hMonitor = hMonitor;
+
+    if (EnumDisplayMonitors(NULL, NULL, GetMonitorByHandle, (LPARAM)&info)) return -1;
+    return info.iIndex + 1; // 1-based index
+}
 
 
 bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
@@ -74,7 +96,7 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
 
     std::filesystem::path icoFile = tempDir.append(icoName);
 
-    const char* outIco = GetIconForFile(full_exe.c_str(), ShellIconSize::SmallIcon, icoFile);
+    const char* outIco = GetIconForFile(full_exe.c_str(), ShellIconSize::LargeIcon, icoFile);
     bool couldGetIco = outIco != NULL;
     if(couldGetIco) {
         icoPath = outIco;
@@ -108,8 +130,9 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
     string final_monitor = "null";
     if (monitorRes) {
         int width, height;
+        int index = GetMonitorIndex(monitor);
         if (GetMonitorDimensions(monitor, width, height)) {
-            final_monitor = std::format("{{\"width\": {}, \"height\": {}}}", width, height);
+            final_monitor = std::format("{{\"width\": {}, \"height\": {}, \"index\": {}}}", width, height, index);
         }
     }
 
@@ -126,7 +149,7 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
     hwnd_str, full_exe,
     final_monitor, intersects,
     is_focused, final_ico_path,
-        arguments
+        '[' + arguments + ']'
     );
     return true;
 }

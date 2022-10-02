@@ -1,4 +1,4 @@
-import { Flex, Grid, IconButton, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Grid, IconButton, Tooltip } from '@chakra-ui/react';
 import { GridProps } from '@chakra-ui/styled-system';
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { BsArrowClockwise } from 'react-icons/bs';
@@ -10,6 +10,7 @@ import EditorBarButtons from './EditorBarButtons';
 
 export type EditorMainBarState = {
     mainBarRef: React.MutableRefObject<HTMLDivElement>,
+    bgImageRef: React.MutableRefObject<HTMLDivElement>,
     seekDragging: boolean,
     setSeekDragging: ReactSetState<boolean>,
     onEndMouseDrag: () => void,
@@ -18,6 +19,7 @@ export type EditorMainBarState = {
 
 export const EditorMainBarContext = React.createContext<EditorMainBarState>({
     mainBarRef: null,
+    bgImageRef: null,
     seekDragging: false,
     setSeekDragging: () => { },
     onEndMouseDrag: () => { },
@@ -35,6 +37,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
     const [update, setUpdate] = useState(0)
     const [canvasBackgrounds, setCanvasBackgrounds] = useState(new Map<string, string>())
     const mainBarRef = useRef<HTMLDivElement>(null)
+    const bgImageRef = useRef<HTMLDivElement>(null)
 
     const startSeekDrag = () => {
         document.body.style.userSelect = "none"
@@ -42,7 +45,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
     }
 
     useEffect(() => {
-        if (!bgGenerator?.current || !videoRef?.current)
+        if (!bgGenerator?.current || !videoRef?.current || !bgImageRef?.current)
             return
 
         const bgCurr = bgGenerator.current
@@ -112,7 +115,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
         }
 
         const bg = canvasBackgrounds.has(id) ? Promise.resolve(canvasBackgrounds.get(id)) : generateBg()
-        bg.then(res => mainBarRef.current.style.backgroundImage = `url(${res})`)
+        bg.then(res => bgImageRef.current.style.backgroundImage = `url(${res})`)
 
     }, [selection, videoRef, bgGenerator])
 
@@ -132,7 +135,8 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
         }
     }, [update])
 
-    useEffect(() => {        const resizeListener = () => setResize(Math.random())
+    useEffect(() => {
+        const resizeListener = () => setResize(Math.random())
         window.addEventListener("resize", resizeListener)
 
         return () => {
@@ -142,6 +146,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
 
     return <EditorMainBarContext.Provider
         value={{
+            bgImageRef,
             mainBarRef,
             seekDragging,
             resize,
@@ -158,14 +163,22 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
             <Grid
                 w='100%'
                 h='100%'
-                backgroundRepeat='repeat'
-                bg='#a1a1a1'
                 ref={mainBarRef}
                 onMouseDown={e => {
                     if (e.button === 2)
                         startSeekDrag()
                 }}
             >
+                <Box
+                gridRow='1'
+                gridColumn='1'
+                    backgroundRepeat='repeat'
+                    bg='#adadad'
+                    ref={bgImageRef}
+                    zIndex={-100}
+                    w='100%'
+                    h='100%'
+                />
                 {props.children}
             </Grid>
         </Flex>

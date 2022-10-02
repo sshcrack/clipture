@@ -37,7 +37,9 @@ const validateFile = async (exe: string, hashUrl: string) => {
     const currHash = crypto.createHash("sha256").update(await fs.readFile(exe)).digest("hex")
     log.info(`Getting online ${exe} hash`)
     const onlineHash = await got(hashUrl).then(e => e.body)
-    log.info("Got info", exe)
+    if(currHash !== onlineHash) {
+        log.info(`Hash mismatch for ${exe}: curr is ${currHash} but online has ${onlineHash}`)
+    }
     return currHash === onlineHash
 }
 

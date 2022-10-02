@@ -74,6 +74,10 @@ export class RecordManager {
         return this.recordTimer
     }
 
+    public isDesktopView() {
+        return (Storage.get("obs").capture_method ?? "window") === "desktop"
+    }
+
     public async initialize() {
         if (this.initialized)
             return
@@ -111,7 +115,7 @@ export class RecordManager {
         this.onGameUpdate(curr)
 
         const obsInstalled = await Prerequisites.validateOBS()
-        if(!obsInstalled)
+        if (!obsInstalled)
             throw new Error("OBS-Installation is not valid.")
 
         this.NodeObs = (await importOBS()).NodeObs
@@ -127,7 +131,7 @@ export class RecordManager {
         if (!this.initialized)
             return log.warn("Could not start recording, not initialized")
 
-        if(this.recordingInitializing)
+        if (this.recordingInitializing)
             return log.warn("Could not start record, another instance is already starting")
 
         this.recordingInitializing = true
@@ -214,7 +218,7 @@ export class RecordManager {
 
         return () => {
             const index = this.listeners.indexOf(func)
-            if(index === -1)
+            if (index === -1)
                 return
             this.listeners.splice(index, 1)
         }
@@ -263,14 +267,19 @@ export class RecordManager {
 
     public async onGameUpdate(info: WindowInformation[]) {
         const available = await getAvailableGame(info)
-        if(!available)
+        if (!available)
             return
         const { diff, winInfo, game } = available ?? {}
 
-        log.info("Game is diff", diff, "manual", this.manualControlled,
-        "game", winInfo, "curr", Scene.getCurrentSetting()?.window)
+        if (diff)
+            log.info("Game is diff", diff, "manual", this.manualControlled,
+                "winInfo", JSON.stringify(winInfo), "curr", JSON.stringify(Scene.getCurrentSetting()?.window), "Game", JSON.stringify(game))
         if (winInfo && (diff || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
-            await Scene.switchWindow(winInfo, false)
+            if (this.isDesktopView())
+                await Scene.switchDesktop(winInfo.monitorDimensions.index, false)
+            else
+                await Scene.switchWindow(winInfo, false)
+
             if (this.isRecording())
                 await this.stopRecording()
         }

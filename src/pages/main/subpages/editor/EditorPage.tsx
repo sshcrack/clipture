@@ -32,7 +32,7 @@ export default function EditorPage() {
                 <EditorVideo h='100%' />
                 <EditorMainBar>
                     <EditorBookmarks />
-                    <EditorCutHighlight bg='editor.highlight' opacity={.5} />
+                    <EditorCutHighlight bg='editor.highlight' opacity={.25} />
                     <EditorSeekBar />
                     <EditorCutBar
                         type="start"

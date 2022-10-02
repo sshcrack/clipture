@@ -75,7 +75,9 @@ export default function EditorStartBar(props: BoxProps) {
 
     return <Box
         {...props}
+        borderRadius='5px'
         gridRow='1'
+        zIndex='100'
         gridColumn='1'
         ref={startRef}
         w={`${barWidth}px`}

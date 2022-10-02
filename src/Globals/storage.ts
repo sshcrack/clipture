@@ -1,4 +1,5 @@
 import { GeneralGame } from '@backend/managers/game/interface';
+import { CaptureMethod } from '@backend/managers/obs/core/interface';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
@@ -71,7 +72,8 @@ const defaults = {
     "last_dashboard_page": 0,
     "obs": {
         "fps": 60,
-        "bitrate": 10000
+        "bitrate": 10000,
+        "capture_method": "window" as CaptureMethod
     },
     "close_behavior": "unset" as "unset" | "close" | "minimize",
     "bookmark_hotkey": "F9",

@@ -1,6 +1,6 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, FlexProps, Menu } from '@chakra-ui/react';
-import React, { useEffect, useState } from "react";
+import React, { LegacyRef, useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { AiFillCamera, AiOutlineCompass } from "react-icons/ai";
 import { FaCog } from "react-icons/fa";
@@ -9,7 +9,7 @@ import { SiApplearcade } from "react-icons/si";
 import "src/components/general/Navbar/index.css";
 import NavBarButton from './NavBarButton';
 
-export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
+export function NavBar({ data, ...props }: { data: SessionData, ref?: LegacyRef<HTMLDivElement> } & FlexProps) {
     const { auth, obs } = window.api
     const { t } = useTranslation("navbar")
 
@@ -30,6 +30,7 @@ export function NavBar({ data, ...props }: { data: SessionData } & FlexProps) {
         flexDir='column'
         bg="brand.bg"
         w='100%'
+        ref={props?.ref}
         {...props}
     >
         <Menu>

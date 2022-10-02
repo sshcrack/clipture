@@ -1,6 +1,6 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { NavBar } from 'src/components/general/NavBar';
@@ -14,6 +14,9 @@ import "src/pages/main/subpages/dashboard/index.css"
 export default function DashboardPage({ data }: { data: SessionData }) {
     const [currentPage, setCurrentPage] = useState(0)
     const [initialized, setInitialized] = useState(false)
+    const navbarRef = useRef<HTMLDivElement>()
+    const outerRef = useRef<HTMLDivElement>()
+
     const { system } = window.api
     const { mode } = useParams()
     const { t } = useTranslation("dashboard")
@@ -25,6 +28,14 @@ export default function DashboardPage({ data }: { data: SessionData }) {
         console.log("Default page update to", currentPage)
         system.set_default_dashboard_page(currentPage)
     }, [currentPage])
+
+    useEffect(() => {
+        if (!navbarRef?.current || !outerRef?.current)
+            return
+
+        const height = navbarRef.current.clientHeight
+        outerRef.current.style.height = `${height}px`
+    }, [navbarRef, outerRef])
 
     useEffect(() => {
         const hotkeyListener = (e: KeyboardEvent) => {
@@ -63,12 +74,14 @@ export default function DashboardPage({ data }: { data: SessionData }) {
             data={data}
             w='5em'
             h='100%'
+            ref={navbarRef}
         />
         <Flex
             flexDir='column'
             alignItems='center'
             w='100%'
             h='100%'
+            ref={outerRef}
         >
             <Tabs
                 w='100%'

@@ -183,6 +183,10 @@ export class GameManager {
         while (!this.shouldExit) {
             await this.timeout(1000)
             const curr = await this.getAvailableWindows(true)
+                .then(e => {
+                    reportedError = false
+                    return e;
+                })
                 .catch(e => {
                     !reportedError && log.error("Failed to get available windows", e)
                     reportedError = true
@@ -193,7 +197,6 @@ export class GameManager {
                 await Prerequisites.fixNativeMng()
             }
 
-            reportedError = false
             const diff = [
                 // New processes (either completely new or focused another window)
                 ...(curr.filter(e =>
@@ -218,13 +221,14 @@ export class GameManager {
 
     static async getAvailableWindows(game?: boolean) {
         const execa = (await import("execa")).execa
-        const out = await execa(MainGlobals.nativeMngExe, [game ? "game" : ""])
-        const stdout = out.stdout
+        const out = execa(MainGlobals.nativeMngExe, [game ? "game" : ""])
         try {
+            const outProc = await out;
+            const stdout = outProc.stdout
             const res = JSON.parse(stdout) as WindowInformation[]
             return res
-        } catch (e) {
-            throw [new Error(`Stdout: ${out.stdout} Stderr: ${out.stderr} Code: ${out.exitCode}`), e]
+        } catch (error) {
+            throw new Error(`Errno: ${error.errno} command: ${error.command} stdout: ${error.stdout} err: ${error.stderr}`)
         }
     }
 }

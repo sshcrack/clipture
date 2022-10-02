@@ -5,26 +5,38 @@ import { EditorMainBarContext } from './EditorMainBar';
 
 export default function EditorCutHighlight(props: BoxProps) {
     const { selection, duration } = useContext(EditorContext)
-    const { mainBarRef, resize } = useContext(EditorMainBarContext)
+    const { mainBarRef, resize, bgImageRef } = useContext(EditorMainBarContext)
+    const highlightRef = useRef<HTMLDivElement>(null)
 
-    const highlight = useRef<HTMLDivElement>()
     useEffect(() => {
         const { start, end, range, offset } = selection
-        if (!highlight.current || !mainBarRef.current || duration === undefined)
+        if (!highlightRef.current || !mainBarRef.current || duration === undefined || !bgImageRef.current)
             return
 
         const width = mainBarRef.current.clientWidth
-        let startPixel = Math.max(0, (start - offset) / range * width)
-        let endPixel = Math.min(width, (end - offset) / range * width)
+        const percentageStart = (start - offset) / range
+        const percentageEnd = (end - offset) / range
 
-        highlight.current.style.transform = `translateX(${startPixel}px)`
-        highlight.current.style.width = `${endPixel - startPixel}px`
-    }, [selection, highlight, mainBarRef, duration, resize])
+        const cssStart = percentageStart * 100;
+        const cssEnd = percentageEnd * 100
+
+        let startPixel = Math.max(0, percentageStart * width)
+        let endPixel = Math.min(width, percentageEnd * width)
+
+
+        const unselectedColor = "rgba(255, 255, 255, 0.25)"
+
+
+        highlightRef.current.style.transform = `translateX(${startPixel}px)`
+        highlightRef.current.style.width = `${endPixel - startPixel}px`
+
+        bgImageRef.current.style.webkitMaskImage = `linear-gradient(90deg, ${unselectedColor} 0%, ${unselectedColor} ${cssStart}%, #000 ${cssStart}%, #000 ${cssEnd}%, ${unselectedColor} ${cssEnd}%, ${unselectedColor} 100%)`
+    }, [selection, mainBarRef, duration, resize, bgImageRef])
 
     return <Box
         {...props}
         gridRow='1'
         gridColumn='1'
-        ref={highlight}
+        ref={highlightRef}
     />
 }

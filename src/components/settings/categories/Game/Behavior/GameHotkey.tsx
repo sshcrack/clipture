@@ -1,9 +1,9 @@
 import { Flex, Input, Text, useToast } from "@chakra-ui/react"
-import React, { useContext, useEffect, useRef, useState } from "react"
-import { RenderLogger } from "src/interfaces/renderLogger"
-import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
-import { SettingsSaveContext } from "src/pages/main/subpages/settings/SettingsSaveProvider"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
+import { RenderLogger } from "src/interfaces/renderLogger"
+import { SettingsSaveContext } from "src/pages/main/subpages/settings/SettingsSaveProvider"
 
 const log = RenderLogger.get("Components", "Settings", "Categories", "Game", "Behavior", "GameHotkey")
 export default function GameHotkey() {
@@ -42,7 +42,7 @@ export default function GameHotkey() {
     }, [saving, update])
 
     useEffect(() => {
-        if(!listening)
+        if (!listening)
             return
 
         bookmark.listenKey()
@@ -64,9 +64,12 @@ export default function GameHotkey() {
 
     return <Flex
         w='80%'
+        justifyContent='center'
+        alignItems='center'
     >
-        { !hotkey ?
-            <GeneralSpinner loadingText={t("loading")}/> :
+        <Text w='100%'>{t("label")}</Text>
+        {!hotkey ?
+            <GeneralSpinner loadingText={t("loading")} /> :
             <Input
                 w='100%'
                 value={!listening ? hotkey : t("rebind", { hotkey })}

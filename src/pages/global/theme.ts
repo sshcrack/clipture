@@ -7,7 +7,7 @@ const config: ThemeConfig = {
 
 const colors = {
     editor: {
-        highlight: "#eeb600"
+        highlight: "#d6d6d6"
     },
     brandPrimary: {
         100: "hsl(281, 100%, 88%)",

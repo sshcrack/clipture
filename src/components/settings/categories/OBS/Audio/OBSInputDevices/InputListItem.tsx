@@ -161,7 +161,7 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
                     flex='1'
                     aria-label='Device Volume'
                     value={volume}
-                    max={2}
+                    max={1}
                     step={0.01}
                     min={0}
                     onChange={e => {

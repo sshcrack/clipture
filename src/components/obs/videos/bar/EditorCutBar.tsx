@@ -81,8 +81,10 @@ export default function EditorCutBar({ type, ...props }: BoxProps & { type: "sta
     return <Box
         {...props}
         gridRow='1'
+        zIndex='100'
         gridColumn='1'
         ref={boxRef}
+        borderRadius='5px'
         w={`${barWidth}px`}
         onMouseDown={() => startDrag()}
     />

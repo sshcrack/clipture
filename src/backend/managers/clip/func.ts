@@ -14,7 +14,11 @@ export async function getVideoInfo(recordingPath: string, videoName: string): Pr
         return null
 
     const infoJson = await fs.readFile(infoJsonPath, "utf8")
-    return JSON.parse(infoJson) as VideoInfo
+    try {
+        return JSON.parse(infoJson) as VideoInfo
+    } catch(e) {
+        return null
+    }
 }
 
 

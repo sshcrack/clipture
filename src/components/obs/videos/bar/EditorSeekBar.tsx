@@ -86,7 +86,8 @@ export default function EditorSeekBar(props: BoxProps) {
 
     return <Box
         h='100%'
-        w='3px'
+        w='5px'
+        borderRadius='5px'
         bg='red'
         {...props}
         gridRow='1'
@@ -94,6 +95,6 @@ export default function EditorSeekBar(props: BoxProps) {
         ref={seekBar}
         cursor='pointer'
         onMouseDown={() => startSeekDrag()}
-        zIndex='2'
+        zIndex='100'
     />
 }

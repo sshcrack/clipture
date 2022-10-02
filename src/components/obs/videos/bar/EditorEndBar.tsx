@@ -78,8 +78,10 @@ export default function EditorEndBar(props: BoxProps) {
 
     return <Box
         {...props}
+        borderRadius='5px'
         gridRow='1'
         gridColumn='1'
+        zIndex='100'
         ref={endRef}
         w={`${barWidth}px`}
         onMouseDown={() => startDrag()}

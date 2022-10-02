@@ -14,7 +14,6 @@ import { CurrentSetting, WindowInformation } from './interfaces';
 import { importOBS } from '../tool';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene")
-const { obsRequirePath } = MainGlobals
 export class Scene {
     private static readonly SCENE_ID = `main_scene_clipture-${uuid()}`
     private static readonly MAIN_WIN_SOURCE = "main_source"

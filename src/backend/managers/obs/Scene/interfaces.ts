@@ -3,6 +3,7 @@ import type { IInput } from '@streamlabs/obs-studio-node'
 export interface WindowInformation {
     className: string,
     executable: string,
+    arguments: string[],
     full_exe: string,
     title: string,
     pid: number,
@@ -10,7 +11,8 @@ export interface WindowInformation {
     productName: string,
     monitorDimensions?: {
         width: number,
-        height: number
+        height: number,
+        index: number
     },
     intersectsMultiple: boolean,
     focused: boolean
