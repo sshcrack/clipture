@@ -63,8 +63,6 @@ export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & {
         if (!ref.current || !debounced)
             return
 
-        console.log("Hovered", hovered)
-
         const video = ref.current
         if (!hovered) {
             setOpacity(0)

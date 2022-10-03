@@ -219,14 +219,19 @@ export class OBSManager {
                 capture_method: e.capture_method ?? "window"
             }
         })
-        reg.onPromise("obs_update_settings", async (_, fps, bitrate) => {
+        reg.onPromise("obs_automatic_record", async (_, automaticRecord) => this.recordManager.setAutomaticRecord(automaticRecord))
+        reg.onPromise("obs_is_automatic_record", async () => Storage.get("automatic_record") ?? true)
+        reg.onPromise("obs_update_settings", async (_, fps, bitrate, captureMethod) => {
             if (fps <= 0)
                 throw new Error("Invalid fps number")
 
             if (bitrate <= 0)
                 throw new Error("Invalid bitrate")
 
-            Storage.set("obs", { fps, bitrate })
+            if (captureMethod !== "desktop" && captureMethod !== "window")
+                throw new Error("Invalid capture method")
+
+            Storage.set("obs", { fps, bitrate, capture_method: captureMethod })
             this.updateSettings()
         })
     }

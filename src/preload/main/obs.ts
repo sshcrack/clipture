@@ -29,8 +29,8 @@ const obs = {
     switchWindow: (options: WindowInformation, manual: boolean) => reg.emitPromise("obs_switch_window", options, manual),
 
 
-    startRecording: (manual: boolean) => reg.emitPromise("obs_start_recording", manual),
-    stopRecording: (manual: boolean) => reg.emitPromise("obs_stop_recording", manual),
+    startRecording: () => reg.emitPromise("obs_start_recording"),
+    stopRecording: () => reg.emitPromise("obs_stop_recording"),
     onRecordChange: (callback: ListenerType) => {
         listeners.push(callback)
         return () => {
@@ -51,7 +51,9 @@ const obs = {
     getCurrent: () => reg.emitPromise("obs_get_current"),
     getSettings: () => reg.emitPromise("obs_get_settings"),
     setSettings: (e: OBSSettings) => reg.emitPromise("obs_set_settings", e),
-    updateSettings: (fps: number, bitrate: number, captureMethod: CaptureMethod) => reg.emitPromise("obs_update_settings", fps, bitrate, captureMethod)
+    updateSettings: (fps: number, bitrate: number, captureMethod: CaptureMethod) => reg.emitPromise("obs_update_settings", fps, bitrate, captureMethod),
+    automaticRecord: (autoRecord: boolean) => reg.emitPromise("obs_automatic_record", autoRecord),
+    isAutoRecord: () => reg.emitPromise("obs_is_automatic_record")
 }
 
 export default obs;

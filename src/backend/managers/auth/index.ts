@@ -73,6 +73,7 @@ export class AuthManager {
 
     static async getSession(): Promise<GetSessionReturn> {
         log.debug("Getting session...")
+        const { recordManager } = MainGlobals.obs
         const cookies = {} as { [key: string]: string }
 
 
@@ -111,7 +112,7 @@ export class AuthManager {
             }
         }
 
-
+        recordManager.enable()
         log.info("AUTHENTICATED: with session", {
             ...response,
             user: {
@@ -136,8 +137,9 @@ export class AuthManager {
         }
 
         const isRecording = recordManager.isRecording()
+        recordManager.disable()
         if (isRecording) {
-            await recordManager.stopRecording(true)
+            await recordManager.stopRecording()
             notify({
                 title: "Recording stopped",
                 message: "You have been signed out, because you've signed out"

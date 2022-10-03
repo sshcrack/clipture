@@ -23,6 +23,8 @@ export default function Preview() {
                 setDisplayId(displayId)
                 setPreviewHeight(height)
                 setPreviewWidth(width)
+                log.info("Destroying preview with id", displayId)
+                obs.preview_destroy(displayId)
             })
     }, [preview])
 
@@ -32,6 +34,7 @@ export default function Preview() {
         h='100%'
         justifyContent='center'
         alignItems='center'
+        style={{ aspectRatio: `${previewWidth} / ${previewHeight}`}}
         ref={preview}>
         {displayId && preview.current && <InnerPreview displayId={displayId} preview={preview} previewHeight={previewHeight} previewWidth={previewWidth} />}
     </Flex>

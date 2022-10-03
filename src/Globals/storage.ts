@@ -76,6 +76,7 @@ const defaults = {
         "capture_method": "window" as CaptureMethod
     },
     "close_behavior": "unset" as "unset" | "close" | "minimize",
+    "automatic_record": true,
     "bookmark_hotkey": "F9",
     "auto_launch": true,
     "discord_rpc": true

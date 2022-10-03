@@ -1,7 +1,7 @@
 import { SessionData } from '@backend/managers/auth/interfaces'
-import { Flex, Heading, Image } from '@chakra-ui/react'
+import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
-import { NavBar } from 'src/components/general/NavBar'
+import NavBar from 'src/components/general/NavBar'
 
 export default function DiscoverPage({ data }: { data: SessionData }) {
     return <Flex h='100%' w='100%'>

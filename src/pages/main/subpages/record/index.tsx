@@ -1,9 +1,9 @@
 import { SessionData } from '@backend/managers/auth/interfaces';
 import { OutCurrentType } from '@backend/managers/obs/core/interface';
-import { Flex, Heading } from '@chakra-ui/react';
+import { Button, Flex, Heading, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import { NavBar } from 'src/components/general/NavBar';
+import NavBar from 'src/components/general/NavBar';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GameInfo from 'src/components/obs/recording/GameInfo';
 import PerformanceStatistics from 'src/components/obs/recording/PerformanceStats';
@@ -15,7 +15,10 @@ export default function RecordPage({ data }: { data: SessionData }) {
     const { t } = useTranslation("record")
 
     const [recording, setRecording] = useState(false)
+    const [automaticRecord, setAutomaticRecord] = useState<boolean>(null)
+    const [isSaving, setSaving] = useState(false)
     const [current, setCurrent] = useState(undefined as OutCurrentType)
+    const toast = useToast()
 
     useEffect(() => {
         const recording = window.api.obs.isRecording()
@@ -24,6 +27,9 @@ export default function RecordPage({ data }: { data: SessionData }) {
             obs.getCurrent()
                 .then(e => setCurrent(e))
         }
+
+        obs.isAutoRecord()
+            .then(e => setAutomaticRecord(e))
 
         return obs.onRecordChange(r => {
             setRecording(r)
@@ -65,6 +71,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                     alignItems='center'
                     flexDir='column'
                     flex='1'
+                    gap='5'
                 >
                     <Flex
                         w='100%'
@@ -78,6 +85,36 @@ export default function RecordPage({ data }: { data: SessionData }) {
                                 <Preview /> :
                                 <EmptyPlaceholder />
                         }
+                    </Flex>
+                    <Flex
+                        w='60%'
+                        justifyContent='space-around'
+                        alignItems='center'
+                    >
+                        <Button
+                            colorScheme={recording ? "red" : "green"}
+                            onClick={() => recording ? obs.stopRecording() : obs.startRecording()}
+                        >{recording ? t("stop") : t("start")}</Button>
+                        <Button
+                            colorScheme={automaticRecord ? "red" : "green"}
+                            isLoading={isSaving}
+                            loadingText={"Saving..."}
+                            disabled={automaticRecord === null}
+                            onClick={() => {
+                                setSaving(true)
+                                obs.automaticRecord(!automaticRecord)
+                                    .then(() => setAutomaticRecord(!automaticRecord))
+                                    .catch(e => {
+                                        console.error(e)
+                                        toast({
+                                            status: "error",
+                                            title: "Error",
+                                            description: e?.message ?? e?.stack ?? e
+                                        })
+                                    })
+                                    .finally(() => setSaving(false))
+                            }}
+                        >{automaticRecord ? t("automatic.disable") : t("automatic.enable")}</Button>
                     </Flex>
                     <ActiveVolmeter
                         mt='5'

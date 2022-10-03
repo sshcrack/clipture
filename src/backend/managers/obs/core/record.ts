@@ -23,7 +23,6 @@ import { getWindowInfoId } from './tools'
 
 const reg = RegManMain
 const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
-const { obsRequirePath } = MainGlobals
 export class RecordManager {
     private recording = false;
     private NodeObs: typedObs = null
@@ -36,7 +35,8 @@ export class RecordManager {
     static instance: RecordManager = null;
     private recordingInitializing = false
     private initialized = false;
-    private manualControlled = false;
+    private automaticRecord = true;
+    private disabled = false
     private recordTimer: number = undefined;
     private windowInformation = new Map<string, WindowInformation>()
     private listeners = [] as ((isRecording: boolean) => unknown)[]
@@ -93,6 +93,7 @@ export class RecordManager {
         }
 
         this.windowInformation = new Map(entries)
+        this.automaticRecord = Storage.get("automatic_record") ?? true
 
 
         log.debug("Registering automatic recording stop")
@@ -100,7 +101,7 @@ export class RecordManager {
             const { window, monitor } = Scene.getCurrentSetting() ?? {}
             if (window && this.isRecording()) {
                 const isRunning = processRunning(window.pid)
-                if (!isRunning && !this.manualControlled) {
+                if (!isRunning && this.automaticRecord) {
                     this.stopRecording()
                     notify({
                         title: "Recording stopped",
@@ -122,7 +123,12 @@ export class RecordManager {
         this.initialized = true
     }
 
-    public async startRecording(manual = false, discordGameInfo: DetectableGame = null, windowInfo: WindowInformation = null) {
+    public async startRecording(discordGameInfo: DetectableGame = null, windowInfo: WindowInformation = null) {
+        if(this.disabled) {
+            log.warn("Tried to start recording, but record manager is disabled.")
+            return
+        }
+
         if (this.recording) {
             log.debug("Tried to record even though already recording")
             return
@@ -135,7 +141,6 @@ export class RecordManager {
             return log.warn("Could not start record, another instance is already starting")
 
         this.recordingInitializing = true
-        this.manualControlled = manual;
         const recordPath = this.NodeObs.OBS_settings_getSettings(SettingsCat.Output)
             .data
             .find(e => e.nameSubCategory === "Recording")
@@ -164,8 +169,8 @@ export class RecordManager {
         if (!infoPathAvailable)
             log.warn("Video Path could not be obtained")
 
-        const windowId = getWindowInfoId(windowInfo)
-        if (!discordGameInfo?.id)
+        const windowId = windowInfo && getWindowInfoId(windowInfo)
+        if (!discordGameInfo?.id && windowId)
             this.windowInformation.set(windowId, windowInfo)
 
         this.current = {
@@ -182,7 +187,7 @@ export class RecordManager {
         this.listeners.map(e => e(true))
     }
 
-    public async stopRecording(manual = false) {
+    public async stopRecording() {
         if (!this.recording)
             return
 
@@ -200,7 +205,6 @@ export class RecordManager {
         }
         this.recording = false
         this.recordTimer = undefined
-        this.manualControlled = manual
         this.current = {
             gameId: null,
             videoPath: null,
@@ -233,8 +237,8 @@ export class RecordManager {
     }
 
     private register() {
-        reg.onPromise("obs_start_recording", (_, e) => this.startRecording(e))
-        reg.onPromise("obs_stop_recording", (_, e) => this.stopRecording(e))
+        reg.onPromise("obs_start_recording", () => this.startRecording())
+        reg.onPromise("obs_stop_recording", () => this.stopRecording())
         reg.onSync("obs_is_recording", () => this.isRecording())
         reg.onPromise("obs_get_current", () => this.getCurrent())
         reg.onPromise("obs_record_time", async () => this.getCurrTime())
@@ -271,10 +275,13 @@ export class RecordManager {
             return
         const { diff, winInfo, game } = available ?? {}
 
+        if (!this.automaticRecord)
+            return
+
         if (diff)
-            log.info("Game is diff", diff, "manual", this.manualControlled,
+            log.info("Game is diff", diff,
                 "winInfo", JSON.stringify(winInfo), "curr", JSON.stringify(Scene.getCurrentSetting()?.window), "Game", JSON.stringify(game))
-        if (winInfo && (diff || !Scene.getCurrentSetting()?.window) && !this.manualControlled) {
+        if (winInfo && (diff || !Scene.getCurrentSetting()?.window)) {
             if (this.isDesktopView())
                 await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, false, winInfo)
             else
@@ -288,13 +295,28 @@ export class RecordManager {
             return
 
         log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
-        if (!this.isRecording() && Scene.getCurrentSetting()?.window && !this.manualControlled) {
-            this.startRecording(false, game, winInfo).then(() =>
+        if (!this.isRecording() && Scene.getCurrentSetting()?.window) {
+            this.startRecording(game, winInfo).then(() =>
                 notify({
                     title: "Recording started",
                     message: `Recording started for ${winInfo?.productName ?? winInfo?.title ?? winInfo.executable}`
                 })
             )
         }
+    }
+
+    public setAutomaticRecord(record: boolean) {
+        Storage.set("automatic_record", record)
+        this.automaticRecord = record
+    }
+
+
+
+    public disable() {
+        this.disabled = true
+    }
+
+    public enable() {
+        this.disabled = false
     }
 }

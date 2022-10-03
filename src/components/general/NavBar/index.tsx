@@ -9,7 +9,8 @@ import { SiApplearcade } from "react-icons/si";
 import "src/components/general/Navbar/index.css";
 import NavBarButton from './NavBarButton';
 
-export function NavBar({ data, ...props }: { data: SessionData, ref?: LegacyRef<HTMLDivElement> } & FlexProps) {
+type Props = { data: SessionData, ref?: LegacyRef<HTMLDivElement> } & FlexProps
+const NavBar = React.forwardRef<HTMLDivElement, Props>(({ data, ...props }: Props, ref) => {
     const { auth, obs } = window.api
     const { t } = useTranslation("navbar")
 
@@ -30,7 +31,7 @@ export function NavBar({ data, ...props }: { data: SessionData, ref?: LegacyRef<
         flexDir='column'
         bg="brand.bg"
         w='100%'
-        ref={props?.ref}
+        ref={ref}
         {...props}
     >
         <Menu>
@@ -95,4 +96,6 @@ export function NavBar({ data, ...props }: { data: SessionData, ref?: LegacyRef<
             </Flex>
         </Menu >
     </Flex >
-}
+})
+
+export default NavBar;

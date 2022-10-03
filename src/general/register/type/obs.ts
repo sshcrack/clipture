@@ -26,11 +26,13 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
 
     switch_desktop: (monitor_id: number, manual: boolean) => void,
     switch_window: (options: WindowInformation, manual: boolean) => void,
-    start_recording: (manual: boolean) => void,
-    stop_recording: (manual: boolean) => void,
+    start_recording: () => void,
+    stop_recording: () => void,
     get_current: () => OutCurrentType,
 
-    record_time: () => number | undefined
+    record_time: () => number | undefined,
+    automatic_record: (automaticRecord: boolean) => void,
+    is_automatic_record: () => boolean,
 }, "obs">
 
 export type OBSMainToRender = addPrefixUnderscoreToObject<{

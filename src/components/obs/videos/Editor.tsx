@@ -26,7 +26,7 @@ export type EditorState = {
 export const EditorContext = React.createContext<EditorState>({
     videoName: null as string,
     duration: undefined,
-    setDuration: () => {},
+    setDuration: () => { },
     onBack: (() => { }) as () => unknown,
     selection: {
         end: undefined,
@@ -37,7 +37,7 @@ export const EditorContext = React.createContext<EditorState>({
     setSelection: () => { },
     videoRef: undefined,
     paused: true,
-    setPaused: () => {},
+    setPaused: () => { },
     bookmarks: []
 })
 
@@ -49,10 +49,10 @@ type Props = {
 export default function Editor({ children, videoName, onBack }: React.PropsWithChildren<Props>) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const bgGeneratorRef = useRef<HTMLVideoElement>(null);
-    const [ paused, setPaused ] = useState(true)
-    const [ duration, setDuration ] = useState<number>(undefined)
-    const [ bookmarks, setBookmarks ] = useState<number[]>(undefined)
-    const [ loaded, setLoaded ] = useState(false)
+    const [paused, setPaused] = useState(true)
+    const [duration, setDuration] = useState<number>(undefined)
+    const [bookmarks, setBookmarks] = useState<number[]>(undefined)
+    const [loaded, setLoaded] = useState(false)
     const [selection, setSelection] = useState<Selection>({
         end: 0,
         offset: 0,
@@ -66,22 +66,24 @@ export default function Editor({ children, videoName, onBack }: React.PropsWithC
             .then(e => {
                 console.log("Vid", e)
                 const vid = e.find(x => x.videoName === videoName)
-                if(!vid)
-                    return
 
-                console.log("Vid", vid)
-                setBookmarks(vid.bookmarks ?? [])
+                setBookmarks(vid?.bookmarks ?? [])
             })
             .finally(() => setLoaded(true))
     }, [])
 
-    if(!loaded)
+    if (!loaded)
         return <Flex>
-            <GeneralSpinner loadingText='Getting video info...'/>
+            <GeneralSpinner loadingText='Getting video info...' />
         </Flex>
 
-    if(!bookmarks) {
-        return <Flex>
+    console.log(bookmarks)
+    if (!bookmarks) {
+        return <Flex
+            flexDir='column'
+            justifyContent='center'
+            alignItems='center'
+        >
             <Heading>Video information could not be loaded.</Heading>
             <Heading size='sm'>This video seems to be deleted.</Heading>
         </Flex>
