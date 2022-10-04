@@ -73,7 +73,9 @@
             "enable": "Enable automatic recording",
             "disable": "Disable automatic recording"
         },
-        "switch_monitor": "Switch Monitor"
+        "switch_monitor": "Switch Monitor",
+        "refresh": "Recheck for games",
+        "enable_tooltip": "Enable automatic recording to check for games."
     },
     "settings": {
         "menu": {

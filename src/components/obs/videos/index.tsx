@@ -7,6 +7,8 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
+import MultipleSelect from 'src/components/general/grid/multipleSelect/multipleSelect';
+import MultipleSelectProvider from 'src/components/general/grid/multipleSelect/provider';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
@@ -106,6 +108,6 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
 
     return loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
-            {elements}
+                {elements}
         </VideoGrid>
 }

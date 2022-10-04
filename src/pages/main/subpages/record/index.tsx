@@ -9,6 +9,7 @@ import GameInfo from 'src/components/obs/recording/GameInfo';
 import PerformanceStatistics from 'src/components/obs/recording/PerformanceStats';
 import ActiveVolmeter from 'src/components/obs/recording/Volmeter';
 import Preview from 'src/components/obs/videos/preview';
+import RefreshGamesBtn from './RefreshGames';
 import SwitchMonitorBtn from './SwitchMonitorBtn';
 
 export default function RecordPage({ data }: { data: SessionData }) {
@@ -118,6 +119,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                             }
                             }
                         >{recording ? t("stop") : t("start")}</Button>
+                        {!recording && <RefreshGamesBtn automaticRecord={automaticRecord}/>}
                         {recording && !automaticRecord && <SwitchMonitorBtn />}
                         <Button
                             colorScheme={automaticRecord ? "red" : "green"}

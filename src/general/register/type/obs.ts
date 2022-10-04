@@ -32,6 +32,7 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     get_current: () => OutCurrentType,
 
     record_time: () => number | undefined,
+    game_refresh: () => void,
     automatic_record: (automaticRecord: boolean) => void,
     is_automatic_record: () => boolean,
 

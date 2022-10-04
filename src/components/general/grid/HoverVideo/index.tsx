@@ -151,7 +151,7 @@ export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & {
             h='100%'
             gridRow='1'
             gridColumn='1'
-            zIndex={100}
+            zIndex={50}
         >
             <Slider marginTop='auto' aria-label='slider-ex-1' value={isNaN(currentTime) ? 0 : currentTime} max={isNaN(duration) ? Infinity : duration}>
                 <SliderTrack>

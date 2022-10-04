@@ -124,7 +124,7 @@ export class RecordManager {
     }
 
     public async startRecording(discordGameInfo: DetectableGame = null, windowInfo: WindowInformation = null) {
-        if(this.disabled) {
+        if (this.disabled) {
             log.warn("Tried to start recording, but record manager is disabled.")
             return
         }
@@ -243,6 +243,10 @@ export class RecordManager {
         reg.onSync("obs_is_recording", () => this.isRecording())
         reg.onPromise("obs_get_current", () => this.getCurrent())
         reg.onPromise("obs_record_time", async () => this.getCurrTime())
+        reg.onPromise("obs_game_refresh", async () => {
+            const curr = await GameManager.getAvailableWindows(true)
+            this.onGameUpdate(curr)
+        })
         this.registerHotkey()
     }
 

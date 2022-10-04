@@ -2,6 +2,7 @@ import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import { ReactSetState } from 'src/types/reactUtils'
+import MultipleSelect from './multipleSelect/multipleSelect'
 import "./video.css"
 
 type BasicProps = Omit<GridItemProps, "onError"> & {

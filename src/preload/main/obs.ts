@@ -56,7 +56,9 @@ const obs = {
     setSettings: (e: OBSSettings) => reg.emitPromise("obs_set_settings", e),
     updateSettings: (fps: number, bitrate: number, captureMethod: CaptureMethod) => reg.emitPromise("obs_update_settings", fps, bitrate, captureMethod),
     automaticRecord: (autoRecord: boolean) => reg.emitPromise("obs_automatic_record", autoRecord),
-    isAutoRecord: () => reg.emitPromise("obs_is_automatic_record")
+    isAutoRecord: () => reg.emitPromise("obs_is_automatic_record"),
+
+    refreshGames: () => reg.emitPromise("obs_game_refresh")
 }
 
 export default obs;
