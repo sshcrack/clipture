@@ -72,7 +72,8 @@
         "automatic": {
             "enable": "Enable automatic recording",
             "disable": "Disable automatic recording"
-        }
+        },
+        "switch_monitor": "Switch Monitor"
     },
     "settings": {
         "menu": {

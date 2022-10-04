@@ -1,5 +1,5 @@
 import { CaptureMethod, OutCurrentType } from '@backend/managers/obs/core/interface'
-import { WindowInformation } from '@backend/managers/obs/Scene/interfaces'
+import { CurrentSetting, WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn } from '@backend/managers/obs/types'
 import type { OBSSettings } from '@Globals/storage'
 import { addPrefixUnderscoreToObject } from 'src/types/additions'
@@ -34,6 +34,8 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     record_time: () => number | undefined,
     automatic_record: (automaticRecord: boolean) => void,
     is_automatic_record: () => boolean,
+
+    scene_info: () => CurrentSetting
 }, "obs">
 
 export type OBSMainToRender = addPrefixUnderscoreToObject<{

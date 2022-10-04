@@ -9,6 +9,7 @@ import GameInfo from 'src/components/obs/recording/GameInfo';
 import PerformanceStatistics from 'src/components/obs/recording/PerformanceStats';
 import ActiveVolmeter from 'src/components/obs/recording/Volmeter';
 import Preview from 'src/components/obs/videos/preview';
+import SwitchMonitorBtn from './SwitchMonitorBtn';
 
 export default function RecordPage({ data }: { data: SessionData }) {
     const { obs } = window.api
@@ -87,7 +88,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         }
                     </Flex>
                     <Flex
-                        w='60%'
+                        w='80%'
                         justifyContent='space-around'
                         alignItems='center'
                     >
@@ -117,6 +118,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                             }
                             }
                         >{recording ? t("stop") : t("start")}</Button>
+                        {recording && !automaticRecord && <SwitchMonitorBtn />}
                         <Button
                             colorScheme={automaticRecord ? "red" : "green"}
                             isLoading={isSaving}

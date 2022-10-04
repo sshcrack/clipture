@@ -44,6 +44,7 @@ export class Scene {
     }
 
     static register() {
+        RegManMain.onPromise("obs_scene_info", async () => Scene.getCurrentSetting())
         RegManMain.onPromise("obs_switch_desktop", (_, monitorIndex) => this.switchDesktop(monitorIndex))
         RegManMain.onPromise("obs_switch_window", (_, options) => this.switchWindow(options))
         RegManMain.onPromise("obs_available_monitors", async () => screen.getAllDisplays().length)
@@ -52,7 +53,7 @@ export class Scene {
             const { window, monitor } = this._setting ?? {}
 
             const recordString = monitor ? `Monitor ${monitor}` :
-                    window ? `[${window.executable}]: ${window.title}` : "Unknown"
+                window ? `[${window.executable}]: ${window.title}` : "Unknown"
 
             return hasScene ? `${recordString}` : "Recording blackscreen"
         })
@@ -74,7 +75,6 @@ export class Scene {
     }
 
     static async switchDesktopWindow(monitor: number, winInfo?: WindowInformation) {
-        log.log("Switching to Desktop View with monitor", monitor)
         const videoSource = this.InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
         const { physicalWidth, physicalHeight } = await getDisplayInfoFromIndex(monitor)
 
@@ -98,6 +98,7 @@ export class Scene {
         sceneItem.boundsType = EBoundsType.ScaleInner as number
         sceneItem.alignment = EAlignment.TopLeft as number
 
+        log.info("Switching to desktop capture: width", physicalWidth, "height", physicalHeight, "with monitor", monitor)
 
         this._setting = {
             window: winInfo,

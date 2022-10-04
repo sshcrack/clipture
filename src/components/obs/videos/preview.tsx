@@ -32,7 +32,6 @@ export default function Preview() {
         className='previewContainer'
         w='100%'
         h='100%'
-        bg='green'
         justifyContent='center'
         alignItems='center'
         ref={preview}
@@ -54,18 +53,15 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
             return
 
         const { width, height, x, y } = preview.current.getBoundingClientRect()
+        console.log("ah:", aspectHeight, "aw:", aspectWidth, "w:", width, "h:", height)
         const [resizeW, resizeH] = scaleKeepRatioSpecific(aspectWidth, aspectHeight, { width, height }, true)
+        console.log("Resized", resizeW, resizeH)
 
         const diffW = width - resizeW
         const diffH = height - resizeH
 
         const centerX = Math.floor(x + diffW / 2)
         const centerY = Math.floor(y + diffH / 2)
-
-        if (actualPreviewCenter.current) {
-            actualPreviewCenter.current.style.width = `${resizeW}px`
-            actualPreviewCenter.current.style.height = `${resizeH}px`
-        }
 
         return {
             x: centerX,
@@ -81,7 +77,7 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
 
         log.silly("Updating preview with displayId", displayId, "...")
         const coordinates = getCoordinates()
-        //return obs.resizePreview(displayId, coordinates)
+        return obs.resizePreview(displayId, coordinates)
     }
 
 
@@ -107,7 +103,7 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
 
         return () => {
             log.silly("Destroying id", displayId)
-            //obs.previewDestroy(displayId)
+            obs.previewDestroy(displayId)
         }
     }, [displayId])
 
@@ -121,11 +117,9 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
             .then(e => {
                 log.silly("Preview created", e)
                 setDisplayId(e.displayId)
-                //@ts-ignore
-                window.destroyD = () => obs.previewDestroy(e.displayId)
             })
+        setDisplayId("ur moma")
     }, [preview, displayId])
 
-
-    return <Flex bg='red' ref={actualPreviewCenter} />
+    return <Flex ref={actualPreviewCenter} />
 }

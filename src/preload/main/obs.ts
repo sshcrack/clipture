@@ -29,6 +29,8 @@ const obs = {
     switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
     switchWindow: (options: WindowInformation) => reg.emitPromise("obs_switch_window", options),
 
+    getSceneInfo: () => reg.emitPromise("obs_scene_info"),
+
 
     startRecording: () => reg.emitPromise("obs_start_recording"),
     stopRecording: () => reg.emitPromise("obs_stop_recording"),
