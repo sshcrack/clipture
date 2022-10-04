@@ -93,7 +93,29 @@ export default function RecordPage({ data }: { data: SessionData }) {
                     >
                         <Button
                             colorScheme={recording ? "red" : "green"}
-                            onClick={() => recording ? obs.stopRecording() : obs.startRecording()}
+                            isLoading={isSaving}
+                            loadingText={"Saving..."}
+                            onClick={() => {
+                                const prom = recording ? obs.stopRecording() : obs.automaticRecord(false)
+                                    .then(async () => {
+                                        setAutomaticRecord(false)
+                                        await obs.startRecording()
+                                        await obs.switchDesktop(1)
+                                    })
+
+                                setSaving(true)
+                                prom
+                                    .catch(e => {
+                                        console.error(e)
+                                        toast({
+                                            colorScheme: "error",
+                                            description: e,
+                                            title: "Error"
+                                        })
+                                    })
+                                    .finally(() => setSaving(false))
+                            }
+                            }
                         >{recording ? t("stop") : t("start")}</Button>
                         <Button
                             colorScheme={automaticRecord ? "red" : "green"}

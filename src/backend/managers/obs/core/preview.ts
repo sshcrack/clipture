@@ -27,7 +27,7 @@ export class PreviewManager {
     }
 
     public async initialize() {
-        if(this.initialized)
+        if (this.initialized)
             return
 
         this.NodeObs = (await importOBS()).NodeObs
@@ -35,13 +35,14 @@ export class PreviewManager {
     }
 
     private register() {
+        reg.onPromise("obs_preview_size", async () => Scene.getCurrentSetting()?.size)
         reg.onPromise("obs_preview_init", (e, bounds) => this.initPreview(e, bounds))
         reg.onPromise("obs_preview_resize", (e, id, bounds) => this.resizePreview(id, webContentsToWindow(e.sender), bounds))
         reg.onPromise("obs_preview_destroy", (_, id) => this.removePreview(id))
     }
 
     public async initPreview(event: IpcMainInvokeEvent, bounds: ClientBoundRecReturn) {
-        if(!this.NodeObs)
+        if (!this.NodeObs)
             throw new Error("NodeObs not initialized yet.")
 
         const window = webContentsToWindow(event.sender)
@@ -69,7 +70,7 @@ export class PreviewManager {
     }
 
     public async resizePreview(displayId: string, window: BrowserWindow, bounds: ClientBoundRecReturn) {
-        if(!this.NodeObs)
+        if (!this.NodeObs)
             throw new Error("could not resize. OBS is not initialized yet.")
 
         const winBounds = window.getBounds();
@@ -88,7 +89,7 @@ export class PreviewManager {
     }
 
     public async removePreview(displayId: string) {
-        if(!this.NodeObs)
+        if (!this.NodeObs)
             throw new Error("could not remove. OBS is not initialized yet.")
 
         log.debug("Destroying display with id", displayId)

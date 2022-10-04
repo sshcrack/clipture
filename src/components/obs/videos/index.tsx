@@ -18,6 +18,7 @@ const log = RenderLogger.get("obs", "clips")
 export default function Videos({ additionalElements }: { additionalElements?: JSX.Element[] }) {
     const toast = useToast()
     const [retry, setRetry] = useState(0)
+    const [update, setUpdate] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
     const [loading, setLoading] = React.useState(true)
 
@@ -27,6 +28,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         videos.list()
             .then(e => {
                 setVideos(e)
+                setUpdate(Math.random())
                 setLoading(false)
             })
             .catch(e => {
@@ -39,6 +41,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             })
     }, [retry])
 
+    console.log("retry is", retry)
     const clipElements = currVideos.map(({ game, videoName, modified, bookmarks }, i) => {
         const { gameName, icon, id } = getGameInfo(game)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
@@ -54,6 +57,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             >
 
                 <VideoGridItem
+                    update={update}
                     type='videos'
                     fileName={videoName}
                     onClick={() => location.hash = `/editor/${videoName}`}

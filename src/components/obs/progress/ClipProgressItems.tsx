@@ -34,6 +34,7 @@ export default function ClipProcessingItems() {
         const { videoName } = info
         const textPercentage = Math.round(progress.percent * 1000) / 10
         return <VideoGridItem
+            update={0}
             type='none'
             key={`${i}-clipProgress`}
             background='var(--chakra-colors-brand-bg)'

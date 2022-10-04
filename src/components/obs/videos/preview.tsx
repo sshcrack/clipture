@@ -1,84 +1,131 @@
-import { Flex } from '@chakra-ui/react'
+import { Flex, useToast } from '@chakra-ui/react'
 import { scaleKeepRatioSpecific } from '@general/tools'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
+import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { RenderLogger } from 'src/interfaces/renderLogger'
+
+type Dimension = { width: number, height: number }
 
 const log = RenderLogger.get("obs", "clips", "preview")
 export default function Preview() {
     const preview = useRef<HTMLDivElement>()
+    const [size, setSize] = useState<Dimension>(null)
+
     const { obs } = window.api
-    const [displayId, setDisplayId] = useState<string>(null)
-    const [previewWidth, setPreviewWidth] = useState(16)
-    const [previewHeight, setPreviewHeight] = useState(9)
+    const toast = useToast()
 
     useEffect(() => {
-        if (!preview?.current || displayId)
-            return
-
-        const { width, height, x, y } = preview.current.getBoundingClientRect()
-        obs.preview_init({ width, height, x, y })
-            .then(({ displayId, sceneSize }) => {
-                const { height, width } = sceneSize
-
-                setDisplayId(displayId)
-                setPreviewHeight(height)
-                setPreviewWidth(width)
-                log.info("Destroying preview with id", displayId)
-                obs.preview_destroy(displayId)
+        obs.previewSize()
+            .then(e => setSize(e))
+            .catch(e => {
+                log.error(e)
+                toast({
+                    title: e?.message ?? "Error",
+                    description: e?.stack ?? e
+                })
             })
-    }, [preview])
+    }, [])
 
+
+    const canShowPreview = preview.current && size
     return <Flex
         className='previewContainer'
         w='100%'
         h='100%'
+        bg='green'
         justifyContent='center'
         alignItems='center'
-        style={{ aspectRatio: `${previewWidth} / ${previewHeight}`}}
-        ref={preview}>
-        {displayId && preview.current && <InnerPreview displayId={displayId} preview={preview} previewHeight={previewHeight} previewWidth={previewWidth} />}
+        ref={preview}
+    >
+        {canShowPreview ? <InnerPreview preview={preview} size={size} />
+            : <GeneralSpinner loadingText='Getting record size...' />}
     </Flex>
 }
 
-function InnerPreview({ displayId, preview, previewHeight, previewWidth }: { displayId: string, preview: MutableRefObject<HTMLDivElement>, previewWidth: number, previewHeight: number }) {
+function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElement>, size: Dimension }) {
     const { obs } = window.api
+    const { height: aspectHeight, width: aspectWidth } = size
+
+    const [displayId, setDisplayId] = useState<string>(null)
     const actualPreviewCenter = useRef<HTMLDivElement>(null)
 
-    const resize = () => {
-        if (!preview.current || !actualPreviewCenter.current)
+    const getCoordinates = () => {
+        if (!preview.current)
             return
-        const b = actualPreviewCenter.current
 
-        const { width, height } = preview.current.getBoundingClientRect()
-        const [resizeW, resizeH] = scaleKeepRatioSpecific(previewWidth, previewHeight, { width, height }, true)
-        b.style.width = resizeW + "px"
-        b.style.height = resizeH + "px"
+        const { width, height, x, y } = preview.current.getBoundingClientRect()
+        const [resizeW, resizeH] = scaleKeepRatioSpecific(aspectWidth, aspectHeight, { width, height }, true)
 
-        const { x, y } = b.getBoundingClientRect()
-        if (displayId) {
-            obs.resizePreview(displayId, { width: resizeW, height: resizeH, x, y })
+        const diffW = width - resizeW
+        const diffH = height - resizeH
+
+        const centerX = Math.floor(x + diffW / 2)
+        const centerY = Math.floor(y + diffH / 2)
+
+        if (actualPreviewCenter.current) {
+            actualPreviewCenter.current.style.width = `${resizeW}px`
+            actualPreviewCenter.current.style.height = `${resizeH}px`
+        }
+
+        return {
+            x: centerX,
+            y: centerY,
+            width: resizeW,
+            height: resizeH
         }
     }
 
-    useEffect(() => resize())
+    const updatePreview = () => {
+        if (!preview.current || !displayId)
+            return
+
+        log.silly("Updating preview with displayId", displayId, "...")
+        const coordinates = getCoordinates()
+        //return obs.resizePreview(displayId, coordinates)
+    }
+
+
+    useEffect(() => {
+        const handler = () => {
+            updatePreview()
+            console.log("Resize handler")
+        }
+
+        window.addEventListener("resize", handler)
+        return () => window.removeEventListener("resize", handler)
+    }, [preview, displayId])
+    useEffect(() => {
+        if (!displayId || !preview.current)
+            return
+
+        updatePreview()
+    })
+
     useEffect(() => {
         if (!displayId)
             return () => { }
 
         return () => {
             log.silly("Destroying id", displayId)
-            obs.preview_destroy(displayId)
+            //obs.previewDestroy(displayId)
         }
     }, [displayId])
 
     useEffect(() => {
-        const handler = () => {
-            resize()
-        }
+        if (!preview.current || displayId)
+            return
 
-        window.addEventListener("resize", handler)
-        return () => window.removeEventListener("resize", handler)
-    }, [])
+        const coordinates = getCoordinates()
+        log.silly("Initializing preview with coordinates", coordinates)
+        obs.previewInit(coordinates)
+            .then(e => {
+                log.silly("Preview created", e)
+                setDisplayId(e.displayId)
+                //@ts-ignore
+                window.destroyD = () => obs.previewDestroy(e.displayId)
+            })
+    }, [preview, displayId])
 
-    return <Flex ref={actualPreviewCenter} />
+
+    return <Flex bg='red' ref={actualPreviewCenter} />
 }

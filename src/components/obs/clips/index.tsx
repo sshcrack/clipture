@@ -24,7 +24,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const { clips, system } = window.api
     const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
 
-    const toast =  useToast()
+    const toast = useToast()
 
     useEffect(() => {
         clips.add_listener((_, prog) => {
@@ -58,6 +58,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
 
             let element = <VideoGridItem
+                update={update}
                 type='clips'
                 fileName={clipName}
                 key={`VideoGrid-${i}`}
@@ -94,6 +95,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
 
             if (corruptedClips.includes(clipName))
                 element = <VideoGridItem
+                    update={update}
                     type='none'
                     background='#3d0000'
                     boxShadow='0px 0px 10px 0px #b60000'

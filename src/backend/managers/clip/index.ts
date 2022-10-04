@@ -242,7 +242,7 @@ export class ClipManager {
         const sorted = (await Promise.all(
             files
                 .map(e => path.resolve(e))
-                .filter(e => e !== current?.videoPath)
+                .filter(e => e.split("\\").join("/") !== current?.videoPath?.split("\\").join("/"))
                 .map(async e => {
                     const stats = await stat(e)
                     return {

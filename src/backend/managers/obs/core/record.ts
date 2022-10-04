@@ -164,7 +164,7 @@ export class RecordManager {
         this.recordTimer = Date.now()
 
         const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
-        const videoPath = recordPath + "/" + videoName
+        const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
         const infoPathAvailable = recordPath && videoName
         if (!infoPathAvailable)
             log.warn("Video Path could not be obtained")
@@ -180,6 +180,7 @@ export class RecordManager {
             bookmarks: []
         }
 
+        log.info("Record current is: ", this.current)
         this.recordingInitializing = false
         this.recording = true
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
@@ -283,9 +284,9 @@ export class RecordManager {
                 "winInfo", JSON.stringify(winInfo), "curr", JSON.stringify(Scene.getCurrentSetting()?.window), "Game", JSON.stringify(game))
         if (winInfo && (diff || !Scene.getCurrentSetting()?.window)) {
             if (this.isDesktopView())
-                await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, false, winInfo)
+                await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, winInfo)
             else
-                await Scene.switchWindow(winInfo, false)
+                await Scene.switchWindow(winInfo)
 
             if (this.isRecording())
                 await this.stopRecording()

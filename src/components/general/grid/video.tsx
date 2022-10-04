@@ -7,6 +7,7 @@ import "./video.css"
 type BasicProps = Omit<GridItemProps, "onError"> & {
     children: React.ReactElement[] | React.ReactElement
     onClick?: (React.MouseEventHandler<HTMLDivElement>),
+    update: number
 }
 
 type VideoGridItem = (BasicProps & {
@@ -37,9 +38,13 @@ export const VideoGridContext = React.createContext<VideoGridState>({
 })
 
 const log = RenderLogger.get("Components", "General", "Grid", "Video")
-export function VideoGridItem({ background, onClick, children, ...rest }: VideoGridItem) {
+export function VideoGridItem({ update, background, onClick, children, ...rest }: VideoGridItem) {
     const [thumbnail, setThumbnail] = useState(undefined)
     const api = rest.type === "none" ? undefined : window.api[rest.type as "clips" | "videos"]
+
+    useEffect(() => {
+        setThumbnail(undefined)
+    }, [update])
 
     useEffect(() => {
         if (thumbnail !== undefined || !api || rest.type === "none")
@@ -75,10 +80,10 @@ export function VideoGridItem({ background, onClick, children, ...rest }: VideoG
         minHeight='20em'
         className='videoGridItem'
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
-        background={bg}
         backgroundSize='cover'
         rounded="2xl"
         flexDir='column'
+        bg={bg}
         cursor='pointer'
         _hover={{
             filter: " drop-shadow(10px 2px 45px black)",

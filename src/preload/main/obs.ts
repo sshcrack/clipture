@@ -18,15 +18,16 @@ const obs = {
     isInitialized: () => reg.emitSync("obs_is_initialized"),
     initialize: () => reg.emitPromise("obs_initialize"),
 
-    preview_init: (rect: ClientBoundRecReturn) => reg.emitPromise("obs_preview_init", rect),
-    preview_destroy: (id: string) => reg.emitPromise("obs_preview_destroy", id),
+    previewInit: (rect: ClientBoundRecReturn) => reg.emitPromise("obs_preview_init", rect),
+    previewDestroy: (id: string) => reg.emitPromise("obs_preview_destroy", id),
     resizePreview: (id: string, react: ClientBoundRecReturn) => reg.emitPromise("obs_preview_resize", id, react),
+    previewSize: () => reg.emitPromise("obs_preview_size"),
 
 
     availableMonitors: () => reg.emitPromise("obs_available_monitors"),
 
-    switchDesktop: (monitor: number, manual: boolean) => reg.emitPromise("obs_switch_desktop", monitor, manual),
-    switchWindow: (options: WindowInformation, manual: boolean) => reg.emitPromise("obs_switch_window", options, manual),
+    switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),
+    switchWindow: (options: WindowInformation) => reg.emitPromise("obs_switch_window", options),
 
 
     startRecording: () => reg.emitPromise("obs_start_recording"),

@@ -23,9 +23,10 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     }),
     preview_destroy: (id: string) => void,
     preview_resize: (displayId: string, { width, height, x, y }: ClientBoundRecReturn) => ({ height: number }),
+    preview_size: () => ({ height: number, width: number })
 
-    switch_desktop: (monitor_id: number, manual: boolean) => void,
-    switch_window: (options: WindowInformation, manual: boolean) => void,
+    switch_desktop: (monitor_id: number) => void,
+    switch_window: (options: WindowInformation) => void,
     start_recording: () => void,
     stop_recording: () => void,
     get_current: () => OutCurrentType,

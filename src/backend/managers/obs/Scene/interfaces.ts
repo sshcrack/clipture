@@ -21,7 +21,6 @@ export interface WindowInformation {
 export type CurrentSetting = null | {
     window: WindowInformation,
     monitor?: number,
-    manual: boolean,
     size: {
         width: number,
         height: number
