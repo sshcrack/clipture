@@ -11,6 +11,7 @@ import { SystemManager } from './managers/system';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 import { BookmarkManager } from './managers/obs/bookmark';
+import { DiscordManager } from './managers/discord';
 
 export const registerFuncs = [
     () => RegManMain.register(),
@@ -25,5 +26,6 @@ export const registerFuncs = [
     () => SystemManager.register(),
     () => AudioSceneManager.register(),
     () => SettingsManager.register(),
-    () => BookmarkManager.register()
+    () => BookmarkManager.register(),
+    () => DiscordManager.register()
 ]

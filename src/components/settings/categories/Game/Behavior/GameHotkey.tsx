@@ -77,6 +77,7 @@ export default function GameHotkey() {
                 onClick={() => {
                     setListening(true)
                 }}
+                readOnly
                 onBlur={() => setListening(false)}
             />
         }

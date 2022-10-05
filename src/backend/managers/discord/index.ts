@@ -1,13 +1,14 @@
+import { RegManMain } from '@general/register/main';
+import { getGameInfo } from '@general/tools/game';
 import { MainGlobals } from "@Globals/mainGlobals";
-import { Storage } from "@Globals/storage"
-import DiscordRPC from "discord-rpc"
+import { Storage } from "@Globals/storage";
+import DiscordRPC from "discord-rpc";
 import { MainLogger } from "src/interfaces/mainLogger";
 import { RecordManager } from "../obs/core/record";
-import { getGameInfo } from '@general/tools/game'
 
 const clientId = MainGlobals.dcClientId
 
-const logger = MainLogger.get("Main", "Backend", "Managers", "Discord")
+const log = MainLogger.get("Main", "Backend", "Managers", "Discord")
 DiscordRPC.register(clientId);
 export class DiscordManager {
     private static rpc: DiscordRPC.Client
@@ -17,8 +18,8 @@ export class DiscordManager {
     static initialize() {
         RecordManager.instance.addRecordListener(e => this.update(e))
 
-        this.enabled = Storage.get("discord_rpc", true)
-        if (this.enabled)
+        const enabled = Storage.get("discord_rpc", true)
+        if (enabled)
             this.enable()
         else
             this.disable()
@@ -28,7 +29,6 @@ export class DiscordManager {
         if (!this.enabled || !this.rpc || !this.loggedIn)
             return
 
-        logger.info("Updating discord rpc...")
         const generalInfo = {
             buttons: [{
                 label: "Learn more",
@@ -41,7 +41,7 @@ export class DiscordManager {
         } as DiscordRPC.Presence
 
         if (!recording) {
-            logger.info("Setting activity", generalInfo)
+            log.info("Setting activity", generalInfo)
             return this.rpc.setActivity(generalInfo)
         }
 
@@ -58,38 +58,45 @@ export class DiscordManager {
             startTimestamp: startTime,
         }
 
-        logger.info("Setting activity", recordJson)
+        log.info("Setting activity", recordJson)
         this.rpc.setActivity(recordJson)
     }
 
     static async enable() {
+        log.info("Enabling...")
         if (!this.rpc)
             this.rpc = new DiscordRPC.Client({ transport: "ipc" })
 
         let isReady = false
-        this.rpc.on("ready", () => { this.loggedIn = true; isReady = true})
-        for(let i = 0; i < 10; i++) {
+        Storage.set("discord_rpc", true)
+        this.rpc.on("ready", () => { this.loggedIn = true; isReady = true; console.log("Ready") })
+        for (let i = 0; i < 10; i++) {
             await this.rpc.login({ clientId })
-              .catch(() => logger.log(`Could not login. Retrying (${i +1}/10)...`))
-              .then(() => isReady = true)
-            if(isReady)
+                .catch(() => log.log(`Could not login. Retrying (${i + 1}/10)...`))
+                .then(() => isReady = true)
+            if (isReady)
                 break;
         }
 
-        Storage.set("discord_rpc", true)
+        this.enabled = true
         this.update(RecordManager.instance.isRecording())
     }
 
     static disable() {
+        log.info("Disabling...")
         this.loggedIn = false
         this.enabled = false
 
+        Storage.set("discord_rpc", false)
         if (!this.rpc)
             return
 
         this.rpc.destroy()
         this.rpc = undefined
+    }
 
-        Storage.set("discord_rpc", false)
+    static register() {
+        RegManMain.onPromise("discord_get", async () => Storage.get("discord_rpc", true))
+        RegManMain.onPromise("discord_set", async (_, e) => e ? this.enable() : this.disable())
     }
 }

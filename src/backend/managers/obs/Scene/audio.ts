@@ -2,7 +2,7 @@ import { byOS, OS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import type { IInput, IScene, IVolmeter, Global as globalType, InputFactory as inputType, VolmeterFactory as volType} from "@streamlabs/obs-studio-node"
+import type { IInput, IScene, IVolmeter, Global as globalType, InputFactory as inputType, VolmeterFactory as volType } from "@streamlabs/obs-studio-node"
 import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { SettingsCat } from 'src/types/obs/obs-enums';
@@ -38,7 +38,7 @@ export class AudioSceneManager {
     private static Global: typeof globalType
 
     static async initialize() {
-        if(this.initialized)
+        if (this.initialized)
             return
 
         const { NodeObs, VolmeterFactory, InputFactory, Global } = await importOBS()
@@ -57,10 +57,10 @@ export class AudioSceneManager {
     }
 
     private static addVolmeter({ device_id, type, volume }: SourceInfo) {
-        if(!this.initialized)
+        if (!this.initialized)
             throw new Error("Could not add volmeter, not initialized")
 
-        if(device_id.toLowerCase() === "default")
+        if (device_id.toLowerCase() === "default")
             return log.warn("Cannot add volmeter with device id default.")
 
         if (this.allVolmeters.some(e => e.device_id === device_id))
@@ -72,6 +72,7 @@ export class AudioSceneManager {
 
         const audioSource = this.InputFactory.create(osName, audioType, { device_id, volume });
         audioSource.volume = volume
+        audioSource.muted = true
 
         const volmeter = this.attachVolmeter(audioSource, device_id)
         this.allVolmeters.push({
@@ -82,16 +83,15 @@ export class AudioSceneManager {
     }
 
     private static attachVolmeter(audioSource: IInput, device_id: string) {
-        if(!this.initialized)
+        if (!this.initialized)
             throw new Error("Could not attach volmeter, not initialized")
         const volmeter = this.VolmeterFactory.create(1)
 
         volmeter.attach(audioSource)
-        volmeter.addCallback((...args) =>{
+        volmeter.addCallback((...args) => {
             RegManMain.send("audio_volmeter_update", device_id, ...args)
         })
 
-        log.debug("Added volmeter for device", device_id)
         return volmeter
     }
 
@@ -115,11 +115,13 @@ export class AudioSceneManager {
             this.currentTrack = this.addAudioDevice(device_id, this.currentTrack, type, volume)
         })
 
+        setSetting(this.NodeObs, SettingsCat.Output, 'RecTracks', parseInt('1'.repeat(this.currentTrack - 1), 2)); // Bit mask of used tracks: 1111 to use first four (from available six)
         log.info("Saving Audio Devices to config:", devices)
         Storage.set("audio_devices", devices)
     }
 
     private static removeAllDevices() {
+        log.info("Removing a total of", this.activeSources.length, "...")
         this.activeSources
             .map(({ input }) => input.remove())
 
@@ -128,7 +130,7 @@ export class AudioSceneManager {
     }
 
     static async initializeAudioSources(scene: IScene) {
-        if(!this.initialized)
+        if (!this.initialized)
             throw new Error("Could not initialize audio sources, not initialized")
         this.NodeObs.RegisterSourceCallback(() => { })
 
@@ -175,7 +177,7 @@ export class AudioSceneManager {
     }
 
     static getAudioDevices(type: DeviceType): { device_id: string, name: string }[] {
-        if(!this.initialized)
+        if (!this.initialized)
             throw new Error("Could not get audio devices, not initialized")
 
         const osName = this.getAudioType(type)
@@ -195,7 +197,7 @@ export class AudioSceneManager {
             return currTrack
         }
 
-        if(!this.initialized) {
+        if (!this.initialized) {
             throw new Error("Couldn't add audio sources, not initialized")
         }
 

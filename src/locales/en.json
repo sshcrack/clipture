@@ -140,6 +140,14 @@
             },
             "audio": {
                 "title": "Audio",
+                "volume": "Volume",
+                "device": {
+                    "not_connected": "Device not connected",
+                    "microphone": "======Microphone======",
+                    "desktop": "======Desktop======",
+                    "default_desktop": "Default Desktop",
+                    "default_mic": "Default Microphone"
+                },
                 "input_devices": {
                     "loading": "Getting sources...",
                     "error": {
@@ -163,6 +171,9 @@
                     "title": "Clip Path",
                     "placeholder": "Loading path...",
                     "browse": "Browse"
+                },
+                "discord": {
+                    "title": "Show in discord status"
                 }
             },
             "video": {

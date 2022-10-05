@@ -14,6 +14,7 @@ import system from './system';
 import titlebar from "./titlebar";
 import settings from './settings';
 import videos from './videos';
+import discord from "./discord"
 import prerequisites from './prerequisites';
 
 
@@ -36,6 +37,7 @@ export const API = {
     settings,
     bookmark,
     prerequisites,
+    discord,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean
@@ -43,7 +45,7 @@ export const API = {
 contextBridge.exposeInMainWorld(
     "api",
     API
-    )
+)
 
 contextBridge.exposeInMainWorld(
     "log",

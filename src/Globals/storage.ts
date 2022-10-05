@@ -79,7 +79,8 @@ const defaults = {
     "automatic_record": true,
     "bookmark_hotkey": "F9",
     "auto_launch": true,
-    "discord_rpc": true
+    "discord_rpc": true,
+    "language": undefined as string
 }
 export const Storage = new StorageExtended({
     defaults

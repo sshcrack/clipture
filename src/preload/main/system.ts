@@ -37,6 +37,6 @@ const system = {
         }
     },
     setLanguage: (lang: string) => RegManRender.emitPromise("system_change_language", lang),
-    getLanguage: () => RegManRender.emitSync("system_get_language")
+    getLanguage: () => RegManRender.emitPromise("system_get_language")
 }
 export default system;

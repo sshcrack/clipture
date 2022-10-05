@@ -35,6 +35,8 @@ export class SystemManager {
 
         RegManMain.onPromise("system_set_autolaunch", (_, e) => this.setAutoLaunch(e))
         RegManMain.onPromise("system_is_autolaunch", () => launcher.isEnabled())
+        RegManMain.onPromise("system_change_language", async (_, lang) => Storage.set("language", lang))
+        RegManMain.onPromise("system_get_language", async () => Storage.get("language"))
     }
 
     static openPath(p: string) {

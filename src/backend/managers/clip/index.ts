@@ -332,7 +332,6 @@ export class ClipManager {
         if (!thumbnailFile || typeof thumbnailFile === "boolean")
             return null
 
-        log.silly("Reading file", thumbnailFile, "and setting it")
         const thumbnail = await readFile(thumbnailFile, "base64")
         this.imageData.set(file, thumbnail)
 

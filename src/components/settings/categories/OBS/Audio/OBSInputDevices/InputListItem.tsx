@@ -1,6 +1,7 @@
 import { AllAudioDevices, DefaultAudioDevice, DeviceType } from '@backend/managers/obs/Scene/interfaces'
 import { Flex, Grid, ListItem, Select, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Text } from '@chakra-ui/react'
 import React, { useEffect, useRef } from "react"
+import { useTranslation } from 'react-i18next'
 import Volmeter from 'src/components/obs/recording/Volmeter/Volmeter'
 import { SourceInfo } from './interface'
 
@@ -20,6 +21,8 @@ interface OptionValue {
 
 export default function InputListItem({ currDev: currDev, allDevices, defaultDevice, onChange }: Props) {
     const { device_id, type } = currDev
+    const { t } = useTranslation("settings", { keyPrefix: "obs.audio" })
+
     const ref = useRef<HTMLSelectElement>(null)
 
 
@@ -42,36 +45,36 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
     const optionValues = [
         {
             device_id: null,
-            name: "======Desktop======",
+            name: t("device.desktop"),
             type: null,
             disabled: true
         },
         ...allDevices.desktop.map(({ device_id, name }) => ({
             device_id,
-            name: device_id.toLowerCase() === "default" ? "Default Desktop" : name,
+            name: device_id.toLowerCase() === "default" ? t("device.default_desktop") : name,
             type: "desktop"
         })),
         notAvailableDesktop && {
             device_id: device_id,
             type: "desktop",
-            name: "[Device not connected]",
+            name: `[${t("device.not_connected")}]`,
             disabled: true
         },
         {
             device_id: null,
-            name: "======Microphone======",
+            name: t("device.microphone"),
             type: null,
             disabled: true
         },
         notAvailableMicrophone && {
             device_id: device_id,
             type: "microphone",
-            name: "[Device not connected]",
+            name: `[${t("device.not_connected")}]`,
             disabled: true
         },
         ...allDevices.microphones.map(({ device_id, name }) => ({
             device_id,
-            name: device_id.toLowerCase() === "default" ? "Default Microphone" : name,
+            name: device_id.toLowerCase() === "default" ? t("device.default_mic") : name,
             type: "microphone"
         }))
     ] as OptionValue[]
@@ -146,7 +149,7 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
             alignItems='center'
             justifyContent='space-around'
         >
-            <Text flex='.5'>Volume</Text>
+            <Text flex='.5'>{t("volume")}</Text>
             <Flex flex='.25' gap='3'>
                 <Grid
                     flex='0'

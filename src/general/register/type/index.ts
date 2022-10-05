@@ -12,6 +12,7 @@ import { VideoEventsPromises } from './video'
 import { BookmarkEventsPromises, BookmarkMainToRender } from './bookmark'
 import { CloudEventsPromises, CloudMainToRender } from './cloud'
 import { PrerequisitesEventsPromises, PrerequisitesMainToRender } from './prerequisites'
+import { DiscordEventsPromises } from './discord'
 
 export type RegisterEvents = LockEventsSync & OBSEventsSync & SystemEventsSync
 
@@ -20,7 +21,7 @@ export type RegisterEventsPromises = AuthEventsPromises & AudioEventsPromises
     & GameEventsPromises & OBSEventsPromises
     & SettingsEventsPromises & ClipsEventPromises
     & BookmarkEventsPromises & PrerequisitesEventsPromises
-    & CloudEventsPromises
+    & CloudEventsPromises & DiscordEventsPromises
 
 export type MainToRender = {
     performance: (stats: PerformanceStatistics) => void,

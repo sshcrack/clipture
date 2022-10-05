@@ -136,7 +136,6 @@
     "webpack-bundle-analyzer": "^4.5.0"
   },
   "dependencies": {
-    "fast-glob": "3.2.11",
     "@chakra-ui/react": "^2.2.1",
     "@emotion/react": "11",
     "@emotion/styled": "11",
@@ -155,6 +154,7 @@
     "electron-window-state": "^5.0.3",
     "execa": "^6.1.0",
     "exit-hook": "^3.0.0",
+    "fast-glob": "3.2.11",
     "ffmetadata": "^1.7.0",
     "framer-motion": "6",
     "glob": "^8.0.3",

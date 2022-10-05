@@ -1,11 +1,10 @@
 import { Flex, Select, Text } from "@chakra-ui/react"
-import React, { useContext, useState, useEffect } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import options from "src/locales/list.json"
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
 export default function LanguageSelector() {
-    return <> </>
     const { addModified, removeModified, saving, addSaveListener } = useContext(SettingsSaveContext)
     const { t, i18n } = useTranslation("settings", { keyPrefix: "obs.language" })
     const { system } = window.api
@@ -17,18 +16,17 @@ export default function LanguageSelector() {
         const lang = i18n.resolvedLanguage
         setOriginal(lang)
         setCurrent(lang)
-    }, [ saving ])
+    }, [saving])
 
     useEffect(() => {
         return addSaveListener(async () => {
-             i18n.changeLanguage(current)
-             await system.setLanguage(current)
+            i18n.changeLanguage(current)
+            await system.setLanguage(current)
         })
-    }, [ current ])
+    }, [current])
 
     return <Flex
         w='70%'
-        justifyContent='space-around'
         alignItems='center'
         flexDir='column'
     >
@@ -36,18 +34,18 @@ export default function LanguageSelector() {
         <Select
             value={current}
             onChange={e => {
-               const val = e.target.value
-               if(val !== original)
-                     addModified("language")
-               else
-                     removeModified("language")
+                const val = e.target.value
+                if (val !== original)
+                    addModified("language")
+                else
+                    removeModified("language")
 
-               setCurrent(val)
+                setCurrent(val)
             }}
         >
             {Object.entries(options)
                 .map(([key, name]) => (
-                    <option value={key}>{name}</option>
+                    <option value={key} key={`${key}-${name}`}>{name}</option>
                 ))
             }
         </Select>

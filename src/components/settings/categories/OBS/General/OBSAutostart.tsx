@@ -39,11 +39,10 @@ export default function OBSAutostart() {
         return <GeneralSpinner loadingText={t("loading")} />
 
     return <Flex
-        justifyContent='space-around'
         alignItems='center'
         w='70%'
     >
-        <Text>{t("title")}</Text>
+        <Text flex='1'>{t("title")}</Text>
         <Switch onChange={newVal => {
             const e = newVal.target.checked
             setCurrent(e)
