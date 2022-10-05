@@ -167,6 +167,8 @@ export class AudioSceneManager {
             this.currentTrack = this.addAudioDevice(dev.device_id, this.currentTrack, dev.type, dev.volume ?? 1)
         })
 
+        setSetting(this.NodeObs, SettingsCat.Output, 'RecTracks', parseInt('1'.repeat(this.currentTrack - 1), 2)); // Bit mask of used tracks: 1111 to use first four (from available six)
+
         this.initializeVolmeter()
     }
 
@@ -206,7 +208,8 @@ export class AudioSceneManager {
 
         const audioSource = this.InputFactory.create(osName, audioType, { device_id: device_id });
         const volmeter = this.attachVolmeter(audioSource, device_id)
-        audioSource.volume = volume
+        //TODO don't know why this doesn't work, just mutes source if used
+        //audioSource.volume = volume
 
         log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
         setSetting(this.NodeObs, SettingsCat.Output, `Track${currTrack}Name`, device_id);
