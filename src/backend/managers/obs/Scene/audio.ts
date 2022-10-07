@@ -1,3 +1,4 @@
+import { clamp } from '@backend/tools/math';
 import { byOS, OS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
@@ -194,6 +195,8 @@ export class AudioSceneManager {
     };
 
     public static addAudioDevice(device_id: string, currTrack: number, type: DeviceType, volume: number) {
+        volume = clamp(volume, 0, 1)
+
         if (this.activeSources.length >= 2) {
             log.error("Could not add audio device", device_id, type, "because too many devices are already added.")
             return currTrack
@@ -207,24 +210,25 @@ export class AudioSceneManager {
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
         const audioSource = this.InputFactory.create(osName, audioType, { device_id: device_id });
-        const volmeter = this.attachVolmeter(audioSource, device_id)
-        //TODO don't know why this doesn't work, just mutes source if used
-        //audioSource.volume = volume
+        //const volmeter = this.attachVolmeter(audioSource, device_id)
 
-        log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
         setSetting(this.NodeObs, SettingsCat.Output, `Track${currTrack}Name`, device_id);
+        audioSource.volume = volume
         audioSource.audioMixers = 1 | (1 << currTrack - 1); // Bit mask to output to only tracks 1 and current track
+
+        console.log("Source volume is", audioSource.volume, "Type", osName, audioType)
+        log.log(`Adding Track ${currTrack} with device id (${device_id}) to audioSource with type ${audioType} and setting it with volume ${volume}`)
         this.Global.setOutputSource(currTrack, audioSource);
         currTrack++;
 
         log.log("Current volume of audio source is", audioSource.volume)
-
+/*
         this.allVolmeters.push({
             device_id,
             input: audioSource,
             volmeter
         })
-
+*/
         this.activeSources.push({
             device_id,
             input: audioSource,
