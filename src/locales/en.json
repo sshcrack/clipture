@@ -12,7 +12,8 @@
                 "loading": "Obtaining audio inputs...",
                 "default_mic": "Default Microphone",
                 "default_desktop": "Default Desktop",
-                "not_connected": "[Device is not connected or could not be found]"
+                "not_connected": "Device is not connected or could not be found",
+                "disabled": "Muted"
             },
             "performance_stats": {
                 "cpu": "CPU in %",
@@ -146,7 +147,8 @@
                     "microphone": "======Microphone======",
                     "desktop": "======Desktop======",
                     "default_desktop": "Default Desktop",
-                    "default_mic": "Default Microphone"
+                    "default_mic": "Default Microphone",
+                    "disabled": "Muted"
                 },
                 "input_devices": {
                     "loading": "Getting sources...",

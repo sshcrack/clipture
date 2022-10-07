@@ -9,7 +9,7 @@ import Volmeter from './Volmeter'
 
 export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { displayName?: boolean }) {
     const { audio } = window.api
-    const { t } = useTranslation("obs", { keyPrefix: "recording.volmeter"})
+    const { t } = useTranslation("obs", { keyPrefix: "recording.volmeter" })
 
     const [sources, setSources] = useState(undefined as FixedSources)
     const [devices, setDevices] = useState(undefined as AllAudioDevices)
@@ -49,9 +49,14 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
             }
         }
 
+        if (device_id?.toLowerCase() === "disable") {
+            devName = `[${t("disabled")}]`
+            volSource = null
+        }
+
         return <Flex flexDir='column' key={volSource + "-volmeter"}>
             {displayName && <Flex w='100%' h='100%'>
-                <Text>{devName ?? t("not_connected")}</Text>
+                <Text>{devName ?? `${t("not_connected")}`}</Text>
             </Flex>}
             <Volmeter source={volSource} />
         </Flex>

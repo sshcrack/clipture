@@ -75,7 +75,7 @@ export class AudioSceneManager {
         audioSource.volume = volume
         audioSource.muted = true
 
-        const volmeter = this.attachVolmeter(audioSource, device_id)
+        const volmeter = this.attachVolmeter(audioSource, device_id, volume)
         this.allVolmeters.push({
             device_id,
             input: audioSource,
@@ -83,14 +83,16 @@ export class AudioSceneManager {
         })
     }
 
-    private static attachVolmeter(audioSource: IInput, device_id: string) {
+    private static attachVolmeter(audioSource: IInput, device_id: string, volume = 1) {
         if (!this.initialized)
             throw new Error("Could not attach volmeter, not initialized")
         const volmeter = this.VolmeterFactory.create(1)
 
+        log.info("Attaching to", device_id, "with volume", volume)
         volmeter.attach(audioSource)
         volmeter.addCallback((...args) => {
-            RegManMain.send("audio_volmeter_update", device_id, ...args)
+            const volModified = args.map(e => e.map(x => x - 60 * (1 - volume))) as [magnitude: number[], peak: number[], inputPeak: number[]]
+            RegManMain.send("audio_volmeter_update", device_id, ...volModified)
         })
 
         return volmeter
@@ -124,7 +126,10 @@ export class AudioSceneManager {
     private static removeAllDevices() {
         log.info("Removing a total of", this.activeSources.length, "...")
         this.activeSources
-            .map(({ input }) => input.remove())
+            .map(({ input }) => {
+                this.allVolmeters = this.allVolmeters.filter(e => e.device_id !== input.settings.device_id)
+                input.remove()
+            })
 
         this.activeSources = []
         this.currentTrack = 2
@@ -210,7 +215,6 @@ export class AudioSceneManager {
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
         const audioSource = this.InputFactory.create(osName, audioType, { device_id: device_id });
-        //const volmeter = this.attachVolmeter(audioSource, device_id)
 
         setSetting(this.NodeObs, SettingsCat.Output, `Track${currTrack}Name`, device_id);
         audioSource.volume = volume
@@ -222,13 +226,14 @@ export class AudioSceneManager {
         currTrack++;
 
         log.log("Current volume of audio source is", audioSource.volume)
-/*
+
+        const volmeter = this.attachVolmeter(audioSource, device_id, volume)
         this.allVolmeters.push({
             device_id,
             input: audioSource,
             volmeter
         })
-*/
+
         this.activeSources.push({
             device_id,
             input: audioSource,

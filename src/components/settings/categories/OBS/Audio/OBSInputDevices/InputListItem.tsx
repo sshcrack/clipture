@@ -54,11 +54,15 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
             name: device_id.toLowerCase() === "default" ? t("device.default_desktop") : name,
             type: "desktop"
         })),
-        notAvailableDesktop && {
+        notAvailableDesktop ? {
             device_id: device_id,
             type: "desktop",
             name: `[${t("device.not_connected")}]`,
             disabled: true
+        } : {
+            device_id: "disable",
+            type: "desktop",
+            name: `[${t("device.disabled")}]`,
         },
         {
             device_id: null,
@@ -66,11 +70,15 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
             type: null,
             disabled: true
         },
-        notAvailableMicrophone && {
+        notAvailableMicrophone ? {
             device_id: device_id,
             type: "microphone",
             name: `[${t("device.not_connected")}]`,
             disabled: true
+        } : {
+            device_id: "disable",
+            type: "microphone",
+            name: `[${t("device.disabled")}]`,
         },
         ...allDevices.microphones.map(({ device_id, name }) => ({
             device_id,
