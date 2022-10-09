@@ -17,6 +17,7 @@
 #include <mmdeviceapi.h>
 #include <Functiondiscoverykeys_devpkey.h>
 
+#include "icon.h"
 #include "tools.h"
 #include "dstr.h"
 #include "validators.h"
@@ -96,11 +97,8 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
 
     std::filesystem::path icoFile = tempDir.append(icoName);
 
-    const char* outIco = GetIconForFile(full_exe.c_str(), ShellIconSize::LargeIcon, icoFile);
-    bool couldGetIco = outIco != NULL;
-    if(couldGetIco) {
-        icoPath = outIco;
-    }
+    wstring fullExeW = wstring(full_exe.begin(), full_exe.end());
+    const wchar_t* fullExeWchar = fullExeW.c_str();
 
     bool productNameRes = GetProductNameFromExe(full_exe, productName);
     bool monitorRes = HWNDToMonitor(hwnd, monitor);
@@ -115,12 +113,6 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
     replace_json_specials(title);
     replace_json_specials(productName);
     replace_json_specials(icoPath);
-
-
-    string final_ico_path = "null";
-    if(couldGetIco) {
-        final_ico_path = "\"" + icoPath + "\"";
-    }
 
     string final_product_name = "null";
     if (productNameRes) {
@@ -143,12 +135,12 @@ bool GetOBSid(HWND hwnd, string& str, bool gameMode) {
 
     string hwnd_str = to_string((int)hwnd);
     string is_focused = IsFocused(hwnd) ? "true" : "false";
-    str = std::format("{{\"className\": \"{}\", \"executable\": \"{}\", \"title\": \"{}\", \"pid\": {}, \"productName\": {}, \"hwnd\": {}, \"full_exe\": \"{}\", \"monitorDimensions\": {}, \"intersectsMultiple\": {}, \"focused\": {}, \"icon\": {}, \"arguments\": {}}}",
+    str = std::format("{{\"className\": \"{}\", \"executable\": \"{}\", \"title\": \"{}\", \"pid\": {}, \"productName\": {}, \"hwnd\": {}, \"full_exe\": \"{}\", \"monitorDimensions\": {}, \"intersectsMultiple\": {}, \"focused\": {}, \"arguments\": {}}}",
     className, exe, title,
     str_pid, final_product_name,
     hwnd_str, full_exe,
     final_monitor, intersects,
-    is_focused, final_ico_path,
+    is_focused,
         '[' + arguments + ']'
     );
     return true;
@@ -210,6 +202,52 @@ int main(int argc, char** argv)
         if (firstArg.compare("game") == 0) {
             checkGame = true;
             mode = WindowSearchMode::INCLUDE_MINIMIZED;
+        }
+        if (firstArg.compare("icon") == 0) {
+            if (argc >= 3) {
+                string pidArgument(argv[2]);
+
+                int pid = stoi(pidArgument);
+                vector<HWND> hwndList;
+
+                GetAllWindowsFromProcessID(pid, hwndList);
+                if (hwndList.size() <= 0) {
+                    cerr << "Could not find any handles";
+                    exit(-1);
+                }
+
+                for (HWND currHandle : hwndList) // access by reference to avoid copying
+                {
+                    string full_exe;
+                    boolean shouldExit = GetExe(currHandle, full_exe, true);
+                    if (!shouldExit) {}
+                    else {
+                        std::filesystem::path tempDir = std::filesystem::temp_directory_path();
+                        string icoName = pidArgument + ".ico";
+
+                        std::filesystem::path icoFile = tempDir.append(icoName);
+
+                        wstring fullExeW = wstring(full_exe.begin(), full_exe.end());
+                        const wchar_t* fullExeWchar = fullExeW.c_str();
+
+                        boolean couldGetIco = extractIcon(fullExeWchar, SizeType::LARGE, icoFile.string().c_str());
+                        if (couldGetIco) {
+                            cout << icoFile;
+                            exit(0);
+                        }
+                        else {
+                            exit(-1);
+                        }
+                    }
+                }
+            }
+            else {
+                cerr << "pid has to be given after argument";
+                exit(-1);
+            }
+
+            cerr << "Could not find any executable from handles";
+            exit(-1);
         }
 
         if (firstArg.compare("pid") != 0) {

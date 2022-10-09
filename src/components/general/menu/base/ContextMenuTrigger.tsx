@@ -2,9 +2,10 @@ import { Box, BoxProps } from "@chakra-ui/react";
 import { ContextMenuEvent } from 'electron';
 import React, { useContext, MouseEvent, useEffect, useRef } from "react";
 import { BiTargetLock } from 'react-icons/bi';
+import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenuContext } from "./ContextMenu";
 
-type Props = BoxProps;
+type Props = BoxProps
 
 export const ContextMenuTrigger = ({ children, ...props }: React.PropsWithChildren<Props>) => {
     const { openMenu, setPosition, isOpen, closeMenu } = useContext(ContextMenuContext);
@@ -28,7 +29,7 @@ export const ContextMenuTrigger = ({ children, ...props }: React.PropsWithChildr
             e.preventDefault();
             setPosition({ x: e.clientX, y: e.clientY });
             if (!isOpen)
-                openMenu();
+                return openMenu();
         }
 
         document.addEventListener("contextmenu", listener)

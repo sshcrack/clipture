@@ -30,7 +30,8 @@ export class RecordManager {
         gameId: null,
         videoPath: null,
         currentInfoPath: null,
-        bookmarks: [] as number[]
+        bookmarks: [] as number[],
+        icon: null
     } as CurrentType
     static instance: RecordManager = null;
     private recordingInitializing = false
@@ -177,7 +178,8 @@ export class RecordManager {
             currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
             gameId: discordGameInfo?.id ?? windowId,
             videoPath: infoPathAvailable ? videoPath : null,
-            bookmarks: []
+            bookmarks: [],
+            icon: windowInfo && await GameManager.getIconPath(windowInfo?.pid)
         }
 
         log.info("Record current is: ", this.current)
@@ -198,10 +200,12 @@ export class RecordManager {
         log.info("Stopped recording")
         this.NodeObs.OBS_service_stopRecording()
         if (this.current?.currentInfoPath) {
-            const { currentInfoPath, gameId, bookmarks } = this.current
+            const { currentInfoPath, gameId, bookmarks, icon } = this.current
+            const iconBuffer = await fs.readFile(icon);
             await fs.writeFile(currentInfoPath, JSON.stringify({
                 gameId,
-                bookmarks
+                bookmarks,
+                icon: iconBuffer.toString("hex")
             } as VideoInfo, null, 2))
         }
         this.recording = false
@@ -210,7 +214,8 @@ export class RecordManager {
             gameId: null,
             videoPath: null,
             currentInfoPath: null,
-            bookmarks: []
+            bookmarks: [],
+            icon: null
         }
 
         RegManMain.send("obs_record_change", false)

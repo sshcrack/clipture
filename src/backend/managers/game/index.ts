@@ -3,6 +3,7 @@ import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import got from "got"
+import fsProm from "fs/promises"
 import { DetectableGame, WindowInformation } from '../obs/Scene/interfaces';
 import { UseToastOptions } from '@chakra-ui/react';
 import { isDetectableGameInfo } from '../obs/core/tools';
@@ -25,7 +26,7 @@ export class GameManager {
 
     // Called at obs/index.
     static addUpdateLoop() {
-        if(this.hasUpdateLoop)
+        if (this.hasUpdateLoop)
             return
 
         this.updateLoop()
@@ -227,6 +228,20 @@ export class GameManager {
             const stdout = outProc.stdout
             const res = JSON.parse(stdout) as WindowInformation[]
             return res
+        } catch (error) {
+            throw new Error(`Errno: ${error.errno} command: ${error.command} stdout: ${error.stdout} err: ${error.stderr}`)
+        }
+    }
+
+    static async getIconPath(pid: number) {
+        const execa = (await import("execa")).execa
+        const out = execa(MainGlobals.nativeMngExe, ["icon", pid.toString()])
+        try {
+            const outProc = await out;
+            if (out.exitCode !== 0)
+                throw new Error(`Could not run command nativeMng with pid ${pid}`)
+
+            return outProc.stdout.split("\\\\").join("\\").split('"').join("")
         } catch (error) {
             throw new Error(`Errno: ${error.errno} command: ${error.command} stdout: ${error.stdout} err: ${error.stderr}`)
         }

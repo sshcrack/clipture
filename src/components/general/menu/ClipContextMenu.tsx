@@ -9,10 +9,11 @@ import { ContextMenuTrigger } from './base/ContextMenuTrigger';
 
 type Props = {
     clipName: string,
-    setUpdate: ReactSetState<number>
+    setUpdate: ReactSetState<number>,
+    setOpen?: ReactSetState<boolean>
 }
 
-export default function ClipContextMenu({ children, clipName, setUpdate }: PropsWithChildren<Props>) {
+export default function ClipContextMenu({ children, clipName, setUpdate, setOpen }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
@@ -21,7 +22,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate }: Props
     const cancelRef = React.useRef()
     const toast = useToast()
 
-    return <><ContextMenu>
+    return <><ContextMenu setOpen={setOpen}>
         <ContextMenuTrigger>
             {children}
         </ContextMenuTrigger>

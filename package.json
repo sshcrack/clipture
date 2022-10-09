@@ -16,7 +16,8 @@
     "publishApp": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "server": "cd .. && cd clipture-server && yarn start -p 3001",
-    "serdev": "cd .. && cd clipture-server && yarn dev -p 3001"
+    "serdev": "cd .. && cd clipture-server && yarn dev -p 3001",
+    "hex": "node get_hex.js"
   },
   "keywords": [],
   "author": {

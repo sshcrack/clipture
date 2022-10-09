@@ -122,7 +122,6 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
                 log.silly("Preview created", e)
                 setDisplayId(e.displayId)
             })
-        setDisplayId("ur moma")
     }, [preview, displayId])
 
     return <Flex ref={actualPreviewCenter} />

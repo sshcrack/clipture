@@ -151,6 +151,7 @@
     <ClCompile Include="cmdline.cpp" />
     <ClCompile Include="dstr.cpp" />
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="icon.cpp" />
     <ClCompile Include="validators.cpp" />
     <ClCompile Include="tools.cpp" />
     <ClCompile Include="window.cpp" />
@@ -160,6 +161,7 @@
     <ClInclude Include="cmdLine.h" />
     <ClInclude Include="dstr.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="icon.h" />
     <ClInclude Include="NtQueries.h" />
     <ClInclude Include="tools.h" />
     <ClInclude Include="validators.h" />

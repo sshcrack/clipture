@@ -8,10 +8,11 @@ import { ContextMenuTrigger } from './base/ContextMenuTrigger';
 
 type Props = {
     videoName: string,
-    setUpdate: ReactSetState<number>
+    setUpdate: ReactSetState<number>,
+    setOpen?: ReactSetState<boolean>
 }
 
-export default function VideoContextMenu({ children, videoName, setUpdate }: PropsWithChildren<Props>) {
+export default function VideoContextMenu({ children, videoName, setUpdate, setOpen }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
@@ -19,7 +20,7 @@ export default function VideoContextMenu({ children, videoName, setUpdate }: Pro
     const toast = useToast()
 
     return <>
-        <ContextMenu>
+        <ContextMenu setOpen={setOpen}>
             <ContextMenuTrigger>
                 {children}
             </ContextMenuTrigger>

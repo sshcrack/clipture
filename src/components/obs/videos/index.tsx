@@ -20,6 +20,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const [retry, setRetry] = useState(0)
     const [update, setUpdate] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
+    const [openedMenus, setOpenedMenus] = useState([] as string[])
     const [loading, setLoading] = React.useState(true)
 
     const { videos } = window.api
@@ -45,6 +46,8 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const clipElements = currVideos.map(({ game, videoName, modified, bookmarks }, i) => {
         const { gameName, icon, id } = getGameInfo(game)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+        const isOpened = openedMenus.some(e => e === videoName)
+
         return <RenderIfVisible
             defaultHeight={416}
             key={`RenderIfVisible-${i}`}
@@ -54,6 +57,15 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             <VideoContextMenu
                 videoName={videoName}
                 setUpdate={setRetry}
+                setOpen={opened => {
+                    console.log("Opened is", opened)
+                    const filtered = openedMenus.concat([]).filter(e => e !== videoName)
+                    if (!opened)
+                        return setOpenedMenus(filtered)
+
+                    filtered.push(videoName)
+                    setOpenedMenus(filtered)
+                }}
             >
 
                 <VideoGridItem
@@ -62,13 +74,13 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                     fileName={videoName}
                     onClick={() => location.hash = `/editor/${videoName}`}
                 >
-                    <HoverVideoWrapper
+                    {!isOpened ? <HoverVideoWrapper
                         source={videoName}
                         bookmarks={bookmarks}
                         w='100%'
                         h='100%'
                         flex='1'
-                    />
+                    /> : <Flex w='100%' h='100%' flex='1' />}
                     <Flex
                         flex='0'
                         gap='.25em'
@@ -106,6 +118,6 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
 
     return loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
         ? <EmptyPlaceholder /> : <VideoGrid>
-                {elements}
+            {elements}
         </VideoGrid>
 }

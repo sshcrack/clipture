@@ -21,6 +21,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [loading, setLoading] = useState(true)
     const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
+    const [openedMenus, setOpenedMenus] = useState([] as string[])
     const { clips, system } = window.api
     const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
 
@@ -56,6 +57,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             const { gameName, icon, id } = getGameInfo(game)
 
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+            const isOpened = openedMenus.some(e => e === clipName)
 
             let element = <VideoGridItem
                 update={update}
@@ -65,7 +67,10 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 onError={() => setCorruptedClips([...corruptedClips, clipName])}
                 onClick={() => location.hash = `/editor/${clipName}`}
             >
-                <HoverVideoWrapper source={clipName} w='100%' h='100%' flex='1' />
+                {!isOpened ?
+                    <HoverVideoWrapper source={clipName} w='100%' h='100%' flex='1' /> :
+                    <Flex w='100%' h='100%' flex='1' />
+                }
                 <Flex
                     flex='0'
                     gap='.25em'
@@ -149,6 +154,15 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 <ClipContextMenu
                     clipName={clipName}
                     setUpdate={setUpdate}
+
+                    setOpen={opened => {
+                        const filtered = openedMenus.concat([]).filter(e => e !== clipName)
+                        if (!opened)
+                            return setOpenedMenus(filtered)
+
+                        filtered.push(clipName)
+                        setOpenedMenus(filtered)
+                    }}
                 >
                     {element}
                 </ClipContextMenu>
