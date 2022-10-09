@@ -4,7 +4,7 @@
 ![codeBadge](https://img.shields.io/github/languages/code-size/sshcrack/clipture?style=for-the-badge)
 ![issuesOpen](https://img.shields.io/github/issues/sshcrack/clipture?style=for-the-badge)
 ![lines](https://img.shields.io/tokei/lines/github/sshcrack/clipture?style=for-the-badge)
-
+![status](https://img.shields.io/github/workflow/status/sshcrack/clipture/Release?style=for-the-badge)
 
 # Download & Install (Windows only)
 <!-- BEGIN LATEST DOWNLOAD BUTTON -->
