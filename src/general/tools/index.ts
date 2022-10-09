@@ -9,6 +9,10 @@ export function getVideoSourceUrl(name: string) {
     return `clip-video-file:///${encodeURIComponent(name)}`
 }
 
+export function getIcoUrl(icoName: string) {
+    return `clip-video-file:///${icoName}`
+}
+
 export function secondsToDuration(sec_num: number) {
     const hoursNum   = Math.floor(sec_num / 3600);
     const minutesNum = Math.floor((sec_num - (hoursNum * 3600)) / 60);

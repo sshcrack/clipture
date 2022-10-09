@@ -46,3 +46,7 @@ export function getClipInfoPath(root: string, name: string) {
 export function getVideoPath(root: string, name: string) {
     return path.join(root, name + ".mkv")
 }
+
+export function getVideoIco(root: string, name: string) {
+    return path.join(root, name + ".ico")
+}

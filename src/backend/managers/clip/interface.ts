@@ -7,7 +7,8 @@ export type Video = {
     video: string,
     videoName: string,
     game: GeneralGame | null,
-    bookmarks: number[] | null
+    bookmarks: number[] | null,
+    icoName: string | null
 }
 
 export type Clip = {
@@ -17,10 +18,11 @@ export type Clip = {
     original: string,
     start: number,
     end: number,
-    duration: number
+    duration: number,
+    icoName: string | null
 }
 
-export type ClipRaw = Omit<Clip, "game"> & {
+export type ClipRaw = Omit<Clip, "game" | "icoName"> & {
     gameId: string
 }
 

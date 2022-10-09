@@ -1,7 +1,6 @@
 import { RegManMain } from "@general/register/main";
 import { Storage } from "@Globals/storage";
-import { BrowserWindow, globalShortcut, Input } from "electron";
-import { ignoreElements } from "rxjs";
+import { globalShortcut, Input } from "electron";
 import { MainLogger } from "src/interfaces/mainLogger";
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Bookmark")

@@ -3,8 +3,7 @@ import { GeneralGame } from '@backend/managers/game/interface'
 
 export type CurrentType = Omit<VideoInfo, "duration"> & {
     videoPath: string | null,
-    currentInfoPath: string | null,
-    icon: string
+    currentInfoPath: string | null
 }
 
 export type OutCurrentType = Omit<CurrentType, "gameId"> & {

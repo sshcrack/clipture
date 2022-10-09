@@ -1,5 +1,6 @@
 import { Video } from '@backend/managers/clip/interface';
 import { Flex, Image, Text, useToast } from '@chakra-ui/react';
+import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
@@ -23,8 +24,10 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const [openedMenus, setOpenedMenus] = useState([] as string[])
     const [loading, setLoading] = React.useState(true)
 
-    const { videos } = window.api
+    const { videos, obs } = window.api
     const { t } = useTranslation("dashboard", { "keyPrefix": "videos" })
+
+    useEffect(() =>  obs.onRecordChange(() => setTimeout(() => setRetry(Math.random()), 500)), [])
     useEffect(() => {
         videos.list()
             .then(e => {
@@ -42,8 +45,9 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
             })
     }, [retry])
 
+
     console.log("retry is", retry)
-    const clipElements = currVideos.map(({ game, videoName, modified, bookmarks }, i) => {
+    const clipElements = currVideos.map(({ game, videoName, modified, bookmarks, icoName }, i) => {
         const { gameName, icon, id } = getGameInfo(game)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         const isOpened = openedMenus.some(e => e === videoName)
@@ -94,7 +98,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                         p='1'
                     >
                         <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-                            <Image borderRadius='20%' src={imageSrc} w="1.5em" />
+                            <Image borderRadius='20%' src={icoName ? getIcoUrl(icoName) : imageSrc} w="1.5em" />
                             <Text>{gameName}</Text>
                             <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
                         </Flex>

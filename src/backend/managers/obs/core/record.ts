@@ -30,8 +30,8 @@ export class RecordManager {
         gameId: null,
         videoPath: null,
         currentInfoPath: null,
-        bookmarks: [] as number[],
-        icon: null
+        currentIcoPath: null,
+        bookmarks: [] as number[]
     } as CurrentType
     static instance: RecordManager = null;
     private recordingInitializing = false
@@ -50,7 +50,7 @@ export class RecordManager {
         return {
             game: detectableGame ? {
                 type: "detectable",
-                game: detectable
+                game: detectableGame
             } : winInfo ? {
                 type: "window",
                 game: winInfo
@@ -178,8 +178,17 @@ export class RecordManager {
             currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
             gameId: discordGameInfo?.id ?? windowId,
             videoPath: infoPathAvailable ? videoPath : null,
-            bookmarks: [],
-            icon: windowInfo && await GameManager.getIconPath(windowInfo?.pid)
+            bookmarks: []
+        }
+
+        if (infoPathAvailable) {
+            log.debug("Saving icon...")
+            const tempPath = await GameManager.getIconPath(windowInfo?.pid)
+            const icoRoot = (recordPath + "/" + path.basename(videoName, path.extname(videoName))).split("\\").join("/")
+            const icoPath = icoRoot + ".ico"
+
+            await fs.copyFile(tempPath, icoPath)
+            fs.unlink(tempPath)
         }
 
         log.info("Record current is: ", this.current)
@@ -200,12 +209,10 @@ export class RecordManager {
         log.info("Stopped recording")
         this.NodeObs.OBS_service_stopRecording()
         if (this.current?.currentInfoPath) {
-            const { currentInfoPath, gameId, bookmarks, icon } = this.current
-            const iconBuffer = await fs.readFile(icon);
+            const { currentInfoPath, gameId, bookmarks } = this.current
             await fs.writeFile(currentInfoPath, JSON.stringify({
                 gameId,
-                bookmarks,
-                icon: iconBuffer.toString("hex")
+                bookmarks
             } as VideoInfo, null, 2))
         }
         this.recording = false
@@ -214,8 +221,7 @@ export class RecordManager {
             gameId: null,
             videoPath: null,
             currentInfoPath: null,
-            bookmarks: [],
-            icon: null
+            bookmarks: []
         }
 
         RegManMain.send("obs_record_change", false)
@@ -264,8 +270,10 @@ export class RecordManager {
     }
 
     private registerHotkey() {
+        log.info("Hotkey Hook registered.")
         BookmarkManager.addHotkeyHook(() => {
-            if (!this.isRecording() || !this.current)
+            log.silly("Recording: ", this.isRecording())
+            if (!this.isRecording())
                 return
 
             const currTime = this.getCurrTime()
@@ -304,7 +312,10 @@ export class RecordManager {
         if (GameManager.winInfoExcluded(winInfo))
             return
 
-        log.debug("Trying to record if not recording scene has window:", Scene.getCurrentSetting()?.window)
+        log.debug("Trying to record if not recording scene has window:", {
+            ...(Scene.getCurrentSetting()?.window ?? {}),
+            arguments: [ "censored" ]
+        } as WindowInformation)
         if (!this.isRecording() && Scene.getCurrentSetting()?.window) {
             this.startRecording(game, winInfo).then(() =>
                 notify({

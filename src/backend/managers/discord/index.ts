@@ -84,11 +84,13 @@ export class DiscordManager {
 
     static disable() {
         log.info("Disabling...")
+        const prev = this.loggedIn
+
         this.loggedIn = false
         this.enabled = false
 
         Storage.set("discord_rpc", false)
-        if (!this.rpc)
+        if (!this.rpc || !prev)
             return
 
         this.rpc.destroy()

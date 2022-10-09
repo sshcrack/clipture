@@ -54,7 +54,7 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                             onClick={() => {
                                 setDeleting(true)
                                 clips.delete(videoName)
-                                    .then(() => toast({ title: "Deleted clip", status: "success" }))
+                                    .then(() => toast({ title: "Deleted video", status: "success" }))
                                     .finally(() => {
                                         setDeleting(false)
                                         setUpdate(Math.random())

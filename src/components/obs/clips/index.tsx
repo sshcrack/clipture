@@ -1,5 +1,6 @@
 import { Clip } from '@backend/managers/clip/interface';
 import { Flex, Heading, Image, Text, useToast } from '@chakra-ui/react';
+import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
@@ -22,11 +23,12 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const [openedMenus, setOpenedMenus] = useState([] as string[])
-    const { clips, system } = window.api
+    const { clips, system, obs } = window.api
     const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
 
     const toast = useToast()
 
+    useEffect(() =>  obs.onRecordChange(() => setTimeout(() => setUpdate(Math.random()), 500)), [])
     useEffect(() => {
         clips.add_listener((_, prog) => {
             if (prog?.percent !== 1 && prog)
@@ -53,7 +55,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { game, clipName, modified } = clip ?? {}
+            const { game, clipName, modified, icoName } = clip ?? {}
             const { gameName, icon, id } = getGameInfo(game)
 
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
@@ -84,7 +86,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     p='1'
                 >
                     <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-                        <Image borderRadius='20%' src={imageSrc} w="1.5em" />
+                        <Image borderRadius='20%' src={icoName ? getIcoUrl(icoName) : imageSrc} w="1.5em" />
                         <Text>{gameName}</Text>
                         <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
                     </Flex>

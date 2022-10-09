@@ -6,16 +6,16 @@ import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { type execa as execaType } from "execa"
+import glob from "fast-glob"
 import fs from "fs"
 import { readFile, rename, rm, stat } from 'fs/promises'
-import glob from "fast-glob"
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
 import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
-import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoInfo, getVideoPath } from './func'
+import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
 
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -123,6 +123,7 @@ export class ClipManager {
             percent: 1
         })
 
+
         fs.writeFileSync(withClippedExt, JSON.stringify({
             modified: Date.now(),
             clipName: path.basename(clipOut),
@@ -139,6 +140,7 @@ export class ClipManager {
         log.silly("Deleting clip", clipName, "...")
         const rootPath = Storage.get("clip_path")
         const clipPath = path.join(rootPath, clipName)
+        const icoPath = getVideoIco(rootPath, path.basename(clipName, path.extname(clipName)))
         const infoPath = clipPath + ".json"
 
         if (fs.existsSync(clipPath))
@@ -146,6 +148,10 @@ export class ClipManager {
 
         if (fs.existsSync(infoPath))
             await rm(infoPath)
+
+        if(fs.existsSync(icoPath))
+            await rm(icoPath)
+
 
         log.log("Deleted clip", clipName, "!")
         RegManMain.send("clips_update", { videoName: null, end: null, start: null, clipName: clipName }, null)
@@ -209,9 +215,16 @@ export class ClipManager {
                                 type: "window",
                                 game: win
                             }
+
+
+                        const { original } = rawGameInfo
+                        const icoPath = await getVideoIco(clipPath, path.basename(original))
+                        const icoAvailable = await existsProm(icoPath)
+
                         clipInfo = {
                             ...rawGameInfo,
-                            game: gameInfo
+                            game: gameInfo,
+                            icoName: icoAvailable ? path.basename(icoPath) : null
                         }
                     }
 
@@ -260,6 +273,7 @@ export class ClipManager {
         return Promise.all(sorted.map(async ({ modified, file }) => {
             let gameInfo = this.videoInfoCache.get(file) as GeneralGame | null
             let bookmarks = null
+
             if (!gameInfo) {
                 const info = await getVideoInfo(videoPath, path.basename(file))
                 bookmarks = info?.bookmarks
@@ -280,12 +294,17 @@ export class ClipManager {
             }
 
             const clipName = path.basename(file)
+            const icoRoot = path.basename(file, path.extname(file))
+            const icoPath = getVideoIco(videoPath, icoRoot)
+            const icoAvailable = await existsProm(icoPath)
+
             return {
                 modified,
                 videoName: clipName,
                 video: file,
                 game: gameInfo ?? null,
-                bookmarks: bookmarks ?? null
+                bookmarks: bookmarks ?? null,
+                icoName: icoAvailable ? path.basename(icoPath) : null
             }
         })).catch(e => {
             log.error(e)
@@ -393,6 +412,17 @@ export class ClipManager {
         let requestedPath = decodeURIComponent(req.url.replace("clip-video-file:///", ""))
         const clipRootUrl = Storage.get("clip_path")
         const clipPath = path.join(clipRootUrl, requestedPath)
+
+        const ext = path.extname(clipPath)
+
+        if (ext !== ".ico" && ext !== ".mkv" && ext !== ".mp4") {
+            callback({
+                // -10 is ACCESS_DENIED
+                // https://source.chromium.org/chromium/chromium/src/+/master:net/base/net_error_list.h
+                error: -10
+            });
+            return;
+        }
 
         let check = fs.existsSync(clipPath)
         if (!check || requestedPath.includes("..") || requestedPath.includes("/")) {
