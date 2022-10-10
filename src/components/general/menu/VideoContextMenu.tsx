@@ -1,7 +1,10 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure, useToast } from '@chakra-ui/react';
 import React, { PropsWithChildren, useState } from "react";
+import { AiFillFolderOpen } from "react-icons/ai";
+import { BsTrashFill } from "react-icons/bs";
 import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
+import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { ContextMenuItem } from './base/ContextMenuItem';
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
@@ -25,8 +28,15 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                 {children}
             </ContextMenuTrigger>
             <ContextMenuList>
-                <ContextMenuItem onClick={() => system.open_clip(videoName)}>Show in Explorer</ContextMenuItem>
-                <ContextMenuItem colorScheme='red' onClick={onOpen}>Delete</ContextMenuItem>
+                <ContextMenuCategory>Local</ContextMenuCategory>
+                <ContextMenuItem
+                    onClick={() => system.open_clip(videoName)}
+                    leftIcon={<AiFillFolderOpen />}
+                >Show in Explorer</ContextMenuItem>
+                <ContextMenuItem
+                    colorScheme='red' onClick={onOpen}
+                    leftIcon={<BsTrashFill />}
+                >Delete</ContextMenuItem>
             </ContextMenuList>
         </ContextMenu>
         <AlertDialog

@@ -1,9 +1,11 @@
 import { Clip } from '@backend/managers/clip/interface';
-import { Flex, Heading, Image, Text, useToast } from '@chakra-ui/react';
+import { CloudClipStatus } from '@backend/managers/cloud/interface';
+import { Flex, Heading, Image, Text, Tooltip, useToast } from '@chakra-ui/react';
 import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import prettyMS from "pretty-ms";
+import { MdCloudDone } from "react-icons/md"
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
@@ -15,6 +17,7 @@ import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { RenderLogger } from 'src/interfaces/renderLogger';
+import UploadingStatus from '../progress/UploadingStatus';
 
 const log = RenderLogger.get("obs", "clips")
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
@@ -22,15 +25,17 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [loading, setLoading] = useState(true)
     const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
+    const [uploadingClips, setUploadingClips] = useState([] as ReadonlyArray<CloudClipStatus>)
     const [openedMenus, setOpenedMenus] = useState([] as string[])
-    const { clips, system, obs } = window.api
+    const { clips, system, obs, cloud } = window.api
     const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
 
     const toast = useToast()
 
-    useEffect(() =>  obs.onRecordChange(() => setTimeout(() => setUpdate(Math.random()), 500)), [])
+    useEffect(() => obs.onRecordChange(() => setTimeout(() => setUpdate(Math.random()), 500)), [])
+    useEffect(() => cloud.onUpdate(u => setUploadingClips(u)), [])
     useEffect(() => {
-        clips.add_listener((_, prog) => {
+        return clips.add_listener((_, prog) => {
             if (prog?.percent !== 1 && prog)
                 return
 
@@ -55,11 +60,14 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { game, clipName, modified, icoName } = clip ?? {}
+            const { game, clipName, modified, icoName, uploaded } = clip ?? {}
             const { gameName, icon, id } = getGameInfo(game)
+            const baseName = clipName.replace(".clipped.mp4", "")
 
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
             const isOpened = openedMenus.some(e => e === clipName)
+
+            const currUploading = uploadingClips.find(e => e.clipName === baseName)
 
             let element = <VideoGridItem
                 update={update}
@@ -69,10 +77,11 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 onError={() => setCorruptedClips([...corruptedClips, clipName])}
                 onClick={() => location.hash = `/editor/${clipName}`}
             >
-                {!isOpened ?
+                {currUploading && <UploadingStatus status={currUploading.progress} />}
+                {!currUploading && (!isOpened ?
                     <HoverVideoWrapper source={clipName} w='100%' h='100%' flex='1' /> :
                     <Flex w='100%' h='100%' flex='1' />
-                }
+                )}
                 <Flex
                     flex='0'
                     gap='.25em'
@@ -89,6 +98,9 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                         <Image borderRadius='20%' src={icoName ? getIcoUrl(icoName) : imageSrc} w="1.5em" />
                         <Text>{gameName}</Text>
                         <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
+                        {uploaded && <Tooltip label='Uploaded  to cloud.' shouldWrapChildren >
+                            <MdCloudDone style={{fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em"}}/>
+                        </Tooltip>}
                     </Flex>
                     <Text style={{
                         whiteSpace: "nowrap",
@@ -96,7 +108,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                         textOverflow: "ellipsis",
                         width: "90%",
                         textAlign: "center"
-                    }}>{clipName.replace(".clipped.mp4", "")}</Text>
+                    }}>{baseName}</Text>
                 </Flex>
             </VideoGridItem>
 
@@ -156,7 +168,8 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 <ClipContextMenu
                     clipName={clipName}
                     setUpdate={setUpdate}
-
+                    uploaded={uploaded}
+                    cloudDisabled={!!currUploading}
                     setOpen={opened => {
                         const filtered = openedMenus.concat([]).filter(e => e !== clipName)
                         if (!opened)

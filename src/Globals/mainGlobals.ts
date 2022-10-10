@@ -8,7 +8,7 @@ const cliptureDir = path.join(app.getPath("appData"), "clipture")
 const assetsDir = path.join(cliptureDir, "assets")
 if(!fs.existsSync(assetsDir))
     fs.mkdirSync(assetsDir, { recursive: true })
-const packaged = app.isPackaged
+const packaged = app.isPackaged && !process.argv.includes("dev")
 const ffmpegExe = packaged ? path.join(assetsDir, "ffmpeg.exe") : path.join(process.cwd(), "devAssets", "ffmpeg.exe");
 const ffprobeExe = packaged ? path.join(assetsDir, "ffprobe.exe") : path.join(process.cwd(), "devAssets", "ffprobe.exe");
 

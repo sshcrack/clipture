@@ -1,9 +1,12 @@
+import { Progress } from '@backend/processors/events/interface';
+
 export interface CloudClip {
     id:         string;
     uploadDate: string;
     title:      string;
     dcGameId:   null;
     windowInfo: WindowInfo | null;
+    hex: string
 }
 
 export interface WindowInfo {
@@ -11,4 +14,9 @@ export interface WindowInfo {
     userId: string;
     title:  string;
     icon:   string;
+}
+
+export type CloudClipStatus = {
+    clipName: string,
+    progress: Progress
 }

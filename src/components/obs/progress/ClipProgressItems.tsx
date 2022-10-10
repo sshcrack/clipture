@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import { VideoGridItem } from 'src/components/general/grid/video'
 import GradientLoader from '../../general/gradientLoader/gradientLoader'
+import AnimatedProgress from './AnimatedProgress'
 
 type ClipInfoArray = [string, ClipProcessingInfo]
 export default function ClipProcessingItems() {
@@ -32,7 +33,6 @@ export default function ClipProcessingItems() {
     const secondaryColor = "var(--chakra-colors-brand-secondary)"
     const elements = clipsProg.map(([_, { info, progress }], i) => {
         const { videoName } = info
-        const textPercentage = Math.round(progress.percent * 1000) / 10
         return <VideoGridItem
             update={0}
             type='none'
@@ -40,52 +40,13 @@ export default function ClipProcessingItems() {
             background='var(--chakra-colors-brand-bg)'
             boxShadow='inset 0px 0px 10px 0px var(--chakra-colors-brand-secondary)'
         >
-            <motion.div
-                style={{
-                    display: "grid",
-                    flex: 1,
-                    width: "100%",
-                    height: "100%",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    flexDirection: "column"
-                }}
-                initial={{ transform: "scale(1)" }}
-                animate={{ transform: "scale(1.1)" }}
-                transition={{
-                    delay: 0,
-                    duration: 2.5,
-                    repeat: Infinity,
-                    repeatType: "mirror"
-                }}
-            >
-                <Flex
-                    w='15em'
-                    h='15em'
-                    gridRow='1'
-                    gridColumn='1'
-                >
-                    <GradientLoader
-                        percent={progress.percent}
-                        size='15em'
-                        gradient={[primaryColor, secondaryColor]}
-                    />
-                </Flex>
-                <Flex
-                    w='15em'
-                    h='15em'
-                    p='1em'
-                    justifyContent='center'
-                    alignItems='center'
-                    gridRow='1'
-                    gridColumn='1'
-                    zIndex='10'
-                    flexDir='column'
-                >
-                    <Text color={secondaryColor} fontSize='2em'>Cutting...</Text>
-                    <Text color={secondaryColor} fontSize='2em'>{textPercentage.toFixed(1)}%</Text>
-                </Flex>
-            </motion.div>
+            <AnimatedProgress
+                status={"Cutting..."}
+                percent={progress.percent}
+                primaryColor={primaryColor}
+                secondaryColor={secondaryColor}
+                animate={true}
+            />
             <Flex
                 flex='0'
                 gap='.25em'

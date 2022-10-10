@@ -28,6 +28,7 @@
                 "show_folder": "Show in Explorer",
                 "deleted": "Deleted.",
                 "delete": "Delete",
+                "upload": "Upload",
                 "dialog": {
                     "title": "Confirm deletion",
                     "body": "Are you sue? The video/clip will be deleted forever.",
@@ -50,7 +51,8 @@
             "delete_clip": "Delete Clip",
             "opening_folder": "Opening folder...",
             "open_folder": "Open affected clip",
-            "loading": "Loading clips..."
+            "loading": "Loading clips...",
+            "uploading": "Uploading..."
         },
         "videos": {
             "title": "Videos",

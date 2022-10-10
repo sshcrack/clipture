@@ -4,31 +4,74 @@ import { useTranslation } from 'react-i18next';
 import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuItem } from './base/ContextMenuItem';
+import { BsTrashFill } from "react-icons/bs"
+import { AiFillFolderOpen, AiOutlineCloudUpload } from "react-icons/ai"
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
+import { ContextMenuCategory } from './base/ContextMenuCategory';
+import { RenderLogger } from 'src/interfaces/renderLogger';
 
 type Props = {
     clipName: string,
     setUpdate: ReactSetState<number>,
-    setOpen?: ReactSetState<boolean>
+    setOpen?: ReactSetState<boolean>,
+    uploaded: boolean,
+    cloudDisabled: boolean
 }
 
-export default function ClipContextMenu({ children, clipName, setUpdate, setOpen }: PropsWithChildren<Props>) {
-    const { clips, system } = window.api
+const log = RenderLogger.get("Components", "ClipContextMenu")
+export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled }: PropsWithChildren<Props>) {
+    const { clips, system, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
+    const [isUploading, setUploading] = useState(false)
     const cancelRef = React.useRef()
     const toast = useToast()
 
+    console.log("Uploaded", uploaded, cloudDisabled)
     return <><ContextMenu setOpen={setOpen}>
         <ContextMenuTrigger>
             {children}
         </ContextMenuTrigger>
         <ContextMenuList>
-            <ContextMenuItem onClick={() => system.open_clip(clipName)}>{t("show_folder")}</ContextMenuItem>
-            <ContextMenuItem colorScheme='red' onClick={onOpen}>{t("delete")}</ContextMenuItem>
+            <ContextMenuCategory>Local</ContextMenuCategory>
+            <ContextMenuItem
+                onClick={() => system.open_clip(clipName)}
+                leftIcon={<AiFillFolderOpen />}
+            >{t("show_folder")}</ContextMenuItem>
+            <ContextMenuItem
+                colorScheme='red'
+                onClick={onOpen}
+                leftIcon={<BsTrashFill />}
+            >{t("delete")}</ContextMenuItem>
+            <ContextMenuCategory>Cloud</ContextMenuCategory>
+            <ContextMenuItem
+                isDisabled={cloudDisabled || uploaded}
+                colorScheme='green'
+                leftIcon={<AiOutlineCloudUpload />}
+                isLoading={isUploading}
+                onClick={() => {
+                    cloud.upload(clipName.replace(".clipped.mp4", ""))
+                        .then(() => setUploading(false))
+                        .catch(e => {
+                            log.error(e)
+                            toast({
+                                status: "error",
+                                title: "Could not upload clip",
+                                description: e?.stack ?? e,
+                                duration: 4000
+                            })
+                        })
+                }}
+            >{t("upload")}</ContextMenuItem>
+            <ContextMenuItem
+                isDisabled={cloudDisabled}
+                colorScheme='red'
+                onClick={onOpen}
+                leftIcon={<BsTrashFill />}
+            >{t("delete")}</ContextMenuItem>
         </ContextMenuList>
     </ContextMenu>
         <AlertDialog
@@ -56,7 +99,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                             onClick={() => {
                                 setDeleting(true)
                                 clips.delete(clipName)
-                                    .then(() => toast({ title: t("deleted"), status: "success"}))
+                                    .then(() => toast({ title: t("deleted"), status: "success" }))
                                     .finally(() => {
                                         setDeleting(false)
                                         setUpdate(Math.random())

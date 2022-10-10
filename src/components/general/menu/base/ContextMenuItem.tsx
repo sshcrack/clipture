@@ -1,23 +1,23 @@
-import { Button } from "@chakra-ui/react";
+import { Button, ButtonProps } from "@chakra-ui/react";
 import React, { MouseEventHandler, useContext, useState } from "react";
 import { ContextMenuContext } from "./ContextMenu";
 
-type Props = {
+type Props = ButtonProps & {
     onClick: MouseEventHandler;
     colorScheme?: string;
-    disabled?: boolean;
 };
 
 export const ContextMenuItem = ({
     children,
     onClick,
     colorScheme,
-    disabled = false
+    ...rest
 }: React.PropsWithChildren<Props>) => {
     const [variant, setVariant] = useState("ghost");
     const { closeMenu } = useContext(ContextMenuContext);
     return (
         <Button
+            {...rest}
             onClick={(e) => {
                 e.preventDefault();
                 onClick(e);
@@ -33,7 +33,6 @@ export const ContextMenuItem = ({
             overflow="hidden"
             textOverflow="ellipsis"
             colorScheme={colorScheme}
-            disabled={disabled}
         >
             {children}
         </Button>

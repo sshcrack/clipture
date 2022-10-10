@@ -7,6 +7,7 @@ import auth from "./auth";
 import bookmark from "./bookmark";
 import clips from "./clips";
 import lock from "./lock";
+import cloud from "./cloud";
 import obs from "./obs";
 import game from "./game";
 import audio from "./audio";
@@ -38,6 +39,7 @@ export const API = {
     bookmark,
     prerequisites,
     discord,
+    cloud,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean

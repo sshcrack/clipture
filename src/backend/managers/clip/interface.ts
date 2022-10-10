@@ -19,11 +19,13 @@ export type Clip = {
     start: number,
     end: number,
     duration: number,
-    icoName: string | null
+    icoName: string | null,
+    uploaded: boolean
 }
 
-export type ClipRaw = Omit<Clip, "game" | "icoName"> & {
+export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded"> & {
     gameId: string
+    hex: string
 }
 
 export interface ClipCutInfo {

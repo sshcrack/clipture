@@ -1,10 +1,12 @@
-import { CloudClip } from '@backend/managers/cloud/interface';
+import { CloudClip, CloudClipStatus } from '@backend/managers/cloud/interface';
 import { addPrefixUnderscoreToObject } from 'src/types/additions';
 export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     delete: (clipName: string) => void,
     upload: (clipName: string) => void,
-    list: () => CloudClip[]
+    list: () => CloudClip[],
+    uploading: () => ReadonlyArray<CloudClipStatus>
 }, "cloud">
 
 export type CloudMainToRender = addPrefixUnderscoreToObject<{
+    update: (uploading: ReadonlyArray<CloudClipStatus>) => unknown
 }, "cloud">

@@ -2,6 +2,7 @@ import { Progress } from '@backend/processors/events/interface'
 import { existsProm, getClipInfoCachePath, getSharedImageCachePath, getVideoInfoCachePath } from '@backend/tools/fs'
 import { RegManMain } from '@general/register/main'
 import { isFilenameValid } from '@general/tools'
+import { getHex } from '@general/tools/fs'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
@@ -12,6 +13,8 @@ import { readFile, rename, rm, stat } from 'fs/promises'
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
+import { CloudManager } from '../cloud'
+import { CloudClip } from '../cloud/interface'
 import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
@@ -25,6 +28,7 @@ export class ClipManager {
     private static clipInfoCache = new Map<string, Clip>()
     private static execa: typeof execaType = null
     private static processing = new Map<string, ClipProcessingInfo>()
+    private static fileHex = new Map<string, string>()
 
     //**********************************
     //*             CLIP
@@ -98,7 +102,7 @@ export class ClipManager {
             lastOutput = ""
             const prog = {
                 status: "Cutting clip...",
-                percent: curr / duration
+                percent: curr / duration * 0.9
             }
 
             this.processing.set(clipOut, {
@@ -113,16 +117,24 @@ export class ClipManager {
 
 
         await commandOut
+
+        onProgress({
+            status: "Calculating hash...",
+            percent: .9
+        })
+
+        const hex = await getHex(clipOut)
+
         log.debug("Removing processing prefix")
         await rename(clipProcessing, clipOut)
         this.processing.delete(clipOut)
+
 
         log.log("Clip was being cut successfully.")
         onProgress({
             status: "Clip successfully cut.",
             percent: 1
         })
-
 
         fs.writeFileSync(withClippedExt, JSON.stringify({
             modified: Date.now(),
@@ -132,7 +144,8 @@ export class ClipManager {
             original: videoName,
             start: start,
             end: end,
-            duration: end - start
+            duration: end - start,
+            hex
         } as ClipRaw))
     }
 
@@ -149,7 +162,7 @@ export class ClipManager {
         if (fs.existsSync(infoPath))
             await rm(infoPath)
 
-        if(fs.existsSync(icoPath))
+        if (fs.existsSync(icoPath))
             await rm(icoPath)
 
 
@@ -193,12 +206,18 @@ export class ClipManager {
         })).sort((a, b) => b.modified - a.modified)
 
         const detectable = await GameManager.getDetectableGames()
+        const uploaded: CloudClip[] | null = await CloudManager.list().catch(e => {
+            log.error("Could not get uploaded clips", e)
+            return null
+        })
+
         return await Promise.all(
             sorted
                 .map(async ({ modified, file }) => {
                     let clipInfo = this.clipInfoCache.get(file) as Clip | null
+                    const clipName = path.basename(file)
                     if (!clipInfo) {
-                        const { gameId, ...rawGameInfo } = await getClipInfo(clipPath, path.basename(file))
+                        const { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
                         const detec = detectable.find(e => e.id === gameId)
                         let gameInfo = null as GeneralGame
 
@@ -218,21 +237,26 @@ export class ClipManager {
 
 
                         const { original } = rawGameInfo
-                        const icoPath = await getVideoIco(clipPath, path.basename(original))
+                        const icoPath = getVideoIco(clipPath, path.basename(original))
                         const icoAvailable = await existsProm(icoPath)
 
                         clipInfo = {
                             ...rawGameInfo,
                             game: gameInfo,
-                            icoName: icoAvailable ? path.basename(icoPath) : null
+                            icoName: icoAvailable ? path.basename(icoPath) : null,
+                            uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
                         }
                     }
 
                     const fileName = path.basename(file)
+                    const hex = this.fileHex.get(file) ?? await getHex(file)
+                    this.fileHex.set(file, hex)
+
                     return {
                         clipName: fileName,
                         original: fileName.split("_UUID_").shift(),
                         ...clipInfo,
+                        uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
                         modified
                     } as Clip
                 })
