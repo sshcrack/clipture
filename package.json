@@ -157,6 +157,7 @@
     "exit-hook": "^3.0.0",
     "fast-glob": "3.2.11",
     "ffmetadata": "^1.7.0",
+    "form-data": "^4.0.0",
     "framer-motion": "6",
     "glob": "^8.0.3",
     "got": "^11.8.3",

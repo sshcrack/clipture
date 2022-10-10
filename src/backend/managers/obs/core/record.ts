@@ -172,7 +172,10 @@ export class RecordManager {
 
         const windowId = windowInfo && getWindowInfoId(windowInfo)
         if (!discordGameInfo?.id && windowId)
-            this.windowInformation.set(windowId, windowInfo)
+            this.windowInformation.set(windowId, {
+                ...windowInfo,
+                arguments: [ "censored" ]
+            })
 
         this.current = {
             currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,

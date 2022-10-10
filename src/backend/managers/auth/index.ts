@@ -71,11 +71,8 @@ export class AuthManager {
         });
     }
 
-    static async getSession(): Promise<GetSessionReturn> {
-        log.debug("Getting session...")
-        const { recordManager } = MainGlobals.obs
+    static async getCookies() {
         const cookies = {} as { [key: string]: string }
-
 
         for (const cookieType of availableCookieTypes) {
             const toGetKey = getID(cookieType, "key")
@@ -86,16 +83,26 @@ export class AuthManager {
                 cookies[key] = value
             else {
                 log.warn("Could not find value for key", toGetValue, "or", toGetKey, "Probably means that this user is not logged in.")
-                return {
-                    status: SessionStatus.UNAUTHENTICATED,
-                    data: null
-                }
+                return null
             }
         }
 
         let cookieString = ""
         Object.entries(cookies)
             .forEach(([key, value]) => cookieString += `${key}=${value}; `)
+        return cookieString
+    }
+
+    static async getSession(): Promise<GetSessionReturn> {
+        log.debug("Getting session...")
+        const { recordManager } = MainGlobals.obs
+        const cookieString = await this.getCookies()
+
+        if (!cookieString)
+            return {
+                status: SessionStatus.UNAUTHENTICATED,
+                data: null
+            }
 
         const apiUrl = `${baseUrl}/api/auth/session`
         const response = await got(apiUrl, {
