@@ -12,3 +12,7 @@ export function getHex(file: string) {
             });
     });
 }
+
+export function normalizePath(file: string) {
+    return file.split("\\").join("/")
+}

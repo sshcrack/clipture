@@ -18,6 +18,7 @@ import { CloudClip } from '../cloud/interface'
 import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
+import { addToCached, getHexCached } from './fs'
 import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
 
@@ -28,7 +29,6 @@ export class ClipManager {
     private static clipInfoCache = new Map<string, Clip>()
     private static execa: typeof execaType = null
     private static processing = new Map<string, ClipProcessingInfo>()
-    private static fileHex = new Map<string, string>()
 
     //**********************************
     //*             CLIP
@@ -240,6 +240,7 @@ export class ClipManager {
                         const icoPath = getVideoIco(clipPath, path.basename(original))
                         const icoAvailable = await existsProm(icoPath)
 
+                        addToCached(file, hex)
                         clipInfo = {
                             ...rawGameInfo,
                             game: gameInfo,
@@ -249,8 +250,7 @@ export class ClipManager {
                     }
 
                     const fileName = path.basename(file)
-                    const hex = this.fileHex.get(file) ?? await getHex(file)
-                    this.fileHex.set(file, hex)
+                    const hex = await getHexCached(file)
 
                     return {
                         clipName: fileName,

@@ -27,6 +27,8 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
     const [isUploading, setUploading] = useState(false)
+    const [isCloudDeleting, setCloudDeleting] = useState(false)
+
     const cancelRef = React.useRef()
     const toast = useToast()
 
@@ -54,7 +56,6 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                 isLoading={isUploading}
                 onClick={() => {
                     cloud.upload(clipName.replace(".clipped.mp4", ""))
-                        .then(() => setUploading(false))
                         .catch(e => {
                             log.error(e)
                             toast({
@@ -64,12 +65,34 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                                 duration: 4000
                             })
                         })
+                        .finally(() => {
+                            setUploading(false)
+                            setUpdate(Math.random())
+                        })
                 }}
             >{t("upload")}</ContextMenuItem>
             <ContextMenuItem
-                isDisabled={cloudDisabled}
+                isDisabled={cloudDisabled || isCloudDeleting || !uploaded}
                 colorScheme='red'
-                onClick={onOpen}
+                isLoading={isCloudDeleting}
+                onClick={() => {
+                    setCloudDeleting(true)
+                    cloud.deleteClip(clipName.replace(".clipped.mp4", ""))
+                        .catch(e => {
+                            log.error(e)
+                            toast({
+                                status: "error",
+                                title: "Could not delete clip",
+                                description: e?.stack ?? e,
+                                duration: 4000
+                            })
+                        })
+                        .finally(() => {
+                            console.log("Sending update to outer")
+                            setUpdate(Math.random())
+                            setCloudDeleting(false)
+                        })
+                }}
                 leftIcon={<BsTrashFill />}
             >{t("delete")}</ContextMenuItem>
         </ContextMenuList>

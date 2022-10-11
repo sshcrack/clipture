@@ -132,8 +132,10 @@ export class Prerequisites {
         }
 
         const locked = LockManager.instance.isLocked()
-        if (locked)
+        if (locked) {
+            this.initializing = false
             throw new Error("Could not acquire lock.")
+        }
 
         LockManager.instance.lock({
             percent: 0,
@@ -159,12 +161,15 @@ export class Prerequisites {
                 .catch(e => e)
 
             if (error) {
+                this.initializing = false
                 log.error("Could not run method", name, "error is", error)
                 LockManager.instance.unlock({ status: "Error installing", percent: 1 })
                 throw error
             }
             log.info(name, "is done. Continuing...")
         }
+
+        this.initializing = false
         LockManager.instance.unlock({ status: "Prerequisites installed", percent: 1 })
         log.info("Unlocked. Done installing.")
     }

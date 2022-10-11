@@ -9,6 +9,7 @@ import got, { Progress as GotProgress, Response } from "got";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { AuthManager } from '../auth';
+import { getHexCached } from '../clip/fs';
 import { getClipInfo, getClipVideoPath, getVideoIco, getVideoInfo } from '../clip/func';
 import { GameManager } from '../game';
 import { RecordManager } from '../obs/core/record';
@@ -161,11 +162,30 @@ export class CloudManager {
     }
 
     static async delete(clipName: string) {
+        const clips = await this.list()
+        const rootPath = Storage.get("clip_path")
+        const clipPath = getClipVideoPath(rootPath, clipName)
+        const fileHex = await getHexCached(clipPath)
+        const cookies = await AuthManager.getCookies()
+        if (!cookies)
+            throw new Error("Not authenticated.")
 
+
+        const toDelete = clips.filter(e => e.hex === fileHex)
+
+        log.info("Deleting clips:", JSON.stringify(toDelete))
+        const proms = toDelete
+            .map(({ id }) => got(`${MainGlobals.baseUrl}/api/clip/delete?id=${id}`, {
+                headers: { cookie: cookies }
+            }).json().catch(e => { throw new Error(`Invalid response: ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`)}))
+
+        const res = await Promise.all(proms)
+        log.silly("Result of deleting:", res)
+        this.cached = null
     }
 
     static async list() {
-        if(this.cached)
+        if (this.cached)
             return this.cached
 
         const cookie = await AuthManager.getCookies()
