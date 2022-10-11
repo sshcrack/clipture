@@ -10,6 +10,7 @@ reg.on("cloud_update", (_, u) => progressListener.forEach(x => x(u)))
 export const cloud = {
     upload: (clipName: string) => reg.emitPromise("cloud_upload", clipName),
     deleteClip: (clipName: string) => reg.emitPromise("cloud_delete", clipName),
+    share: (clipName: string) => reg.emitPromise("cloud_share", clipName),
     onUpdate: (listener: ProgressFunc) => {
         progressListener.push(listener)
         return () => {

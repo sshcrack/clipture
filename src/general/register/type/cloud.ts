@@ -3,6 +3,7 @@ import { addPrefixUnderscoreToObject } from 'src/types/additions';
 export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     delete: (clipName: string) => void,
     upload: (clipName: string) => void,
+    share: (clipName: string) => void,
     list: () => CloudClip[],
     uploading: () => ReadonlyArray<CloudClipStatus>
 }, "cloud">

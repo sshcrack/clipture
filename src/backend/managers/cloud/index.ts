@@ -2,6 +2,7 @@ import { existsProm } from '@backend/tools/fs';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
+import { clipboard } from 'electron';
 import FormData from "form-data";
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
@@ -27,10 +28,25 @@ export class CloudManager {
         RegManMain.onPromise("cloud_delete", (_, clipName) => this.delete(clipName));
         RegManMain.onPromise("cloud_list", () => this.list());
         RegManMain.onPromise("cloud_uploading", async () => this.getUploading())
+        RegManMain.onPromise("cloud_share", (_, clipName) => this.share(clipName))
     }
 
     static getUploading() {
         return this.uploading as ReadonlyArray<CloudClipStatus>
+    }
+
+    static async share(clipName: string) {
+        const clips = await this.list()
+        const rootPath = Storage.get("clip_path")
+        const clipPath = getClipVideoPath(rootPath, clipName)
+        const fileHex = await getHexCached(clipPath)
+
+        const matchingClips = clips.filter(e => e.hex === fileHex)
+        if (matchingClips.length === 0)
+            throw new Error("Matching clips could not be found")
+
+        const { id } = matchingClips[0]
+        clipboard.writeText(`${MainGlobals.baseUrl}/clip/${id}`)
     }
 
     static async uploadClip(clipName: string) {
@@ -177,7 +193,7 @@ export class CloudManager {
         const proms = toDelete
             .map(({ id }) => got(`${MainGlobals.baseUrl}/api/clip/delete?id=${id}`, {
                 headers: { cookie: cookies }
-            }).json().catch(e => { throw new Error(`Invalid response: ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`)}))
+            }).json().catch(e => { throw new Error(`Invalid response: ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`) }))
 
         const res = await Promise.all(proms)
         log.silly("Result of deleting:", res)

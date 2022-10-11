@@ -5,11 +5,13 @@ import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuItem } from './base/ContextMenuItem';
 import { BsTrashFill } from "react-icons/bs"
-import { AiFillFolderOpen, AiOutlineCloudUpload } from "react-icons/ai"
+import { AiFillFolderOpen, AiOutlineCloudUpload, AiOutlineLink } from "react-icons/ai"
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
 import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { RenderLogger } from 'src/interfaces/renderLogger';
+import UploadMenuItem from './cloud/UploadMenuItem';
+import ShareMenuItem from './cloud/ShareMenuItem';
 
 type Props = {
     clipName: string,
@@ -49,28 +51,10 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                 leftIcon={<BsTrashFill />}
             >{t("delete")}</ContextMenuItem>
             <ContextMenuCategory>Cloud</ContextMenuCategory>
-            <ContextMenuItem
-                isDisabled={cloudDisabled || uploaded}
-                colorScheme='green'
-                leftIcon={<AiOutlineCloudUpload />}
-                isLoading={isUploading}
-                onClick={() => {
-                    cloud.upload(clipName.replace(".clipped.mp4", ""))
-                        .catch(e => {
-                            log.error(e)
-                            toast({
-                                status: "error",
-                                title: "Could not upload clip",
-                                description: e?.stack ?? e,
-                                duration: 4000
-                            })
-                        })
-                        .finally(() => {
-                            setUploading(false)
-                            setUpdate(Math.random())
-                        })
-                }}
-            >{t("upload")}</ContextMenuItem>
+            {!uploaded ?
+                <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} /> :
+                <ShareMenuItem clipName={clipName} />
+            }
             <ContextMenuItem
                 isDisabled={cloudDisabled || isCloudDeleting || !uploaded}
                 colorScheme='red'
