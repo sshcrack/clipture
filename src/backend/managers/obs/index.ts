@@ -1,23 +1,21 @@
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
+import prettyMS from "pretty-ms"
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
+import { DiscordManager } from '../discord'
+import { GameManager } from '../game'
 import { LockManager } from '../lock'
 import { getAvailableValues, setOBSSetting as setSetting } from './base'
 import { BookmarkManager } from './bookmark'
 import { PreviewManager } from './core/preview'
-import prettyMS from "pretty-ms"
 import { RecordManager } from './core/record'
 import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
 import { getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
-import { DiscordManager } from '../discord'
-import { MainGlobals } from '@Globals/mainGlobals'
-import { app } from "electron"
-import { GameManager } from '../game'
 
 
 const reg = RegManMain

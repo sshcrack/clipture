@@ -34,7 +34,6 @@ export class RecordManager {
         bookmarks: [] as number[]
     } as CurrentType
     static instance: RecordManager = null;
-    private recordingInitializing = false
     private initialized = false;
     private automaticRecord = true;
     private disabled = false
@@ -138,68 +137,71 @@ export class RecordManager {
         if (!this.initialized)
             return log.warn("Could not start recording, not initialized")
 
-        if (this.recordingInitializing)
-            return log.warn("Could not start record, another instance is already starting")
-
-        this.recordingInitializing = true
-        const recordPath = this.NodeObs.OBS_settings_getSettings(SettingsCat.Output)
-            .data
-            .find(e => e.nameSubCategory === "Recording")
-            .parameters
-            .find(e => e.name === "RecFilePath")
-            .currentValue as string
-
-        log.info("Starting to record to path", recordPath)
-        if (!recordPath)
-            log.warn("No Record Path set")
-        else
-            await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
-
-        const currVideos = await listVideos(recordPath)
-        this.NodeObs.OBS_service_startRecording()
-
-        const signal = await SignalsManager.getNextSignalInfo();
-        if (signal.signal === EOBSOutputSignal.Stop)
-            throw new Error("Could not start recording.")
-
-        this.recordTimer = Date.now()
-
-        const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
-        const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
-        const infoPathAvailable = recordPath && videoName
-        if (!infoPathAvailable)
-            log.warn("Video Path could not be obtained")
-
-        const windowId = windowInfo && getWindowInfoId(windowInfo)
-        if (!discordGameInfo?.id && windowId)
-            this.windowInformation.set(windowId, {
-                ...windowInfo,
-                arguments: [ "censored" ]
-            })
-
-        this.current = {
-            currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
-            gameId: discordGameInfo?.id ?? windowId,
-            videoPath: infoPathAvailable ? videoPath : null,
-            bookmarks: []
-        }
-
-        if (infoPathAvailable) {
-            log.debug("Saving icon...")
-            const tempPath = await GameManager.getIconPath(windowInfo?.pid)
-            const icoRoot = (recordPath + "/" + path.basename(videoName, path.extname(videoName))).split("\\").join("/")
-            const icoPath = icoRoot + ".ico"
-
-            await fs.copyFile(tempPath, icoPath)
-            fs.unlink(tempPath)
-        }
-
-        log.info("Record current is: ", this.current)
-        this.recordingInitializing = false
         this.recording = true
-        BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
-        RegManMain.send("obs_record_change", true)
-        this.listeners.map(e => e(true))
+        const prom = (async () => {
+            const recordPath = this.NodeObs.OBS_settings_getSettings(SettingsCat.Output)
+                .data
+                .find(e => e.nameSubCategory === "Recording")
+                .parameters
+                .find(e => e.name === "RecFilePath")
+                .currentValue as string
+
+            log.info("Starting to record to path", recordPath)
+            if (!recordPath)
+                log.warn("No Record Path set")
+            else
+                await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
+
+            const currVideos = await listVideos(recordPath)
+            this.NodeObs.OBS_service_startRecording()
+
+            const signal = await SignalsManager.getNextSignalInfo();
+            if (signal.signal === EOBSOutputSignal.Stop)
+                throw new Error("Could not start recording.")
+
+            this.recordTimer = Date.now()
+
+            const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording())
+            const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
+            const infoPathAvailable = recordPath && videoName
+            if (!infoPathAvailable)
+                log.warn("Video Path could not be obtained")
+
+            const windowId = windowInfo && getWindowInfoId(windowInfo)
+            if (!discordGameInfo?.id && windowId)
+                this.windowInformation.set(windowId, {
+                    ...windowInfo,
+                    arguments: ["censored"]
+                })
+
+            this.current = {
+                currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
+                gameId: discordGameInfo?.id ?? windowId,
+                videoPath: infoPathAvailable ? videoPath : null,
+                bookmarks: []
+            }
+
+            if (infoPathAvailable) {
+                log.debug("Saving icon...")
+                const tempPath = await GameManager.getIconPath(windowInfo?.pid)
+                const icoRoot = (recordPath + "/" + path.basename(videoName, path.extname(videoName))).split("\\").join("/")
+                const icoPath = icoRoot + ".ico"
+
+                await fs.copyFile(tempPath, icoPath)
+                fs.unlink(tempPath)
+            }
+
+            log.info("Record current is: ", this.current)
+            BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
+            RegManMain.send("obs_record_change", true)
+            this.listeners.map(e => e(true))
+        })()
+
+        return prom
+            .catch((e: unknown) => {
+                this.recording = false
+                throw e
+            })
     }
 
     public async stopRecording() {
@@ -317,8 +319,8 @@ export class RecordManager {
 
         log.debug("Trying to record if not recording scene has window:", {
             ...(Scene.getCurrentSetting()?.window ?? {}),
-            arguments: [ "censored" ]
-        } as WindowInformation)
+            arguments: ["censored"]
+        } as WindowInformation, "Recording", this.isRecording())
         if (!this.isRecording() && Scene.getCurrentSetting()?.window) {
             this.startRecording(game, winInfo).then(() =>
                 notify({
