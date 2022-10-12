@@ -6,7 +6,7 @@ import { MainLogger } from "src/interfaces/mainLogger";
 
 const log = MainLogger.get("Backend", "Maangers", "OBS", "tools")
 const { obsRequirePath } = MainGlobals
-const packaged = app.isPackaged
+const packaged = MainGlobals.isPackaged
 export function getOBSDataPath() {
     return path.join(getWebpackDir(), "../../osn-data").replace("app.asar", "app.asar.unpacked");
 }

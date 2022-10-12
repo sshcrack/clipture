@@ -8,13 +8,12 @@ const cliptureDir = path.join(app.getPath("appData"), "clipture")
 const assetsDir = path.join(cliptureDir, "assets")
 if(!fs.existsSync(assetsDir))
     fs.mkdirSync(assetsDir, { recursive: true })
-const packaged = app.isPackaged && !process.argv.includes("dev")
+const packaged = app.isPackaged || !process.argv.includes("dev")
 const ffmpegExe = packaged ? path.join(assetsDir, "ffmpeg.exe") : path.join(process.cwd(), "devAssets", "ffmpeg.exe");
 const ffprobeExe = packaged ? path.join(assetsDir, "ffprobe.exe") : path.join(process.cwd(), "devAssets", "ffprobe.exe");
 
 process.env.FFMPEG_PATH = ffmpegExe
 process.env.FFPROBE_PATH = ffprobeExe
-
 
 import { OBSManager } from '@backend/managers/obs';
 import os from "os";
@@ -26,6 +25,7 @@ function isDev() {
 
 let isDevCached = isDev()
 export class MainGlobals {
+    static isPackaged = packaged
     static window: BrowserWindow
     static baseUrl = isDevCached ? "http://localhost:3001" : "https://clipture.sshcrack.me"
     static gameUrl = this.baseUrl + "/api/game/detection"

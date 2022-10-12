@@ -4,12 +4,11 @@ import { Downloader } from "@backend/processors/General/Downloader";
 import { Unpacker } from "@backend/processors/General/Unpacker";
 import { existsProm } from "@backend/tools/fs";
 import { RegManMain } from "@general/register/main";
+import { HashList } from "@Globals/hashes";
 import { MainGlobals } from "@Globals/mainGlobals";
 import crypto from "crypto";
 import { app } from "electron";
-import { createWriteStream } from "fs";
 import fs from "fs/promises";
-import got from "got";
 import path from "path";
 import { MainLogger } from "src/interfaces/mainLogger";
 import { v4 as uuid } from "uuid";
@@ -17,30 +16,28 @@ import { LockManager } from "../lock";
 import { importOBS } from "../obs/tool";
 
 const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl, nativeMngExe } = MainGlobals
+const { FFMPEG, FFPROBE, NATIVE_MNG, OBS_STUDIO } = HashList
 
-const nativeMngUrl = `${baseUrl}/native_mng.exe`
-const nativeMngHash = `${baseUrl}/native_mng.exe.hash`
-const ffmpegUrl = `${baseUrl}/ffmpeg.exe`
-const ffmpegHash = `${baseUrl}/ffmpeg.exe.hash`
-const ffprobeUrl = `${baseUrl}/ffprobe.exe`
-const ffprobeHash = `${baseUrl}/ffprobe.exe.hash`
-const downloadUrl = `${baseUrl}/obs-studio-node.zip`
-const hashUrl = `${baseUrl}/obs-studio-node.zip.hash`
+
+const assetUrl = `${baseUrl}/assets`
+
+const nativeMngUrl = `${assetUrl}/native_mng/${NATIVE_MNG}.exe`
+const ffmpegUrl = `${assetUrl}/ffmpeg/${FFMPEG}.exe`
+const ffprobeUrl = `${assetUrl}/ffprobe/${FFPROBE}.exe`
+const downloadUrl = `${assetUrl}/obs/${OBS_STUDIO}.zip`
 const hashFile = path.join(obsRequirePath, "hash")
 
-const validateFile = async (exe: string, hashUrl: string) => {
+const validateFile = async (exe: string, expectedHash: string) => {
     const exists = await existsProm(exe)
     log.info("Checking for", exe, exists)
     if (!exists)
         return false
     log.info("Getting current hash")
     const currHash = crypto.createHash("sha256").update(await fs.readFile(exe)).digest("hex")
-    log.info(`Getting online ${exe} hash`)
-    const onlineHash = await got(hashUrl).then(e => e.body)
-    if(currHash !== onlineHash) {
-        log.info(`Hash mismatch for ${exe}: curr is ${currHash} but online has ${onlineHash}`)
+    if (currHash !== expectedHash) {
+        log.info(`Hash mismatch for ${exe}: curr is ${currHash} but expected is ${expectedHash}`)
     }
-    return currHash === onlineHash
+    return currHash === expectedHash
 }
 
 const downloadFile = async (name: string, url: string, dest: string, onProgress: (prog: Progress) => unknown) => {
@@ -71,9 +68,9 @@ export class Prerequisites {
 
     static async validate() {
         const checksProm = {
-            ffmpeg: validateFile(ffmpegExe, ffmpegHash),
-            ffprobe: validateFile(ffprobeExe, ffprobeHash),
-            native_mng: validateFile(nativeMngExe, nativeMngHash),
+            ffmpeg: validateFile(ffmpegExe, FFMPEG),
+            ffprobe: validateFile(ffprobeExe, FFPROBE),
+            native_mng: validateFile(nativeMngExe, NATIVE_MNG),
             obs: this.validateOBS()
         }
 
@@ -92,25 +89,15 @@ export class Prerequisites {
         }
     }
 
-    private static getOBSHash() {
-        log.info("Getting OBS hash...")
-        return got(hashUrl).then(e => e.body)
-    }
-
     static async fixNativeMng() {
-        const isValid = await validateFile(nativeMngExe, nativeMngHash)
-        if(isValid)
+        const isValid = await validateFile(nativeMngExe, NATIVE_MNG)
+        if (isValid)
             return
 
-        if(await existsProm(nativeMngExe))
+        if (await existsProm(nativeMngExe))
             await fs.unlink(nativeMngExe)
 
-        const read = createWriteStream(nativeMngExe)
-        const out = got.stream(nativeMngHash).pipe(read)
-
-        await new Promise<void>((resolve, reject) => {
-            out.on("end", () => resolve())
-        })
+        await downloadFile("NativeMng", nativeMngUrl, nativeMngExe, () => { })
     }
 
     static async initialize(onProgress: (prog: Progress) => unknown) {
@@ -175,7 +162,7 @@ export class Prerequisites {
     }
 
     static async validateOBS() {
-        if (!app.isPackaged)
+        if (!MainGlobals.isPackaged)
             return true
         const exists = await existsProm(obsRequirePath)
         log.info("Exists", exists)
@@ -188,10 +175,9 @@ export class Prerequisites {
             return false
 
         const hash = await fs.readFile(hashFile, "utf-8")
-        const onlineHash = await this.getOBSHash()
 
-        log.info("Local", hash, "Online", onlineHash)
-        if (hash !== onlineHash)
+        log.info("Local", hash, "Online", OBS_STUDIO)
+        if (hash !== OBS_STUDIO)
             return false
 
         return await importOBS()
@@ -212,7 +198,6 @@ export class Prerequisites {
             const tempDir = app.getPath("temp")
             const downloadedFile = path.join(tempDir, uuid() + ".zip")
 
-            const hash = await this.getOBSHash()
             log.info("Adding downloader url: ", downloadUrl, "to", downloadedFile)
             log.info("Adding unpacker src", downloadedFile, "dest", obsRequirePath)
 
@@ -236,13 +221,13 @@ export class Prerequisites {
                 })
             ], onProgress)
 
-            log.info("Writing hashFile", hashFile, "with hash", hash)
-            await fs.writeFile(hashFile, hash)
+            log.info("Writing hashFile", hashFile, "with hash", OBS_STUDIO)
+            await fs.writeFile(hashFile, OBS_STUDIO)
             log.info("Install func done.")
         }
 
         await installFunc()
-		.finally(() => this.obsInstalling = false)
+            .finally(() => this.obsInstalling = false)
         log.info("Returning obs install")
     }
 }

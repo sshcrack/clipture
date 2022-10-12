@@ -194,10 +194,6 @@ export class GameManager {
                     return undefined
                 }) as WindowInformation[]
 
-            if (!curr) {
-                await Prerequisites.fixNativeMng()
-            }
-
             const diff = [
                 // New processes (either completely new or focused another window)
                 ...(curr.filter(e =>
