@@ -8,8 +8,8 @@ export default function OBSAutostart() {
     const { addModified, removeModified, saving, addSaveListener } = useContext(SettingsSaveContext)
     const { t } = useTranslation("settings", { keyPrefix: "obs.general.autostart" })
 
-    const [original, setOriginal] = useState(undefined)
-    const [current, setCurrent] = useState(undefined)
+    const [original, setOriginal] = useState<boolean>(undefined)
+    const [current, setCurrent] = useState<boolean>(undefined)
 
     const { system } = window.api
     const toast = useToast()
@@ -43,7 +43,7 @@ export default function OBSAutostart() {
         w='70%'
     >
         <Text flex='1'>{t("title")}</Text>
-        <Switch onChange={newVal => {
+        <Switch isChecked={current} onChange={newVal => {
             const e = newVal.target.checked
             setCurrent(e)
             if (e !== original)
