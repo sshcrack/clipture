@@ -4,6 +4,7 @@ import { BrowserWindow, shell } from 'electron';
 import path from 'path';
 import AutoLaunch from "auto-launch"
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { MainGlobals } from '@Globals/mainGlobals';
 
 
 const launcher = new AutoLaunch({
@@ -69,13 +70,15 @@ export class SystemManager {
 
     static async setAutoLaunch(shouldLaunch: boolean) {
         const enabled = await launcher.isEnabled()
-        log.info("Setting autoLaunch to", shouldLaunch, "curr is", enabled)
+        log.info("Setting autoLaunch to", shouldLaunch, "curr is", enabled, "packaged", MainGlobals.isPackaged)
 
-        if (enabled && !shouldLaunch)
-            await launcher.disable()
+        if (MainGlobals.isPackaged) {
+            if (enabled && !shouldLaunch)
+                await launcher.disable()
 
-        if (!enabled && shouldLaunch)
-            await launcher.enable()
+            if (!enabled && shouldLaunch)
+                await launcher.enable()
+        }
 
         Storage.set("auto_launch", shouldLaunch)
     }
