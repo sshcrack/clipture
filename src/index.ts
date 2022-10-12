@@ -1,22 +1,23 @@
 import { app, BrowserWindow, dialog, ipcMain, Menu, Tray } from 'electron';
+import { MainGlobals } from './Globals/mainGlobals';
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
 
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-require('source-map-support').install();
-import { MainGlobals } from './Globals/mainGlobals';
+if (!app.isPackaged)
+  require('source-map-support').install();
 
 import { ClipManager } from '@backend/managers/clip';
 import { GameManager } from '@backend/managers/game';
+import { SystemManager } from '@backend/managers/system';
 import { registerFuncs } from '@backend/registerFuncs';
+import windowStateKeeper from "electron-window-state";
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
-import windowStateKeeper from "electron-window-state"
-import { SystemManager } from '@backend/managers/system';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -35,8 +36,9 @@ SystemManager.initialize()
 addCrashHandler()
 addUpdater()
 
-
-exitHook(() => handleExit())
+try {
+  exitHook(() => handleExit())
+} catch (e) { logger.warn("Could not register exit hook", e) }
 
 let mainWindow: BrowserWindow;
 let trayIcon = null as Tray
