@@ -6,8 +6,7 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-if (!app.isPackaged)
-  require('source-map-support').install();
+require('source-map-support').install();
 
 import { ClipManager } from '@backend/managers/clip';
 import { GameManager } from '@backend/managers/game';
@@ -27,6 +26,14 @@ if (MainGlobals.getOS() !== "Windows_NT") {
   dialog.showErrorBox("Error", "This application is only supported on Windows")
   app.quit()
 }
+
+
+const gotTheLock = app.requestSingleInstanceLock()
+
+if (!gotTheLock) {
+  app.quit()
+}
+
 
 
 app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSession')
@@ -94,18 +101,12 @@ const createWindow = (): void => {
     SystemManager.toTray(mainWindow, true)
 };
 
-
-const gotTheLock = app.requestSingleInstanceLock()
-
-if (!gotTheLock) {
-  app.quit()
-}
-
-
 app.on('second-instance', () => {
   // Someone tried to run a second instance, we should focus our window.
   if (mainWindow) {
-    if (mainWindow.isMinimized()) mainWindow.restore()
+    if (mainWindow.isMinimized())
+      return SystemManager.toTray(mainWindow, false)
+
     mainWindow.focus()
   }
 })
