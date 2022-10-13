@@ -26,6 +26,7 @@ const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
 export class RecordManager {
     private recording = false;
     private NodeObs: typedObs = null
+    private recordProm: Promise<unknown>
     private current = {
         gameId: null,
         videoPath: null,
@@ -153,11 +154,21 @@ export class RecordManager {
                 await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
             const currVideos = await listVideos(recordPath)
-            this.NodeObs.OBS_service_startRecording()
+            let started = false
+            for (let i = 0; i < 5; i++) {
+                log.debug("Trying to start...")
+                this.NodeObs.OBS_service_startRecording()
+                const signal = await SignalsManager.getNextSignalInfo();
+                if (signal.signal === EOBSOutputSignal.Stop)
+                    continue
 
-            const signal = await SignalsManager.getNextSignalInfo();
-            if (signal.signal === EOBSOutputSignal.Stop)
+                started = true
+                break;
+            }
+
+            if (!started)
                 throw new Error("Could not start recording.")
+
 
             this.recordTimer = Date.now()
 
@@ -183,12 +194,14 @@ export class RecordManager {
 
             if (infoPathAvailable) {
                 log.debug("Saving icon...")
-                const tempPath = await GameManager.getIconPath(windowInfo?.pid)
+                const tempPath = windowInfo?.pid && await GameManager.getIconPath(windowInfo?.pid)
                 const icoRoot = (recordPath + "/" + path.basename(videoName, path.extname(videoName))).split("\\").join("/")
                 const icoPath = icoRoot + ".ico"
 
-                await fs.copyFile(tempPath, icoPath)
-                fs.unlink(tempPath)
+                if (tempPath && icoPath) {
+                    await fs.copyFile(tempPath, icoPath)
+                    fs.unlink(tempPath)
+                }
             }
 
             log.info("Record current is: ", this.current)
@@ -197,9 +210,11 @@ export class RecordManager {
             this.listeners.map(e => e(true))
         })()
 
+        this.recordProm = prom
         return prom
             .catch((e: unknown) => {
                 this.recording = false
+                this.recordProm = null
                 throw e
             })
     }
@@ -210,6 +225,11 @@ export class RecordManager {
 
         if (!this.initialized)
             return log.warn("Could not stop recording, not initialized")
+
+        if (this.recordProm) {
+            log.info("Waiting for recording prom...")
+            await this.recordProm
+        }
 
         log.info("Stopped recording")
         this.NodeObs.OBS_service_stopRecording()

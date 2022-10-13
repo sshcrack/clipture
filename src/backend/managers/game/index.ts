@@ -230,6 +230,9 @@ export class GameManager {
     }
 
     static async getIconPath(pid: number) {
+        if(!pid)
+            return
+
         const execa = (await import("execa")).execa
         const out = execa(MainGlobals.nativeMngExe, ["icon", pid.toString()])
         try {
