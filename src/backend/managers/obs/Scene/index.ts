@@ -123,7 +123,7 @@ export class Scene {
         windowSettings['client_area'] = true;
         windowSettings["method"] = 2 // WGC Capture Method
         windowSettings['window'] = windowId;
-        windowSettings['priority'] = 2 // =WINDOW_PRIORITY_EXE
+        windowSettings['priority'] = 1 // =WINDOW_PRIORITY_CLASS_NAME
 
         const gameSettings = gameSource.settings;
         gameSettings['window'] = windowId;
