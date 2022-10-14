@@ -25,9 +25,12 @@
     "general": {
         "menu": {
             "context_menu": {
+                "local": "Local",
+                "cloud": "Cloud",
                 "show_folder": "Show in Explorer",
                 "deleted": "Deleted.",
                 "delete": "Delete",
+                "delete_selected": "Delete Selected",
                 "to_clipboard": "Link copied to clipboard!",
                 "upload": "Upload",
                 "share": "Share",

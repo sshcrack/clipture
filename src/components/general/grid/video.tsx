@@ -22,8 +22,7 @@ type InputProps = React.PropsWithChildren
 
 type MaxProps = Omit<GridItemProps, "onError"> & {
     type: "videos" | "clips",
-    fileName: string,
-    onError?: () => void
+    fileName: string
 
 }
 
@@ -60,8 +59,6 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
             .catch(e => {
                 log.error("Could not get thumbnail", e)
                 setThumbnail(null)
-                //its just not important if there was an error creating that stupid thumbnail, next time it will be fine i promise
-                //rest.onError()
             })
     }, [thumbnail])
 
@@ -111,7 +108,6 @@ export function VideoGrid({ children }: InputProps) {
             justifyContent='start'
             alignItems='start'
             w='100%'
-            h='100%'
             gap='1em'
             templateColumns='repeat(auto-fill, minmax(21.5em,1fr))'
             className='videoGrid'

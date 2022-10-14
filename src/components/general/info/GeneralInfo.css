@@ -1,0 +1,4 @@
+.checkbox_larger span {
+    width: var(--chakra-sizes-5);
+    height: var(--chakra-sizes-5);
+}

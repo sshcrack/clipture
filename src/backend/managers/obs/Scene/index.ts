@@ -111,8 +111,8 @@ export class Scene {
     }
 
     static async switchWindow(options: WindowInformation) {
-        const { className, executable, title, monitorDimensions, intersectsMultiple } = options
-        const windowId = `${title}:${className}:${executable}`;
+        const { className, executable, monitorDimensions, intersectsMultiple } = options
+        const windowId = `_:${className}:${executable}`;
         log.debug("Window id is", windowId)
         const windowSource = this.InputFactory.create("window_capture", this.MAIN_WIN_SOURCE);
         const gameSource = this.InputFactory.create("game_capture", this.MAIN_GAME_SOURCE)
@@ -123,12 +123,15 @@ export class Scene {
         windowSettings['client_area'] = true;
         windowSettings["method"] = 2 // WGC Capture Method
         windowSettings['window'] = windowId;
+        windowSettings['priority'] = 2 // =WINDOW_PRIORITY_EXE
 
         const gameSettings = gameSource.settings;
         gameSettings['window'] = windowId;
         gameSettings['active_window'] = windowId;
         gameSettings['capture_window'] = windowId;
         gameSettings["capture_mode"] = "window"
+        gameSettings["window_search_mode"] = true
+        gameSettings['priority'] = 2 // =WINDOW_PRIORITY_EXE
 
 
         windowSource.update(windowSettings)

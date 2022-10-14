@@ -1,8 +1,10 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure, useToast } from '@chakra-ui/react';
-import React, { PropsWithChildren, useState } from "react";
+import React, { PropsWithChildren, useContext, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { AiFillFolderOpen } from "react-icons/ai";
 import { BsTrashFill } from "react-icons/bs";
 import { ReactSetState } from 'src/types/reactUtils';
+import { SelectionContext } from '../info/SelectionProvider';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { ContextMenuItem } from './base/ContextMenuItem';
@@ -17,6 +19,8 @@ type Props = {
 
 export default function VideoContextMenu({ children, videoName, setUpdate, setOpen }: PropsWithChildren<Props>) {
     const { clips, system } = window.api
+    const { selection } = useContext(SelectionContext)
+    const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
     const cancelRef = React.useRef()
@@ -28,15 +32,15 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                 {children}
             </ContextMenuTrigger>
             <ContextMenuList>
-                <ContextMenuCategory>Local</ContextMenuCategory>
+                <ContextMenuCategory>{t("local")}</ContextMenuCategory>
                 <ContextMenuItem
                     onClick={() => system.open_clip(videoName)}
                     leftIcon={<AiFillFolderOpen />}
-                >Show in Explorer</ContextMenuItem>
+                >{t("show_folder")}</ContextMenuItem>
                 <ContextMenuItem
                     colorScheme='red' onClick={onOpen}
                     leftIcon={<BsTrashFill />}
-                >Delete</ContextMenuItem>
+                >{selection?.length > 0 ? t("delete_selected") : t("delete")}</ContextMenuItem>
             </ContextMenuList>
         </ContextMenu>
         <AlertDialog
@@ -63,8 +67,11 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                             isLoading={isDeleting}
                             onClick={() => {
                                 setDeleting(true)
-                                clips.delete(videoName)
-                                    .then(() => toast({ title: "Deleted video", status: "success" }))
+                                const toDelete = !!selection && selection.length > 0 ? selection : [ videoName ]
+
+                                const proms = Promise.all(toDelete.map(e => clips.delete(e)))
+                                proms
+                                    .then(() => toast({ title: t("deleted"), status: "success" }))
                                     .finally(() => {
                                         setDeleting(false)
                                         setUpdate(Math.random())

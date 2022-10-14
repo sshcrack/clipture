@@ -1,6 +1,6 @@
 import { Clip } from '@backend/managers/clip/interface';
 import { CloudClipStatus } from '@backend/managers/cloud/interface';
-import { Flex, Heading, Image, Text, Tooltip, useToast } from '@chakra-ui/react';
+import { Checkbox, Flex, Grid, Heading, Image, Text, Tooltip, useToast } from '@chakra-ui/react';
 import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
@@ -18,12 +18,14 @@ import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholde
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import UploadingStatus from '../progress/UploadingStatus';
+import GeneralInfo from 'src/components/general/info/GeneralInfo';
+import GeneralInfoProvider from 'src/components/general/info/GeneralInfoProvider';
+import { SelectionProvider } from 'src/components/general/info/SelectionProvider';
 
 const log = RenderLogger.get("obs", "clips")
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
     const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(true)
-    const [corruptedClips, setCorruptedClips] = useState<string[]>([])
     const [update, setUpdate] = useState(0)
     const [uploadingClips, setUploadingClips] = useState([] as ReadonlyArray<CloudClipStatus>)
     const [openedMenus, setOpenedMenus] = useState([] as string[])
@@ -69,96 +71,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
 
             const currUploading = uploadingClips.find(e => e.clipName === baseName)
 
-            let element = <VideoGridItem
-                update={update}
-                type='clips'
-                fileName={clipName}
-                key={`VideoGrid-${i}`}
-                onError={() => setCorruptedClips([...corruptedClips, clipName])}
-                onClick={() => location.hash = `/editor/${clipName}`}
-            >
-                {currUploading && <UploadingStatus status={currUploading.progress} />}
-                {!currUploading && (!isOpened ?
-                    <HoverVideoWrapper source={clipName} w='100%' h='100%' flex='1' /> :
-                    <Flex w='100%' h='100%' flex='1' />
-                )}
-                <Flex
-                    flex='0'
-                    gap='.25em'
-                    justifyContent='center'
-                    alignItems='center'
-                    flexDir='column'
-                    bg='brand.bg'
-                    borderRadius="xl"
-                    borderTopLeftRadius='0'
-                    borderTopRightRadius='0'
-                    p='1'
-                >
-                    <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-                        <Image borderRadius='20%' src={icoName ? getIcoUrl(icoName) : imageSrc} w="1.5em" />
-                        <Text>{gameName}</Text>
-                        <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
-                        {uploaded && <Tooltip label='Uploaded  to cloud.' shouldWrapChildren >
-                            <MdCloudDone style={{fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em"}}/>
-                        </Tooltip>}
-                    </Flex>
-                    <Text style={{
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        width: "90%",
-                        textAlign: "center"
-                    }}>{baseName}</Text>
-                </Flex>
-            </VideoGridItem>
-
-            if (corruptedClips.includes(clipName))
-                element = <VideoGridItem
-                    update={update}
-                    type='none'
-                    background='#3d0000'
-                    boxShadow='0px 0px 10px 0px #b60000'
-                    key={`corrupted-key-${i}-clips`}
-                >
-                    <Flex
-                        flex='1'
-                        w='100%'
-                        h='100%'
-                        justifyContent='center'
-                        alignItems='center'
-                        bg='brand.bg'
-                        flexDir='column'
-                    >
-                        <Heading>{t("corrupted_clip")}</Heading>
-                        <Flex
-                            w='100%'
-                            h='100%'
-                            flex='1'
-                            justifyContent='center'
-                            alignItems='center'
-                        >
-                            <Text>{clipName}</Text>
-                        </Flex>
-                        <Flex
-                            w='100%'
-                            justifyContent='space-around'
-                            mb='3'
-                        >
-                            <PromiseButton
-                                loadingText={t("opening_folder")}
-                                onClick={() => system.open_clip(clipName)}>{t("open_folder")}</PromiseButton>
-                            <PromiseButton
-                                colorScheme="red"
-                                loadingText={t("deleting_clip")}
-                                onClick={() => {
-                                    return clips.delete(clipName)
-                                        .finally(() => setUpdate(Math.random()))
-                                }}
-                            >{t("delete_clip")}</PromiseButton>
-                        </Flex>
-                    </Flex>
-                </VideoGridItem>
-
+            const onEditor = () => location.hash = `/editor/${clipName}`
             return <RenderIfVisible
                 defaultHeight={416}
                 key={`RenderIfVisible-${i}`}
@@ -179,15 +92,50 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                         setOpenedMenus(filtered)
                     }}
                 >
-                    {element}
+                    <VideoGridItem
+                        update={update}
+                        type='clips'
+                        fileName={clipName}
+                        key={`VideoGrid-${i}`}
+                    >
+                        {currUploading && <UploadingStatus status={currUploading.progress} />}
+                        {!currUploading && (!isOpened ?
+                            <HoverVideoWrapper
+                                source={clipName}
+                                w='100%'
+                                h='100%'
+                                flex='1'
+                                onClick={onEditor}
+                            /> :
+                            <Flex w='100%' h='100%' flex='1' onClick={onEditor} />
+                        )}
+                        <GeneralInfoProvider baseName={baseName} onEditor={onEditor}>
+                            <GeneralInfo
+                                baseName={baseName}
+                                gameName={gameName}
+                                icoName={icoName}
+                                imageSrc={imageSrc}
+                                modified={modified}
+                            >
+                                {uploaded && <Tooltip label='Uploaded  to cloud.' shouldWrapChildren >
+                                    <MdCloudDone style={{ fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em" }} />
+                                </Tooltip>}
+                            </GeneralInfo>
+                        </GeneralInfoProvider>
+                    </VideoGridItem>
                 </ClipContextMenu>
             </RenderIfVisible>
         })
     ]
 
 
-    return loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
-        ? <EmptyPlaceholder /> : <VideoGrid>
-            {elements}
-        </VideoGrid>
+    return <SelectionProvider>
+        {
+            loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
+                ? <EmptyPlaceholder /> : <Flex w='100%' h='100%' flexDir='column'><VideoGrid>
+                    {elements}
+                </VideoGrid></Flex>
+        }
+    </SelectionProvider >
+
 }

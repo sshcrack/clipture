@@ -1,7 +1,10 @@
 {
     "app": {
         "obs_initialize_error": "OBS konnte nicht initialiiert werden",
-        "initializing": "Initialisierung..."
+        "initializing": "Initialisierung...",
+        "valid_error": "Installationsprüfung fehlgeschlagen",
+        "retrying": "{{error}}. Versuche in 5s neu",
+        "pre_init_error": "Konnte Software nicht herunterladen."
     },
     "obs": {
         "recording": {
@@ -9,7 +12,8 @@
                 "loading": "Suchen Audioeingang...",
                 "default_mic": "Standard Eingang",
                 "default_desktop": "Standard Ausgang ",
-                "not_connected": "[Das Gerät ist nicht eingesteckt oder konnte nicht gefunden werden]"
+                "not_connected": "Das Gerät ist nicht eingesteckt oder konnte nicht gefunden werden",
+                "disabled": "Gestummt"
             },
             "performance_stats": {
                 "cpu": "CPU in %",
@@ -24,6 +28,9 @@
                 "show_folder": "In Ordner anzeigen",
                 "deleted": "Gelöscht.",
                 "delete": "Löschen",
+                "to_clipboard": "Link ist in der Zwischenablage!",
+                "upload": "Hochladen",
+                "share": "Teilen",
                 "dialog": {
                     "title": "Löschen bestätigen",
                     "body": "Bist du sicher? Es wird für immer gelöscht sein.",
@@ -46,7 +53,8 @@
             "delete_clip": "Clip löschen",
             "opening_folder": "Order wird geöffnet...",
             "open_folder": "Ausgwählten Clip öffnen",
-            "loading": "Lade Clips..."
+            "loading": "Lade Clips...",
+            "uploading": "Lädt hoch..."
         },
         "videos": {
             "title": "Videos",
@@ -60,10 +68,19 @@
         "discover": "Entdecken",
         "clips": "Clips",
         "sign_out": "Abmelden",
-        "recording": "Aufnahme..."
+        "recording": "Aufnahmeübersicht"
     },
     "record": {
-        "title": "Aufnahmeübersicht"
+        "title": "Aufnahmeübersicht",
+        "stop": "Stoppe Aufnahme",
+        "start": "Starte Aufnahme",
+        "automatic": {
+            "enable": "Automatisches Aufnehmen aktivieren",
+            "disable": "Automatisches Aufnehmen deaktivieren"
+        },
+        "switch_monitor": "Monitor ändern",
+        "refresh": "Für neue Spielen suchen",
+        "enable_tooltip": "Um nach Spielen zu suchen, muss Automatisches Aufnehmen aktiviert sein"
     },
     "settings": {
         "menu": {
@@ -92,6 +109,7 @@
                 "hotkey": {
                     "loading": "Erkenne akutellen Hotkey...",
                     "rebind": "{{hotkey}} - Drücke deine gewünschte Taste",
+                    "label": "Highlight Hotkey",
                     "error": {
                         "title": "Hotkey konnte nicht erkannt werden",
                         "description": "Neuer Versuch in 5 Sekunden..."
@@ -122,8 +140,20 @@
             }
         },
         "obs": {
+            "language": {
+                "language": "Sprache"
+            },
             "audio": {
                 "title": "Audio",
+                "volume": "Lautstärke",
+                "device": {
+                    "not_connected": "Gerät nicht verbunden",
+                    "microphone": "======Mikrofone======",
+                    "desktop": "======Ausgänge======",
+                    "default_desktop": "Standard Ausgang",
+                    "default_mic": "Standard Eingang",
+                    "disabled": "Gestummt"
+                },
                 "input_devices": {
                     "loading": "Erkenne Quellen...",
                     "error": {
@@ -147,6 +177,9 @@
                     "title": "Clip Pfad",
                     "placeholder": "Lade Pfad...",
                     "browse": "Durchsuchen"
+                },
+                "discord": {
+                    "title": "Clipture in Discord anzeigen"
                 }
             },
             "video": {
@@ -158,6 +191,12 @@
                 "fps": {
                     "title": "FPS",
                     "loading": "Laden..."
+                },
+                "capture_method": {
+                    "title": "Aufnahmemethode",
+                    "loading": "Lädt...",
+                    "window": "Fensteraufnahme",
+                    "desktop": "Bildschirmaufnahme"
                 }
             }
         },

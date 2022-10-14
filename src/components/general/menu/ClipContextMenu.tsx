@@ -1,5 +1,5 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure, useToast } from '@chakra-ui/react';
-import React, { PropsWithChildren, useState } from "react";
+import React, { PropsWithChildren, useContext, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { ReactSetState } from 'src/types/reactUtils';
 import { ContextMenu } from './base/ContextMenu';
@@ -12,6 +12,7 @@ import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import UploadMenuItem from './cloud/UploadMenuItem';
 import ShareMenuItem from './cloud/ShareMenuItem';
+import { SelectionContext } from '../info/SelectionProvider';
 
 type Props = {
     clipName: string,
@@ -25,10 +26,10 @@ const log = RenderLogger.get("Components", "ClipContextMenu")
 export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled }: PropsWithChildren<Props>) {
     const { clips, system, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
+    const { selection } = useContext(SelectionContext)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [isDeleting, setDeleting] = useState(false)
-    const [isUploading, setUploading] = useState(false)
     const [isCloudDeleting, setCloudDeleting] = useState(false)
 
     const cancelRef = React.useRef()
@@ -40,7 +41,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
             {children}
         </ContextMenuTrigger>
         <ContextMenuList>
-            <ContextMenuCategory>Local</ContextMenuCategory>
+            <ContextMenuCategory>{t("local")}</ContextMenuCategory>
             <ContextMenuItem
                 onClick={() => system.open_clip(clipName)}
                 leftIcon={<AiFillFolderOpen />}
@@ -49,8 +50,8 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                 colorScheme='red'
                 onClick={onOpen}
                 leftIcon={<BsTrashFill />}
-            >{t("delete")}</ContextMenuItem>
-            <ContextMenuCategory>Cloud</ContextMenuCategory>
+            >{selection?.length > 0 ? t("delete_selected") : t("delete")}</ContextMenuItem>
+            <ContextMenuCategory>{t("cloud")}</ContextMenuCategory>
             {!uploaded ?
                 <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} /> :
                 <ShareMenuItem clipName={clipName} />
@@ -105,7 +106,10 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                             isLoading={isDeleting}
                             onClick={() => {
                                 setDeleting(true)
-                                clips.delete(clipName)
+                                const toDelete = !!selection && selection.length > 0 ? selection : [ clipName]
+
+                                const proms = Promise.all(toDelete.map(e => clips.delete(e)))
+                                proms
                                     .then(() => toast({ title: t("deleted"), status: "success" }))
                                     .finally(() => {
                                         setDeleting(false)

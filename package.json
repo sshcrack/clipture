@@ -11,13 +11,13 @@
     "prod": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "makeTest": "electron-forge make --targets @electron-forge/maker-squirrel",
+    "makeSel": "node tools/scripts/make_selection.js",
     "publish": "electron-forge publish",
     "publishApp": "electron-forge publish",
     "lint": "eslint --ext .ts,.tsx .",
     "server": "cd .. && cd clipture-server && yarn start -p 3001",
     "serdev": "cd .. && cd clipture-server && yarn dev -p 3001",
-    "hex": "node get_hex.js"
+    "hex": "node tools/scripts/get_hex.js"
   },
   "keywords": [],
   "author": {
@@ -128,6 +128,7 @@
     "exe-icon-extractor": "^1.0.8",
     "file-loader": "^6.2.0",
     "fork-ts-checker-webpack-plugin": "^6.0.1",
+    "inquirer": "^9.1.3",
     "native-ext-loader": "^2.3.0",
     "node-loader": "^2.0.0",
     "style-loader": "^3.0.0",

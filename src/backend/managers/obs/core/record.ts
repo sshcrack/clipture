@@ -214,8 +214,10 @@ export class RecordManager {
         return prom
             .catch((e: unknown) => {
                 this.recording = false
-                this.recordProm = null
                 throw e
+            })
+            .finally(() => {
+                this.recordProm = null
             })
     }
 
