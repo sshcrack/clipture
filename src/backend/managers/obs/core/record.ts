@@ -2,11 +2,10 @@ import { VideoInfo } from '@backend/managers/clip/interface'
 import { GameManager } from '@backend/managers/game'
 import { BookmarkManager } from "@backend/managers/obs/bookmark"
 import { Prerequisites } from '@backend/managers/prerequisites'
-import { notify } from '@backend/tools/notifier'
 import { RegManMain } from '@general/register/main'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
-import { BrowserWindow } from 'electron'
+import { BrowserWindow, Notification } from 'electron'
 import fs from "fs/promises"
 import path from 'path'
 import sound from "sound-play"
@@ -103,11 +102,12 @@ export class RecordManager {
             if (window && this.isRecording()) {
                 const isRunning = processRunning(window.pid)
                 if (!isRunning && this.automaticRecord) {
-                    this.stopRecording()
-                    notify({
+                    new Notification({
                         title: "Recording stopped",
-                        message: `${window.title ?? "Monitor " + monitor} has been recorded successfully`
-                    })
+                        body: `${window.title ?? "Monitor " + monitor} has been recorded successfully`,
+                        silent: true
+                    }).show()
+                    this.stopRecording()
                 }
             }
         }, 2500)
@@ -345,10 +345,11 @@ export class RecordManager {
         } as WindowInformation, "Recording", this.isRecording())
         if (!this.isRecording() && Scene.getCurrentSetting()?.window) {
             this.startRecording(game, winInfo).then(() =>
-                notify({
+                new Notification({
                     title: "Recording started",
-                    message: `Recording started for ${winInfo?.productName ?? winInfo?.title ?? winInfo.executable}`
-                })
+                    body: `Recording started for ${winInfo?.productName ?? winInfo?.title ?? winInfo.executable}`,
+                    silent: true
+                }).show()
             )
         }
     }
