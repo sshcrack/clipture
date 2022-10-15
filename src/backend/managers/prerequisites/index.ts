@@ -58,6 +58,7 @@ const log = MainLogger.get("Backend", "Managers", "Prerequisites")
 export class Prerequisites {
     private static obsInstalling = false
     private static initializing = false
+    private static initialized = false
 
     static register() {
         RegManMain.onPromise("prerequisites_initialize", () =>
@@ -101,6 +102,9 @@ export class Prerequisites {
     }
 
     static async initialize(onProgress: (prog: Progress) => unknown) {
+        if(this.initialized)
+            return
+
         if (this.initializing)
             throw new Error("[I] Already initializing.")
 
@@ -157,6 +161,7 @@ export class Prerequisites {
         }
 
         this.initializing = false
+        this.initialized = true
         LockManager.instance.unlock({ status: "Prerequisites installed", percent: 1 })
         log.info("Unlocked. Done installing.")
     }

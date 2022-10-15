@@ -163,7 +163,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         alignItems='center'
                     >
                         <Heading size='xl'>Recording</Heading>
-                        {!game && <GameInfo game={game} name={current.videoName} />}
+                        {!game && <GameInfo game={game} name={current?.videoName} />}
                         <PerformanceStatistics />
                     </Flex>
                 }

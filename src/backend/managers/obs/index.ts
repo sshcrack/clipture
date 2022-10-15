@@ -38,6 +38,7 @@ export class OBSManager {
         if (this.obsInitialized)
             return log.warn("OBS already initialized")
 
+        log.info("Initializing OBS...")
         const steps = [
             {
                 title: "Importing OBS...",
@@ -122,6 +123,7 @@ export class OBSManager {
             percent: 1,
             status: "OBS initialized"
         })
+
         this.obsInitialized = true
     }
 
