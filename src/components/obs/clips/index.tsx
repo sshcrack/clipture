@@ -1,26 +1,23 @@
 import { Clip } from '@backend/managers/clip/interface';
 import { CloudClipStatus } from '@backend/managers/cloud/interface';
-import { Checkbox, Flex, Grid, Heading, Image, Text, Tooltip, useToast } from '@chakra-ui/react';
-import { getIcoUrl } from '@general/tools';
+import { Flex, Tooltip, useToast } from '@chakra-ui/react';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
-import prettyMS from "pretty-ms";
-import { MdCloudDone } from "react-icons/md"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MdCloudDone } from "react-icons/md";
 import RenderIfVisible from 'react-render-if-visible';
-import PromiseButton from 'src/components/general/buttons/PromiseButton';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import "src/components/general/grid/placeholder.css";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
+import GeneralInfo from 'src/components/general/info/GeneralInfo';
+import GeneralInfoProvider from 'src/components/general/info/GeneralInfoProvider';
+import { SelectionProvider } from 'src/components/general/info/SelectionProvider';
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import UploadingStatus from '../progress/UploadingStatus';
-import GeneralInfo from 'src/components/general/info/GeneralInfo';
-import GeneralInfoProvider from 'src/components/general/info/GeneralInfoProvider';
-import { SelectionProvider } from 'src/components/general/info/SelectionProvider';
 
 const log = RenderLogger.get("obs", "clips")
 export default function Clips({ additionalElements }: { additionalElements: JSX.Element[] }) {
@@ -133,7 +130,9 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     ]
 
 
-    return <SelectionProvider available={currClips.map(e => e.clipName.split(".clipped.mp4").join(""))}>
+    return <SelectionProvider
+        available={currClips.map(e => e.clipName.split(".clipped.mp4").join(""))}
+    >
         {
             loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
                 ? <EmptyPlaceholder /> : <Flex w='100%' h='100%' flexDir='column'><VideoGrid>

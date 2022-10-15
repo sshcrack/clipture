@@ -1,8 +1,7 @@
-import { Grid, GridItem, GridItemProps } from '@chakra-ui/react'
+import { Grid, GridItem, GridItemProps, GridProps } from '@chakra-ui/react'
 import React, { MutableRefObject, useEffect, useRef, useState } from 'react'
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import { ReactSetState } from 'src/types/reactUtils'
-import MultipleSelect from './multipleSelect/multipleSelect'
 import "./video.css"
 
 type BasicProps = Omit<GridItemProps, "onError"> & {
@@ -18,7 +17,6 @@ type VideoGridItem = (BasicProps & {
     fileName: string,
     onError?: () => void
 })
-type InputProps = React.PropsWithChildren
 
 type MaxProps = Omit<GridItemProps, "onError"> & {
     type: "videos" | "clips",
@@ -44,7 +42,7 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
 
     useEffect(() => {
         setThumbnail(undefined)
-    //@ts-ignore it exists shush
+        //@ts-ignore it exists shush
     }, [update, rest["fileName"]])
 
     useEffect(() => {
@@ -61,8 +59,8 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
                 log.error("Could not get thumbnail", e)
                 setThumbnail(null)
             })
-            //@ts-ignore shush it does exists
-    }, [thumbnail ])
+        //@ts-ignore shush it does exists
+    }, [thumbnail])
 
     const props = { ...rest } as MaxProps
     delete props["type"]
@@ -99,7 +97,7 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
     </GridItem>
 }
 
-export function VideoGrid({ children }: InputProps) {
+export function VideoGrid({ children, forwardRef, ...props }: GridProps & { forwardRef?: MutableRefObject<HTMLDivElement> }) {
     const gridRef = useRef<HTMLDivElement>(null)
     const [cachedDurations, setCachedDurations] = useState(new Map<string, number>())
 
@@ -107,6 +105,7 @@ export function VideoGrid({ children }: InputProps) {
         value={{ gridRef, cachedDurations, setCachedDurations }}
     >
         <Grid
+            {...props}
             justifyContent='start'
             alignItems='start'
             w='100%'
@@ -117,7 +116,7 @@ export function VideoGrid({ children }: InputProps) {
             p='5'
             pr='2'
             mr='4'
-            ref={gridRef}
+            ref={forwardRef}
         >
             {children}
         </ Grid>

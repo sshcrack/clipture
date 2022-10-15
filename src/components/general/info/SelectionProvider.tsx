@@ -1,4 +1,5 @@
-import React, { useState } from "react"
+import { Flex } from '@chakra-ui/react'
+import React, { MutableRefObject, useState } from "react"
 import { useEffect } from 'react'
 import { ReactSetState } from 'src/types/reactUtils'
 
@@ -21,6 +22,9 @@ export function SelectionProvider({ children, available }: React.PropsWithChildr
 
     useEffect(() => {
         const handler = (e: KeyboardEvent) => {
+            if (!document.activeElement.classList.contains("select-everything"))
+                return
+
             const selectAll = e.key === "a" && e.ctrlKey
             if (!selectAll)
                 return
@@ -35,12 +39,19 @@ export function SelectionProvider({ children, available }: React.PropsWithChildr
 
         window.addEventListener("keydown", handler)
         return () => {
-            window.removeEventListener("keydown", handler)
-
+            window.addEventListener("keydown", handler)
         }
     }, [available, selection])
 
     return <SelectionContext.Provider value={{ selection, setSelection }}>
-        {children}
+        <Flex
+            w='100%'
+            h='100%'
+            justifyContent='center'
+            flexDir='column'
+            alignItems='center'
+        >
+            {children}
+        </Flex>
     </SelectionContext.Provider>
 }

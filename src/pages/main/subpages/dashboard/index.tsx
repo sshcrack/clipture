@@ -7,7 +7,7 @@ import NavBar from 'src/components/general/NavBar';
 import Clips from 'src/components/obs/clips';
 import ClipProcessingItems from 'src/components/obs/progress/ClipProgressItems';
 import Videos from 'src/components/obs/videos';
-import "src/pages/main/subpages/dashboard/index.css"
+import "src/pages/main/subpages/dashboard/index.css";
 
 
 //TODO: Add Illustration credits to settings
@@ -46,20 +46,6 @@ export default function DashboardPage({ data }: { data: SessionData }) {
         }
         window.addEventListener("resize", listener)
         return () => window.removeEventListener("resize", listener)
-    }, [])
-
-    useEffect(() => {
-        const hotkeyListener = (e: KeyboardEvent) => {
-            const { key } = e
-            if (key === "v")
-                return setCurrentPage(1)
-
-            if (key === "c")
-                return setCurrentPage(0)
-        }
-
-        document.addEventListener("keypress", hotkeyListener)
-        return () => document.removeEventListener("keypress", hotkeyListener)
     }, [])
 
     useEffect(() => {
@@ -127,6 +113,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                     <TabPanel
                         display='flex'
                         w='100%'
+                        className='select-everything'
                         h='100%'
                         flexDir='column'
                         justifyContent='center'
@@ -140,6 +127,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                         display='flex'
                         w='100%'
                         h='100%'
+                        className='select-everything'
                         flexDir='column'
                         justifyContent='center'
                         alignItems='center'

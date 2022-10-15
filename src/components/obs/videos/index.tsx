@@ -2,7 +2,7 @@ import { Video } from '@backend/managers/clip/interface';
 import { Flex, useToast } from '@chakra-ui/react';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
