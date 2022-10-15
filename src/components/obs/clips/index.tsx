@@ -62,8 +62,8 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { game, clipName, modified, icoName, uploaded } = clip ?? {}
-            const { gameName, icon, id } = getGameInfo(game)
+            const { game, clipName, modified, icoName, uploaded, original } = clip ?? {}
+            const { gameName, icon, id } = getGameInfo(game, original)
             const baseName = clipName.replace(".clipped.mp4", "")
 
             const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`

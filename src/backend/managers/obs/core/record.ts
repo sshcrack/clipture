@@ -43,18 +43,19 @@ export class RecordManager {
 
     public async getCurrent() {
         const detectable = await GameManager.getDetectableGames()
-        const { gameId, ...left } = this.current ?? {}
+        const { gameId, videoPath, ...left } = this.current ?? {}
         const detectableGame = detectable.find(e => e.id === gameId)
         const winInfo = this.windowInformation.get(gameId)
         return {
             game: detectableGame ? {
                 type: "detectable",
                 game: detectableGame
-            } : winInfo ? {
+            } : (winInfo ? {
                 type: "window",
                 game: winInfo
-            } : null,
-            ...left
+            } : null),
+            ...left,
+            videoName: videoPath && path.basename(videoPath)
         } as OutCurrentType
     }
 
@@ -179,11 +180,6 @@ export class RecordManager {
                 log.warn("Video Path could not be obtained")
 
             const windowId = windowInfo && getWindowInfoId(windowInfo)
-            if (!discordGameInfo?.id && windowId)
-                this.windowInformation.set(windowId, {
-                    ...windowInfo,
-                    arguments: ["censored"]
-                })
 
             this.current = {
                 currentInfoPath: infoPathAvailable ? videoPath + ".json" : null,
@@ -202,13 +198,25 @@ export class RecordManager {
                     await fs.copyFile(tempPath, icoPath)
                     fs.unlink(tempPath)
                 }
+
+                const { currentInfoPath, gameId } = this.current
+                await fs.writeFile(currentInfoPath, JSON.stringify({
+                    gameId
+                } as VideoInfo, null, 2))
             }
 
             log.info("Record current is: ", this.current)
             BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
             RegManMain.send("obs_record_change", true)
             this.listeners.map(e => e(true))
+
+            if (!discordGameInfo?.id && windowId)
+                this.windowInformation.set(windowId, {
+                    ...windowInfo,
+                    arguments: ["censored"]
+                })
         })()
+
 
         this.recordProm = prom
         return prom
@@ -251,8 +259,9 @@ export class RecordManager {
             bookmarks: []
         }
 
-        RegManMain.send("obs_record_change", false)
         this.listeners.map(e => e(false))
+
+        RegManMain.send("obs_record_change", false)
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
     }
 

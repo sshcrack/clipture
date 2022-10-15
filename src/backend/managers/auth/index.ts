@@ -1,8 +1,7 @@
-import { notify } from '@backend/tools/notifier';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { shell } from 'electron';
+import { Notification, shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { v4 as uuid } from "uuid";
@@ -147,10 +146,11 @@ export class AuthManager {
         recordManager.disable()
         if (isRecording) {
             await recordManager.stopRecording()
-            notify({
+            new Notification({
                 title: "Recording stopped",
-                message: "You have been signed out, because you've signed out"
-            })
+                body: "You have been signed out, because you've signed out",
+                silent: true
+            }).show()
         }
 
         this.updateListeners()

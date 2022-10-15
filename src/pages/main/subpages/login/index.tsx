@@ -54,6 +54,7 @@ export default function LoginPage() {
                                     log.error("Could not authenticate", e)
                                     toast({
                                         title: "Error",
+                                        status: "error",
                                         description: "Could not authenticate you. For more details view logs.",
                                     })
                                 })

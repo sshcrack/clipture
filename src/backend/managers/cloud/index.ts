@@ -9,6 +9,7 @@ import fs from 'fs/promises';
 import got, { Progress as GotProgress, Response } from "got";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { threadId } from 'worker_threads';
 import { AuthManager } from '../auth';
 import { getHexCached } from '../clip/fs';
 import { getClipInfo, getClipVideoPath, getVideoIco, getVideoInfo } from '../clip/func';
@@ -29,6 +30,7 @@ export class CloudManager {
         RegManMain.onPromise("cloud_list", () => this.list());
         RegManMain.onPromise("cloud_uploading", async () => this.getUploading())
         RegManMain.onPromise("cloud_share", (_, clipName) => this.share(clipName))
+        RegManMain.onPromise("cloud_rename", (_, originalName, newName) => this.rename(originalName, newName))
     }
 
     static getUploading() {
@@ -214,5 +216,20 @@ export class CloudManager {
         this.cached = res
         setTimeout(() => { this.cached = null }, CACHE_EXPIRE)
         return res
+    }
+
+    static async rename(originalName: string, newName: string) {
+        const list = await this.list()
+        const originalHex = await getHexCached(originalName);
+
+        const found = list.find(e => e.hex === originalHex)
+        if(!found)
+            throw new Error("Could not find id in cloud.")
+
+        const cookies = await AuthManager.getCookies()
+        if (!cookies)
+            throw new Error("Not authenticated.")
+
+        return got(`${MainGlobals.baseUrl}/api/clip/rename?title=${encodeURIComponent(newName)}&id=${found.id}`).json()
     }
 }

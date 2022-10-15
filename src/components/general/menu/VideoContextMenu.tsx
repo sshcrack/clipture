@@ -10,6 +10,8 @@ import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { ContextMenuItem } from './base/ContextMenuItem';
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
+import DeleteItem from './both/DeleteItem';
+import RenameItem from './both/RenameItem';
 
 type Props = {
     videoName: string,
@@ -18,13 +20,8 @@ type Props = {
 }
 
 export default function VideoContextMenu({ children, videoName, setUpdate, setOpen }: PropsWithChildren<Props>) {
-    const { clips, system } = window.api
-    const { selection } = useContext(SelectionContext)
+    const { system } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const [isDeleting, setDeleting] = useState(false)
-    const cancelRef = React.useRef()
-    const toast = useToast()
 
     return <>
         <ContextMenu setOpen={setOpen}>
@@ -37,52 +34,9 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                     onClick={() => system.open_clip(videoName)}
                     leftIcon={<AiFillFolderOpen />}
                 >{t("show_folder")}</ContextMenuItem>
-                <ContextMenuItem
-                    colorScheme='red' onClick={onOpen}
-                    leftIcon={<BsTrashFill />}
-                >{selection?.length > 0 ? t("delete_selected") : t("delete")}</ContextMenuItem>
+                <RenameItem baseName={videoName} type={"videos"} setUpdate={setUpdate} />
+                <DeleteItem baseName={videoName} setUpdate={setUpdate} />
             </ContextMenuList>
         </ContextMenu>
-        <AlertDialog
-            isOpen={isOpen}
-            leastDestructiveRef={cancelRef}
-            onClose={onClose}
-        >
-            <AlertDialogOverlay>
-                <AlertDialogContent>
-                    <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                        Delete Video
-                    </AlertDialogHeader>
-
-                    <AlertDialogBody>
-                        Are you sure? The video will be deleted forever.
-                    </AlertDialogBody>
-
-                    <AlertDialogFooter>
-                        <Button ref={cancelRef} onClick={onClose}>
-                            Cancel
-                        </Button>
-                        <Button
-                            colorScheme='red'
-                            isLoading={isDeleting}
-                            onClick={() => {
-                                setDeleting(true)
-                                const toDelete = !!selection && selection.length > 0 ? selection : [ videoName ]
-
-                                const proms = Promise.all(toDelete.map(e => clips.delete(e)))
-                                proms
-                                    .then(() => toast({ title: t("deleted"), status: "success" }))
-                                    .finally(() => {
-                                        setDeleting(false)
-                                        setUpdate(Math.random())
-                                    })
-                                onClose()
-                            }} ml={3}>
-                            Delete
-                        </Button>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialogOverlay>
-        </AlertDialog>
     </>
 }

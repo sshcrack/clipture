@@ -21,6 +21,7 @@ export default function Preview() {
                 log.error(e)
                 toast({
                     title: e?.message ?? "Error",
+                    status: "error",
                     description: e?.stack ?? e
                 })
             })

@@ -1,6 +1,7 @@
 import { GeneralGame } from '@backend/managers/game/interface';
+import { getIcoUrl } from '.';
 
-export function getGameInfo(game: GeneralGame) {
+export function getGameInfo(game: GeneralGame, name: string) {
     let gameName = "Unknown game"
     let id = null
     let icon = null
@@ -17,6 +18,7 @@ export function getGameInfo(game: GeneralGame) {
     if (game && game.game && game?.type === "window") {
         const { executable, productName, title } = game.game ?? {}
         gameName = productName ?? executable?.replace(".exe", "") ?? title?.split("-")?.pop()
+        icon = getIcoUrl(name + ".ico")
     }
 
     return {

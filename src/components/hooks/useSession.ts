@@ -27,6 +27,7 @@ export function useSession() {
                 log.error(e)
                 toast({
                     title: "Error",
+                    status: "error",
                     description: `Could not obtain session ${e}. Retrying...`
                 })
 

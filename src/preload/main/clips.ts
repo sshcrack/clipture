@@ -39,7 +39,8 @@ const clips = {
             listeners.splice(index, 1)
         })
     },
-    delete: (clipName: string) => RegManRender.emitPromise("clips_delete", clipName)
+    delete: (clipName: string) => RegManRender.emitPromise("clips_delete", clipName),
+    rename: (original: string, newName: string) => RegManRender.emitPromise("clips_rename", original, newName)
 }
 
 RegManRender.on("clips_update", (_, x, y) => {

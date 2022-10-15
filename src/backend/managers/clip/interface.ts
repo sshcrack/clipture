@@ -13,8 +13,8 @@ export type Video = {
 
 export type Clip = {
     modified: number,
-    clipName: string,
     game: GeneralGame | null,
+    clipName: string,
     original: string,
     start: number,
     end: number,

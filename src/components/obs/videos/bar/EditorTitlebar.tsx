@@ -3,6 +3,7 @@ import React, { ChangeEvent, useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { BiPencil } from 'react-icons/bi'
 import { GoChevronLeft } from 'react-icons/go'
+import NameValidator from 'src/components/general/validator/nameValidator'
 import TitleBarItem from 'src/components/titlebar/TitleBarItem'
 import { useDebounce } from 'use-debounce'
 import { EditorContext } from '../Editor'
@@ -15,6 +16,8 @@ export default function EditorTitlebar() {
 
     const [desiredClipName, setDesiredClipName] = useState("")
     const [debouncedClipName] = useDebounce(desiredClipName, 100)
+
+    const [isError, setError] = useState(true)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [loading, setLoading] = useState(false)
@@ -49,7 +52,7 @@ export default function EditorTitlebar() {
             return toast({
                 title: t("generate.no_end.title"),
                 status: "error",
-                description: t("generate.no_end.description", { start, end})
+                description: t("generate.no_end.description", { start, end })
             })
 
         clips.exists(desiredClipName)
@@ -70,25 +73,6 @@ export default function EditorTitlebar() {
                 onBack()
             })
     }
-
-    useEffect(() => {
-        let shouldSet = true
-        clips.exists(debouncedClipName)
-            .then(e => {
-                if (!shouldSet)
-                    return
-                setClipExists(e)
-            })
-
-        return () => {
-            shouldSet = false
-        }
-    }, [debouncedClipName])
-
-    const isEmpty = desiredClipName === ''
-    const filenameValid = /^([\w,\s-]|-|_)+$/.test(desiredClipName)
-    const isError = isEmpty || !filenameValid || clipExists
-    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => setDesiredClipName(e.target.value)
 
     return <TitleBarItem>
         <Button
@@ -119,29 +103,26 @@ export default function EditorTitlebar() {
                 <ModalHeader>{t("save_dialog.title")}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <FormControl isRequired isInvalid={isError}>
-                        <FormLabel htmlFor='clip-name'>{t("save_dialog.clip_name")}</FormLabel>
-                        <Input
-                            id='clip-name'
-                            placeholder={t("save_dialog.clip_name")}
-                            onChange={handleInputChange}
-                            value={desiredClipName}
-                            autoFocus
-                        />
-                        {!isError ? (
-                            <FormHelperText>
-                                {t("save_dialog.clip_name_prompt")}
-                            </FormHelperText>
-                        ) : (
-                            <FormErrorMessage>{
-                                clipExists ?
-                                    t("save_dialog.exists") :
-                                    isEmpty ?
-                                        t("save_dialog.empty") :
-                                        t("save_dialog.invalid_characters")
-                            }</FormErrorMessage>
-                        )}
-                    </FormControl>
+                    <NameValidator
+                        isError={isError}
+                        setError={setError}
+
+                        desiredClipName={desiredClipName}
+                        setDesiredClipName={setDesiredClipName}
+
+                        texts={{
+                            error: {
+                                exists: t("save_dialog.exists"),
+                                empty: t("save_dialog.empty"),
+                                invalid_characters: t("save_dialog.invalid_characters")
+                            },
+                            input: {
+                                placeholder: t("save_dialog.clip_name"),
+                                label: t("save_dialog.clip_name")
+                            },
+                            helper_text: t("save_dialog.clip_name_prompt")
+                        }}
+                    />
                 </ModalBody>
 
                 <ModalFooter>

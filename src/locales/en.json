@@ -34,10 +34,20 @@
                 "to_clipboard": "Link copied to clipboard!",
                 "upload": "Upload",
                 "share": "Share",
+                "rename": "Rename",
                 "dialog": {
                     "title": "Confirm deletion",
                     "body": "Are you sue? The video/clip will be deleted forever.",
-                    "cancel": "Cancel"
+                    "cancel": "Cancel",
+                    "rename": "Rename to:",
+                    "new_name": "New Name",
+                    "input": {
+                        "clip_name": "New Name",
+                        "clip_name_prompt": "What should the new name of the video/clip be?",
+                        "exists": "A clip/video with that name exists already",
+                        "empty": "New name can not be empty.",
+                        "invalid_characters": "New name can only contain letters, whitespaces and numbers"
+                    }
                 }
             }
         },

@@ -49,7 +49,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
 
     console.log("retry is", retry)
     const clipElements = currVideos.map(({ game, videoName, modified, bookmarks, icoName }, i) => {
-        const { gameName, icon, id } = getGameInfo(game)
+        const { gameName, icon, id } = getGameInfo(game, videoName)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         const isOpened = openedMenus.some(e => e === videoName)
 

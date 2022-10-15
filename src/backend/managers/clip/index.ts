@@ -19,7 +19,7 @@ import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
 import { addToCached, getHexCached } from './fs'
-import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoPath } from './func'
+import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoInfoPath, getVideoPath } from './func'
 import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
 
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -138,8 +138,6 @@ export class ClipManager {
 
         fs.writeFileSync(withClippedExt, JSON.stringify({
             modified: Date.now(),
-            clipName: path.basename(clipOut),
-            clipPath: clipOut,
             gameId: info?.gameId,
             original: videoName,
             start: start,
@@ -172,7 +170,7 @@ export class ClipManager {
 
     static async getClipThumbnail(clipName: string) {
         const baseName = clipName.replace(".clipped.mp4", "")
-        console.log("Basename valid", baseName, isFilenameValid(baseName))
+        log.debug("Getting clip thumbnail: ", baseName, isFilenameValid(baseName))
         if (!isFilenameValid(baseName))
             return null
 
@@ -211,6 +209,7 @@ export class ClipManager {
             return null
         })
 
+        console.log("Clips List:", sorted)
         return await Promise.all(
             sorted
                 .map(async ({ modified, file }) => {
@@ -218,13 +217,13 @@ export class ClipManager {
                     const clipName = path.basename(file)
                     if (!clipInfo) {
                         const { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
-                        const detec = detectable.find(e => e.id === gameId)
+                        const detectableCurr = detectable.find(e => e.id === gameId)
                         let gameInfo = null as GeneralGame
 
-                        if (detec)
+                        if (detectableCurr)
                             gameInfo = {
                                 type: "detectable",
-                                game: detec
+                                game: detectableCurr
                             }
 
                         const win = RecordManager.instance.getWindowInfo()
@@ -253,9 +252,9 @@ export class ClipManager {
                     const hex = await getHexCached(file)
 
                     return {
-                        clipName: fileName,
                         original: fileName.split("_UUID_").shift(),
                         ...clipInfo,
+                        clipName: fileName,
                         uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
                         modified
                     } as Clip
@@ -263,10 +262,59 @@ export class ClipManager {
         )
     }
 
+    static async renameClip(original: string, newName: string) {
+        const root = Storage.get("clip_path")
+        const originalPath = getClipVideoPath(root, original)
+        const renamedPath = getClipVideoPath(root, newName)
 
+        log.debug("Renaming from", originalPath, "to", renamedPath)
+        if (await existsProm(renamedPath))
+            throw new Error("A clip with that name exists already")
+
+        if (!(await existsProm(originalPath)))
+            throw new Error("Original clip does not exist")
+
+        const originalInfo = getClipInfoPath(root, original)
+        const renamedInfo = getClipInfoPath(root, newName)
+
+        await rename(originalInfo, renamedInfo)
+        await rename(originalPath, renamedPath)
+
+        const oldData = this.imageData.get(originalPath)
+        if (oldData) {
+            this.imageData.set(renamedPath, oldData)
+            this.imageData.delete(originalPath)
+        }
+    }
     //**********************************
     //*             VIDEO
     //**********************************
+
+
+    static async renameVideo(original: string, newName: string) {
+        const root = Storage.get("clip_path")
+        const originalPath = getVideoPath(root, original)
+        const renamedPath = getVideoInfoPath(root, newName)
+
+        log.debug("Renaming from", originalPath, "to", renamedPath)
+        if (await existsProm(renamedPath))
+            throw new Error("A clip with that name exists already")
+
+        if (!(await existsProm(originalPath)))
+            throw new Error("Original clip does not exist")
+
+        const originalInfo = getClipInfoPath(root, original)
+        const renamedInfo = getClipInfoPath(root, newName)
+
+        await rename(originalInfo, renamedInfo)
+        await rename(originalPath, renamedPath)
+
+        const oldData = this.imageData.get(originalPath)
+        if (oldData) {
+            this.imageData.set(renamedPath, oldData)
+            this.imageData.delete(originalPath)
+        }
+    }
 
     static async listVideos() {
         const videoPath = Storage.get("clip_path")
@@ -294,6 +342,7 @@ export class ClipManager {
 
 
         const detectable = await GameManager.getDetectableGames()
+        console.log("Video List:", sorted)
         return Promise.all(sorted.map(async ({ modified, file }) => {
             let gameInfo = this.videoInfoCache.get(file) as GeneralGame | null
             let bookmarks = null
@@ -342,6 +391,7 @@ export class ClipManager {
         if (!isFilenameValid(baseName))
             return null
 
+        log.debug("Getting video thumbnail: ", baseName, isFilenameValid(baseName))
         const root = Storage.get("clip_path")
         const file = getVideoPath(root, baseName)
         return await ClipManager.fromPathToThumbnail(file)
@@ -352,6 +402,7 @@ export class ClipManager {
         if (this.imageData.has(file))
             return this.imageData.get(file)
 
+        console.log("Generating thumbnail", file)
         const options = {
             cacheDir: MainGlobals.getTempDir(),
             timestamp: "00:00:00"
@@ -384,12 +435,14 @@ export class ClipManager {
     static register() {
         RegManMain.onPromise("video_thumbnail", (_, videoName) => this.getVideoThumbnail(videoName))
         RegManMain.onPromise("video_list", () => this.listVideos())
+        RegManMain.onPromise("video_rename", (_, original, newName) => this.renameVideo(original, newName))
 
         RegManMain.onPromise("clips_list", () => this.listClips())
         RegManMain.onPromise("clips_delete", (_, clipName) => this.deleteClip(clipName))
         RegManMain.onPromise("clips_cut", (_, e) => this.cut(e, prog => RegManMain.send("clips_update", e, prog)))
         RegManMain.onPromise("clips_cutting", async () => Array.from(this.processing.entries()))
         RegManMain.onPromise("clips_thumbnail", (_, clipName) => this.getClipThumbnail(clipName))
+        RegManMain.onPromise("clips_rename", (_, original, newName) => this.renameClip(original, newName))
         RegManMain.onPromise("clips_exists", (_, n) => {
             if (!isFilenameValid(n))
                 return Promise.resolve(false)

@@ -8,7 +8,8 @@ export type ClipsEventPromises = addPrefixUnderscoreToObject<{
     exists: (name: string) => boolean,
     cut: (clipsOptions: ClipCutInfo) => void,
     cutting: () => [string, ClipProcessingInfo][],
-    delete: (clipName: string) => void
+    delete: (clipName: string) => void,
+    rename: (original: string, newName: string) => void
 }, "clips">
 
 export type ClipMainToRender = addPrefixUnderscoreToObject<{

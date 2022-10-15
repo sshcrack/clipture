@@ -5,4 +5,5 @@ export type VideoEventsPromises = addPrefixUnderscoreToObject<{
     // Returns Video in Base64
     thumbnail: (videoName: string) => string
     list: () => Video[],
+    rename: (original: string, newName: string) => void
 }, "video">

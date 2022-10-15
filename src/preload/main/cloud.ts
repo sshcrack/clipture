@@ -20,7 +20,8 @@ export const cloud = {
 
             progressListener.splice(index, 1)
         }
-    }
+    },
+    rename: (original: string, clipName: string) => reg.emitPromise("cloud_rename", original, clipName)
 }
 
 export default cloud

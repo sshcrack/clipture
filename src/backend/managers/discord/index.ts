@@ -45,8 +45,8 @@ export class DiscordManager {
             return this.rpc.setActivity(generalInfo)
         }
 
-        const { game } = await RecordManager.instance.getCurrent() ?? {}
-        const { gameName } = getGameInfo(game)
+        const { game, videoName } = await RecordManager.instance.getCurrent() ?? {}
+        const { gameName } = getGameInfo(game, videoName)
 
         const startTime = RecordManager.instance.getRecordStart()
         const recordJson = {

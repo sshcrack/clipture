@@ -1429,9 +1429,9 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-4.6.0.tgz#3c7c9c46e678feefe7a2e5bb609d3dbd665ffb3f"
   integrity sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==
 
-"@streamlabs/obs-studio-node@https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.7/out.tar.gz":
+"@streamlabs/obs-studio-node@https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.8/obs-studio-node.tar.gz":
   version "0.3.101"
-  resolved "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.7/out.tar.gz"
+  resolved "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.8/obs-studio-node.tar.gz#de33c2442fe92b4b2349c51ffb5f843f369cf00c"
 
 "@szmarczak/http-timer@^1.1.2":
   version "1.1.2"
@@ -1634,13 +1634,6 @@
   version "3.0.5"
   resolved "https://registry.yarnpkg.com/@types/minimatch/-/minimatch-3.0.5.tgz#1001cc5e6a3704b83c236027e77f2f58ea010f40"
   integrity sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==
-
-"@types/node-notifier@^8.0.2":
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/@types/node-notifier/-/node-notifier-8.0.2.tgz#77c5de29c6e8adb915222b01864128cc3e78d553"
-  integrity sha512-5v0PhPv0AManpxT7W25Zipmj/Lxp1WqfkcpZHyqSloB+gGoAHRBuzhrCelFKrPvNF5ki3gAcO4kxaGO2/21u8g==
-  dependencies:
-    "@types/node" "*"
 
 "@types/node@*", "@types/node@^18.0.0":
   version "18.6.5"
@@ -4721,11 +4714,6 @@ graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.1.9, graceful-fs@^4.2.0, 
   resolved "https://registry.yarnpkg.com/graceful-readlink/-/graceful-readlink-1.0.1.tgz#4cafad76bc62f02fa039b2f94e9a3dd3a391a725"
   integrity sha512-8tLu60LgxF6XpdbK8OW3FA+IfTNBn1ZHGHKF4KQbEeSkajYw5PlYJcKluntgegDPTg8UkHjpet1T82vk6TQ68w==
 
-growly@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
-  integrity sha512-+xGQY0YyAWCnqy7Cd++hc2JqMYzlm0dG30Jd0beaA64sROr8C4nt8Yc9V5Ro3avlSUDTN0ulqP/VBKi1/lLygw==
-
 gunzip-maybe@^1.4.1:
   version "1.4.2"
   resolved "https://registry.yarnpkg.com/gunzip-maybe/-/gunzip-maybe-1.4.2.tgz#b913564ae3be0eda6f3de36464837a9cd94b98ac"
@@ -6093,18 +6081,6 @@ node-loader@^2.0.0:
   dependencies:
     loader-utils "^2.0.0"
 
-node-notifier@^10.0.1:
-  version "10.0.1"
-  resolved "https://registry.yarnpkg.com/node-notifier/-/node-notifier-10.0.1.tgz#0e82014a15a8456c4cfcdb25858750399ae5f1c7"
-  integrity sha512-YX7TSyDukOZ0g+gmzjB6abKu+hTGvO8+8+gIFDsRCU2t8fLV/P2unmt+LGFaIa4y64aX98Qksa97rgz4vMNeLQ==
-  dependencies:
-    growly "^1.3.0"
-    is-wsl "^2.2.0"
-    semver "^7.3.5"
-    shellwords "^0.1.1"
-    uuid "^8.3.2"
-    which "^2.0.2"
-
 node-releases@^2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/node-releases/-/node-releases-2.0.6.tgz#8a7088c63a55e493845683ebf3c828d8c51c5503"
@@ -7425,11 +7401,6 @@ shebang-regex@^3.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-shellwords@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.1.tgz#d6b9181c1a48d397324c84871efbcfc73fc0654b"
-  integrity sha512-vFwSUfQvqybiICwZY5+DAWIPLKsWO31Q91JSKl3UYv+K5c2QRPzn0qzec6QPu1Qc9eHYItiP3NdJqNVqetYAww==
-
 side-channel@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/side-channel/-/side-channel-1.0.4.tgz#efce5c8fdc104ee751b25c58d4290011fa5ea2cf"
@@ -7896,7 +7867,7 @@ through@2, through@^2.3.6, through@~2, through@~2.3.4:
 
 "thumbsupply@https://github.com/sshcrack/thumbsupply-webpack-fix":
   version "0.4.0"
-  resolved "https://github.com/sshcrack/thumbsupply-webpack-fix#a2b06d876ef472cf16a72dba3f7b53fc1bf5ccad"
+  resolved "https://github.com/sshcrack/thumbsupply-webpack-fix#53d1b97794be175edfbd7338ca6f794d4ef5648f"
   dependencies:
     file-url "^2.0.2"
     fluent-ffmpeg "^2.1.2"
