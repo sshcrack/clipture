@@ -116,7 +116,7 @@ export function VideoGrid({ children, forwardRef, ...props }: GridProps & { forw
             p='5'
             pr='2'
             mr='4'
-            ref={forwardRef}
+            ref={gridRef}
         >
             {children}
         </ Grid>
