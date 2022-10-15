@@ -25,7 +25,7 @@ type Props = {
 
 const log = RenderLogger.get("Components", "ClipContextMenu")
 export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled }: PropsWithChildren<Props>) {
-    const { clips, system, cloud } = window.api
+    const { system, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
     const [isCloudDeleting, setCloudDeleting] = useState(false)

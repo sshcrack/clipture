@@ -34,7 +34,7 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                     onClick={() => system.open_clip(videoName)}
                     leftIcon={<AiFillFolderOpen />}
                 >{t("show_folder")}</ContextMenuItem>
-                <RenameItem baseName={videoName} type={"videos"} setUpdate={setUpdate} />
+                <RenameItem baseName={videoName.replace(".mkv", "")} type={"videos"} setUpdate={setUpdate} />
                 <DeleteItem baseName={videoName} setUpdate={setUpdate} />
             </ContextMenuList>
         </ContextMenu>

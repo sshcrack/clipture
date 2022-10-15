@@ -9,7 +9,6 @@ import fs from 'fs/promises';
 import got, { Progress as GotProgress, Response } from "got";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
-import { threadId } from 'worker_threads';
 import { AuthManager } from '../auth';
 import { getHexCached } from '../clip/fs';
 import { getClipInfo, getClipVideoPath, getVideoIco, getVideoInfo } from '../clip/func';
@@ -30,7 +29,9 @@ export class CloudManager {
         RegManMain.onPromise("cloud_list", () => this.list());
         RegManMain.onPromise("cloud_uploading", async () => this.getUploading())
         RegManMain.onPromise("cloud_share", (_, clipName) => this.share(clipName))
-        RegManMain.onPromise("cloud_rename", (_, originalName, newName) => this.rename(originalName, newName))
+        RegManMain.onPromise("cloud_rename", (_, originalName, newName) => {
+            return this.rename(originalName, newName)
+        })
     }
 
     static getUploading() {
@@ -219,8 +220,12 @@ export class CloudManager {
     }
 
     static async rename(originalName: string, newName: string) {
+        log.debug("Renaming cloud item from", originalName, "to", newName)
+        const root = Storage.get("clip_path")
+        const originalPath = getClipVideoPath(root, originalName)
+
         const list = await this.list()
-        const originalHex = await getHexCached(originalName);
+        const originalHex = await getHexCached(originalPath);
 
         const found = list.find(e => e.hex === originalHex)
         if(!found)
@@ -230,6 +235,10 @@ export class CloudManager {
         if (!cookies)
             throw new Error("Not authenticated.")
 
-        return got(`${MainGlobals.baseUrl}/api/clip/rename?title=${encodeURIComponent(newName)}&id=${found.id}`).json()
+        return got(`${MainGlobals.baseUrl}/api/clip/rename?title=${encodeURIComponent(newName)}&id=${found.id}`, {
+            headers: {
+                cookie: cookies
+            }
+        }).json()
     }
 }

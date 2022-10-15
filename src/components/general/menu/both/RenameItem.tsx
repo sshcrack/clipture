@@ -18,7 +18,7 @@ const log = RenderLogger.get("Menu", "Both", "RenameItem")
 export default function RenameItem({ baseName, type, uploaded, setUpdate }: Props) {
     const [isRenaming, setRenaming] = useState(false)
     const [isError, setError ] = useState(true)
-    const [ desiredClipName, setDesiredClipName ] = useState("")
+    const [ desiredClipName, setDesiredClipName ] = useState(baseName.replace(".clipped.mp4", ""))
 
     const { clips, videos, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
@@ -83,6 +83,7 @@ export default function RenameItem({ baseName, type, uploaded, setUpdate }: Prop
                             log.error(e)
                             toast({
                                 title: "Error",
+                                status: "error",
                                 description: "Could not rename clip"
                             })
                         })

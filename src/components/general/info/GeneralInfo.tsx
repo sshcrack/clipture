@@ -5,6 +5,7 @@ import React from "react";
 
 type Props = React.PropsWithChildren<FlexProps & {
     icoName: string,
+    displayName?: string,
     imageSrc: string,
     gameName: string,
     modified: number,
@@ -14,7 +15,7 @@ type Props = React.PropsWithChildren<FlexProps & {
 export default function GeneralInfo({
     children, baseName, gameName,
     icoName, imageSrc, modified,
-    ...props
+    displayName, ...props
 }: Props) {
     return <Flex
         gap='.25em'
@@ -37,6 +38,6 @@ export default function GeneralInfo({
             textOverflow: "ellipsis",
             width: "90%",
             textAlign: "center"
-        }}>{baseName}</Text>
+        }}>{displayName ?? baseName.replace(".mkv", "")}</Text>
     </Flex>
 }

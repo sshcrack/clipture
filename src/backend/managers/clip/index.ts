@@ -9,7 +9,7 @@ import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { type execa as execaType } from "execa"
 import glob from "fast-glob"
 import fs from "fs"
-import { readFile, rename, rm, stat } from 'fs/promises'
+import { readFile, rename, rm, stat, writeFile } from 'fs/promises'
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
@@ -20,12 +20,13 @@ import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
 import { addToCached, getHexCached } from './fs'
 import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoInfoPath, getVideoPath } from './func'
-import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video } from './interface'
+import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw, Video, VideoInfo } from './interface'
 
 const log = MainLogger.get("Backend", "Managers", "Clips")
 export class ClipManager {
     private static imageData = new Map<string, string>()
     private static videoInfoCache = new Map<string, GeneralGame>()
+    private static videoDisplayNameCache = new Map<string, string>()
     private static clipInfoCache = new Map<string, Clip>()
     private static execa: typeof execaType = null
     private static processing = new Map<string, ClipProcessingInfo>()
@@ -215,8 +216,17 @@ export class ClipManager {
                 .map(async ({ modified, file }) => {
                     let clipInfo = this.clipInfoCache.get(file) as Clip | null
                     const clipName = path.basename(file)
+
                     if (!clipInfo) {
-                        const { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
+                        let { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
+                        console.log(gameId, file)
+                        if (!gameId && rawGameInfo.original) {
+                            const appended = rawGameInfo.original.endsWith(".mkv") ? rawGameInfo.original : rawGameInfo.original + ".mkv"
+                            const videoInfo = await getVideoInfo(clipPath, appended)
+                            console.log("VideoInfo", videoInfo)
+                            gameId = videoInfo?.gameId
+                        }
+
                         const detectableCurr = detectable.find(e => e.id === gameId)
                         let gameInfo = null as GeneralGame
 
@@ -246,6 +256,7 @@ export class ClipManager {
                             icoName: icoAvailable ? path.basename(icoPath) : null,
                             uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
                         }
+                        this.clipInfoCache.set(file, clipInfo)
                     }
 
                     const fileName = path.basename(file)
@@ -263,6 +274,9 @@ export class ClipManager {
     }
 
     static async renameClip(original: string, newName: string) {
+        if (!isFilenameValid(newName))
+            throw new Error("Invalid new name")
+
         const root = Storage.get("clip_path")
         const originalPath = getClipVideoPath(root, original)
         const renamedPath = getClipVideoPath(root, newName)
@@ -292,9 +306,13 @@ export class ClipManager {
 
 
     static async renameVideo(original: string, newName: string) {
+        if (!isFilenameValid(newName))
+            throw new Error("Invalid new name")
+
+        log.info("Renaming video from", original, newName)
         const root = Storage.get("clip_path")
         const originalPath = getVideoPath(root, original)
-        const renamedPath = getVideoInfoPath(root, newName)
+        const renamedPath = getVideoPath(root, newName)
 
         log.debug("Renaming from", originalPath, "to", renamedPath)
         if (await existsProm(renamedPath))
@@ -303,17 +321,22 @@ export class ClipManager {
         if (!(await existsProm(originalPath)))
             throw new Error("Original clip does not exist")
 
-        const originalInfo = getClipInfoPath(root, original)
-        const renamedInfo = getClipInfoPath(root, newName)
+        const currInfoPath = getVideoInfoPath(root, original + ".mkv")
+        const currInfo = await getVideoInfo(root, original + ".mkv") ?? {}
 
-        await rename(originalInfo, renamedInfo)
-        await rename(originalPath, renamedPath)
+        const newInfo = {
+            ...currInfo,
+            displayName: newName
+        } as VideoInfo
 
-        const oldData = this.imageData.get(originalPath)
-        if (oldData) {
-            this.imageData.set(renamedPath, oldData)
-            this.imageData.delete(originalPath)
-        }
+        log.debug("Video rename new Info is", newInfo)
+        writeFile(currInfoPath, JSON.stringify(newInfo))
+
+        Array.from(this.videoDisplayNameCache.keys())
+            .forEach(e => {
+                if(e.includes(original + ".mkv"))
+                    this.videoDisplayNameCache.delete(e)
+            })
     }
 
     static async listVideos() {
@@ -345,10 +368,13 @@ export class ClipManager {
         console.log("Video List:", sorted)
         return Promise.all(sorted.map(async ({ modified, file }) => {
             let gameInfo = this.videoInfoCache.get(file) as GeneralGame | null
+            let displayName = this.videoDisplayNameCache.get(file) as string | null
             let bookmarks = null
 
-            if (!gameInfo) {
+            if (!gameInfo || !displayName) {
                 const info = await getVideoInfo(videoPath, path.basename(file))
+
+                displayName = info.displayName
                 bookmarks = info?.bookmarks
                 const detec = detectable.find(e => e.id === info?.gameId)
                 if (detec)
@@ -364,6 +390,8 @@ export class ClipManager {
                         type: "window",
                         game: win
                     }
+
+                this.videoInfoCache.set(file, gameInfo)
             }
 
             const clipName = path.basename(file)
@@ -377,7 +405,8 @@ export class ClipManager {
                 video: file,
                 game: gameInfo ?? null,
                 bookmarks: bookmarks ?? null,
-                icoName: icoAvailable ? path.basename(icoPath) : null
+                icoName: icoAvailable ? path.basename(icoPath) : null,
+                displayName: displayName
             }
         })).catch(e => {
             log.error(e)

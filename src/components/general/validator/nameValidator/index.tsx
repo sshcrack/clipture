@@ -37,6 +37,7 @@ export default function NameValidator({ texts, desiredClipName, isError, setDesi
             .then(e => {
                 if (!shouldSet)
                     return
+
                 setClipExists(e)
             })
 
@@ -45,15 +46,26 @@ export default function NameValidator({ texts, desiredClipName, isError, setDesi
         }
     }, [debouncedClipName])
 
+    const checkForError = (name: string) => {
+        const filenameValid = /^([\w,\s-]|-|_)+$/.test(name)
+        const isEmptyLocal = name === ''
+
+        return isEmptyLocal || !filenameValid || clipExists
+    }
+
+
     const isEmpty = desiredClipName === ''
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const newName = e.target.value
-        const filenameValid = /^([\w,\s-]|-|_)+$/.test(newName)
-        const isEmptyLocal = newName === ''
 
         setDesiredClipName(newName)
-        setError(isEmptyLocal || !filenameValid || clipExists)
+        setError(checkForError(newName))
     }
+
+    useEffect(() => {
+        setError(checkForError(desiredClipName))
+    }, [ clipExists])
+
 
 
     return <FormControl isRequired isInvalid={isError}>

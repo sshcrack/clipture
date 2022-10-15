@@ -17,7 +17,7 @@ export default function GeneralInfoProvider({ baseName, onEditor, children, ...p
             return
 
         setChecked(selection.includes(baseName))
-    }, [setSelection])
+    }, [selection])
 
     return <Flex
         flex='0'
@@ -33,7 +33,11 @@ export default function GeneralInfoProvider({ baseName, onEditor, children, ...p
         p='1'
         {...props}
     >
-        <Flex flex='0' ml='5' mr='5'>
+        <Flex
+            flex='0'
+            pl='5'
+            pr='5'
+        >
             <Checkbox
                 className='checkbox_larger'
                 isChecked={checked}

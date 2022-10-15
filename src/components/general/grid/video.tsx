@@ -44,7 +44,8 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
 
     useEffect(() => {
         setThumbnail(undefined)
-    }, [update])
+    //@ts-ignore it exists shush
+    }, [update, rest["fileName"]])
 
     useEffect(() => {
         if (thumbnail !== undefined || !api || rest.type === "none")
@@ -60,7 +61,8 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
                 log.error("Could not get thumbnail", e)
                 setThumbnail(null)
             })
-    }, [thumbnail])
+            //@ts-ignore shush it does exists
+    }, [thumbnail ])
 
     const props = { ...rest } as MaxProps
     delete props["type"]

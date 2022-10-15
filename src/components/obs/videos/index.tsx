@@ -48,7 +48,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
 
 
     console.log("retry is", retry)
-    const clipElements = currVideos.map(({ game, videoName, modified, bookmarks, icoName }, i) => {
+    const clipElements = currVideos.map(({ displayName, game, videoName, modified, bookmarks, icoName }, i) => {
         const { gameName, icon, id } = getGameInfo(game, videoName)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         const isOpened = openedMenus.some(e => e === videoName)
@@ -89,6 +89,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                     /> : <Flex w='100%' h='100%' flex='1' onClick={onEditor} />}
                     <GeneralInfoProvider baseName={videoName} onEditor={onEditor}>
                         <GeneralInfo
+                            displayName={displayName}
                             baseName={videoName}
                             gameName={gameName}
                             icoName={icoName}
@@ -106,7 +107,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         ...clipElements
     ]
 
-    return <SelectionProvider>
+    return <SelectionProvider available={currVideos.map(e => e.videoName)}>
         {loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
             ? <EmptyPlaceholder /> : <Flex w='100%' h='100%' flexDir='column'>
                 <VideoGrid>

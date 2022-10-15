@@ -8,7 +8,8 @@ export type Video = {
     videoName: string,
     game: GeneralGame | null,
     bookmarks: number[] | null,
-    icoName: string | null
+    icoName: string | null,
+    displayName: string
 }
 
 export type Clip = {
@@ -37,7 +38,8 @@ export interface ClipCutInfo {
 
 export interface VideoInfo {
     gameId: string,
-    bookmarks: number[]
+    bookmarks: number[],
+    displayName?: string | null
 }
 
 export interface ClipProcessingInfo {

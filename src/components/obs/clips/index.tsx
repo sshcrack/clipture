@@ -29,20 +29,24 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [update, setUpdate] = useState(0)
     const [uploadingClips, setUploadingClips] = useState([] as ReadonlyArray<CloudClipStatus>)
     const [openedMenus, setOpenedMenus] = useState([] as string[])
-    const { clips, system, obs, cloud } = window.api
+    const { clips, obs, cloud } = window.api
     const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
 
     const toast = useToast()
 
-    useEffect(() => obs.onRecordChange(() => setTimeout(() => setUpdate(Math.random()), 500)), [])
-    useEffect(() => cloud.onUpdate(u => setUploadingClips(u)), [])
     useEffect(() => {
-        return clips.add_listener((_, prog) => {
-            if (prog?.percent !== 1 && prog)
-                return
+        const unregister = [
+            obs.onRecordChange(() => setTimeout(() => setUpdate(Math.random()), 500)),
+            cloud.onUpdate(u => setUploadingClips(u)),
+            clips.add_listener((_, prog) => {
+                if (prog?.percent !== 1 && prog)
+                    return
 
-            setUpdate(Math.random())
-        })
+                setUpdate(Math.random())
+            })
+        ]
+
+        return () => { unregister.map(e => e()) }
     }, [])
 
     useEffect(() => {
@@ -129,7 +133,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     ]
 
 
-    return <SelectionProvider>
+    return <SelectionProvider available={currClips.map(e => e.clipName.split(".clipped.mp4").join(""))}>
         {
             loading ? <GeneralSpinner size='70' loadingText={t("loading")} /> : elements?.length === 0
                 ? <EmptyPlaceholder /> : <Flex w='100%' h='100%' flexDir='column'><VideoGrid>
