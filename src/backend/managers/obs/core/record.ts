@@ -46,7 +46,8 @@ export class RecordManager {
         const { gameId, videoPath, ...left } = this.current ?? {}
         const detectableGame = detectable.find(e => e.id === gameId)
         const winInfo = this.windowInformation.get(gameId)
-        return {
+        const curr = {
+            ...left,
             game: detectableGame ? {
                 type: "detectable",
                 game: detectableGame
@@ -54,9 +55,11 @@ export class RecordManager {
                 type: "window",
                 game: winInfo
             } : null),
-            ...left,
             videoName: videoPath && path.basename(videoPath)
         } as OutCurrentType
+
+        console.log("Current is", curr)
+        return curr
     }
 
     constructor() {
