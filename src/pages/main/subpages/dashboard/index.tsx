@@ -14,7 +14,7 @@ import "src/pages/main/subpages/dashboard/index.css";
 export default function DashboardPage({ data }: { data: SessionData }) {
     const [currentPage, setCurrentPage] = useState(0)
     const [initialized, setInitialized] = useState(false)
-    const [ resizeUpdate, setResizeUpdate ] = useState(0)
+    const [resizeUpdate, setResizeUpdate] = useState(0)
     const navbarRef = useRef<HTMLDivElement>()
     const outerRef = useRef<HTMLDivElement>()
 
@@ -40,7 +40,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     }, [navbarRef, outerRef, resizeUpdate])
 
     useEffect(() => {
-        const listener = () =>{
+        const listener = () => {
             setResizeUpdate(Math.random());
             console.log("Resize")
         }
@@ -99,8 +99,8 @@ export default function DashboardPage({ data }: { data: SessionData }) {
                 }}
             >
                 <TabList>
-                    <Tab className='tabHotkey'>{t("clips.title")}</Tab>
-                    <Tab className='tabHotkey'>{t("videos.title")}</Tab>
+                    <Tab className='tabHotkey select-everything'>{t("clips.title")}</Tab>
+                    <Tab className='tabHotkey select-everything'>{t("videos.title")}</Tab>
                 </TabList>
                 <TabPanels
                     display='flex'

@@ -26,7 +26,8 @@ export type Clip = {
 
 export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded"> & {
     gameId: string
-    hex: string
+    hex: string,
+    originalInfo: VideoInfo
 }
 
 export interface ClipCutInfo {

@@ -131,7 +131,7 @@ export class Scene {
         gameSettings['capture_window'] = windowId;
         gameSettings["capture_mode"] = "window"
         gameSettings["window_search_mode"] = true
-        gameSettings['priority'] = 2 // =WINDOW_PRIORITY_EXE
+        gameSettings['priority'] = 1 // =WINDOW_PRIORITY_CLASS_NAME
 
 
         windowSource.update(windowSettings)
@@ -156,7 +156,7 @@ export class Scene {
         const resolution = `${physicalWidth}x${physicalHeight}`
         setSetting(this.NodeObs, SettingsCat.Video, "Base", resolution)
         setSetting(this.NodeObs, SettingsCat.Video, "Output", resolution)
-        log.log("Switching to Window View with id ", windowId, "and resolution", resolution)
+        log.log("Switching to Window View with id ", windowId, "and resolution", resolution, "with window settings", windowSettings, "and game settings", gameSettings)
 
         this.removeMainSource()
         const gameItem = this._scene.add(gameSource)

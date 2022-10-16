@@ -21,25 +21,38 @@ export function SelectionProvider({ children, available }: React.PropsWithChildr
     const [selection, setSelection] = useState([] as string[])
 
     useEffect(() => {
+        let setTo = null as string[]
+
         const handler = (e: KeyboardEvent) => {
             if (!document.activeElement.classList.contains("select-everything"))
                 return
+
 
             const selectAll = e.key === "a" && e.ctrlKey
             if (!selectAll)
                 return
 
+
             e.preventDefault()
             const same = JSON.stringify(available) === JSON.stringify(selection)
-            if (same)
-                return setSelection([])
+            if (same) {
+                setTo = []
+                return
+            }
 
-            setSelection(available.concat([]))
+            setTo = available.concat([])
+        }
+
+        const keyUp = () => {
+            if (setTo)
+                setSelection(setTo)
         }
 
         window.addEventListener("keydown", handler)
+        window.addEventListener("keyup", keyUp)
         return () => {
-            window.addEventListener("keydown", handler)
+            window.removeEventListener("keydown", handler)
+            window.removeEventListener("keyup", keyUp)
         }
     }, [available, selection])
 

@@ -160,8 +160,10 @@ export class RecordManager {
                 log.debug("Trying to start...")
                 this.NodeObs.OBS_service_startRecording()
                 const signal = await SignalsManager.getNextSignalInfo();
-                if (signal.signal === EOBSOutputSignal.Stop)
-                    continue
+                if (signal.signal === EOBSOutputSignal.Stop) {
+                    log.warn("Could not start recording: ", signal, "trying again...")
+                    continue;
+                }
 
                 started = true
                 break;
@@ -332,9 +334,6 @@ export class RecordManager {
         if (!this.automaticRecord)
             return
 
-        if (diff)
-            log.info("Game is diff", diff,
-                "winInfo", JSON.stringify(winInfo), "curr", JSON.stringify(Scene.getCurrentSetting()?.window), "Game", JSON.stringify(game))
         if (winInfo && (diff || !Scene.getCurrentSetting()?.window)) {
             if (this.isDesktopView())
                 await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, winInfo)
