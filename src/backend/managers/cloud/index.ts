@@ -9,6 +9,7 @@ import fs from 'fs/promises';
 import got, { Progress as GotProgress, Response } from "got";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
+import HttpStatusCode from 'src/types/HttpStatusCodes';
 import { AuthManager } from '../auth';
 import { getHexCached } from '../clip/fs';
 import { getClipInfo, getClipVideoPath, getVideoIco, getVideoInfo } from '../clip/func';
@@ -137,11 +138,9 @@ export class CloudManager {
             prog.on("error", err => { log.error(err); reject(err) })
             prog.on("response", (response: Response) => {
                 const handle = () => {
+                    const rawBody = chunks.length === 0 ? response.rawBody.toString("utf-8") :
+                        Buffer.concat(chunks).toString("utf-8")
                     try {
-                        const rawBody = chunks.length === 0 ? response.rawBody.toString("utf-8") :
-                            Buffer.concat(chunks).toString("utf-8")
-
-                        log.silly("Raw Body is", rawBody)
                         const body = JSON.parse(rawBody)
                         console.log("ResponseCode is", response.statusCode)
                         if (response.statusCode === 200) {
@@ -160,6 +159,12 @@ export class CloudManager {
                         log.error("Unknown error", body)
                         return reject(new Error("Unknown error"))
                     } catch (e) {
+                        if(response.statusCode === HttpStatusCode.PAYLOAD_TOO_LARGE)
+                            return reject(new Error("Clip is too large."))
+
+                        if(response.statusCode === HttpStatusCode.INSUFFICIENT_STORAGE)
+                            return reject(new Error("The clipture server do not have any storage left :("))
+
                         log.error(e)
                         reject(new Error("Could not parse response body."))
                     }
