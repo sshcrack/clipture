@@ -176,9 +176,8 @@ export class RecordManager {
                 throw new Error("Could not start recording.")
 
 
-            this.recordTimer = Date.now()
-
             const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording())
+            this.recordTimer = Date.now()
             const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
             const infoPathAvailable = recordPath && videoName
             if (!infoPathAvailable)
@@ -338,7 +337,7 @@ export class RecordManager {
             return
 
         if (winInfo && (diff || !Scene.getCurrentSetting()?.window)) {
-            if (this.isDesktopView())
+            if (this.isDesktopView() && winInfo.monitorDimensions)
                 await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, winInfo)
             else
                 await Scene.switchWindow(winInfo)
