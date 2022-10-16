@@ -9,8 +9,8 @@ export default function EditorBookmarks(props: FlexProps) {
     const { mainBarRef } = useContext(EditorMainBarContext)
     console.log("Bookmarks are", bookmarks)
 
-    if(!mainBarRef.current || bookmarks.length === 0)
-         return <></>
+    if (!mainBarRef.current || bookmarks.length === 0)
+        return <></>
 
     const width = mainBarRef.current.clientWidth
     const reactElements = bookmarks.map(e => (
@@ -18,11 +18,11 @@ export default function EditorBookmarks(props: FlexProps) {
     ))
 
     return <Grid
-          w='100%' {...props}
-          transform='translateY(-1.2em)'
-          zIndex='100'
-          gridRow='1'
-          gridColumn='1'
+        w='100%' {...props}
+        transform='translateY(-1.2em)'
+        zIndex='100'
+        gridRow='1'
+        gridColumn='1'
     >
         {reactElements}
     </Grid>

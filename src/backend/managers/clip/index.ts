@@ -124,10 +124,11 @@ export class ClipManager {
             percent: .9
         })
 
-        const hex = await getHex(clipOut)
-
         log.debug("Removing processing prefix")
         await rename(clipProcessing, clipOut)
+
+        const hex = await getHex(clipOut)
+
         this.processing.delete(clipOut)
 
 

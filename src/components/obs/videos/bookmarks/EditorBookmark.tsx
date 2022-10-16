@@ -5,7 +5,7 @@ import { MdPlace } from "react-icons/md"
 
 
 export default function EditorBookmark({ time, barW }: { time: number, barW: number }) {
-  const { selection } = useContext(EditorContext)
+  const { selection, videoRef } = useContext(EditorContext)
   const { range, offset } = selection
 
   const visibleStart = offset
@@ -21,6 +21,11 @@ export default function EditorBookmark({ time, barW }: { time: number, barW: num
     w='100%'
     transform={`translateX(${placement}px)`}
   >
-    <MdPlace style={{ width: "2em", height: "2em" }} />
+    <MdPlace style={{ width: "2em", height: "2em" }} onClick={() => {
+      if(!videoRef?.current?.currentTime)
+          return
+
+      videoRef.current.currentTime = time
+    }}/>
   </Flex>
 }

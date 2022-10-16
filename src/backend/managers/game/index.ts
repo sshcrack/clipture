@@ -70,7 +70,7 @@ export class GameManager {
             const available = await this.getAvailableWindows(true)
             const detectable = await this.getDetectableGames()
 
-            return available.filter(e => detectable.some(x => isDetectableGameInfo(x, e)))
+            return available?.filter(e => detectable.some(x => isDetectableGameInfo(x, e)))
         })
         RegManMain.onPromise("game_available_windows", (_, game) => this.getAvailableWindows(game))
 
@@ -125,7 +125,7 @@ export class GameManager {
         if (!this.hasExcluded(info))
             return
 
-        this.excludeGames = this.excludeGames.filter(e => JSON.stringify(e) !== JSON.stringify(info))
+        this.excludeGames = this.excludeGames?.filter(e => JSON.stringify(e) !== JSON.stringify(info))
         this.save()
     }
 
@@ -156,7 +156,7 @@ export class GameManager {
         if (!this.hasExcluded(info))
             return
 
-        this.includedGames = this.includedGames.filter(e => JSON.stringify(e) !== JSON.stringify(info))
+        this.includedGames = this.includedGames?.filter(e => JSON.stringify(e) !== JSON.stringify(info))
         this.save()
     }
 
@@ -196,16 +196,16 @@ export class GameManager {
 
             const diff = [
                 // New processes (either completely new or focused another window)
-                ...(curr.filter(e =>
+                ...(curr?.filter(e =>
                     !this.prevProcesses.some(f => f.pid === e.pid)
                     || this.prevProcesses.some(f => f.pid === e.pid && f.focused !== e.focused)
                 ) as WindowInformation[]),
 
                 // Closed processes
-                ...(this.prevProcesses.filter(e =>
+                ...(this.prevProcesses?.filter(e =>
                     !curr.some(f => f.pid === e.pid)
                 ) as WindowInformation[])
-            ].filter((e, i, a) => a.findIndex(f => f.pid === e.pid) === i)
+            ]?.filter((e, i, a) => a?.findIndex(f => f.pid === e.pid) === i)
 
             if (diff.length > 0) {
                 this.listeners.map(e => e(diff))
