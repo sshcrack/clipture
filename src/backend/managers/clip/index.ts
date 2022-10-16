@@ -9,7 +9,7 @@ import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { type execa as execaType } from "execa"
 import glob from "fast-glob"
 import fs from "fs"
-import { copyFile, readFile, rename, rm, stat, writeFile } from 'fs/promises'
+import { copyFile, readFile, rename, rm, stat, unlink, writeFile } from 'fs/promises'
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
@@ -51,7 +51,15 @@ export class ClipManager {
         const clipOut = getClipVideoPath(clipRoot, clipName)
         const clipProcessing = getClipVideoProcessingPath(clipRoot, clipName)
 
-        if (!existsProm(videoPath)) {
+        if(await existsProm(clipOut))
+            throw new Error("A clip with that name exists already.")
+
+        if(await existsProm(clipProcessing)) {
+            log.silly("Clip processing", clipProcessing, "exists already, unlinking...")
+            await unlink(clipProcessing)
+        }
+
+        if (!(await existsProm(videoPath))) {
             log.error("Can't cut, video with path", videoPath, "does not exist.")
             throw new Error(`Video with name ${videoName} does not exist in clip directory`)
         }
