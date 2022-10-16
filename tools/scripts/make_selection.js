@@ -12,7 +12,7 @@ import("inquirer").then(inquirer => {
         name: "selection"
     }]).then(e => {
         const selection = e["selection"]
-        const args = [ "make", "--targets", ...selection].join(" ")
+        const args = [ "make", "--targets", selection.join(",")].join(" ")
         const x = childprocess.exec(`yarn ${args}`)
         x.stdout.pipe(process.stdout);
         x.stderr.pipe(process.stderr);

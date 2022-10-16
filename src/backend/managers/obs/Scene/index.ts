@@ -113,7 +113,6 @@ export class Scene {
     static async switchWindow(options: WindowInformation) {
         const { className, executable, monitorDimensions, intersectsMultiple } = options
         const windowId = `_:${className}:${executable}`;
-        log.debug("Window id is", windowId)
         const windowSource = this.InputFactory.create("window_capture", this.MAIN_WIN_SOURCE);
         const gameSource = this.InputFactory.create("game_capture", this.MAIN_GAME_SOURCE)
 

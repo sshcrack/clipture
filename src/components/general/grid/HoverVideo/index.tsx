@@ -57,7 +57,7 @@ export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & {
 
         ref.current.addEventListener("loadeddata", listener)
         return () => ref.current?.removeEventListener("loadeddata", listener)
-    }, [ref, debounced, cachedDurations])
+    }, [ref, debounced, cachedDurations, source])
 
     useEffect(() => {
         if (!ref.current || !debounced)
@@ -127,7 +127,7 @@ export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & {
                     gap='2'
                     p='2'
                 >
-                    <MdPlace style={{ height: "1.5rem", width: "100%" }}/>
+                    <MdPlace style={{ height: "1.5rem", width: "100%" }} />
                     <Text>{bookmarks.length}</Text>
                 </Flex>
             </Flex>
