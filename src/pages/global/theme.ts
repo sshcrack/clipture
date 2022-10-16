@@ -55,8 +55,8 @@ const component = {
 }
 
 const fonts = {
-    heading: `'Varela Round', sans-serif`,
-    body: `'Varela Round', sans-serif`,
+    heading: `'Coolvetica', sans-serif`,
+    body: `'Coolvetica', sans-serif`,
 }
 
 const styles = {

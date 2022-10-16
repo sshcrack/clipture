@@ -26,7 +26,8 @@ export default function LoginPage() {
     >
         <Image
             src="../assets/logo_text.svg"
-            h='12'
+            h='4em'
+            pt='3'
         />
 
         <Flex w='100%' h='100%' justifyContent='center' alignItems='center'>

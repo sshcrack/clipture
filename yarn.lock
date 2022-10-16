@@ -1127,11 +1127,6 @@
     minimatch "^3.0.4"
     strip-json-comments "^3.1.1"
 
-"@fontsource/varela-round@^4.5.8":
-  version "4.5.9"
-  resolved "https://registry.yarnpkg.com/@fontsource/varela-round/-/varela-round-4.5.9.tgz#ae719b6f00e5041e0a147321eb84fce7619c7e71"
-  integrity sha512-wvxP8Iw3BxEVTErju609diXe55qr87lp+NCv/UX7vcFc+YWzl2piMw0pXbR/HNcJcICrkIs2UD2x2fonyEY01w==
-
 "@gar/promisify@^1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@gar/promisify/-/promisify-1.1.3.tgz#555193ab2e3bb3b6adc3d551c9c030d9e860daf6"
@@ -6819,7 +6814,7 @@ rcinfo@^0.1.3:
   resolved "https://registry.yarnpkg.com/rcinfo/-/rcinfo-0.1.3.tgz#ac36832d1f1e5970c6379e571480ea5826511fc6"
   integrity sha512-c2XV2aYgY7x3BscO+/B/nCTtMvnclZ8w5D7R6zgK4sGOQnE0MjlXhOPynno7yp6Iw1RPNSXBwXwB1svZVRfcSw==
 
-react-chartjs-2@^4.2.0:
+react-chartjs-2@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/react-chartjs-2/-/react-chartjs-2-4.3.1.tgz#9941e7397fb963f28bb557addb401e9ff96c6681"
   integrity sha512-5i3mjP6tU7QSn0jvb8I4hudTzHJqS8l00ORJnVwI2sYu0ihpj83Lv2YzfxunfxTZkscKvZu2F2w9LkwNBhj6xA==

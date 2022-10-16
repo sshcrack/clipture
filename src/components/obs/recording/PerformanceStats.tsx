@@ -1,4 +1,4 @@
-import { Flex, Spinner, Text } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import { getCSSVariable, secondsToDuration } from '@general/tools';
 import prettyBytes from "pretty-bytes";
 import prettyMS from "pretty-ms";
@@ -111,6 +111,8 @@ export default function PerformanceStatistics() {
         }]
     } as LineChartData
 
+    //@ts-ignore
+    window.stats = stats
     return <Flex
         w='100%'
         h='100%'
