@@ -182,12 +182,21 @@ export class OBSManager {
     private configure() {
         log.info("Configuring OBS")
         const Output = SettingsCat.Output
-        const Video = SettingsCat.Video
 
-        const availableEncoders = getAvailableValues(this.NodeObs, Output, 'Recording', 'RecEncoder');
         setSetting(this.NodeObs, Output, "Mode", "Advanced")
         setSetting(this.NodeObs, Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
-        setSetting(this.NodeObs, Output, 'RecEncoder', availableEncoders.slice(-1)[0] ?? 'x264');
+
+        log.info("Defaulting to x264")
+        setSetting(this.NodeObs, Output, 'RecEncoder', 'x264');
+        for(let i = 0; i < 10; i++) {
+            const availableEncoders = getAvailableValues(this.NodeObs, Output, 'Recording', 'RecEncoder');
+            if(availableEncoders.length > 0) {
+                const encoder = availableEncoders.slice(-1)[0]
+                log.info("Setting encoder to", encoder)
+                setSetting(this.NodeObs, Output, 'RecEncoder', encoder);
+                break;
+            }
+        }
         setSetting(this.NodeObs, Output, 'RecFilePath', Storage.get("clip_path"));
         setSetting(this.NodeObs, Output, 'RecFormat', 'mkv');
 
