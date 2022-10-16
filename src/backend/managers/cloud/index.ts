@@ -141,6 +141,7 @@ export class CloudManager {
                         const rawBody = chunks.length === 0 ? response.rawBody.toString("utf-8") :
                             Buffer.concat(chunks).toString("utf-8")
 
+                        log.silly("Raw Body is", rawBody)
                         const body = JSON.parse(rawBody)
                         console.log("ResponseCode is", response.statusCode)
                         if (response.statusCode === 200) {
@@ -228,7 +229,7 @@ export class CloudManager {
         const originalHex = await getHexCached(originalPath);
 
         const found = list.find(e => e.hex === originalHex)
-        if(!found)
+        if (!found)
             throw new Error("Could not find id in cloud.")
 
         const cookies = await AuthManager.getCookies()
