@@ -2,17 +2,19 @@ import React, { useContext, useEffect, useState } from 'react';
 import { TitlebarContext } from './TitleBarProvider';
 
 export default function TitleBarItem(p: React.PropsWithChildren) {
-    const { menu, setMenu } = useContext(TitlebarContext)
-    const [ id, _] = useState(() => Math.random())
+    const { menu, setUpdate } = useContext(TitlebarContext)
+    const [id, _] = useState(() => Math.random())
 
     useEffect(() => {
         menu.set(id, p.children)
-        setMenu(new Map(menu.entries()))
+        setUpdate(Math.random())
 
         return () => {
             menu.delete(id)
-            setMenu(new Map(menu.entries()))
+            setUpdate(Math.random())
         }
-    }, [ p.children ])
+    }, [p.children, menu])
+
+    console.log(menu)
     return <></>
 }

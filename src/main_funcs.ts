@@ -14,7 +14,7 @@ export function addUpdater() {
         logger: logger
     })
 
-    autoUpdater.on('update-downloaded', (event, releaseNotes, releaseName) => {
+    autoUpdater.on('update-downloaded', (_, releaseNotes, releaseName) => {
         const dialogOpts = {
             type: 'info',
             buttons: ['Restart', 'Later'],

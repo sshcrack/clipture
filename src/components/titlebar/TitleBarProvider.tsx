@@ -5,28 +5,29 @@ import CloseBehaviorListener from './CloseBehaviorListener'
 export type MenuMap = Map<number, React.ReactNode>
 export type TitlebarState = {
     menu: MenuMap,
-    setMenu: ReactSetState<MenuMap>,
     size: string,
-    setSize: ReactSetState<string>
+    setSize: ReactSetState<string>,
+    setUpdate: ReactSetState<number>
 }
 
 export const TitlebarContext = React.createContext<TitlebarState>({
     menu: new Map(),
-    setMenu: () => { },
     size: "28px",
-    setSize: () => { }
+    setSize: () => { },
+    setUpdate: () => { }
 })
 
 export default function TitleBarProvider(p: React.PropsWithChildren) {
-    const [menu, setMenu] = useState<MenuMap>(() => new Map())
+    const [menu, _] = useState<MenuMap>(() => new Map())
+    const [_1, setUpdate] = useState(() => Math.random())
     const [size, setSize] = useState("28px")
     return <CloseBehaviorListener>
         <TitlebarContext.Provider
             value={{
                 menu,
-                setMenu,
                 size,
-                setSize
+                setSize,
+                setUpdate
             }}
         >
             {p.children}
