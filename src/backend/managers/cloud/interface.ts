@@ -20,3 +20,9 @@ export type CloudClipStatus = {
     clipName: string,
     progress: Progress
 }
+
+export type CloudUsage = {
+    maxClipSize: number,
+    maxTotal: number,
+    current: number
+}

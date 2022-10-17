@@ -16,13 +16,14 @@ import { getClipInfo, getClipVideoPath, getVideoIco, getVideoInfo } from '../cli
 import { GameManager } from '../game';
 import { RecordManager } from '../obs/core/record';
 import { WindowInformation } from '../obs/Scene/interfaces';
-import { CloudClip, CloudClipStatus } from './interface';
+import { CloudClip, CloudClipStatus, CloudUsage } from './interface';
 
 const log = MainLogger.get("Managers", "Cloud")
 const CACHE_EXPIRE = 30 * 1000
 export class CloudManager {
     static uploading = [] as CloudClipStatus[]
     static cached = null as CloudClip[]
+    static cachedUsage = null as CloudUsage
 
     static register() {
         RegManMain.onPromise("cloud_upload", (_, clipName) => this.uploadClip(clipName));
@@ -30,9 +31,26 @@ export class CloudManager {
         RegManMain.onPromise("cloud_list", () => this.list());
         RegManMain.onPromise("cloud_uploading", async () => this.getUploading())
         RegManMain.onPromise("cloud_share", (_, clipName) => this.share(clipName))
+        RegManMain.onPromise("cloud_usage", () => this.getUsage())
         RegManMain.onPromise("cloud_rename", (_, originalName, newName) => {
             return this.rename(originalName, newName)
         })
+    }
+
+    static async getUsage() {
+        if (this.cachedUsage)
+            return this.cachedUsage
+
+        const cookies = await AuthManager.getCookies()
+        if (!cookies)
+            throw new Error("Not authenticated.")
+
+        const res = await got(`${MainGlobals.baseUrl}/api/clip/usage`, { headers: { cookie: cookies } })
+            .json<CloudUsage>()
+
+        setTimeout(() => { this.cachedUsage = null }, CACHE_EXPIRE)
+        this.cachedUsage = res
+        return res
     }
 
     static getUploading() {
@@ -159,10 +177,10 @@ export class CloudManager {
                         log.error("Unknown error", body)
                         return reject(new Error("Unknown error"))
                     } catch (e) {
-                        if(response.statusCode === HttpStatusCode.PAYLOAD_TOO_LARGE)
+                        if (response.statusCode === HttpStatusCode.PAYLOAD_TOO_LARGE)
                             return reject(new Error("Clip is too large."))
 
-                        if(response.statusCode === HttpStatusCode.INSUFFICIENT_STORAGE)
+                        if (response.statusCode === HttpStatusCode.INSUFFICIENT_STORAGE)
                             return reject(new Error("The clipture server do not have any storage left :("))
 
                         log.error(e)
@@ -181,9 +199,17 @@ export class CloudManager {
             })
         }).finally(() => {
             this.uploading = this.uploading.filter(e => e.clipName !== clipName)
-            this.cached = null
+            this.clearCache()
+
+            this.getUsage()
+                .then(e => RegManMain.send("cloud_usageUpdate", e))
             RegManMain.send("cloud_update", this.uploading)
         });
+    }
+
+    static clearCache() {
+        this.cached = null
+        this.cachedUsage = null
     }
 
     static async delete(clipName: string) {
@@ -206,7 +232,10 @@ export class CloudManager {
 
         const res = await Promise.all(proms)
         log.silly("Result of deleting:", res)
-        this.cached = null
+        this.clearCache()
+
+        this.getUsage()
+            .then(e => RegManMain.send("cloud_usageUpdate", e))
     }
 
     static async list() {

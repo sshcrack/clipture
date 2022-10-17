@@ -1,0 +1,3 @@
+.progress-color div {
+    background-color: var(--prog-color);
+}

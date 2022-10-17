@@ -12,10 +12,8 @@ export default function EditorTitlebar() {
     const { selection, videoName } = useContext(EditorContext)
     const { start, end } = selection
     const [isCuttingClips, setCuttingClips] = useState(false)
-    const [clipExists, setClipExists] = useState(false)
 
     const [desiredClipName, setDesiredClipName] = useState("")
-    const [debouncedClipName] = useDebounce(desiredClipName, 100)
 
     const [isError, setError] = useState(true)
 
@@ -57,14 +55,13 @@ export default function EditorTitlebar() {
 
         clips.exists(desiredClipName)
             .then(exists => {
-                if (exists) {
-                    setClipExists(true)
+                if (exists)
                     return toast({
                         title: t("generate.name_invalid.title"),
                         description: t("generate.name_invalid.description"),
                         status: "error"
                     })
-                }
+
                 console.log("Cutting with selection", selection)
                 setCuttingClips(true)
                 onClose()
