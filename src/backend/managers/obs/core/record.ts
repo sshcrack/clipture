@@ -17,11 +17,14 @@ import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
 import { importOBS } from '../tool'
 import { getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
-import { CurrentType, OutCurrentType } from "./interface"
+import { CurrentType, OutCurrentType, RecordingListenerInfo } from "./interface"
 import { getWindowInfoId } from './tools'
 
 const reg = RegManMain
-const log = MainLogger.get("Backend", "Managers", "OBS", "Core", "Record")
+const log = MainLogger.get("Backend", "Managers", "OBS", "Record")
+
+type ListenerType = (isRecording: boolean) => unknown
+
 export class RecordManager {
     private recording = false;
     private NodeObs: typedObs = null
@@ -39,7 +42,7 @@ export class RecordManager {
     private disabled = false
     private recordTimer: number = undefined;
     private windowInformation = new Map<string, WindowInformation>()
-    private listeners = [] as ((isRecording: boolean) => unknown)[]
+    private listeners = [] as ListenerType[]
 
     public async getCurrent() {
         const detectable = await GameManager.getDetectableGames()
@@ -264,12 +267,11 @@ export class RecordManager {
         }
 
         this.listeners.map(e => e(false))
-
         RegManMain.send("obs_record_change", false)
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
     }
 
-    public addRecordListener(func: (isRecording: boolean) => unknown) {
+    public addRecordListener(func: ListenerType) {
         this.listeners.push(func)
 
         return () => {

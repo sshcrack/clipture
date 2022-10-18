@@ -1,5 +1,6 @@
 import { GeneralGame } from '@backend/managers/game/interface';
 import { CaptureMethod } from '@backend/managers/obs/core/interface';
+import { DeleteMethods } from '@backend/managers/storage/interface';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
@@ -80,7 +81,8 @@ const defaults = {
     "bookmark_hotkey": "F9",
     "auto_launch": true,
     "discord_rpc": true,
-    "language": undefined as string
+    "language": undefined as string,
+    "delete_method": [] as DeleteMethods[],
 }
 export const Storage = new StorageExtended({
     defaults

@@ -11,6 +11,7 @@ import cloud from "./cloud";
 import obs from "./obs";
 import game from "./game";
 import audio from "./audio";
+import storage from "./storage";
 import system from './system';
 import titlebar from "./titlebar";
 import settings from './settings';
@@ -37,6 +38,7 @@ export const API = {
     system,
     settings,
     bookmark,
+    storage,
     prerequisites,
     discord,
     cloud,

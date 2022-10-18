@@ -127,6 +127,18 @@
                         "title": "Could not get hotkey",
                         "description": "Trying again in 5 seconds..."
                     }
+                },
+                "discord": {
+                    "title": "Show in discord status"
+                },
+                "delete": {
+                    "title": "Delete videos:",
+                    "and": "and",
+                    "delete_methods": {
+                        "NONE": "never",
+                        "NO_BOOKMARKS": "if not any bookmarks",
+                        "WEEK_OLD": "if older than one week"
+                    }
                 }
             },
             "list": {
@@ -190,9 +202,6 @@
                     "title": "Clip Path",
                     "placeholder": "Loading path...",
                     "browse": "Browse"
-                },
-                "discord": {
-                    "title": "Show in discord status"
                 }
             },
             "video": {

@@ -208,6 +208,7 @@ export class CloudManager {
     }
 
     static clearCache() {
+        log.info("Clearing cache...")
         this.cached = null
         this.cachedUsage = null
     }
@@ -239,6 +240,7 @@ export class CloudManager {
     }
 
     static async list() {
+        console.log("List cached is", !!this.cached)
         if (this.cached)
             return this.cached
 
@@ -250,7 +252,7 @@ export class CloudManager {
         }).json<CloudClip[]>()
 
         this.cached = res
-        setTimeout(() => { this.cached = null }, CACHE_EXPIRE)
+        setTimeout(() => { this.cached = null; console.log("Invalidating cache...") }, CACHE_EXPIRE)
         return res
     }
 

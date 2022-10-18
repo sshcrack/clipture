@@ -9,6 +9,7 @@ import { MainLogger } from '../../../interfaces/mainLogger'
 import { DiscordManager } from '../discord'
 import { GameManager } from '../game'
 import { LockManager } from '../lock'
+import { StorageManager } from '../storage'
 import { getAvailableValues, setOBSSetting as setSetting } from './base'
 import { BookmarkManager } from './bookmark'
 import { PreviewManager } from './core/preview'
@@ -79,6 +80,10 @@ export class OBSManager {
             {
                 title: "Listening to game changes...",
                 func: () => GameManager.addUpdateLoop()
+            },
+            {
+                title: "Adding to storage manager...",
+                func: () => StorageManager.register()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 
@@ -124,6 +129,7 @@ export class OBSManager {
             status: "OBS initialized"
         })
 
+        StorageManager.check().catch(e => {log.error("Storage:", e)})
         this.obsInitialized = true
     }
 
@@ -188,9 +194,9 @@ export class OBSManager {
 
         log.info("Defaulting to x264")
         setSetting(this.NodeObs, Output, 'RecEncoder', 'x264');
-        for(let i = 0; i < 10; i++) {
+        for (let i = 0; i < 10; i++) {
             const availableEncoders = getAvailableValues(this.NodeObs, Output, 'Recording', 'RecEncoder');
-            if(availableEncoders.length > 0) {
+            if (availableEncoders.length > 0) {
                 const encoder = availableEncoders.slice(-1)[0]
                 log.info("Setting encoder to", encoder)
                 setSetting(this.NodeObs, Output, 'RecEncoder', encoder);

@@ -23,12 +23,27 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const [update, setUpdate] = useState(0)
     const [currVideos, setVideos] = React.useState<Video[]>([])
     const [openedMenus, setOpenedMenus] = useState([] as string[])
+    const [lockedVideos, setLockedVideos] = useState([] as string[])
     const [loading, setLoading] = React.useState(true)
 
-    const { videos, obs } = window.api
+    const { videos, obs, storage } = window.api
     const { t } = useTranslation("dashboard", { "keyPrefix": "videos" })
 
-    useEffect(() => obs.onRecordChange(() => setTimeout(() => setRetry(Math.random()), 500)), [])
+    useEffect(() => {
+        const funcs = [
+            obs.onRecordChange(() => setTimeout(() => setRetry(Math.random()), 500)),
+            storage.onVideosLocked(e => {
+                if (e.length === 0)
+                    setRetry(Math.random())
+
+                setLockedVideos(e)
+            })
+        ]
+
+        return () => {
+            funcs.forEach(e => e())
+        }
+    }, [])
     useEffect(() => {
         videos.list()
             .then(e => {
@@ -52,6 +67,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         const { gameName, icon, id } = getGameInfo(game, videoName)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         const isOpened = openedMenus.some(e => e === videoName)
+        const isLocked = lockedVideos.some(e => e === videoName)
 
         const onEditor = () => location.hash = `/editor/${videoName}`
         return <RenderIfVisible
@@ -79,7 +95,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                     type='videos'
                     fileName={videoName}
                 >
-                    {!isOpened ? <HoverVideoWrapper
+                    {!isOpened && !isLocked ? <HoverVideoWrapper
                         source={videoName}
                         bookmarks={bookmarks}
                         w='100%'

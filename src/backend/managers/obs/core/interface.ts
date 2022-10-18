@@ -12,3 +12,5 @@ export type OutCurrentType = Omit<CurrentType, "gameId"> & {
 }
 
 export type CaptureMethod = "desktop" | "window"
+
+export type RecordingListenerInfo = { gameId: string, bookmarks: number[] }

@@ -2,17 +2,18 @@ import { RegManMain } from '@general/register/main';
 import { registerLockEvents } from './events';
 import { AuthManager } from './managers/auth';
 import { ClipManager } from './managers/clip';
+import { CloudManager } from './managers/cloud';
+import { DiscordManager } from './managers/discord';
+import { GameManager } from './managers/game';
+import { BookmarkManager } from './managers/obs/bookmark';
 import { Scene } from './managers/obs/Scene';
 import { AudioSceneManager } from './managers/obs/Scene/audio';
-import { GameManager } from './managers/game';
-import { SettingsManager } from './managers/settings';
 import { Prerequisites } from './managers/prerequisites';
+import { SettingsManager } from './managers/settings';
+import { StorageManager } from './managers/storage';
 import { SystemManager } from './managers/system';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
-import { BookmarkManager } from './managers/obs/bookmark';
-import { DiscordManager } from './managers/discord';
-import { CloudManager } from './managers/cloud';
 
 export const registerFuncs = [
     () => RegManMain.register(),

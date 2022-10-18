@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import LanguageSelector from 'src/components/settings/categories/OBS/General/LanguageSelector'
 import OBSAutostart from 'src/components/settings/categories/OBS/General/OBSAutostart'
 import OBSClipPath from 'src/components/settings/categories/OBS/General/OBSClipPath'
-import OBSDiscord from 'src/components/settings/categories/OBS/General/OBSDiscord'
+import OBSDelete from 'src/components/settings/categories/OBS/General/OBSDelete'
 
 export default function OBSGeneral() {
     const { t } = useTranslation("settings", { keyPrefix: "obs.general" })
@@ -18,7 +18,7 @@ export default function OBSGeneral() {
             alignItems='center'
         >
             <OBSAutostart />
-            <OBSDiscord />
+            <OBSDelete />
             <OBSClipPath />
             <LanguageSelector />
         </Flex>

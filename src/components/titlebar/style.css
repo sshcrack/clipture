@@ -1,5 +1,6 @@
 .drag-titlebar > * {
   -webkit-app-region: drag !important;
+  user-select: none !important;
 }
 
 #electron-app-title-bar .no-drag-parent > * {

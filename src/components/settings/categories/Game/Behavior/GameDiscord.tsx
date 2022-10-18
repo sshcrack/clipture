@@ -3,11 +3,11 @@ import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
-export default function GeneralDiscord() {
+export default function BehaviorDiscord() {
     const { addModified, removeModified, saving, addSaveListener } = useContext(SettingsSaveContext)
     const [original, setOriginal] = useState(undefined as boolean)
     const [curr, setCurr] = useState(undefined as boolean)
-    const { t } = useTranslation("settings", { keyPrefix: "obs.general.discord" })
+    const { t } = useTranslation("settings", { keyPrefix: "game.behavior.discord" })
     const { discord } = window.api
 
     useEffect(() => {

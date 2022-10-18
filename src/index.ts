@@ -17,6 +17,7 @@ import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
+import { ClipProtocol } from '@backend/managers/clip/protocol';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -73,7 +74,7 @@ const createWindow = (): void => {
   mainWindow.setMenuBarVisibility(false)
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   mainWindow.setIcon(MainGlobals.iconFile)
-  ClipManager.registerProtocol()
+  ClipProtocol.register()
 
   trayIcon = new Tray(MainGlobals.iconFile);
   const contextMenu = Menu.buildFromTemplate([

@@ -13,6 +13,7 @@ import { BookmarkEventsPromises, BookmarkMainToRender } from './bookmark'
 import { CloudEventsPromises, CloudMainToRender } from './cloud'
 import { PrerequisitesEventsPromises, PrerequisitesMainToRender } from './prerequisites'
 import { DiscordEventsPromises } from './discord'
+import { StorageEventsPromises, StorageMainToRender } from './storage'
 
 export type RegisterEvents = LockEventsSync & OBSEventsSync & SystemEventsSync
 
@@ -22,6 +23,7 @@ export type RegisterEventsPromises = AuthEventsPromises & AudioEventsPromises
     & SettingsEventsPromises & ClipsEventPromises
     & BookmarkEventsPromises & PrerequisitesEventsPromises
     & CloudEventsPromises & DiscordEventsPromises
+    & StorageEventsPromises
 
 export type MainToRender = {
     performance: (stats: PerformanceStatistics) => void,
@@ -32,4 +34,4 @@ export type MainToRender = {
     & GameMainToRender & OBSMainToRender
     & BookmarkMainToRender
     & SystemMainToRender & PrerequisitesMainToRender
-    & CloudMainToRender
+    & CloudMainToRender & StorageMainToRender

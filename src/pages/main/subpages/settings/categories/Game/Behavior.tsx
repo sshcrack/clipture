@@ -1,6 +1,7 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
 import { useTranslation } from 'react-i18next'
+import BehaviorDiscord from 'src/components/settings/categories/Game/Behavior/GameDiscord'
 import GameHotkey from 'src/components/settings/categories/Game/Behavior/GameHotkey'
 
 export default function GameBehavior() {
@@ -14,6 +15,7 @@ export default function GameBehavior() {
             alignItems='center'
         >
             <GameHotkey />
+            <BehaviorDiscord />
         </Flex>
     </>
 }
