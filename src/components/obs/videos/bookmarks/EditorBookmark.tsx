@@ -20,7 +20,7 @@ export default function EditorBookmark({ time, barW }: { time: number, barW: num
     gridRow='1'
     gridColumn='1'
     w='100%'
-    transform={`translateX(${placement}px)`}
+    transform={`translateX(${placement}px + 1em)`}
   >
     <MdPlace style={{ width: "2em", height: "2em" }} onClick={() => {
       if(!videoRef?.current?.currentTime)
