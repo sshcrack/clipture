@@ -1,5 +1,5 @@
 import { Clip } from '@backend/managers/clip/interface';
-import { CloudClipStatus } from '@backend/managers/cloud/interface';
+import { CloudClipStatus, CloudUsage } from '@backend/managers/cloud/interface';
 import { Flex, Tooltip, useToast } from '@chakra-ui/react';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
@@ -24,6 +24,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(true)
     const [update, setUpdate] = useState(0)
+    const [usage, setUsage] = useState(null as CloudUsage)
     const [uploadingClips, setUploadingClips] = useState([] as ReadonlyArray<CloudClipStatus>)
     const [openedMenus, setOpenedMenus] = useState([] as string[])
     const { clips, obs, cloud } = window.api
@@ -43,6 +44,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             })
         ]
 
+        cloud.usage().then(e => setUsage(e))
         return () => { unregister.map(e => e()) }
     }, [])
 
@@ -63,7 +65,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { game, clipName, modified, icoName, uploaded, original } = clip ?? {}
+            const { game, clipName, modified, icoName, uploaded, original, tooLarge } = clip ?? {}
             const { gameName, icon, id } = getGameInfo(game, original)
             const baseName = clipName.replace(".clipped.mp4", "")
 
@@ -83,6 +85,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     clipName={clipName}
                     setUpdate={setUpdate}
                     uploaded={uploaded}
+                    tooLarge={tooLarge}
                     cloudDisabled={!!currUploading}
                     setOpen={opened => {
                         const filtered = openedMenus.concat([]).filter(e => e !== clipName)

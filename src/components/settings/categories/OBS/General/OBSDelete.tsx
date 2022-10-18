@@ -46,7 +46,6 @@ export default function OBSDelete() {
         }
     }) ?? []
 
-    console.log(curr, listOptions)
     return <Flex w='70%' flexDir='column'>
         <Text flex='1' mb='8px'>{t("title")}</Text>
         {curr ? <CustomSelect

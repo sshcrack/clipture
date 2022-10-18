@@ -14,17 +14,19 @@ import RenameItem from './both/RenameItem';
 import DeleteItem from './both/DeleteItem';
 import ShareMenuItem from './cloud/ShareMenuItem';
 import UploadMenuItem from './cloud/UploadMenuItem';
+import { CloudUsage } from '@backend/managers/cloud/interface';
 
 type Props = {
     clipName: string,
     setUpdate: ReactSetState<number>,
     setOpen?: ReactSetState<boolean>,
     uploaded: boolean,
-    cloudDisabled: boolean
+    cloudDisabled: boolean,
+    tooLarge: boolean
 }
 
 const log = RenderLogger.get("Components", "ClipContextMenu")
-export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled }: PropsWithChildren<Props>) {
+export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled, tooLarge }: PropsWithChildren<Props>) {
     const { system, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
@@ -46,7 +48,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
             <DeleteItem baseName={clipName} setUpdate={setUpdate} />
             <ContextMenuCategory>{t("cloud")}</ContextMenuCategory>
             {!uploaded ?
-                <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} /> :
+                <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} tooLarge={tooLarge} /> :
                 <ShareMenuItem clipName={clipName} />
             }
             <ContextMenuItem
@@ -66,7 +68,6 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                             })
                         })
                         .finally(() => {
-                            console.log("Sending update to outer")
                             setUpdate(Math.random())
                             setCloudDeleting(false)
                         })

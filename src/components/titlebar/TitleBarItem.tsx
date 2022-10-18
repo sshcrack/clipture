@@ -15,6 +15,5 @@ export default function TitleBarItem(p: React.PropsWithChildren) {
         }
     }, [p.children, menu])
 
-    console.log(menu)
     return <></>
 }

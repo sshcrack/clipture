@@ -216,10 +216,11 @@ export class OBSManager {
         const Video = SettingsCat.Video
 
         const fps = Storage.get("obs")?.fps ?? 60
-        const bitrate = Storage.get("obs")?.bitrate ?? 10000
+        const bitrate = Storage.get("obs")?.bitrate ?? 10000 // 10 Mbps
 
         setSetting(this.NodeObs, Video, 'FPSCommon', fps);
-        setSetting(this.NodeObs, Output, 'VBitrate', bitrate); // 10 Mbps
+        setSetting(this.NodeObs, Output, 'VBitrate', bitrate);
+        setSetting(this.NodeObs, Output, 'Bitrate', bitrate);
     }
 
     private register() {

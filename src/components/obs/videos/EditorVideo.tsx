@@ -1,14 +1,16 @@
 import { Box, Flex, Grid, GridItemProps } from '@chakra-ui/react'
 import { getVideoSourceUrl } from '@general/tools'
 import { motion } from 'framer-motion'
-import React, { useContext, useEffect } from "react"
+import React, { useContext, useEffect, useState } from "react"
 import { FaPlay } from 'react-icons/fa'
+import { BsFillVolumeUpFill } from "react-icons/bs"
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import { EditorContext } from './Editor'
 
 const log = RenderLogger.get("components", "obs", "videos", "EditorVideo")
 export default function EditorVideo(props: GridItemProps) {
     const { bgGeneratorRef, videoRef, videoName, setDuration, paused, setSelection, setPaused } = useContext(EditorContext)
+    const [hovered, setHovered] = useState(false)
 
 
     const transition = 'all .2s ease-in-out'
@@ -33,7 +35,7 @@ export default function EditorVideo(props: GridItemProps) {
                     return resolve()
 
                 video.ondurationchange = () => {
-                    if(video.duration === Infinity)
+                    if (video.duration === Infinity)
                         return
 
                     return resolve();
@@ -103,19 +105,31 @@ export default function EditorVideo(props: GridItemProps) {
                 h='100%'
                 justifyContent='center'
                 alignItems='center'
-                opacity={paused ? 1 : 0}
                 transition={transition}
                 cursor='pointer'
+                position='relative'
                 bg={paused ? "rgba(0,0,0,.4)" : "rgba(0,0,0,0)"}
                 onClick={() => pauseVideo(!paused)}
+                onMouseEnter={() => setHovered(true)}
+                onMouseLeave={() => setHovered(false)}
             >
                 <motion.div
                     animate={{
                         "--play-size": paused ? "2.5em" : "0em",
+                        opacity: paused ? 1 : 0
                     } as any}
                 >
                     <FaPlay style={{ width: 'var(--play-size)', height: 'var(--play-size)', cursor: "pointer" }} />
                 </motion.div>
+                {/*<Box
+                    position='absolute'
+                    right='0'
+                    bottom='0'
+                    w='1em'
+                    h='1em'
+                >
+                    <BsFillVolumeUpFill style={{ width: '1em', height: '1em', cursor: "pointer" }} />
+                </Box>*/}
             </Flex>
         </Flex>
     </Grid>

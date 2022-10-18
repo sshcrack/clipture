@@ -1,29 +1,39 @@
-import { useToast } from '@chakra-ui/react'
+import { Tooltip, useToast } from '@chakra-ui/react'
 import { AiOutlineCloudUpload } from 'react-icons/ai'
 import { ReactSetState } from 'src/types/reactUtils'
 import { ContextMenuItem } from '../base/ContextMenuItem'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CloudUsage } from '@backend/managers/cloud/interface'
 
 type Props = {
     disabled: boolean,
     clipName: string,
-    setUpdate: ReactSetState<number>
+    setUpdate: ReactSetState<number>,
+    tooLarge: boolean
 }
 
-export default function UploadMenuItem({ clipName, disabled, setUpdate }: Props) {
+export default function UploadMenuItem({ clipName, disabled, setUpdate, tooLarge }: Props) {
     const toast = useToast()
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
     const { cloud } = window.api
     const [isUploading, setUploading] = useState(false)
 
-    return <ContextMenuItem
+    const item = <ContextMenuItem
         isDisabled={disabled}
         colorScheme='green'
         leftIcon={< AiOutlineCloudUpload />}
         isLoading={isUploading}
+        loadingText={t("uploading")}
         onClick={() => {
+            if (tooLarge)
+                return toast({
+                    title: t("too_large"),
+                    status: "warning",
+                    duration: 1000 * 10
+                })
+
             cloud.upload(clipName.replace(".clipped.mp4", ""))
                 .catch(e => toast({
                     status: "error",
@@ -42,4 +52,9 @@ export default function UploadMenuItem({ clipName, disabled, setUpdate }: Props)
                 })
         }}
     > {t("upload")}</ContextMenuItem>
+
+    if (!tooLarge)
+        return item
+
+    return <Tooltip shouldWrapChildren label='Clip is too large.'>{item}</Tooltip>
 }

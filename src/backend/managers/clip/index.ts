@@ -214,6 +214,7 @@ export class ClipManager extends VideoManager {
             throw e
         })).sort((a, b) => b.modified - a.modified)
 
+        const usage = await CloudManager.getUsage()
         const detectable = await GameManager.getDetectableGames()
         const uploaded: CloudClip[] | null = await CloudManager.list().catch(e => {
             log.error("Could not get uploaded clips", e)
@@ -227,7 +228,7 @@ export class ClipManager extends VideoManager {
                     const clipName = path.basename(file)
                     const icoExists = clipInfo?.icoName && await existsProm(path.join(clipPath, clipInfo.icoName))
 
-                    if (!clipInfo || !icoExists) {
+                    if (!clipInfo || !icoExists || clipInfo?.tooLarge === undefined || clipInfo?.tooLarge === null) {
                         let { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
 
                         if (!gameId && rawGameInfo.originalInfo)
@@ -276,13 +277,15 @@ export class ClipManager extends VideoManager {
                             }
                         }
 
-
                         addToCached(file, hex)
+
+                        const clipSize = (await stat(file)).size
                         clipInfo = {
                             ...rawGameInfo,
                             game: gameInfo,
                             icoName: icoPath && path.basename(icoPath),
                             uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
+                            tooLarge: clipSize > usage.maxClipSize
                         }
                         this.clipInfoCache.set(file, clipInfo)
                     }

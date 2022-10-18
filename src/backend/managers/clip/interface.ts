@@ -21,7 +21,8 @@ export type Clip = {
     end: number,
     duration: number,
     icoName: string | null,
-    uploaded: boolean
+    uploaded: boolean,
+    tooLarge: boolean
 }
 
 export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded"> & {

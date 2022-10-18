@@ -1,9 +1,8 @@
-import { Box, Flex, Grid, IconButton, Tooltip } from '@chakra-ui/react';
+import { Box, Flex, Grid } from '@chakra-ui/react';
 import { GridProps } from '@chakra-ui/styled-system';
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { BsArrowClockwise } from 'react-icons/bs';
-import { FaPlay } from 'react-icons/fa';
 import { ReactSetState } from 'src/types/reactUtils';
+import { LoaderTargetPlugin } from 'webpack';
 import { EditorContext } from '../Editor';
 import EditorBarButtons from './EditorBarButtons';
 
@@ -165,13 +164,15 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
                 h='100%'
                 ref={mainBarRef}
                 onMouseDown={e => {
-                    if (e.button === 2)
-                        startSeekDrag()
+                    if ((e.target as HTMLElement).classList.contains("no-seedrag"))
+                        return
+
+                    startSeekDrag()
                 }}
             >
                 <Box
-                gridRow='1'
-                gridColumn='1'
+                    gridRow='1'
+                    gridColumn='1'
                     backgroundRepeat='repeat'
                     bg='#adadad'
                     ref={bgImageRef}
