@@ -119,7 +119,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                             }
                             }
                         >{recording ? t("stop") : t("start")}</Button>
-                        {!recording && <RefreshGamesBtn automaticRecord={automaticRecord}/>}
+                        {!recording && <RefreshGamesBtn automaticRecord={automaticRecord} />}
                         {recording && automaticRecord === false && <SwitchMonitorBtn />}
                         <Button
                             colorScheme={automaticRecord ? "red" : "green"}

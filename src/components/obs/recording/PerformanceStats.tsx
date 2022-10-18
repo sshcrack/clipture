@@ -71,6 +71,7 @@ export default function PerformanceStatistics() {
                 .then(e => setRecordTime(e))
                 .catch(() => { })
         }, 1000)
+
         return clearInterval(id)
     }, [])
 
@@ -85,7 +86,7 @@ export default function PerformanceStatistics() {
         labels: labels,
         datasets: [{
             label: t("cpu"),
-            data: stats.map(e => Math.round(e.CPU * 100) / 100),
+            data: stats.map(e => (Math.round(e.CPU * 100) / 100).toFixed(1)),
             borderColor: dataColor,
             backgroundColor: dataColor
         }]
@@ -111,8 +112,6 @@ export default function PerformanceStatistics() {
         }]
     } as LineChartData
 
-    //@ts-ignore
-    window.stats = stats
     return <Flex
         w='100%'
         h='100%'

@@ -349,11 +349,11 @@ export class RecordManager {
         if (GameManager.winInfoExcluded(winInfo))
             return
 
-        log.debug("Trying to record if not recording scene has window:", {
-            ...(Scene.getCurrentSetting()?.window ?? {}),
-            arguments: ["censored"]
-        } as WindowInformation, "Recording", this.isRecording())
         if (!this.isRecording() && Scene.getCurrentSetting()?.window) {
+            log.debug("Recording window:", {
+                ...(Scene.getCurrentSetting()?.window ?? {}),
+                arguments: ["censored"]
+            } as WindowInformation, "Recording", this.isRecording())
             this.startRecording(game, winInfo).then(() =>
                 new Notification({
                     title: "Recording started",

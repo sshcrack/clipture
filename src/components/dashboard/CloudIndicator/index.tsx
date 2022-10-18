@@ -43,7 +43,7 @@ export default function CloudIndicator() {
 
     const placeholder = <>
         <Progress isAnimated hasStripe value={1} {...progGeneral} />
-        <Text> Loading</Text>
+        <Text color='white' pl='2'> Loading</Text>
     </>
 
     return <TitleBarItem>

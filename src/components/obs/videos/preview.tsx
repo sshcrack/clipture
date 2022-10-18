@@ -83,24 +83,30 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
 
 
     useEffect(() => {
+        if (!preview.current)
+            return
+
+        const curr = preview.current
         const handler = () => {
             updatePreview()
             console.log("Resize handler")
         }
 
+        const resizeObserver = new ResizeObserver(() => {
+            updatePreview()
+        });
+
+        resizeObserver.observe(curr);
+
         window.addEventListener("resize", handler)
         window.addEventListener("scroll", handler)
+
         return () => {
             window.removeEventListener("resize", handler)
             window.removeEventListener("scroll", handler)
+            resizeObserver.disconnect();
         }
     }, [preview, displayId])
-    useEffect(() => {
-        if (!displayId || !preview.current)
-            return
-
-        updatePreview()
-    })
 
     useEffect(() => {
         if (!displayId)
