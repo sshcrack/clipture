@@ -85,20 +85,21 @@ export class CloudManager {
         if (!existsProm(clipPath))
             throw new Error("Clip not found.")
 
-        const { original } = await getClipInfo(rootPath, clipName + ".clipped.mp4") ?? {}
-        if (!original)
-            throw new Error("Clip info could not be found.")
+        let { original, gameId } = await getClipInfo(rootPath, clipName + ".clipped.mp4") ?? {}
+        if (original && !gameId)
+            gameId = (await getVideoInfo(rootPath, original))?.gameId
 
-        const { gameId } = (original && await getVideoInfo(rootPath, original)) ?? {}
         let windowInfo = null as WindowInformation | null
-
         const detectable = await GameManager.getDetectableGames()
         if (!detectable)
             log.warn("Could not get detectable games.")
         let { id: discordId } = detectable?.find(e => e?.id === gameId) ?? {}
 
-        if (gameId && !discordId)
+        console.log("Game id is", gameId)
+        if (gameId && !discordId) {
             windowInfo = RecordManager.instance.getWindowInfo().get(gameId)
+            log.info("Found window info", windowInfo)
+        }
 
         const { size } = await fs.stat(clipPath)
         const body = new FormData()
@@ -107,6 +108,7 @@ export class CloudManager {
         if (discordId)
             body.append("discordGameId", discordId)
         if (windowInfo) {
+            console.log("Appending window info")
             const { className, title, productName, full_exe } = windowInfo
             body.append("windowInformationClassName", className)
             body.append("windowInformationExecutable", path.basename(full_exe))

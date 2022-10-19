@@ -218,11 +218,13 @@ export class RecordManager {
             RegManMain.send("obs_record_change", true)
             this.listeners.map(e => e(true))
 
-            if (!discordGameInfo?.id && windowId)
+            if (!discordGameInfo?.id && windowId) {
                 this.windowInformation.set(windowId, {
                     ...windowInfo,
                     arguments: ["censored"]
                 })
+                await this.save()
+            }
         })()
 
 
@@ -297,11 +299,15 @@ export class RecordManager {
         this.registerHotkey()
     }
 
-    public async shutdown() {
+    public async save() {
         const clipPath = Storage.get("clip_path")
         const infoPath = path.join(clipPath, "window_info.json")
 
         await fs.writeFile(infoPath, JSON.stringify(Array.from(this.windowInformation.entries())))
+    }
+
+    public async shutdown() {
+        await this.save()
         await this.stopRecording()
     }
 
