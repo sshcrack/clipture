@@ -18,6 +18,7 @@ import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
 import { ClipProtocol } from '@backend/managers/clip/protocol';
+import { shutdownFuncs } from '@backend/shutdownFuncs';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -134,9 +135,7 @@ const handleExit = () => {
 
   logger.log("Shutting down...")
   alreadyShutdown = true
-  ClipManager.shutdown()
-  MainGlobals.obs.shutdown()
-  GameManager.exit()
+  shutdownFuncs.map(e => e())
 }
 
 ipcMain.handle("quit-app", () => handleExit())

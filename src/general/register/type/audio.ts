@@ -10,5 +10,6 @@ export type AudioEventsPromises = addPrefixUnderscoreToObject<{
 }, "audio">
 
 export type AudioMainToRender = addPrefixUnderscoreToObject<{
-    volmeter_update: (deviceId: string, magnitude: number[], peak: number[], inputPeak: number[]) => void
+    volmeter_update: (deviceId: string, magnitude: number[], peak: number[], inputPeak: number[]) => void,
+    device_update: (device: AllAudioDevices) => void
 }, "audio">

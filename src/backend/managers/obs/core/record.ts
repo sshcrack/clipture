@@ -3,6 +3,7 @@ import { GameManager } from '@backend/managers/game'
 import { BookmarkManager } from "@backend/managers/obs/bookmark"
 import { Prerequisites } from '@backend/managers/prerequisites'
 import { RegManMain } from '@general/register/main'
+import { getAddRemoveListener } from '@general/tools/listener'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
 import { BrowserWindow, Notification } from 'electron'
@@ -17,7 +18,7 @@ import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
 import { importOBS } from '../tool'
 import { getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
-import { CurrentType, OutCurrentType, RecordingListenerInfo } from "./interface"
+import { CurrentType, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
 
 const reg = RegManMain
@@ -272,14 +273,7 @@ export class RecordManager {
     }
 
     public addRecordListener(func: ListenerType) {
-        this.listeners.push(func)
-
-        return () => {
-            const index = this.listeners.indexOf(func)
-            if (index === -1)
-                return
-            this.listeners.splice(index, 1)
-        }
+        return getAddRemoveListener(func, this.listeners)
     }
 
     public isRecording() {
@@ -370,8 +364,6 @@ export class RecordManager {
         Storage.set("automatic_record", record)
         this.automaticRecord = record
     }
-
-
 
     public disable() {
         this.disabled = true

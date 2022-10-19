@@ -1,4 +1,5 @@
 import { RegManMain } from "@general/register/main";
+import { getAddRemoveListener } from '@general/tools/listener';
 import { Storage } from "@Globals/storage";
 import { globalShortcut, Input } from "electron";
 import { MainLogger } from "src/interfaces/mainLogger";
@@ -86,14 +87,7 @@ export class BookmarkManager {
     }
 
     static addHotkeyHook(cb: () => unknown) {
-        this.listeners.push(cb)
-
-        return () => {
-            const index = this.listeners.indexOf(cb)
-            if(index === -1)
-                return
-            this.listeners.splice(index, 1)
-        }
+        return getAddRemoveListener(cb, this.listeners)
     }
 
     private static onHotkey() {

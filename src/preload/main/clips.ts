@@ -1,6 +1,7 @@
 import { ClipCutInfo } from '@backend/managers/clip/interface';
 import { Progress } from '@backend/processors/events/interface';
 import { RegManRender } from '@general/register/render';
+import { getAddRemoveListener } from '@general/tools/listener';
 
 const listeners: ((clip: ClipCutInfo, prog: Progress) => void)[] = []
 const clips = {
@@ -10,20 +11,12 @@ const clips = {
             onUpdate(clip, prog)
             console.log("Preload update", clip, prog)
         }
-        listeners.push(func)
-        console.log("Listener added to listeners")
-        return () => {
-            const index = listeners.indexOf(func)
-            if (index === -1)
-                return console.error("Could not remove manual listener")
-
-            listeners.splice(index, 1)
-        }
+        return getAddRemoveListener(func, listeners)
     },
     list: () => RegManRender.emitPromise("clips_list"),
     thumbnail: (clipName: string) => RegManRender.emitPromise("clips_thumbnail", clipName),
     exists: (name: string) => RegManRender.emitPromise("clips_exists", name),
-    cut: (clipName: string, videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
+    cut: async (clipName: string, videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
         const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd, clipName })
         const listener = (clip: ClipCutInfo, prog: Progress) => {
             if (clip.videoName !== videoName || clip.start !== selectStart || clip.end !== selectEnd)

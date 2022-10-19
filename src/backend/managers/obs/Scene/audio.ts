@@ -1,9 +1,10 @@
 import { clamp } from '@backend/tools/math';
 import { byOS, OS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
+import { getAddRemoveListener } from '@general/tools/listener';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import type { IInput, IScene, IVolmeter, Global as globalType, InputFactory as inputType, VolmeterFactory as volType } from "@streamlabs/obs-studio-node"
+import type { Global as globalType, IInput, InputFactory as inputType, IScene, IVolmeter, VolmeterFactory as volType } from "@streamlabs/obs-studio-node";
 import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { SettingsCat } from 'src/types/obs/obs-enums';
@@ -11,7 +12,7 @@ import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { FixedLengthArray } from 'type-fest';
 import { setOBSSetting as setSetting } from '../base';
 import { importOBS } from '../tool';
-import { ActiveSource, AudioDevice, DeviceType } from './interfaces';
+import { ActiveSource, AudioDevice, AudioUpdateListener, DeviceType } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene", "Audio");
 
@@ -21,7 +22,7 @@ type VolmeterInfo = {
     volmeter: IVolmeter
 }
 
-const { obsRequirePath } = MainGlobals
+const REFRESH_INTERVAL = 1000 * 10
 export class AudioSceneManager {
     private static activeSources = [] as ActiveSource[]
     private static allVolmeters = [] as VolmeterInfo[]
@@ -38,6 +39,9 @@ export class AudioSceneManager {
     private static InputFactory: typeof inputType
     private static Global: typeof globalType
 
+    private static updateLoop: NodeJS.Timer = null
+    private static listeners = [] as AudioUpdateListener[]
+
     static async initialize() {
         if (this.initialized)
             return
@@ -48,13 +52,22 @@ export class AudioSceneManager {
         this.InputFactory = InputFactory
         this.Global = Global
         this.initialized = true
+
+        this.addDeviceCheckLoop()
     }
 
     static register() {
-        RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type, input, volume }) => ({ device_id, type, volume })) as SourceInfo[] as unknown as FixedLengthArray<SourceInfo, 2>)
+        RegManMain.onPromise("audio_active_sources", async () => this.activeSources.map(({ device_id, type, volume }) => ({ device_id, type, volume })) as SourceInfo[] as unknown as FixedLengthArray<SourceInfo, 2>)
         RegManMain.onPromise("audio_devices", async () => ({ desktop: this.allDesktops, microphones: this.allMics }))
         RegManMain.onPromise("audio_device_default", async () => this.getDefaultDevices())
         RegManMain.onPromise("audio_device_set", async (_, devices) => this.setAudioDevices(devices))
+
+        this.addDeviceUpdateListener(d => RegManMain.send("audio_device_update", d))
+    }
+
+    static async shutdown() {
+        if (this.updateLoop)
+            clearInterval(this.updateLoop)
     }
 
     private static addVolmeter({ device_id, type, volume }: SourceInfo) {
@@ -112,6 +125,32 @@ export class AudioSceneManager {
         }
     }
 
+    static addDeviceUpdateListener(listener: AudioUpdateListener) {
+        return getAddRemoveListener(listener, this.listeners)
+    }
+
+    static addDeviceCheckLoop() {
+        if (this.updateLoop)
+            return
+
+        this.updateLoop = setInterval(() => {
+            const newDesktop = this.getAudioDevices("desktop")
+            const newMics = this.getAudioDevices("microphone")
+
+
+            const hasNewDesktop = JSON.stringify(newDesktop) !== JSON.stringify(this.allDesktops)
+            const hasNewMics = JSON.stringify(newMics) !== JSON.stringify(this.allMics)
+
+            this.allDesktops = newDesktop
+            this.allMics = newMics
+
+            if (!hasNewDesktop && !hasNewMics)
+                return
+
+            this.listeners.map(e => e({ desktop: newDesktop, microphones: newMics }))
+        }, REFRESH_INTERVAL)
+    }
+
     static setAudioDevices(devices: FixedSources) {
         this.removeAllDevices()
         devices.map(({ device_id, type, volume }) => {
@@ -123,7 +162,7 @@ export class AudioSceneManager {
         Storage.set("audio_devices", devices)
     }
 
-    private static removeAllDevices() {
+    static removeAllDevices() {
         log.info("Removing a total of", this.activeSources.length, "...")
         this.activeSources
             .map(({ input }) => {

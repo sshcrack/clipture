@@ -122,3 +122,5 @@ export interface ActiveSource {
     volume: number,
     type: DeviceType
 }
+
+export type AudioUpdateListener = (devices: AllAudioDevices) => unknown

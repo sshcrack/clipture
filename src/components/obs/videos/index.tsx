@@ -62,7 +62,6 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     }, [retry])
 
 
-    console.log("retry is", retry)
     const clipElements = currVideos.map(({ displayName, game, videoName, modified, bookmarks, icoName }, i) => {
         const { gameName, icon, id } = getGameInfo(game, videoName)
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
@@ -80,7 +79,6 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                 videoName={videoName}
                 setUpdate={setRetry}
                 setOpen={opened => {
-                    console.log("Opened is", opened)
                     const filtered = openedMenus.concat([]).filter(e => e !== videoName)
                     if (!opened)
                         return setOpenedMenus(filtered)

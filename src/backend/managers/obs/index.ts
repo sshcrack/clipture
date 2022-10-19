@@ -129,7 +129,7 @@ export class OBSManager {
             status: "OBS initialized"
         })
 
-        StorageManager.check().catch(e => {log.error("Storage:", e)})
+        StorageManager.check().catch(e => { log.error("Storage:", e) })
         this.obsInitialized = true
     }
 
@@ -174,6 +174,7 @@ export class OBSManager {
         log.info("Shutting OBS down...")
         await this.previewInstance.shutdown().catch(log.error)
         await this.recordManager.shutdown().catch(log.error)
+        await Scene.shutdown()
         try {
             this.NodeObs.OBS_service_removeCallback();
             this.NodeObs.IPC.disconnect()

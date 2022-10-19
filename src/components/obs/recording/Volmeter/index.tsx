@@ -16,20 +16,17 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
     const [defaultDev, setDefaultDev] = useState(undefined as DefaultAudioDevice)
 
     useEffect(() => {
-        console.log("Getting audio devices...")
         audio.allDevices().then(dev => setDevices(dev))
-
-        console.log("Getting sources...")
         audio.activeSources()
-            .then(s => {
-                setSources(s)
-                console.log("Setting sources")
-            })
+            .then(s => setSources(s))
 
         audio.deviceDefault()
             .then(e => setDefaultDev(e))
+
+        return audio.onDeviceUpdate(e => setDevices(e))
     }, [])
 
+    console.log("Device update to", devices, "sources", sources)
     if (!sources)
         return <Flex {...props}>
             <GeneralSpinner loadingText={t("loading")} />
@@ -56,7 +53,7 @@ export default function ActiveVolmeter({ displayName, ...props }: FlexProps & { 
 
         return <Flex flexDir='column' key={volSource + "-volmeter"}>
             {displayName && <Flex w='100%' h='100%'>
-                <Text>{devName ?? `${t("not_connected")}`}</Text>
+                <Text>{devName ?? `[${t("not_connected")}]`}</Text>
             </Flex>}
             <Volmeter source={volSource} />
         </Flex>

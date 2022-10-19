@@ -1,6 +1,7 @@
 import { GeneralGame } from '@backend/managers/game/interface';
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import { RegManRender } from '@general/register/render'
+import { getAddRemoveListener } from '@general/tools/listener';
 
 
 type Listener = (prevProcesses: WindowInformation[], diff: WindowInformation[]) => unknown
@@ -27,16 +28,7 @@ const game = {
 
     detectable: () => reg.emitPromise("game_detectable_games"),
     currDetectable: () => reg.emitPromise("game_curr_detectable"),
-    addUpdateListener: (cb: Listener) => {
-        listeners.push(cb)
-        return () => {
-            const index = listeners.indexOf(cb)
-            if (index === -1)
-                return console.error("Could not remove update listener, index is -1")
-
-            listeners.splice(index, 1)
-        }
-    }
+    addUpdateListener: (cb: Listener) => getAddRemoveListener(cb, listeners)
 }
 
 export default game;

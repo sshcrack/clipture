@@ -77,7 +77,6 @@ export default function Editor({ children, videoName, onBack }: React.PropsWithC
             <GeneralSpinner loadingText='Getting video info...' />
         </Flex>
 
-    console.log(bookmarks)
     if (!bookmarks) {
         return <Flex
             flexDir='column'

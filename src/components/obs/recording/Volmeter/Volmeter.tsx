@@ -9,7 +9,6 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
 
     useEffect(() => {
         const filter = new ExpFilter(0, 0.2, 0.2)
-        console.log("New source is", source)
         setPercentage(0)
         const audioRemove = audio.onVolmeterChange((innerSource, ...channels) => {
             if(innerSource !== source)
@@ -34,7 +33,6 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
 
         return () => {
             audioRemove()
-            console.log("Removing audio listener frontend")
         }
     }, [source])
 

@@ -26,6 +26,8 @@ export class Scene {
     private static InputFactory: typeof inputType
     private static NodeObs: typedObs
 
+    private static refreshingDevices = false
+
     static async initialize() {
         const e = await importOBS()
         this.SceneFactory = e.SceneFactory
@@ -42,6 +44,28 @@ export class Scene {
 
         await AudioSceneManager.initialize()
         await AudioSceneManager.initializeAudioSources(this._scene)
+
+        let timeoutId = null as NodeJS.Timeout
+        AudioSceneManager.addDeviceUpdateListener(async () => {
+            if (this.refreshingDevices)
+                return
+
+            if (timeoutId)
+                clearTimeout(timeoutId)
+
+            timeoutId = setTimeout(() => {
+                timeoutId = null
+                this.refreshingDevices = true
+                AudioSceneManager.removeAllDevices()
+                AudioSceneManager.initializeAudioSources(this._scene)
+                    .then(() => this.refreshingDevices = false)
+            }, 250)
+
+        })
+    }
+
+    static async shutdown() {
+        await AudioSceneManager.shutdown()
     }
 
     static register() {

@@ -89,7 +89,6 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
         const curr = preview.current
         const handler = () => {
             updatePreview()
-            console.log("Resize handler")
         }
 
         const resizeObserver = new ResizeObserver(() => {

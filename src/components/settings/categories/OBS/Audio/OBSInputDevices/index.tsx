@@ -60,6 +60,9 @@ export default function OBSInputDevices() {
                 setDefaultDevice(e)
             })
             .catch(e => defaultCatch(e))
+
+
+        return audio.onDeviceUpdate(e => setAllDevices(e))
     }, [saving, update])
 
     useEffect(() => {

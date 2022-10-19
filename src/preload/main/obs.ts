@@ -1,6 +1,7 @@
 import { CaptureMethod } from '@backend/managers/obs/core/interface';
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn } from '@backend/managers/obs/types';
+import { getAddRemoveListener } from '@general/tools/listener';
 import type { OBSSettings } from '@Globals/storage';
 import { RegManRender } from '@register/render';
 import { PerformanceStatistics } from 'src/types/obs/obs-studio-node';
@@ -34,22 +35,12 @@ const obs = {
 
     startRecording: () => reg.emitPromise("obs_start_recording"),
     stopRecording: () => reg.emitPromise("obs_stop_recording"),
-    onRecordChange: (callback: ListenerType) => {
-        listeners.push(callback)
-        return () => {
-            listeners.splice(listeners.indexOf(callback), 1)
-        }
-    },
+    onRecordChange: (callback: ListenerType) => getAddRemoveListener(callback, listeners),
     recordDescription: () => reg.emitSync("obs_get_record_description"),
     isRecording: () => reg.emitSync("obs_is_recording"),
     recordTime: () => reg.emitPromise("obs_record_time"),
 
-    onPerformanceReport: (callback: ListenerPerformance) => {
-        listenersPerformance.push(callback)
-        return () => {
-            listenersPerformance.splice(listenersPerformance.indexOf(callback), 1)
-        }
-    },
+    onPerformanceReport: (callback: ListenerPerformance) => getAddRemoveListener(callback, listenersPerformance),
 
     getCurrent: () => reg.emitPromise("obs_get_current"),
     getSettings: () => reg.emitPromise("obs_get_settings"),
