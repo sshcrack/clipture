@@ -3,6 +3,7 @@ import { Flex, Progress, ProgressProps, Text } from '@chakra-ui/react';
 import prettyBytes from 'pretty-bytes';
 import React, { useEffect, useState } from "react";
 import TitleBarItem from 'src/components/titlebar/TitleBarItem';
+import "src/components/titlebar/style.css"
 import "./progressColor.css"
 
 export default function CloudIndicator() {
@@ -51,4 +52,4 @@ export default function CloudIndicator() {
             {usage ? content : placeholder}
         </Flex>
     </TitleBarItem>
-}7
+} 7

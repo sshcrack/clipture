@@ -5,7 +5,7 @@ export function isFilenameValid(path: string) {
     return !isEmpty && filenameValid && path && !path.includes("..") && !path.includes("\\") && !path.includes("/")
 }
 
-export function getCloudSourceUrl(id: string, baseUrl: string) {
+export function getCloudSourceUrl(baseUrl: string, id: string) {
     return `${baseUrl}/api/clip/get/${id}`
 }
 

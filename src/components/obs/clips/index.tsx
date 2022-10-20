@@ -84,7 +84,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 rootElementClass='grid-root-element'
             >
                 <ClipContextMenu
-                    clipName={clipName}
+                    clipName={cloudOnly ? cloudId : clipName}
                     setUpdate={setUpdate}
                     uploaded={uploaded}
                     tooLarge={tooLarge}
@@ -102,13 +102,14 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     <VideoGridItem
                         update={update}
                         type='clips'
-                        fileName={cloudId ? `cloud#${cloudId}` : clipName}
+                        fileName={cloudOnly ? `cloud#${cloudId}` : clipName}
                         key={`VideoGrid-${i}`}
                     >
                         {currUploading && <UploadingStatus status={currUploading.progress} />}
                         {!currUploading && (!isOpened ?
                             <HoverVideoWrapper
-                                source={cloudId ? `cloud/${cloudId}` : clipName}
+                                source={clipName}
+                                cloudId={cloudOnly && cloudId}
                                 w='100%'
                                 h='100%'
                                 flex='1'
@@ -122,6 +123,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                                 gameName={gameName}
                                 imageSrc={ico}
                                 modified={modified}
+                                cloudOnly={cloudOnly}
                             >
                                 {uploaded || cloudOnly && <Tooltip label={uploaded ? t("uploaded_to_cloud") : t("cloud_only")} shouldWrapChildren >
                                     <MdCloudDone style={{ fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em" }} />

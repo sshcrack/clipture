@@ -110,6 +110,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                             gameName={gameName}
                             imageSrc={ico}
                             modified={modified}
+                            cloudOnly={false}
                         />
                     </GeneralInfoProvider>
                 </VideoGridItem>

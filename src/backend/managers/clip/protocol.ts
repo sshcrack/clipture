@@ -3,6 +3,8 @@ import path from "path"
 import fs from "fs"
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
+import { validateId } from '@general/tools/validator'
+import { CloudManager } from '../cloud'
 
 const log = MainLogger.get("Managers", "Clip", "Protocol")
 export class ClipProtocol {
@@ -17,14 +19,13 @@ export class ClipProtocol {
 
 
 
-    static clipProtocolHandler(req: ProtocolRequest, callback: (response: (string) | (ProtocolResponse)) => void) {
+    static async clipProtocolHandler(req: ProtocolRequest, callback: (response: (string) | (ProtocolResponse)) => void) {
         let requestedPath = decodeURIComponent(req.url.replace("clip-video-file:///", ""))
 
         const clipRootUrl = Storage.get("clip_path")
         const clipPath = path.join(clipRootUrl, requestedPath)
 
         const ext = path.extname(clipPath)
-
         if (ext !== ".ico" && ext !== ".mkv" && ext !== ".mp4") {
             callback({
                 // -10 is ACCESS_DENIED

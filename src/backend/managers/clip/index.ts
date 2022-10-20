@@ -198,7 +198,7 @@ export class ClipManager extends VideoManager {
             .map(e => path.resolve(e))
 
         log.info("Loading total of", files.length, "clips... (", globPattern, ")")
-        const sorted = (await Promise.all(
+        const rawFiles = (await Promise.all(
             files
                 .filter(e => e.endsWith(".mp4"))
                 .filter(e => !Array.from(this.processing.values()).some(x => path.basename(x.info.clipPath) === path.basename(e)))
@@ -212,7 +212,7 @@ export class ClipManager extends VideoManager {
         ).catch(e => {
             log.error(e)
             throw e
-        })).sort((a, b) => b.modified - a.modified)
+        }))
 
         const usage = await CloudManager.getUsage()
         const detectable = await GameManager.getDetectableGames()
@@ -222,12 +222,11 @@ export class ClipManager extends VideoManager {
         })
 
         const res = await Promise.all(
-            sorted
+            rawFiles
                 .map(async ({ modified, file }) => {
                     let clipInfo = this.clipInfoCache.get(file) as Clip | null
                     const clipName = path.basename(file)
                     const icoExists = clipInfo?.icoName && await existsProm(path.join(clipPath, clipInfo.icoName))
-                    const cloudVid = uploaded.find(e => e.hex === hex)
 
                     if (!clipInfo || !icoExists || clipInfo?.tooLarge === undefined || clipInfo?.tooLarge === null) {
                         let { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
@@ -279,6 +278,7 @@ export class ClipManager extends VideoManager {
                         }
 
                         addToCached(file, hex)
+                        const cloudVid = uploaded.find(e => e.hex === hex)
 
                         const clipSize = (await stat(file)).size
                         clipInfo = {
@@ -296,6 +296,7 @@ export class ClipManager extends VideoManager {
 
                     const fileName = path.basename(file)
                     const hex = await getHexCached(file)
+                    const cloudVid = uploaded.find(e => e.hex === hex)
 
                     return {
                         original: fileName.split("_UUID_").shift(),
@@ -310,7 +311,7 @@ export class ClipManager extends VideoManager {
                 })
         )
 
-        const cloudOnly = uploaded.filter(e => res.some(x => e.hex !== x.hex))
+        const cloudOnly = uploaded.filter(e => !res.some(x => e.hex === x.hex))
             .map(({ dcGameId, title, uploadDate, windowInfo, id }) => {
                 const gameInfo = dcGameId ? {
                     type: "discord",
@@ -332,7 +333,9 @@ export class ClipManager extends VideoManager {
                     cloudId: id
                 } as Clip
             })
-        return res.concat(cloudOnly)
+        const unsortedClips = res.concat(cloudOnly)
+        return unsortedClips
+            .sort((a, b) => b.modified - a.modified)
     }
 
     static async renameClip(original: string, newName: string) {

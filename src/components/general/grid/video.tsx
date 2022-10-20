@@ -50,7 +50,7 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
             return
 
         const { fileName } = rest
-        if (!fileName || fileName.startsWith("cloud#"))
+        if (!fileName)
             return setThumbnail(null)
 
         console.log("Getting thumbnail from", rest.type, "FileName", fileName)
@@ -70,19 +70,20 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
 
     const type = rest.type
     const isLoading = thumbnail === undefined && type !== "none"
-    let bg = background ?? "brand.bg"
-    if (thumbnail !== undefined)
-        bg = `url("data:image/png;base64,${thumbnail}")`
+    const bg = thumbnail !== undefined ?
+        `url("data:image/png;base64,${thumbnail}")` :
+        "linear-gradient(45deg, var(--chakra-colors-brand-primary), var(--chakra-colors-brand-secondary))"
 
     return <GridItem
         display='flex'
         minHeight='20em'
         className='videoGridItem'
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
-        backgroundSize='cover'
+        backgroundSize='110% auto'
+        backgroundRepeat='no-repeat'
         rounded="2xl"
         flexDir='column'
-        bg={bg}
+        bgImage={bg}
         cursor='pointer'
         _hover={{
             filter: " drop-shadow(10px 2px 45px black)",

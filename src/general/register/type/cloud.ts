@@ -2,8 +2,10 @@ import { CloudClip, CloudClipStatus, CloudUsage } from '@backend/managers/cloud/
 import { addPrefixUnderscoreToObject } from 'src/types/additions';
 export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     delete: (clipName: string) => void,
+    delete_id: (id: string) => void,
     upload: (clipName: string) => void,
     share: (clipName: string) => void,
+    share_id: (id: string) => void,
     list: () => CloudClip[],
     uploading: () => ReadonlyArray<CloudClipStatus>,
     rename: (id: string, newName: string) => unknown,

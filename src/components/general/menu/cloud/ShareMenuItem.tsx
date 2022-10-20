@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { AiOutlineLink } from 'react-icons/ai'
 import { ContextMenuItem } from '../base/ContextMenuItem'
 
-export default function ShareMenuItem({ clipName }: { clipName: string }) {
+export default function ShareMenuItem({ clipName, cloudOnly }: { clipName: string, cloudOnly: boolean }) {
     const toast = useToast()
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
@@ -14,7 +14,8 @@ export default function ShareMenuItem({ clipName }: { clipName: string }) {
         colorScheme='green'
         leftIcon={<AiOutlineLink />}
         onClick={() => {
-            cloud.share(clipName.replace(".clipped.mp4", ""))
+            const method = cloudOnly ? "shareId" : "share"
+            cloud[method](clipName.replace(".clipped.mp4", ""))
                 .then(() => toast({
                     description: t("to_clipboard")
                 }))

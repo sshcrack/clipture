@@ -1,10 +1,10 @@
-.drag-titlebar > * {
-  -webkit-app-region: drag !important;
-  user-select: none !important;
-}
-
 #electron-app-title-bar .no-drag-parent > * {
   -webkit-app-region: no-drag;
+}
+
+#electron-app-title-bar .drag-titlebar {
+  -webkit-app-region: drag !important;
+  user-select: none !important;
 }
 
 #electron-app-title-bar {

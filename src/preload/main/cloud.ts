@@ -16,7 +16,9 @@ reg.on("cloud_usageUpdate", (_, u) => usageListener.forEach(x => x(u)))
 export const cloud = {
     upload: (clipName: string) => reg.emitPromise("cloud_upload", clipName),
     deleteClip: (clipName: string) => reg.emitPromise("cloud_delete", clipName),
+    deleteId: (id: string) => reg.emitPromise("cloud_delete_id", id),
     share: (clipName: string) => reg.emitPromise("cloud_share", clipName),
+    shareId: (id: string) => reg.emitPromise("cloud_share_id", id),
     onUpdate: (listener: ProgressFunc) => getAddRemoveListener(listener, progressListener),
     rename: (original: string, clipName: string) => reg.emitPromise("cloud_rename", original, clipName),
     usage: () => reg.emitPromise("cloud_usage"),

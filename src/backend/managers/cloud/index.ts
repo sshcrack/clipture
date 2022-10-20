@@ -1,5 +1,6 @@
 import { existsProm } from '@backend/tools/fs';
 import { RegManMain } from '@general/register/main';
+import { validateId } from '@general/tools/validator';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import { REFUSED } from 'dns';
@@ -28,10 +29,12 @@ export class CloudManager {
 
     static register() {
         RegManMain.onPromise("cloud_upload", (_, clipName) => this.uploadClip(clipName));
-        RegManMain.onPromise("cloud_delete", (_, clipName) => this.delete(clipName));
+        RegManMain.onPromise("cloud_delete", (_, clipName) => this.deleteClipName(clipName));
+        RegManMain.onPromise("cloud_delete_id", (_, id) => this.deleteId(id))
         RegManMain.onPromise("cloud_list", () => this.list());
         RegManMain.onPromise("cloud_uploading", async () => this.getUploading())
-        RegManMain.onPromise("cloud_share", (_, clipName) => this.share(clipName))
+        RegManMain.onPromise("cloud_share", (_, clipName) => this.shareClipName(clipName))
+        RegManMain.onPromise("cloud_share_id", (_, id) => this.shareId(id))
         RegManMain.onPromise("cloud_usage", () => this.getUsage())
         RegManMain.onPromise("cloud_thumbnail", (_, id) => this.getThumbnail(id))
         RegManMain.onPromise("cloud_rename", (_, originalName, newName) => {
@@ -64,7 +67,7 @@ export class CloudManager {
         return res.rawBody.toString("base64")
     }
 
-    static async share(clipName: string) {
+    static async shareClipName(clipName: string) {
         const clips = await this.list()
         const rootPath = Storage.get("clip_path")
         const clipPath = getClipVideoPath(rootPath, clipName)
@@ -75,6 +78,14 @@ export class CloudManager {
             throw new Error("Matching clips could not be found")
 
         const { id } = matchingClips[0]
+        this.shareId(id)
+    }
+
+    static async shareId(id: string) {
+        log.info("Share with id", id)
+        if (!validateId(id))
+            throw new Error("Invalid id")
+
         clipboard.writeText(`${MainGlobals.baseUrl}/clip/${id}`)
     }
 
@@ -222,25 +233,38 @@ export class CloudManager {
         this.cachedUsage = null
     }
 
-    static async delete(clipName: string) {
+    static async deleteClipName(clipName: string) {
         const clips = await this.list()
         const rootPath = Storage.get("clip_path")
         const clipPath = getClipVideoPath(rootPath, clipName)
         const fileHex = await getHexCached(clipPath)
-        const cookies = await AuthManager.getCookies()
-        if (!cookies)
-            throw new Error("Not authenticated.")
 
 
         const toDelete = clips.filter(e => e.hex === fileHex)
 
         log.info("Deleting clips:", JSON.stringify(toDelete))
         const proms = toDelete
-            .map(({ id }) => got(`${MainGlobals.baseUrl}/api/clip/delete?id=${id}`, {
-                headers: { cookie: cookies }
-            }).json().catch(e => { throw new Error(`Invalid response: ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`) }))
+            .map(({ id }) => this.deleteId(id))
 
         const res = await Promise.all(proms)
+        log.silly("Result of deleting:", res)
+        this.clearCache()
+
+        this.getUsage()
+            .then(e => RegManMain.send("cloud_usageUpdate", e))
+    }
+
+    static async deleteId(id: string) {
+        log.info("Deleting with id", id)
+        const cookies = await AuthManager.getCookies()
+        if (!cookies)
+            throw new Error("Not authenticated.")
+
+        const res = got(`${MainGlobals.baseUrl}/api/clip/delete?id=${id}`, {
+            headers: { cookie: cookies }
+        }).json()
+            .catch(e => { throw new Error(`Invalid response: ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`) })
+
         log.silly("Result of deleting:", res)
         this.clearCache()
 

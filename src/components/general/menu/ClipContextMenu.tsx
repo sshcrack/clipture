@@ -52,7 +52,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
             <ContextMenuCategory>{t("cloud")}</ContextMenuCategory>
             {!uploaded ?
                 <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} tooLarge={tooLarge} /> :
-                <ShareMenuItem clipName={clipName} />
+                <ShareMenuItem clipName={clipName} cloudOnly={cloudOnly} />
             }
             <ContextMenuItem
                 isDisabled={cloudDisabled || isCloudDeleting || !uploaded}
@@ -60,7 +60,8 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                 isLoading={isCloudDeleting}
                 onClick={() => {
                     setCloudDeleting(true)
-                    cloud.deleteClip(clipName.replace(".clipped.mp4", ""))
+                    const method = cloudOnly ? "deleteId" : "deleteClip"
+                    cloud[method](clipName.replace(".clipped.mp4", ""))
                         .catch(e => {
                             log.error(e)
                             toast({

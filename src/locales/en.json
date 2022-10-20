@@ -72,7 +72,10 @@
             "loading": "Loading clips...",
             "uploading": "Uploading...",
             "uploaded_to_cloud": "Uploaded  to cloud.",
-            "cloud_only": "Only in cloud, not local storage"
+            "cloud_only": "Only in cloud, not local storage",
+            "general_info": {
+                "cloud_only": "Cloud only"
+            }
         },
         "videos": {
             "title": "Videos",
