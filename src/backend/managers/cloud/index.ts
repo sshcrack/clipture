@@ -4,7 +4,7 @@ import { validateId } from '@general/tools/validator';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import { REFUSED } from 'dns';
-import { clipboard } from 'electron';
+import { clipboard, shell } from 'electron';
 import FormData from "form-data";
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
@@ -37,6 +37,7 @@ export class CloudManager {
         RegManMain.onPromise("cloud_share_id", (_, id) => this.shareId(id))
         RegManMain.onPromise("cloud_usage", () => this.getUsage())
         RegManMain.onPromise("cloud_thumbnail", (_, id) => this.getThumbnail(id))
+        RegManMain.onPromise("cloud_open_id", (_, id) => this.openClipId(id))
         RegManMain.onPromise("cloud_rename", (_, originalName, newName) => {
             return this.rename(originalName, newName)
         })
@@ -87,6 +88,10 @@ export class CloudManager {
             throw new Error("Invalid id")
 
         clipboard.writeText(`${MainGlobals.baseUrl}/clip/${id}`)
+    }
+
+    static async openClipId(id: string) {
+        shell.openExternal(`${MainGlobals.baseUrl}/clip/${id}`)
     }
 
     static async uploadClip(clipName: string) {

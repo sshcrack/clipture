@@ -23,7 +23,8 @@ export const cloud = {
     rename: (original: string, clipName: string) => reg.emitPromise("cloud_rename", original, clipName),
     usage: () => reg.emitPromise("cloud_usage"),
     addUsageListener: (listener: UsageFunc) => getAddRemoveListener(listener, usageListener),
-    thumbnail: (id: string) => reg.emitPromise("cloud_thumbnail", id)
+    thumbnail: (id: string) => reg.emitPromise("cloud_thumbnail", id),
+    openId: (id: string) => reg.emitPromise("cloud_open_id", id)
 }
 
 export default cloud
