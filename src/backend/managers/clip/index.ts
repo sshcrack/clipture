@@ -227,6 +227,7 @@ export class ClipManager extends VideoManager {
                     let clipInfo = this.clipInfoCache.get(file) as Clip | null
                     const clipName = path.basename(file)
                     const icoExists = clipInfo?.icoName && await existsProm(path.join(clipPath, clipInfo.icoName))
+                    const cloudVid = uploaded.find(e => e.hex === hex)
 
                     if (!clipInfo || !icoExists || clipInfo?.tooLarge === undefined || clipInfo?.tooLarge === null) {
                         let { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
@@ -282,9 +283,12 @@ export class ClipManager extends VideoManager {
                         const clipSize = (await stat(file)).size
                         clipInfo = {
                             ...rawGameInfo,
+                            clipName,
+                            cloudOnly: false,
                             game: gameInfo,
                             icoName: icoPath && path.basename(icoPath),
-                            uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
+                            uploaded: uploaded ? !!cloudVid : null,
+                            cloudId: cloudVid?.id,
                             tooLarge: clipSize > usage.maxClipSize
                         }
                         this.clipInfoCache.set(file, clipInfo)
@@ -297,13 +301,38 @@ export class ClipManager extends VideoManager {
                         original: fileName.split("_UUID_").shift(),
                         ...clipInfo,
                         clipName: fileName,
-                        uploaded: uploaded ? uploaded.some(e => e.hex === hex) : null,
-                        modified
-                    } as Clip
+                        hex,
+                        uploaded: uploaded ? !!cloudVid : null,
+                        cloudId: cloudVid?.id,
+                        modified,
+                        cloudOnly: false
+                    } as Clip & { hex?: string }
                 })
         )
 
-        return res
+        const cloudOnly = uploaded.filter(e => res.some(x => e.hex !== x.hex))
+            .map(({ dcGameId, title, uploadDate, windowInfo, id }) => {
+                const gameInfo = dcGameId ? {
+                    type: "discord",
+                    game: detectable.find(e => e.id === dcGameId)
+                } : {
+                    type: "window",
+                    game: windowInfo
+                }
+
+                return {
+                    clipName: title,
+                    game: gameInfo,
+                    uploaded: true,
+                    cloudOnly: true,
+                    modified: new Date(uploadDate).getTime(),
+                    icoName: windowInfo?.icon,
+                    original: null,
+                    tooLarge: false,
+                    cloudId: id
+                } as Clip
+            })
+        return res.concat(cloudOnly)
     }
 
     static async renameClip(original: string, newName: string) {

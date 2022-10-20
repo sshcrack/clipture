@@ -70,7 +70,9 @@
             "opening_folder": "Opening folder...",
             "open_folder": "Open affected clip",
             "loading": "Loading clips...",
-            "uploading": "Uploading..."
+            "uploading": "Uploading...",
+            "uploaded_to_cloud": "Uploaded  to cloud.",
+            "cloud_only": "Only in cloud, not local storage"
         },
         "videos": {
             "title": "Videos",

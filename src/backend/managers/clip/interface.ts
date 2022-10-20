@@ -17,15 +17,14 @@ export type Clip = {
     game: GeneralGame | null,
     clipName: string,
     original: string,
-    start: number,
-    end: number,
-    duration: number,
     icoName: string | null,
     uploaded: boolean,
-    tooLarge: boolean
+    tooLarge: boolean,
+    cloudOnly: boolean,
+    cloudId: string
 }
 
-export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded"> & {
+export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded" | "cloudOnly" | "tooLarge" | "clipName" | "cloudId"> & {
     gameId: string
     hex: string,
     originalInfo: VideoInfo

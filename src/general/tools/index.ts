@@ -5,6 +5,10 @@ export function isFilenameValid(path: string) {
     return !isEmpty && filenameValid && path && !path.includes("..") && !path.includes("\\") && !path.includes("/")
 }
 
+export function getCloudSourceUrl(id: string, baseUrl: string) {
+    return `${baseUrl}/api/clip/get/${id}`
+}
+
 export function getVideoSourceUrl(name: string) {
     return `clip-video-file:///${encodeURIComponent(name)}`
 }

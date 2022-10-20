@@ -38,7 +38,7 @@ export const VideoGridContext = React.createContext<VideoGridState>({
 const log = RenderLogger.get("Components", "General", "Grid", "Video")
 export function VideoGridItem({ update, background, onClick, children, ...rest }: VideoGridItem) {
     const [thumbnail, setThumbnail] = useState(undefined)
-    const api = rest.type === "none" ? undefined : window.api[rest.type as "clips" | "videos"]
+    const api = rest.type === "none" ? undefined : (rest.fileName.startsWith("cloud#") ? window.api.cloud : window.api[rest.type as "clips" | "videos"])
 
     useEffect(() => {
         setThumbnail(undefined)
@@ -50,10 +50,11 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
             return
 
         const { fileName } = rest
-        if (!fileName)
+        if (!fileName || fileName.startsWith("cloud#"))
             return setThumbnail(null)
+
         console.log("Getting thumbnail from", rest.type, "FileName", fileName)
-        api.thumbnail(fileName)
+        api.thumbnail(fileName.replace("cloud#", ""))
             .then(e => setThumbnail(e))
             .catch(e => {
                 log.error("Could not get thumbnail", e)

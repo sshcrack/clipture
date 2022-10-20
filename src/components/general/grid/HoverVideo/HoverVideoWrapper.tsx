@@ -4,7 +4,7 @@ import HoverVideo from '.';
 import HoverVideoProvider from './HoverVideoProvider';
 import HoverVideoTrigger from './HoverVideoTrigger';
 
-export default function HoverVideoWrapper({ source, bookmarks, onClick, ...props }: { source: string, bookmarks?: number[] } & FlexProps) {
+export default function HoverVideoWrapper({ source, bookmarks, onClick, ...props }: { source: string, bookmarks?: number[], cloudId?: string } & FlexProps) {
     return <HoverVideoProvider>
         <HoverVideoTrigger {...props}>
             <HoverVideo source={source} bookmarks={bookmarks} flex='1' onClick={onClick ?? null} />

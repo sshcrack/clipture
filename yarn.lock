@@ -7862,7 +7862,7 @@ through@2, through@^2.3.6, through@~2, through@~2.3.4:
 
 "thumbsupply@https://github.com/sshcrack/thumbsupply-webpack-fix":
   version "0.4.0"
-  resolved "https://github.com/sshcrack/thumbsupply-webpack-fix#53d1b97794be175edfbd7338ca6f794d4ef5648f"
+  resolved "https://github.com/sshcrack/thumbsupply-webpack-fix#53fd6b31f5f1c256aef2ab52e2b88926e14f6b50"
   dependencies:
     file-url "^2.0.2"
     fluent-ffmpeg "^2.1.2"

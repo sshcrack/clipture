@@ -1,10 +1,8 @@
 import { Flex, FlexProps, Image, Text } from '@chakra-ui/react';
-import { getIcoUrl } from '@general/tools';
 import prettyMS from "pretty-ms";
 import React from "react";
 
 type Props = React.PropsWithChildren<FlexProps & {
-    icoName: string,
     displayName?: string,
     imageSrc: string,
     gameName: string,
@@ -14,7 +12,7 @@ type Props = React.PropsWithChildren<FlexProps & {
 
 export default function GeneralInfo({
     children, baseName, gameName,
-    icoName, imageSrc, modified,
+    imageSrc, modified,
     displayName, ...props
 }: Props) {
     return <Flex
@@ -27,7 +25,7 @@ export default function GeneralInfo({
         {...props}
     >
         <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-            <Image borderRadius='20%' src={icoName ? getIcoUrl(icoName) : imageSrc} w="1.5em" />
+            <Image borderRadius='20%' src={imageSrc} w="1.5em" />
             <Text textOverflow='ellipsis' whiteSpace='nowrap'>{gameName}</Text>
             <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
             {children}

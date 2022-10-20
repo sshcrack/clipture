@@ -10,11 +10,10 @@ import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { ContextMenuItem } from './base/ContextMenuItem';
 import { ContextMenuList } from './base/ContextMenuList';
 import { ContextMenuTrigger } from './base/ContextMenuTrigger';
-import RenameItem from './both/RenameItem';
 import DeleteItem from './both/DeleteItem';
+import RenameItem from './both/RenameItem';
 import ShareMenuItem from './cloud/ShareMenuItem';
 import UploadMenuItem from './cloud/UploadMenuItem';
-import { CloudUsage } from '@backend/managers/cloud/interface';
 
 type Props = {
     clipName: string,
@@ -22,30 +21,34 @@ type Props = {
     setOpen?: ReactSetState<boolean>,
     uploaded: boolean,
     cloudDisabled: boolean,
-    tooLarge: boolean
+    tooLarge: boolean,
+    cloudOnly: boolean
 }
 
 const log = RenderLogger.get("Components", "ClipContextMenu")
-export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled, tooLarge }: PropsWithChildren<Props>) {
+export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled, tooLarge, cloudOnly }: PropsWithChildren<Props>) {
     const { system, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
     const [isCloudDeleting, setCloudDeleting] = useState(false)
 
     const toast = useToast()
+    const localItems = <>
+        <ContextMenuCategory>{t("local")}</ContextMenuCategory>
+        <ContextMenuItem
+            onClick={() => system.open_clip(clipName)}
+            leftIcon={<AiFillFolderOpen />}
+        >{t("show_folder")}</ContextMenuItem>
+        <RenameItem baseName={clipName} type={"clips"} uploaded={uploaded} setUpdate={setUpdate} />
+        <DeleteItem baseName={clipName} setUpdate={setUpdate} />
+    </>
 
     return <><ContextMenu setOpen={setOpen}>
         <ContextMenuTrigger>
             {children}
         </ContextMenuTrigger>
         <ContextMenuList>
-            <ContextMenuCategory>{t("local")}</ContextMenuCategory>
-            <ContextMenuItem
-                onClick={() => system.open_clip(clipName)}
-                leftIcon={<AiFillFolderOpen />}
-            >{t("show_folder")}</ContextMenuItem>
-            <RenameItem baseName={clipName} type={"clips"} uploaded={uploaded} setUpdate={setUpdate} />
-            <DeleteItem baseName={clipName} setUpdate={setUpdate} />
+            {!cloudOnly && localItems}
             <ContextMenuCategory>{t("cloud")}</ContextMenuCategory>
             {!uploaded ?
                 <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} tooLarge={tooLarge} /> :

@@ -2,6 +2,7 @@ import { existsProm } from '@backend/tools/fs';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
+import { REFUSED } from 'dns';
 import { clipboard } from 'electron';
 import FormData from "form-data";
 import { createReadStream } from 'fs';
@@ -32,6 +33,7 @@ export class CloudManager {
         RegManMain.onPromise("cloud_uploading", async () => this.getUploading())
         RegManMain.onPromise("cloud_share", (_, clipName) => this.share(clipName))
         RegManMain.onPromise("cloud_usage", () => this.getUsage())
+        RegManMain.onPromise("cloud_thumbnail", (_, id) => this.getThumbnail(id))
         RegManMain.onPromise("cloud_rename", (_, originalName, newName) => {
             return this.rename(originalName, newName)
         })
@@ -55,6 +57,11 @@ export class CloudManager {
 
     static getUploading() {
         return this.uploading as ReadonlyArray<CloudClipStatus>
+    }
+
+    static async getThumbnail(id: string) {
+        const res = await got(`${MainGlobals.baseUrl}/api/clip/thumbnail/${id}`)
+        return res.rawBody.toString("base64")
     }
 
     static async share(clipName: string) {

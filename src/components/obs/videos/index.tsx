@@ -1,5 +1,6 @@
 import { Video } from '@backend/managers/clip/interface';
 import { Flex, useToast } from '@chakra-ui/react';
+import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState, useRef } from "react";
@@ -69,6 +70,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         const isLocked = lockedVideos.some(e => e === videoName)
 
         const onEditor = () => location.hash = `/editor/${videoName}`
+        const ico = icoName ? getIcoUrl(icoName) : imageSrc
         return <RenderIfVisible
             defaultHeight={416}
             key={`RenderIfVisible-${i}`}
@@ -106,8 +108,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                             displayName={displayName}
                             baseName={videoName}
                             gameName={gameName}
-                            icoName={icoName}
-                            imageSrc={imageSrc}
+                            imageSrc={ico}
                             modified={modified}
                         />
                     </GeneralInfoProvider>

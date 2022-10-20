@@ -1,11 +1,12 @@
 import { BoxProps, Flex, Grid, Slider, SliderFilledTrack, SliderTrack, Text } from '@chakra-ui/react';
-import { getVideoSourceUrl, secondsToDuration } from '@general/tools';
+import { getCloudSourceUrl, getVideoSourceUrl, secondsToDuration } from '@general/tools';
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { VideoGridContext } from '../video';
 import { HoverVideoContext } from './HoverVideoProvider';
 import { MdPlace } from "react-icons/md"
+import { RenderGlobals } from '@Globals/renderGlobals';
 
-export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & { source: string, bookmarks?: number[] }) {
+export default function HoverVideo({ source, bookmarks, cloudId, ...props }: BoxProps & { source: string, bookmarks?: number[], cloudId?: string }) {
     const { gridRef, cachedDurations, setCachedDurations } = useContext(VideoGridContext)
     const { hovered } = useContext(HoverVideoContext)
 
@@ -89,7 +90,7 @@ export default function HoverVideo({ source, bookmarks, ...props }: BoxProps & {
     const videoElement = debounced && (!cachedDurations.has(source) || hovered) ?
         <video
             ref={ref}
-            src={getVideoSourceUrl(source)}
+            src={cloudId ? getCloudSourceUrl(RenderGlobals.baseUrl, cloudId) : getVideoSourceUrl(source)}
             onLoadedMetadata={() => setUpdate(Math.random())}
             style={{
                 width: "100%",

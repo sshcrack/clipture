@@ -20,7 +20,8 @@ export const cloud = {
     onUpdate: (listener: ProgressFunc) => getAddRemoveListener(listener, progressListener),
     rename: (original: string, clipName: string) => reg.emitPromise("cloud_rename", original, clipName),
     usage: () => reg.emitPromise("cloud_usage"),
-    addUsageListener: (listener: UsageFunc) => getAddRemoveListener(listener, usageListener)
+    addUsageListener: (listener: UsageFunc) => getAddRemoveListener(listener, usageListener),
+    thumbnail: (id: string) => reg.emitPromise("cloud_thumbnail", id)
 }
 
 export default cloud

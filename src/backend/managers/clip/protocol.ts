@@ -19,6 +19,7 @@ export class ClipProtocol {
 
     static clipProtocolHandler(req: ProtocolRequest, callback: (response: (string) | (ProtocolResponse)) => void) {
         let requestedPath = decodeURIComponent(req.url.replace("clip-video-file:///", ""))
+
         const clipRootUrl = Storage.get("clip_path")
         const clipPath = path.join(clipRootUrl, requestedPath)
 

@@ -1,6 +1,7 @@
 import { Clip } from '@backend/managers/clip/interface';
 import { CloudClipStatus, CloudUsage } from '@backend/managers/cloud/interface';
 import { Flex, Tooltip, useToast } from '@chakra-ui/react';
+import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState, useRef } from 'react';
@@ -65,11 +66,12 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { game, clipName, modified, icoName, uploaded, original, tooLarge } = clip ?? {}
+            const { game, clipName, modified, icoName, uploaded, original, tooLarge, cloudOnly, cloudId } = clip ?? {}
             const { gameName, icon, id } = getGameInfo(game, original)
             const baseName = clipName.replace(".clipped.mp4", "")
 
-            const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+            const imageSrc = cloudOnly ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+            const ico = icoName && !cloudOnly ? getIcoUrl(icoName) : imageSrc
             const isOpened = openedMenus.some(e => e === clipName)
 
             const currUploading = uploadingClips.find(e => e.clipName === baseName)
@@ -87,6 +89,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     uploaded={uploaded}
                     tooLarge={tooLarge}
                     cloudDisabled={!!currUploading}
+                    cloudOnly={cloudOnly}
                     setOpen={opened => {
                         const filtered = openedMenus.concat([]).filter(e => e !== clipName)
                         if (!opened)
@@ -99,13 +102,13 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     <VideoGridItem
                         update={update}
                         type='clips'
-                        fileName={clipName}
+                        fileName={cloudId ? `cloud#${cloudId}` : clipName}
                         key={`VideoGrid-${i}`}
                     >
                         {currUploading && <UploadingStatus status={currUploading.progress} />}
                         {!currUploading && (!isOpened ?
                             <HoverVideoWrapper
-                                source={clipName}
+                                source={cloudId ? `cloud/${cloudId}` : clipName}
                                 w='100%'
                                 h='100%'
                                 flex='1'
@@ -117,11 +120,10 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                             <GeneralInfo
                                 baseName={baseName}
                                 gameName={gameName}
-                                icoName={icoName}
-                                imageSrc={imageSrc}
+                                imageSrc={ico}
                                 modified={modified}
                             >
-                                {uploaded && <Tooltip label='Uploaded  to cloud.' shouldWrapChildren >
+                                {uploaded || cloudOnly && <Tooltip label={uploaded ? t("uploaded_to_cloud") : t("cloud_only")} shouldWrapChildren >
                                     <MdCloudDone style={{ fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em" }} />
                                 </Tooltip>}
                             </GeneralInfo>
