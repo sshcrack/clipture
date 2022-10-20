@@ -3,17 +3,18 @@ import { DetectableGame, WindowInformation } from '../Scene/interfaces';
 
 export function isDetectableGameInfo(detectable: DetectableGame, winInfo: WindowInformation) {
     const os = getOS()
-    const executable = winInfo?.full_exe?.split("\\")?.pop()
+    const executable = winInfo?.full_exe?.split("\\").join("/")
     const args = winInfo.arguments;
-    return detectable?.executables?.some(exe => {
+    const isGame = detectable?.executables?.some(exe => {
         return (
-            executable?.toLowerCase() === exe?.name?.toLowerCase() ||
+            executable?.toLowerCase().endsWith(exe?.name?.toLowerCase()) ||
             args?.some(e => e?.toLowerCase()?.includes(exe?.arguments?.toLowerCase()))
         )
-        && exe?.os === os
-        && !exe.is_launcher
+            && exe?.os === os
     })
+    return isGame
 }
+
 
 export function isWindowInfoSame(a: WindowInformation, b: WindowInformation) {
     return a.className === b.className && a.full_exe === b.full_exe

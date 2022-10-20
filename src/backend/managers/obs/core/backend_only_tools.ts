@@ -43,7 +43,7 @@ export async function waitForVideo(dir: string, currVideos: string[], isRecordin
 
 export async function getAvailableGame(info: WindowInformation[]) {
     const detectableGames = await GameManager.getDetectableGames()
-    const toInclude = await GameManager.getIncludeList()
+    const toInclude = GameManager.getIncludeList()
 
     const matchingGames = info.filter(winInfo => {
         return detectableGames.some(game => isDetectableGameInfo(game, winInfo))
@@ -59,6 +59,9 @@ export async function getAvailableGame(info: WindowInformation[]) {
         return
 
     const winInfo = matchingGames.find(e => e.focused) ?? matchingGames[0]
+    const currWindow = Scene.getCurrentSetting()?.window
+
+    const prevGame = currWindow && detectableGames.find(e => isDetectableGameInfo(e, currWindow))
     const game = detectableGames.find(e => isDetectableGameInfo(e, winInfo))
 
     const diff = !compareWinInfo(winInfo, Scene.getCurrentSetting()?.window)
@@ -66,6 +69,7 @@ export async function getAvailableGame(info: WindowInformation[]) {
     return {
         winInfo,
         game,
+        gameDiff: !prevGame || !game || (prevGame.id !== game.id),
         diff
     }
 }

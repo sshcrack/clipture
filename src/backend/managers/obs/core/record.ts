@@ -166,7 +166,7 @@ export class RecordManager {
             for (let i = 0; i < 5; i++) {
                 log.debug("Trying to start...")
                 this.NodeObs.OBS_service_startRecording()
-                const signal = await SignalsManager.getNextSignalInfo();
+                const signal = await SignalsManager.getNextSignalInfo().catch(() => { log.warn("Timeout signal"); return { signal: EOBSOutputSignal.Start } });
                 if (signal.signal === EOBSOutputSignal.Stop) {
                     log.warn("Could not start recording: ", signal, "trying again...")
                     continue;
@@ -333,7 +333,7 @@ export class RecordManager {
         const available = await getAvailableGame(info)
         if (!available)
             return
-        const { diff, winInfo, game } = available ?? {}
+        const { diff, winInfo, game, gameDiff } = available ?? {}
 
         if (!this.automaticRecord)
             return
@@ -344,7 +344,7 @@ export class RecordManager {
             else
                 await Scene.switchWindow(winInfo)
 
-            if (this.isRecording())
+            if (this.isRecording() && gameDiff)
                 await this.stopRecording()
         }
 
