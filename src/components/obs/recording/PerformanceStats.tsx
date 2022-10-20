@@ -49,7 +49,7 @@ export default function PerformanceStatistics() {
     const [recordTime, setRecordTime] = useState<number>(undefined)
 
     const { obs } = window.api
-    const { t } = useTranslation("obs", { keyPrefix: "recording.performance_stats"})
+    const { t } = useTranslation("obs", { keyPrefix: "recording.performance_stats" })
 
     useEffect(() => {
         let stats = [] as PerformanceWithDate[]
@@ -72,7 +72,7 @@ export default function PerformanceStatistics() {
                 .catch(() => { })
         }, 1000)
 
-        return clearInterval(id)
+        return () => clearInterval(id)
     }, [])
 
     if (!stats)

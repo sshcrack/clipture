@@ -11,7 +11,7 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
         const filter = new ExpFilter(0, 0.2, 0.2)
         setPercentage(0)
         const audioRemove = audio.onVolmeterChange((innerSource, ...channels) => {
-            if(innerSource !== source)
+            if (innerSource !== source)
                 return
 
             const getAvg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length
@@ -20,7 +20,7 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
             const maxInChannels = Math.max(...averages)
             const maxChannelIndex = averages.findIndex(e => e === maxInChannels)
             const m = channels[maxChannelIndex]
-            if(!m)
+            if (!m)
                 return console.error("Could not find m", maxChannelIndex, maxInChannels, averages)
 
             const avg = Math.abs(getAvg(m));
@@ -50,7 +50,7 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
             h='100%'
             rounded='xl'
             transition=".05s all linear"
-            w={`${percentage * 100}%`}
+            style={{ width: `${percentage * 100}%` }}
         />
     </Flex>
 }

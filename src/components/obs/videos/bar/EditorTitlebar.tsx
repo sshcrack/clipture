@@ -67,7 +67,7 @@ export default function EditorTitlebar() {
                 onClose()
                 clips.cut(desiredClipName, videoName, start, end, () => { })
                     .then(() => setCuttingClips(false))
-                onBack()
+                location.href='#clips'
             })
     }
 
