@@ -8,7 +8,8 @@ import { sleepSync } from '../obs/core/tools';
 import { DeleteMethods } from './interface';
 
 const log = MainLogger.get("Managers", "Storage")
-const WEEK_MS = 1000 * 60 * 60 * 24 * 7
+const DAY_MS = 1000 * 60 * 60 * 24
+const WEEK_MS = DAY_MS * 7
 export class StorageManager {
     private static deleteMethod = [] as DeleteMethods[];
     private static lockedVideos = [] as string[]
@@ -33,10 +34,12 @@ export class StorageManager {
             return log.warn("Listed videos are null wtf")
 
         const now = Date.now()
-        const deleteUntil = now - WEEK_MS
+        const untilDeleteWeek = now - WEEK_MS
+        const untilDeleteDay = now - DAY_MS
         const checks = {
             [DeleteMethods.NO_BOOKMARKS]: (arr: Video[]) => arr.filter(e => (e?.bookmarks ?? [])?.length === 0),
-            [DeleteMethods.WEEK_OLD]: (arr: Video[]) => arr.filter(e => e.modified < deleteUntil)
+            [DeleteMethods.WEEK_OLD]: (arr: Video[]) => arr.filter(e => e.modified < untilDeleteWeek),
+            [DeleteMethods.DAY_OLD]: (arr: Video[]) => arr.filter(e => e.modified < untilDeleteDay)
         } as { [key in DeleteMethods]: (_: Video[]) => Video[] }
 
         let toDelete = videos.concat([])

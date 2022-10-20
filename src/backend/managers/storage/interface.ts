@@ -1,4 +1,5 @@
 export enum DeleteMethods {
     NO_BOOKMARKS,
-    WEEK_OLD
+    WEEK_OLD,
+    DAY_OLD
 }

@@ -145,7 +145,8 @@
                     "delete_methods": {
                         "NONE": "never",
                         "NO_BOOKMARKS": "if not any bookmarks",
-                        "WEEK_OLD": "if older than one week"
+                        "WEEK_OLD": "if older than one week",
+                        "DAY_OLD": "if older than one day"
                     }
                 }
             },
