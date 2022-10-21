@@ -16,7 +16,6 @@ export default function OBSEncoderPreset() {
     const [currPreset, setPreset] = useState(undefined as string)
     const [originalPreset, setOriginalPreset] = useState(undefined as string)
 
-    const [loadingPresets, setLoadingPresets] = useState(false)
     const { obs } = window.api
     const toast = useToast()
 
@@ -54,11 +53,9 @@ export default function OBSEncoderPreset() {
     ))
 
     const getPresets = (encoder: Encoder) => {
-        setLoadingPresets(true)
         obs.getPresets(encoder)
             .then(e => setAvailablePresets(e))
             .catch(() => toast({ status: "error", title: "could not load presets for encoder" }))
-            .finally(() => setLoadingPresets(false))
     }
     return <Flex
         flexDir='column'
