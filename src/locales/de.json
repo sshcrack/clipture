@@ -25,16 +25,32 @@
     "general": {
         "menu": {
             "context_menu": {
+                "local": "Lokal",
+                "cloud": "Cloud",
                 "show_folder": "In Ordner anzeigen",
                 "deleted": "Gelöscht.",
                 "delete": "Löschen",
+                "delete_selected": "Ausgewähltes löschen",
                 "to_clipboard": "Link ist in der Zwischenablage!",
                 "upload": "Hochladen",
+                "too_large": "Der Clip ist zu groß",
+                "uploading": "Lädt hoch",
+                "usage_wait" : "Erkenne Größe...",
                 "share": "Teilen",
+                "rename": "Umbenennen",
                 "dialog": {
                     "title": "Löschen bestätigen",
                     "body": "Bist du sicher? Es wird für immer gelöscht sein.",
-                    "cancel": "Abbrechen"
+                    "cancel": "Abbrechen",
+                    "rename": "Umbennen zu:",
+                    "new_name": "Neuer Name",
+                    "input": {
+                        "clip_name": "Neuer Name",
+                        "clip_name_prompt": "Was soll der neue Name vom Clip/Video sein?",
+                        "exists": "Ein Clip oder ein Video mit diesem Namen existiert schon",
+                        "empty": "Der neue Name kann nicht leer sein.",
+                        "invalid_characters": "Der Name kann nur Leerzeichen, Buchstaben und Nummern enthalten."
+                    }
                 }
             }
         },
@@ -54,7 +70,12 @@
             "opening_folder": "Order wird geöffnet...",
             "open_folder": "Ausgwählten Clip öffnen",
             "loading": "Lade Clips...",
-            "uploading": "Lädt hoch..."
+            "uploading": "Lädt hoch...",
+            "uploaded_to_cloud": "Hochgeladen.",
+            "cloud_only": "Nur in der Cloud, nicht lokal",
+            "general_info": {
+                "cloud_only": "Nur Cloud"
+            }
         },
         "videos": {
             "title": "Videos",
@@ -113,6 +134,19 @@
                     "error": {
                         "title": "Hotkey konnte nicht erkannt werden",
                         "description": "Neuer Versuch in 5 Sekunden..."
+                    }
+                },
+                "discord": {
+                    "title": "Clipture in Discord anzeigen"
+                },
+                "delete": {
+                    "title": "Videos löschen:",
+                    "and": "und",
+                    "delete_methods": {
+                        "NONE": "niemals",
+                        "NO_BOOKMARKS": "wenn keine Lesezeichen",
+                        "WEEK_OLD": "wenn älter als eine  Woche",
+                        "DAY_OLD": "wenn älter als ein Tag"
                     }
                 }
             },
@@ -177,9 +211,6 @@
                     "title": "Clip Pfad",
                     "placeholder": "Lade Pfad...",
                     "browse": "Durchsuchen"
-                },
-                "discord": {
-                    "title": "Clipture in Discord anzeigen"
                 }
             },
             "video": {
@@ -197,6 +228,10 @@
                     "loading": "Lädt...",
                     "window": "Fensteraufnahme",
                     "desktop": "Bildschirmaufnahme"
+                },
+                "encoder_preset": {
+                    "encoder": "Encoder",
+                    "preset": "Voreinstellung"
                 }
             }
         },
