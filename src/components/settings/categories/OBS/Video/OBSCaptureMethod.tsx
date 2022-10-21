@@ -57,6 +57,6 @@ export default function OBSCaptureMethod() {
             <GeneralSpinner loadingText={t("loading")} />
         }
         <Box m='2' />
-        <Text size='lg'>Window Capture will not always work, for example when recording minecraft. Instead use Desktop Capture.</Text>
+        <Text size='lg'>{t("window_capture")}</Text>
     </Flex>
 }

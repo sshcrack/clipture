@@ -227,7 +227,8 @@
                     "title": "Capture Method",
                     "loading": "Loading...",
                     "window": "Window capture",
-                    "desktop": "Desktop capture"
+                    "desktop": "Desktop capture",
+                    "window_capture": "Window Capture will not always work, for example when recording minecraft. Instead use Desktop Capture."
                 },
                 "encoder_preset": {
                     "encoder": "Encoder",

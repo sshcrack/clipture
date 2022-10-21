@@ -227,7 +227,8 @@
                     "title": "Aufnahmemethode",
                     "loading": "Lädt...",
                     "window": "Fensteraufnahme",
-                    "desktop": "Bildschirmaufnahme"
+                    "desktop": "Bildschirmaufnahme",
+                    "window_capture": "Fensteraufnahmen funktionieren nicht immer, zum Beispiel bei Minecraft. Falls es nicht funktioniert, benutz die Bildschirmaufnahme."
                 },
                 "encoder_preset": {
                     "encoder": "Encoder",
