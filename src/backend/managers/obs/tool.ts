@@ -5,7 +5,7 @@ import { MainLogger } from "src/interfaces/mainLogger";
 import { SettingsCat } from 'src/types/obs/obs-enums';
 import type { NodeObs } from 'src/types/obs/obs-studio-node';
 import { getAvailableValues } from './base';
-import { Encoder } from './types';
+import { AvailableEncoders, Encoder } from './types';
 
 const log = MainLogger.get("Backend", "Maangers", "OBS", "tools")
 const { obsRequirePath } = MainGlobals
@@ -34,8 +34,10 @@ export function getEncoders(nodeObs: NodeObs) {
     for (let i = 0; i < 10; i++) {
         const availableEncoders = getAvailableValues(nodeObs, SettingsCat.Output, 'Recording', 'RecEncoder');
         if (availableEncoders.length > 0)
-            return availableEncoders.filter(e => e !== "none") as Encoder[]
+            return availableEncoders.filter(e => AvailableEncoders.includes(e as Encoder)) as Encoder[]
     }
 
     return null
 }
+
+// default, slow, medium, fast

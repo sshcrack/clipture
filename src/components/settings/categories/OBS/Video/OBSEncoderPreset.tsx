@@ -41,8 +41,14 @@ export default function OBSEncoderPreset() {
         })
     }, [addSaveListener, currEncoder, currPreset])
 
-    if (!availableEncoders || !currPreset)
-        return <GeneralSpinner loadingText='Loading Encoders...' />
+    if(availableEncoders === undefined || currPreset === undefined)
+        return <GeneralSpinner loadingText={t("loading")} />
+
+    if(availableEncoders === null)
+        return <GeneralSpinner loadingText={t("no_encoders")} />
+
+    if (currPreset === null)
+        return <GeneralSpinner loadingText={t("no_curr_preset")} />
 
     const encoderOption = availableEncoders.map(e => (
         <option key={e} value={e}>{e}</option>
@@ -52,11 +58,10 @@ export default function OBSEncoderPreset() {
         <option key={e} value={e}>{e}</option>
     ))
 
-    const getPresets = (encoder: Encoder) => {
-        obs.getPresets(encoder)
+    const getPresets = (encoder: Encoder) => obs.getPresets(encoder)
             .then(e => setAvailablePresets(e))
             .catch(() => toast({ status: "error", title: "could not load presets for encoder" }))
-    }
+
     return <Flex
         flexDir='column'
         w='70%'

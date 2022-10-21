@@ -125,7 +125,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                                 modified={modified}
                                 cloudOnly={cloudOnly}
                             >
-                                {uploaded || cloudOnly && <Tooltip label={uploaded ? t("uploaded_to_cloud") : t("cloud_only")} shouldWrapChildren >
+                                {(uploaded || cloudOnly) && <Tooltip label={uploaded ? t("uploaded_to_cloud") : t("cloud_only")} shouldWrapChildren >
                                     <MdCloudDone style={{ fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em" }} />
                                 </Tooltip>}
                             </GeneralInfo>

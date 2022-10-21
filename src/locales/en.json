@@ -232,7 +232,10 @@
                 },
                 "encoder_preset": {
                     "encoder": "Encoder",
-                    "preset": "Preset"
+                    "preset": "Preset",
+                    "loading": "Loading encoders...",
+                    "no_encoders": "Could not load encoders",
+                    "no_curr_preset": " Could not get current preset"
                 }
             }
         },
