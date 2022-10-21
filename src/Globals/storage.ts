@@ -1,5 +1,6 @@
 import { GeneralGame } from '@backend/managers/game/interface';
 import { CaptureMethod } from '@backend/managers/obs/core/interface';
+import { Encoder } from '@backend/managers/obs/types';
 import { DeleteMethods } from '@backend/managers/storage/interface';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
@@ -74,7 +75,7 @@ const defaults = {
     "obs": {
         "fps": 60,
         "bitrate": 10000,
-        "capture_method": "window" as CaptureMethod
+        "capture_method": "window" as CaptureMethod,
     },
     "close_behavior": "unset" as "unset" | "close" | "minimize",
     "automatic_record": true,
@@ -83,6 +84,8 @@ const defaults = {
     "discord_rpc": true,
     "language": undefined as string,
     "delete_method": [] as DeleteMethods[],
+    "obs_encoder": null as Encoder,
+    "obs_preset": null as string
 }
 export const Storage = new StorageExtended({
     defaults

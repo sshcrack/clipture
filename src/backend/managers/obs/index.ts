@@ -10,13 +10,15 @@ import { DiscordManager } from '../discord'
 import { GameManager } from '../game'
 import { LockManager } from '../lock'
 import { StorageManager } from '../storage'
-import { getAvailableValues, setOBSSetting as setSetting } from './base'
+import { setOBSSetting as setSetting } from './base'
 import { BookmarkManager } from './bookmark'
 import { PreviewManager } from './core/preview'
 import { RecordManager } from './core/record'
 import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
-import { getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
+import { getEncoders, getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
+import { Encoder } from './types'
+import { getEncoderPresets, setPresetWithEncoder } from './util'
 
 
 const reg = RegManMain
@@ -186,6 +188,18 @@ export class OBSManager {
         }
     }
 
+    private setEncoderPreset(encoder: Encoder, preset: string) {
+        const Output = SettingsCat.Output
+
+        log.info("Setting encoder", encoder)
+        setSetting(this.NodeObs, Output, 'RecEncoder', encoder);
+
+
+        log.info("Trying to set preset", preset)
+        if (!preset)
+            setPresetWithEncoder(this.NodeObs, encoder as Encoder, preset)
+    }
+
     private configure() {
         log.info("Configuring OBS")
         const Output = SettingsCat.Output
@@ -194,16 +208,28 @@ export class OBSManager {
         setSetting(this.NodeObs, Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
 
         log.info("Defaulting to x264")
+        setSetting(this.NodeObs, Output, 'RecPreset', 'fast')
         setSetting(this.NodeObs, Output, 'RecEncoder', 'x264');
-        for (let i = 0; i < 10; i++) {
-            const availableEncoders = getAvailableValues(this.NodeObs, Output, 'Recording', 'RecEncoder');
-            if (availableEncoders.length > 0) {
-                const encoder = availableEncoders.slice(-1)[0]
-                log.info("Setting encoder to", encoder)
-                setSetting(this.NodeObs, Output, 'RecEncoder', encoder);
-                break;
-            }
+
+        const storageEncoder = Storage.get("obs_encoder")
+        const availableEncoders = getEncoders(this.NodeObs)
+
+        const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : availableEncoders.slice(-1)[0]
+        Storage.set("obs_encoder", encoder)
+
+        const availablePresets = getEncoderPresets(encoder as Encoder)
+        let preset: string = null
+        if (availablePresets) {
+            const storedPreset = Storage.get("obs_preset")
+            const middlePresets = availablePresets[Math.floor(availablePresets.length / 2)]
+
+            preset = storedPreset && availablePresets.includes(storedPreset) ? storedPreset : middlePresets
+
+            Storage.set("obs_preset", preset)
         }
+
+        this.setEncoderPreset(encoder, preset)
+
         setSetting(this.NodeObs, Output, 'RecFilePath', Storage.get("clip_path"));
         setSetting(this.NodeObs, Output, 'RecFormat', 'mkv');
 
@@ -238,6 +264,25 @@ export class OBSManager {
         })
         reg.onPromise("obs_automatic_record", async (_, automaticRecord) => this.recordManager.setAutomaticRecord(automaticRecord))
         reg.onPromise("obs_is_automatic_record", async () => Storage.get("automatic_record") ?? true)
+        reg.onPromise("obs_get_presets", async (_, encoder) => getEncoderPresets(encoder))
+        reg.onPromise("obs_get_encoders", async () => getEncoders(this.NodeObs))
+        reg.onPromise("obs_get_rec", async () => ({
+            encoder: Storage.get("obs_encoder"),
+            preset: Storage.get("obs_preset")
+        }))
+        reg.onPromise("obs_set_rec", async (_, { encoder, preset }) => {
+            const available = getEncoders(this.NodeObs)
+            if (!available || !available.includes(encoder))
+                throw new Error("Encoder not available")
+
+            const presets = getEncoderPresets(encoder)
+            if (!presets || !presets.includes(preset))
+                throw new Error("Preset not available")
+
+            this.setEncoderPreset(encoder, preset)
+            Storage.set("obs_encoder", encoder)
+            Storage.set("obs_preset", preset)
+        })
         reg.onPromise("obs_update_settings", async (_, fps, bitrate, captureMethod) => {
             if (fps <= 0)
                 throw new Error("Invalid fps number")

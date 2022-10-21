@@ -2,6 +2,7 @@ import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
 import { useTranslation } from 'react-i18next'
 import OBSCaptureMethod from 'src/components/settings/categories/OBS/Video/OBSCaptureMethod'
+import OBSEncoderPreset from 'src/components/settings/categories/OBS/Video/OBSEncoderPreset'
 import OBSVideoBitrate from 'src/components/settings/categories/OBS/Video/OBSVideoBitrate'
 import OBSVideoFPS from 'src/components/settings/categories/OBS/Video/OBSVideoFPS'
 
@@ -19,6 +20,7 @@ export default function OBSVideo() {
             <OBSVideoBitrate />
             <OBSVideoFPS />
             <OBSCaptureMethod />
+            <OBSEncoderPreset />
         </Flex>
     </>
 }

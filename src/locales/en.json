@@ -228,6 +228,10 @@
                     "loading": "Loading...",
                     "window": "Window capture",
                     "desktop": "Desktop capture"
+                },
+                "encoder_preset": {
+                    "encoder": "Encoder",
+                    "preset": "Preset"
                 }
             }
         },

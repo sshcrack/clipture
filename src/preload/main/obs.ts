@@ -1,6 +1,6 @@
 import { CaptureMethod } from '@backend/managers/obs/core/interface';
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
-import type { ClientBoundRecReturn } from '@backend/managers/obs/types';
+import type { ClientBoundRecReturn, CurrRec, Encoder } from '@backend/managers/obs/types';
 import { getAddRemoveListener } from '@general/tools/listener';
 import type { OBSSettings } from '@Globals/storage';
 import { RegManRender } from '@register/render';
@@ -49,7 +49,12 @@ const obs = {
     automaticRecord: (autoRecord: boolean) => reg.emitPromise("obs_automatic_record", autoRecord),
     isAutoRecord: () => reg.emitPromise("obs_is_automatic_record"),
 
-    refreshGames: () => reg.emitPromise("obs_game_refresh")
+    refreshGames: () => reg.emitPromise("obs_game_refresh"),
+
+    getEncoder: () => reg.emitPromise("obs_get_encoders"),
+    getPresets: (encoder: Encoder) => reg.emitPromise("obs_get_presets", encoder),
+    getRec: () => reg.emitPromise("obs_get_rec"),
+    setRec: (c: CurrRec) => reg.emitPromise("obs_set_rec", c)
 }
 
 export default obs;
