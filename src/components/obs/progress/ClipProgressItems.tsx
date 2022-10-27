@@ -1,9 +1,7 @@
 import { ClipProcessingInfo } from '@backend/managers/clip/interface'
 import { Flex, Text } from '@chakra-ui/react'
-import { motion } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import { VideoGridItem } from 'src/components/general/grid/video'
-import GradientLoader from '../../general/gradientLoader/gradientLoader'
 import AnimatedProgress from './AnimatedProgress'
 
 type ClipInfoArray = [string, ClipProcessingInfo]
@@ -42,7 +40,7 @@ export default function ClipProcessingItems() {
         >
             <AnimatedProgress
                 status={"Cutting..."}
-                percent={progress.percent}
+                percent={progress?.percent ?? 0}
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}
                 animate={true}

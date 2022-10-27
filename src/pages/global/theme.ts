@@ -55,8 +55,8 @@ const component = {
 }
 
 const fonts = {
-    heading: `'Coolvetica', sans-serif`,
-    body: `'Coolvetica', sans-serif`,
+    heading: `'Quattrocento', sans-serif`,
+    body: `'Quattrocento', sans-serif`,
 }
 
 const styles = {
