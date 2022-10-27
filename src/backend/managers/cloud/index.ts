@@ -3,7 +3,6 @@ import { RegManMain } from '@general/register/main';
 import { validateId } from '@general/tools/validator';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { REFUSED } from 'dns';
 import { clipboard, shell } from 'electron';
 import FormData from "form-data";
 import { createReadStream } from 'fs';
@@ -108,6 +107,7 @@ export class CloudManager {
         if (!existsProm(clipPath))
             throw new Error("Clip not found.")
 
+        // eslint-disable-next-line prefer-const
         let { original, gameId } = await getClipInfo(rootPath, clipName + ".clipped.mp4") ?? {}
         if (original && !gameId)
             gameId = (await getVideoInfo(rootPath, original))?.gameId
@@ -116,7 +116,7 @@ export class CloudManager {
         const detectable = await GameManager.getDetectableGames()
         if (!detectable)
             log.warn("Could not get detectable games.")
-        let { id: discordId } = detectable?.find(e => e?.id === gameId) ?? {}
+        const { id: discordId } = detectable?.find(e => e?.id === gameId) ?? {}
 
         console.log("Game id is", gameId)
         if (gameId && !discordId) {

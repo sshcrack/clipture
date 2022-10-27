@@ -1,10 +1,8 @@
 import { Storage } from '@Globals/storage'
-import path from "path"
-import fs from "fs"
 import { protocol, ProtocolRequest, ProtocolResponse } from 'electron'
+import fs from "fs"
+import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { validateId } from '@general/tools/validator'
-import { CloudManager } from '../cloud'
 
 const log = MainLogger.get("Managers", "Clip", "Protocol")
 export class ClipProtocol {
@@ -20,7 +18,7 @@ export class ClipProtocol {
 
 
     static async clipProtocolHandler(req: ProtocolRequest, callback: (response: (string) | (ProtocolResponse)) => void) {
-        let requestedPath = decodeURIComponent(req.url.replace("clip-video-file:///", ""))
+        const requestedPath = decodeURIComponent(req.url.replace("clip-video-file:///", ""))
 
         const clipRootUrl = Storage.get("clip_path")
         const clipPath = path.join(clipRootUrl, requestedPath)
@@ -35,7 +33,7 @@ export class ClipProtocol {
             return;
         }
 
-        let check = fs.existsSync(clipPath)
+        const check = fs.existsSync(clipPath)
         if (!check || requestedPath.includes("..") || requestedPath.includes("/")) {
             callback({
                 // -6 is FILE_NOT_FOUND

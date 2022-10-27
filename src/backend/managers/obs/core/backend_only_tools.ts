@@ -1,10 +1,9 @@
-import { MainGlobals } from '@Globals/mainGlobals'
-import { compareWinInfo, isDetectableGameInfo, isWindowInfoSame, sleepSync } from './tools'
+import { GameManager } from '@backend/managers/game'
 import fs from "fs/promises"
 import { MainLogger } from 'src/interfaces/mainLogger'
-import { GameManager } from '@backend/managers/game'
-import { WindowInformation } from '../Scene/interfaces'
 import { Scene } from '../Scene'
+import { WindowInformation } from '../Scene/interfaces'
+import { compareWinInfo, isDetectableGameInfo, isWindowInfoSame, sleepSync } from './tools'
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Tools")
 

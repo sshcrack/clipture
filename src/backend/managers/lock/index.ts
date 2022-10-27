@@ -1,8 +1,6 @@
 import { RegManMain } from '@general/register/main';
-import { ipcMain, WebContents } from 'electron';
 import { MainLogger } from '../../../interfaces/mainLogger';
 import { Progress } from '../../processors/events/interface';
-import { LockedReturnType } from './interface';
 
 const logger = MainLogger.get("Managers", "LockManager")
 export class LockManager {

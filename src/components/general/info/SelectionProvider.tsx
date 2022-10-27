@@ -1,6 +1,6 @@
 import { Flex } from '@chakra-ui/react'
-import React, { MutableRefObject, useState } from "react"
-import { useEffect } from 'react'
+import React, { useEffect, useState } from "react"
+
 import { ReactSetState } from 'src/types/reactUtils'
 
 export type SelectionProviderState = {

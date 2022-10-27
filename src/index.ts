@@ -8,17 +8,15 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('source-map-support').install();
 
-import { ClipManager } from '@backend/managers/clip';
-import { GameManager } from '@backend/managers/game';
+import { ClipProtocol } from '@backend/managers/clip/protocol';
 import { SystemManager } from '@backend/managers/system';
 import { registerFuncs } from '@backend/registerFuncs';
+import { shutdownFuncs } from '@backend/shutdownFuncs';
 import windowStateKeeper from "electron-window-state";
 import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
-import { ClipProtocol } from '@backend/managers/clip/protocol';
-import { shutdownFuncs } from '@backend/shutdownFuncs';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;

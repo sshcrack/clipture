@@ -1,10 +1,7 @@
-import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Button, useDisclosure, useToast } from '@chakra-ui/react';
-import React, { PropsWithChildren, useContext, useState } from "react";
+import React, { PropsWithChildren } from "react";
 import { useTranslation } from 'react-i18next';
 import { AiFillFolderOpen } from "react-icons/ai";
-import { BsTrashFill } from "react-icons/bs";
 import { ReactSetState } from 'src/types/reactUtils';
-import { SelectionContext } from '../info/SelectionProvider';
 import { ContextMenu } from './base/ContextMenu';
 import { ContextMenuCategory } from './base/ContextMenuCategory';
 import { ContextMenuItem } from './base/ContextMenuItem';

@@ -10,7 +10,7 @@ import "src/components/general/Navbar/index.css";
 import NavBarButton from './NavBarButton';
 
 type Props = { data: SessionData, ref?: LegacyRef<HTMLDivElement> } & FlexProps
-const NavBar = React.forwardRef<HTMLDivElement, Props>(({ data, ...props }: Props, ref) => {
+const NavBar = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
     const { auth, obs } = window.api
     const { t } = useTranslation("navbar")
 

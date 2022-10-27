@@ -1,6 +1,5 @@
 import { FormControl, FormErrorMessage, FormHelperText, FormLabel, Input } from '@chakra-ui/react';
-import React, { useEffect, useState, ChangeEvent } from "react"
-import { useTranslation } from 'react-i18next';
+import React, { ChangeEvent, useEffect, useState } from "react";
 import { ReactSetState } from 'src/types/reactUtils';
 import { useDebounce } from 'use-debounce';
 
@@ -24,7 +23,7 @@ type Props = {
 }
 
 export default function NameValidator({ texts, desiredClipName, isError, setDesiredClipName, setError }: Props) {
-    const [id, _] = useState(() => Math.random().toString())
+    const [id] = useState(() => Math.random().toString())
 
     const [clipExists, setClipExists] = useState(false)
     const [debouncedClipName] = useDebounce(desiredClipName, 100)

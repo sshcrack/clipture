@@ -1,7 +1,7 @@
 import { Flex } from '@chakra-ui/react';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useContext } from 'react';
 
-import { useContext } from 'react';
+
 import { TitlebarContext } from './TitleBarProvider';
 import { WindowControls } from './window-controls';
 

@@ -42,7 +42,7 @@ export default function OBSVideoFPS() {
             step={1}
             value={fps}
             onChange={e => {
-                let i = parseInt(e)
+                const i = parseInt(e)
                 if(isNaN(i))
                     return
 

@@ -50,8 +50,8 @@ interface MediaStreamTrackProcessor<T extends AudioData | VideoFrame> {
     readonly writableControl: WritableStream<MediaStreamTrackSignal>;
 }
 
-declare var MediaStreamTrackProcessor: {
-    prototype: MediaStreamTrackProcessor<any>;
+declare const MediaStreamTrackProcessor: {
+    prototype: MediaStreamTrackProcessor<unknown>;
 
     /** Constructor overrides based on the type of track. */
     new(init: MediaStreamTrackProcessorInit & { track: MediaStreamAudioTrack; }): MediaStreamTrackProcessor<AudioData>;
@@ -90,8 +90,8 @@ interface MediaStreamTrackGenerator<T extends AudioData | VideoFrame> extends Me
 type MediaStreamAudioTrackGenerator = MediaStreamTrackGenerator<AudioData> & MediaStreamAudioTrack;
 type MediaStreamVideoTrackGenerator = MediaStreamTrackGenerator<VideoFrame> & MediaStreamVideoTrack;
 
-declare var MediaStreamTrackGenerator: {
-    prototype: MediaStreamTrackGenerator<any>;
+declare const MediaStreamTrackGenerator: {
+    prototype: MediaStreamTrackGenerator<unknown>;
 
     /** Constructor overrides based on the type of track. */
     new (init: MediaStreamTrackGeneratorInit & { kind: "audio", signalTarget?: MediaStreamAudioTrack | undefined }): MediaStreamAudioTrackGenerator;

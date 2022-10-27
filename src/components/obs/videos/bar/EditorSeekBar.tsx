@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useContext, useRef } from 'react';
 import { Box, BoxProps } from '@chakra-ui/react';
-import { useContext, useRef } from 'react';
+
 import { EditorContext } from '../Editor';
 import { EditorMainBarContext } from './EditorMainBar';
 import { ReactMouseEvent } from 'src/types/reactUtils';

@@ -86,7 +86,7 @@ export default function PerformanceStatistics() {
         const id = setInterval(() => {
             obs.recordTime()
                 .then(e => setRecordTime(e))
-                .catch(() => { })
+                .catch(() => {/**/})
         }, 1000)
         return () => clearInterval(id)
     }, [])

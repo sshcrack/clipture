@@ -4,7 +4,7 @@ import { getAddRemoveListener } from '@general/tools/listener'
 
 type ListenerFunc = (prog: Progress) => unknown
 
-let listeners = [] as ListenerFunc[]
+const listeners = [] as ListenerFunc[]
 
 RegManRender.on("prerequisites_update", (_, prog) => listeners.map(e => e(prog)))
 const prerequisites = {

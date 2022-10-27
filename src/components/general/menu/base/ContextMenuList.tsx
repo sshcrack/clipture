@@ -1,9 +1,10 @@
+import { useOutsideClick } from "@chakra-ui/react";
+import { Variants } from "framer-motion";
 import React, { RefObject, useContext, useEffect, useState } from "react";
 import { ContextMenuContext } from "./ContextMenu";
-import { CustomDomComponent, Variants } from "framer-motion";
 import { MotionBox } from "./MotionBox";
-import { useOutsideClick } from "@chakra-ui/react";
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 type Props = {};
 
 const motionVariants: Variants = {

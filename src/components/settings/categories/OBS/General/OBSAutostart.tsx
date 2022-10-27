@@ -1,4 +1,4 @@
-import { Flex, Heading, Switch, Text, useToast } from '@chakra-ui/react'
+import { Flex, Switch, Text, useToast } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'

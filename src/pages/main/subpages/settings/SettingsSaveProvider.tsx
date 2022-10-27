@@ -14,18 +14,18 @@ export type SettingsSaveState = {
     modified: boolean
 }
 export const SettingsSaveContext = React.createContext<SettingsSaveState>({
-    addSaveListener: () => (() => { }),
+    addSaveListener: () => (() => {/**/ }),
     save: () => Promise.resolve(),
     saving: false,
     modified: false,
-    addModified: () => { },
-    removeModified: () => { },
-    reset: () => { }
+    addModified: () => {/**/ },
+    removeModified: () => {/**/ },
+    reset: () => {/**/ }
 })
 
 const log = RenderLogger.get("Main", "Settings", "SettingsSaveProvider")
 export default function SettingsSaveProvider({ children }: React.PropsWithChildren) {
-    const [listeners, _] = useState(new Map<string, Listener>())
+    const [listeners] = useState(new Map<string, Listener>())
     const [modified, setModified] = useState([] as string[])
     const [saving, setSaving] = useState(false)
 

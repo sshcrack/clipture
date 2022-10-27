@@ -16,7 +16,7 @@ export class BookmarkManager {
         RegManMain.onPromise("bookmark_listen_key", ({ sender }) => {
             return new Promise<string>((resolve, reject) => {
                 const func = (e: Event, { key, alt, control, shift, meta }: Input) => {
-                    let hotkey = []
+                    const hotkey = []
 
                     if (alt)
                         hotkey.push("Alt")

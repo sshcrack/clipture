@@ -1,3 +1,4 @@
+import { IpcRendererEvent } from 'electron';
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 
 export interface WindowControlsProps {
@@ -12,7 +13,7 @@ export const WindowControls: React.FC<WindowControlsProps> = ({ disableMaximize,
     const { titlebar } = window.api;
 
     useEffect(() => {
-        const onMaximizeStateChange = (_: any, isWindowMaximized: boolean, targetBrowserWindowId: number) => {
+        const onMaximizeStateChange = (_: IpcRendererEvent, isWindowMaximized: boolean, targetBrowserWindowId: number) => {
             if (targetBrowserWindowId === remoteBrowserWindowId.current) {
                 setIsMaximized(isWindowMaximized)
             }

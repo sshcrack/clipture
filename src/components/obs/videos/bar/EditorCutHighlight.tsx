@@ -20,8 +20,8 @@ export default function EditorCutHighlight(props: BoxProps) {
         const cssStart = percentageStart * 100;
         const cssEnd = percentageEnd * 100
 
-        let startPixel = Math.max(0, percentageStart * width)
-        let endPixel = Math.min(width, percentageEnd * width)
+        const startPixel = Math.max(0, percentageStart * width)
+        const endPixel = Math.min(width, percentageEnd * width)
 
 
         const unselectedColor = "rgba(255, 255, 255, 0.25)"

@@ -28,6 +28,7 @@ export class ClipManager extends VideoManager {
     private static processing = new Map<string, ClipProcessingInfo>()
 
     static async cut(clipObj: ClipCutInfo, onProgress: (prog: Progress) => void) {
+        // eslint-disable-next-line prefer-const
         let { videoName, start, end, clipName } = clipObj
         videoName = videoName.split(".mkv").join("")
         clipName = clipName.split(".mp4").join("")
@@ -229,6 +230,7 @@ export class ClipManager extends VideoManager {
                     const icoExists = clipInfo?.icoName && await existsProm(path.join(clipPath, clipInfo.icoName))
 
                     if (!clipInfo || !icoExists || clipInfo?.tooLarge === undefined || clipInfo?.tooLarge === null) {
+                        // eslint-disable-next-line prefer-const
                         let { gameId, hex, ...rawGameInfo } = await getClipInfo(clipPath, clipName)
 
                         if (!gameId && rawGameInfo.originalInfo)

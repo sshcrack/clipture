@@ -1,5 +1,5 @@
 import { SessionStatus } from '@backend/managers/auth/interfaces'
-import { Box, useToast } from '@chakra-ui/react'
+import { useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Route, Routes } from "react-router-dom"

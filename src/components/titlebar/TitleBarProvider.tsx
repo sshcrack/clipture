@@ -13,13 +13,13 @@ export type TitlebarState = {
 export const TitlebarContext = React.createContext<TitlebarState>({
     menu: new Map(),
     size: "28px",
-    setSize: () => { },
-    setUpdate: () => { }
+    setSize: () => {/**/},
+    setUpdate: () => {/**/}
 })
 
 export default function TitleBarProvider(p: React.PropsWithChildren) {
-    const [menu, _] = useState<MenuMap>(() => new Map())
-    const [_1, setUpdate] = useState(() => Math.random())
+    const [menu] = useState<MenuMap>(() => new Map())
+    const [,setUpdate] = useState(() => Math.random())
     const [size, setSize] = useState("28px")
     return <CloseBehaviorListener>
         <TitlebarContext.Provider

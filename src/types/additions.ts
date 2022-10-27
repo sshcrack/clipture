@@ -6,13 +6,13 @@ export type removePrefix<TPrefixedKey, TPrefix extends string> = TPrefixedKey ex
     ? TKey
     : '';
 
-export type prefixedValue<TObject extends object, TPrefixedKey extends string, TPrefix extends string> = TObject extends { [K in removePrefix<TPrefixedKey, TPrefix>]: infer TValue }
+export type prefixedValue<TObject extends unknown, TPrefixedKey extends string, TPrefix extends string> = TObject extends { [K in removePrefix<TPrefixedKey, TPrefix>]: infer TValue }
     ? TValue
     : never;
 
 
-export type addPrefixToObject<TObject extends object, TPrefix extends string> = {
+export type addPrefixToObject<TObject extends unknown, TPrefix extends string> = {
     [K in addPrefix<keyof TObject, TPrefix>]: prefixedValue<TObject, K, TPrefix>
 }
 
-export type addPrefixUnderscoreToObject<TObject extends object, TPrefix extends string> = addPrefixToObject<TObject, `${TPrefix}_`>
+export type addPrefixUnderscoreToObject<TObject extends unknown, TPrefix extends string> = addPrefixToObject<TObject, `${TPrefix}_`>

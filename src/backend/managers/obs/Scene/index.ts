@@ -1,18 +1,17 @@
 import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
-import { MainGlobals } from '@Globals/mainGlobals';
 import type { InputFactory as inputType, IScene, SceneFactory as sceneType } from '@streamlabs/obs-studio-node';
 import { screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { EAlignment, EBoundsType, SettingsCat } from 'src/types/obs/obs-enums';
+import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { v4 as uuid } from "uuid";
 import { setOBSSetting as setSetting } from '../base';
-import { AudioSceneManager } from './audio';
-import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
-import { getDisplayInfoFromIndex } from "./display";
-import { CurrentSetting, WindowInformation } from './interfaces';
 import { importOBS } from '../tool';
 import { encodeString } from '../util';
+import { AudioSceneManager } from './audio';
+import { getDisplayInfoFromIndex } from "./display";
+import { CurrentSetting, WindowInformation } from './interfaces';
 
 const log = MainLogger.get("Backend", "Manager", "OBS", "Scene")
 export class Scene {
@@ -73,7 +72,7 @@ export class Scene {
         RegManMain.onPromise("obs_switch_desktop", (_, monitorIndex) => this.switchDesktop(monitorIndex))
         RegManMain.onPromise("obs_switch_window", (_, options) => this.switchWindow(options))
         RegManMain.onPromise("obs_available_monitors", async () => screen.getAllDisplays().length)
-        RegManMain.onSync("obs_get_record_description", (_) => {
+        RegManMain.onSync("obs_get_record_description", () => {
             const hasScene = !!this._setting
             const { window, monitor } = this._setting ?? {}
 
@@ -169,7 +168,7 @@ export class Scene {
         const largestMonitor = allDisplays
             .reduce(((a, b) => a.size.height * a.size.width > b.size.height * b.size.width ? a : b))
 
-        let { physicalHeight, physicalWidth } = intersectsMultiple && monitorDimensions ? {
+        const { physicalHeight, physicalWidth } = intersectsMultiple && monitorDimensions ? {
             physicalWidth: monitorDimensions.width,
             physicalHeight: monitorDimensions.height
         } : {

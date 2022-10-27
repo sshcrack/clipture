@@ -26,18 +26,18 @@ export type EditorState = {
 export const EditorContext = React.createContext<EditorState>({
     videoName: null as string,
     duration: undefined,
-    setDuration: () => { },
-    onBack: (() => { }) as () => unknown,
+    setDuration: () => {/**/},
+    onBack: (() => {/**/}) as () => unknown,
     selection: {
         end: undefined,
         offset: 0,
         start: 0,
         range: undefined
     },
-    setSelection: () => { },
+    setSelection: () => {/**/},
     videoRef: undefined,
     paused: true,
-    setPaused: () => { },
+    setPaused: () => {/**/},
     bookmarks: []
 })
 

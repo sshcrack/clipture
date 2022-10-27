@@ -103,7 +103,7 @@ export class OBSManager {
             })
 
             log.info(`Step ${i + 1}/${steps.length} (${(percent * 100).toFixed(1)}%): ${title}`)
-            let start = Date.now()
+            const start = Date.now()
             let success = false
             let lastErr = undefined
             for (let i = 0; i < 10; i++) {
@@ -122,7 +122,7 @@ export class OBSManager {
                 inst.unlock({ percent: 0, status: lastErr?.message ?? "Error" })
                 throw lastErr
             }
-            let diff = Date.now() - start
+            const diff = Date.now() - start
             log.info(`Step ${i + 1}/${steps.length} done after ${prettyMS(diff)}`)
         }
 

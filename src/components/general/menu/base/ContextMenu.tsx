@@ -1,9 +1,7 @@
 import { useDisclosure } from "@chakra-ui/react";
 import React, {
-    RefObject,
-    useRef,
-    useState,
-    useEffect
+    RefObject, useEffect, useRef,
+    useState
 } from "react";
 import { ReactSetState } from 'src/types/reactUtils';
 
@@ -18,8 +16,8 @@ type MousePosition = {
 
 type ContextMenuState = {
     isOpen: boolean;
-    closeMenu: Function;
-    openMenu: Function;
+    closeMenu: () => void;
+    openMenu: () => void;
     menuRef?: RefObject<HTMLDivElement>;
     position: MousePosition;
     setPosition: React.Dispatch<React.SetStateAction<MousePosition>>;
@@ -27,11 +25,11 @@ type ContextMenuState = {
 
 export const ContextMenuContext = React.createContext<ContextMenuState>({
     isOpen: false,
-    closeMenu: () => { },
-    openMenu: () => { },
+    closeMenu: () => {/**/ },
+    openMenu: () => {/**/ },
     menuRef: undefined,
     position: { x: 0, y: 0 },
-    setPosition: () => { },
+    setPosition: () => {/**/ },
 });
 
 export const ContextMenu = ({ children, setOpen }: React.PropsWithChildren<Props>) => {

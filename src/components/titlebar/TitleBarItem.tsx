@@ -3,7 +3,7 @@ import { TitlebarContext } from './TitleBarProvider';
 
 export default function TitleBarItem(p: React.PropsWithChildren) {
     const { menu, setUpdate } = useContext(TitlebarContext)
-    const [id, _] = useState(() => Math.random())
+    const [ id ] = useState(() => Math.random())
 
     useEffect(() => {
         menu.set(id, p.children)

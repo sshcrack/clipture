@@ -98,7 +98,7 @@ export class Prerequisites {
         if (await existsProm(nativeMngExe))
             await fs.unlink(nativeMngExe)
 
-        await downloadFile("NativeMng", nativeMngUrl, nativeMngExe, () => { })
+        await downloadFile("NativeMng", nativeMngUrl, nativeMngExe, () => {/**/})
     }
 
     static async initialize(onProgress: (prog: Progress) => unknown) {

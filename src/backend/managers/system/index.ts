@@ -1,10 +1,9 @@
 import { RegManMain } from '@general/register/main';
 import { Storage } from '@Globals/storage';
+import AutoLaunch from "auto-launch";
 import { app, BrowserWindow, shell } from 'electron';
 import path from 'path';
-import AutoLaunch from "auto-launch"
 import { MainLogger } from 'src/interfaces/mainLogger';
-import { MainGlobals } from '@Globals/mainGlobals';
 
 
 const launcher = new AutoLaunch({

@@ -7,13 +7,13 @@ const reg = RegManRender
 type ProgressFunc = (update: ReadonlyArray<CloudClipStatus>) => unknown
 type UsageFunc = (usage: CloudUsage) => unknown
 
-let progressListener = [] as ProgressFunc[]
-let usageListener = [] as UsageFunc[]
+const progressListener = [] as ProgressFunc[]
+const usageListener = [] as UsageFunc[]
 
 reg.on("cloud_update", (_, u) => progressListener.forEach(x => x(u)))
 reg.on("cloud_usageUpdate", (_, u) => usageListener.forEach(x => x(u)))
 
-export const cloud = {
+export default {
     upload: (clipName: string) => reg.emitPromise("cloud_upload", clipName),
     deleteClip: (clipName: string) => reg.emitPromise("cloud_delete", clipName),
     deleteId: (id: string) => reg.emitPromise("cloud_delete_id", id),
@@ -26,5 +26,3 @@ export const cloud = {
     thumbnail: (id: string) => reg.emitPromise("cloud_thumbnail", id),
     openId: (id: string) => reg.emitPromise("cloud_open_id", id)
 }
-
-export default cloud

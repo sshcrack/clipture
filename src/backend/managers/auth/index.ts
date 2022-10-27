@@ -45,6 +45,7 @@ export class AuthManager {
     }
 
     private static authFetch(id: string, startTime: number) {
+        // eslint-disable-next-line no-async-promise-executor
         return new Promise<ClientSessionInterface[]>(async (resolve, reject) => {
             if (Date.now() - startTime > this.TIMEOUT) {
                 log.info("Timeout has  been exceeded", Date.now() - startTime)

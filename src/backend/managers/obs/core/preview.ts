@@ -76,7 +76,7 @@ export class PreviewManager {
         const winBounds = window.getBounds();
         const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
 
-        let { aspectRatio } = await getDisplayInfo(currScreen);
+        const { aspectRatio } = await getDisplayInfo(currScreen);
         const displayWidth = Math.floor(bounds.width);
         const displayHeight = Math.round(displayWidth / aspectRatio);
         const displayX = Math.floor(bounds.x);

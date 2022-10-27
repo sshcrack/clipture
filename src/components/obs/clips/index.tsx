@@ -4,7 +4,7 @@ import { Flex, Tooltip, useToast } from '@chakra-ui/react';
 import { getIcoUrl } from '@general/tools';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdCloudDone } from "react-icons/md";
 import RenderIfVisible from 'react-render-if-visible';
@@ -25,7 +25,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [currClips, setCurrClips] = useState<Clip[]>([])
     const [loading, setLoading] = useState(true)
     const [update, setUpdate] = useState(0)
-    const [usage, setUsage] = useState(null as CloudUsage)
+    const [, setUsage] = useState(null as CloudUsage)
     const [uploadingClips, setUploadingClips] = useState([] as ReadonlyArray<CloudClipStatus>)
     const [openedMenus, setOpenedMenus] = useState([] as string[])
     const { clips, obs, cloud } = window.api

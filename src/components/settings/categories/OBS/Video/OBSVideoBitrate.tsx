@@ -2,7 +2,6 @@ import { Flex, NumberDecrementStepper, NumberIncrementStepper, NumberInput, Numb
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
-import { RenderLogger } from 'src/interfaces/renderLogger'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
 export default function OBSVideoBitrate() {
@@ -43,7 +42,7 @@ export default function OBSVideoBitrate() {
             step={50}
             value={customBitrate}
             onChange={e => {
-                let i = parseInt(e)
+                const i = parseInt(e)
                 if (originalBitrate !== customBitrate)
                     addModified("video_bitrate")
                 else

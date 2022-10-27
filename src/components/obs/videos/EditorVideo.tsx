@@ -3,14 +3,14 @@ import { getVideoSourceUrl } from '@general/tools'
 import { motion } from 'framer-motion'
 import React, { useContext, useEffect, useState } from "react"
 import { FaPlay } from 'react-icons/fa'
-import { BsFillVolumeUpFill } from "react-icons/bs"
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import { EditorContext } from './Editor'
 
 const log = RenderLogger.get("components", "obs", "videos", "EditorVideo")
 export default function EditorVideo(props: GridItemProps) {
     const { bgGeneratorRef, videoRef, videoName, setDuration, paused, setSelection, setPaused } = useContext(EditorContext)
-    const [hovered, setHovered] = useState(false)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [, setHovered] = useState(false)
 
 
     const transition = 'all .2s ease-in-out'

@@ -1,8 +1,5 @@
 import { Box, BoxProps } from "@chakra-ui/react";
-import { ContextMenuEvent } from 'electron';
-import React, { useContext, MouseEvent, useEffect, useRef } from "react";
-import { BiTargetLock } from 'react-icons/bi';
-import { ReactSetState } from 'src/types/reactUtils';
+import React, { useContext, useEffect, useRef } from "react";
 import { ContextMenuContext } from "./ContextMenu";
 
 type Props = BoxProps

@@ -1,5 +1,4 @@
 import { clamp } from '@backend/tools/math';
-import { UseNumberInputReturn } from '@chakra-ui/react';
 import React from 'react';
 import { ReactMouseEvent } from '../../../types/reactUtils';
 
@@ -13,9 +12,9 @@ export function getFuncMoveToTime({ duration, mainBarRef }: FuncMoveTimeProps) {
         if (!mainBarRef?.current)
             return null
 
-        let rect = mainBarRef.current.getBoundingClientRect();
+        const rect = mainBarRef.current.getBoundingClientRect();
 
-        let x = e.clientX - rect.left;
+        const x = e.clientX - rect.left;
         const full = mainBarRef.current.clientWidth
 
         const percentage = clamp(x / full, 0, 1)

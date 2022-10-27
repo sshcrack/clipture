@@ -1,5 +1,5 @@
 import { SessionData } from '@backend/managers/auth/interfaces'
-import { Flex, Heading, IconButton, Kbd, Text } from '@chakra-ui/react'
+import { Flex, Heading, IconButton } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { AiOutlineClose } from 'react-icons/ai'
@@ -52,9 +52,10 @@ export default function SettingsPage({ prevPage }: { data: SessionData, prevPage
 
     const defaultPage = OBSGeneral
     const itemParts = item?.split("-")
-    const category: Categories = itemParts?.shift() as any
+    const category = itemParts?.shift() as unknown as Categories
     const leftOver = itemParts?.join("-")
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore typescript is being weird with dictionary indexes
     const CurrPage: () => JSX.Element = mappings?.[category]?.[leftOver] ?? defaultPage
 

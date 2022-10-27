@@ -2,7 +2,7 @@ if (!process)
     throw new Error("Register Manager main can not be used in renderer.")
 
 
-import { BrowserWindow, ipcMain, IpcMainEvent, IpcMainInvokeEvent, WebContents } from 'electron'
+import { BrowserWindow, ipcMain, IpcMainEvent, IpcMainInvokeEvent } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { MainToRender, RegisterEvents, RegisterEventsPromises } from "./type/index"
 
@@ -19,6 +19,7 @@ export class RegManMain {
 
         return ipcMain.on(event, (e, ...args) => {
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const returnType = callback(e, ...args as any);
 
             e.returnValue = returnType
@@ -33,6 +34,7 @@ export class RegManMain {
         }
 
         this.eventProm.push(event)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return ipcMain.handle(event, (e, ...args) => callback(e, ...args as any)
         )
     }

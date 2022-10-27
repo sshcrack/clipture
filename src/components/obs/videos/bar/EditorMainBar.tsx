@@ -2,7 +2,6 @@ import { Box, Flex, Grid } from '@chakra-ui/react';
 import { GridProps } from '@chakra-ui/styled-system';
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { ReactSetState } from 'src/types/reactUtils';
-import { LoaderTargetPlugin } from 'webpack';
 import { EditorContext } from '../Editor';
 import EditorBarButtons from './EditorBarButtons';
 
@@ -20,8 +19,8 @@ export const EditorMainBarContext = React.createContext<EditorMainBarState>({
     mainBarRef: null,
     bgImageRef: null,
     seekDragging: false,
-    setSeekDragging: () => { },
-    onEndMouseDrag: () => { },
+    setSeekDragging: () => {/**/},
+    onEndMouseDrag: () => {/**/},
     resize: 0
 })
 
@@ -68,7 +67,7 @@ export default function EditorMainBar(props: React.PropsWithChildren<GridProps>)
             const stepPercentage = 1 / segments
 
             const size = [mainWidth, mainHeight]
-            let canvas = document.createElement("canvas")
+            const canvas = document.createElement("canvas")
 
             canvas.width = size[0]
             canvas.height = size[1]

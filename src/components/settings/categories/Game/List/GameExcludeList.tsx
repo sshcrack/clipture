@@ -4,7 +4,6 @@ import { DetectableGame } from '@backend/managers/obs/Scene/interfaces'
 import { Box, Flex, Heading, useToast } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
-import Select from 'react-select'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 import CustomSelect from './CustomSelect'

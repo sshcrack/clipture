@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, useState, useContext } from "react"
+import React, { PropsWithChildren, useState } from "react"
 
 export type MultipleSelectState = {
     selected: string[],
@@ -7,8 +7,8 @@ export type MultipleSelectState = {
 }
 export const MultipleSelectContext = React.createContext<MultipleSelectState>({
     selected: [],
-    addSelect: () => { },
-    removeSelect: () => { }
+    addSelect: () => {/**/},
+    removeSelect: () => {/**/}
 })
 
 export default function MultipleSelectProvider({ children }: PropsWithChildren) {

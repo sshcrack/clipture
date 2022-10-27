@@ -7,7 +7,7 @@ type HoverVideoState = {
 }
 export const HoverVideoContext = React.createContext<HoverVideoState>({
     hovered: false,
-    setHovered: () => { }
+    setHovered: () => {/**/}
 })
 
 export default function HoverVideoProvider(props: React.PropsWithChildren) {

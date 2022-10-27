@@ -1,10 +1,8 @@
-import { IOBSOutputSignalInfo, NodeObs as typedObs } from "src/types/obs/obs-studio-node";
-import { Subject } from "rxjs"
+import { Subject } from "rxjs";
 import { first } from "rxjs/operators";
-import { MainGlobals } from "@Globals/mainGlobals";
+import { IOBSOutputSignalInfo, NodeObs as typedObs } from "src/types/obs/obs-studio-node";
 import { importOBS } from "../tool";
 
-const { obsRequirePath} = MainGlobals
 export class SignalsManager {
     private static signals = new Subject<IOBSOutputSignalInfo>()
     private static NodeObs: typedObs

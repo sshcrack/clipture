@@ -3,10 +3,10 @@ import { getAddRemoveListener } from '@general/tools/listener';
 import { ipcRenderer } from 'electron';
 
 type CloseListenerFunc = () => void
-let closeListeners = [] as CloseListenerFunc[]
+const closeListeners = [] as CloseListenerFunc[]
 
 type ToTrayIconFunc = (hidden: boolean) => void
-let trayIconListeners = [] as ToTrayIconFunc[]
+const trayIconListeners = [] as ToTrayIconFunc[]
 
 ipcRenderer.on("close_behavior_dialog", () => closeListeners.map(e => e()))
 RegManRender.on("system_tray_event", (_, hidden) => trayIconListeners.map(e => e(hidden)))

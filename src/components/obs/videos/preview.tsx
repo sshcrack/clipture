@@ -109,7 +109,7 @@ function InnerPreview({ preview, size }: { preview: MutableRefObject<HTMLDivElem
 
     useEffect(() => {
         if (!displayId)
-            return () => { }
+            return () => {/**/}
 
         return () => {
             log.silly("Destroying id", displayId)

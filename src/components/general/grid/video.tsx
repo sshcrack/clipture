@@ -32,16 +32,17 @@ export type VideoGridState = {
 export const VideoGridContext = React.createContext<VideoGridState>({
     gridRef: null,
     cachedDurations: new Map(),
-    setCachedDurations: () => { }
+    setCachedDurations: () => {/**/}
 })
 
 const log = RenderLogger.get("Components", "General", "Grid", "Video")
-export function VideoGridItem({ update, background, onClick, children, ...rest }: VideoGridItem) {
+export function VideoGridItem({ update, onClick, children, ...rest }: VideoGridItem) {
     const [thumbnail, setThumbnail] = useState(undefined)
     const api = rest.type === "none" ? undefined : (rest.fileName.startsWith("cloud#") ? window.api.cloud : window.api[rest.type as "clips" | "videos"])
 
     useEffect(() => {
         setThumbnail(undefined)
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore it exists shush
     }, [update, rest["fileName"]])
 
@@ -60,6 +61,7 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
                 log.error("Could not get thumbnail", e)
                 setThumbnail(null)
             })
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         //@ts-ignore shush it does exists
     }, [thumbnail])
 
@@ -99,7 +101,7 @@ export function VideoGridItem({ update, background, onClick, children, ...rest }
     </GridItem>
 }
 
-export function VideoGrid({ children, forwardRef, ...props }: GridProps & { forwardRef?: MutableRefObject<HTMLDivElement> }) {
+export function VideoGrid({ children, ...props }: GridProps & { forwardRef?: MutableRefObject<HTMLDivElement> }) {
     const gridRef = useRef<HTMLDivElement>(null)
     const [cachedDurations, setCachedDurations] = useState(new Map<string, number>())
 

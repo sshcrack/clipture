@@ -29,7 +29,7 @@ export default function ClipProcessingItems() {
 
     const primaryColor = "var(--chakra-colors-brand-primary)"
     const secondaryColor = "var(--chakra-colors-brand-secondary)"
-    const elements = clipsProg.map(([_, { info, progress }], i) => {
+    const elements = clipsProg.map(([, { info, progress }], i) => {
         const { videoName } = info
         return <VideoGridItem
             update={0}

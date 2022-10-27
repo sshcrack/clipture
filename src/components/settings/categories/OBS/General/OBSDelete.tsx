@@ -1,5 +1,5 @@
 import { DeleteMethods } from '@backend/managers/storage/interface'
-import { Flex, Select, Text } from '@chakra-ui/react'
+import { Flex, Text } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'

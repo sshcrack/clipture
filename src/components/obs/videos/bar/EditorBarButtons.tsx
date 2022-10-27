@@ -1,5 +1,5 @@
 import { Flex, IconButton, Tooltip } from '@chakra-ui/react'
-import React, { useContext, useState } from "react"
+import React, { useContext } from "react"
 import { BsArrowClockwise } from 'react-icons/bs'
 import { FaPlay } from 'react-icons/fa'
 import { EditorContext } from '../Editor'

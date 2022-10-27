@@ -1,7 +1,7 @@
 import { existsProm } from '@backend/tools/fs';
 import fs from "fs/promises";
 import path from 'path';
-import { Clip, ClipRaw, VideoInfo } from './interface';
+import { ClipRaw, VideoInfo } from './interface';
 
 
 export function getVideoInfoPath(recordingPath: string, videoName: string) {

@@ -1,6 +1,5 @@
 import { SystemManager } from '@backend/managers/system'
-import { MainGlobals } from '@Globals/mainGlobals'
-import { ipcMain, BrowserWindow, WebContents } from 'electron'
+import { BrowserWindow, ipcMain, WebContents } from 'electron'
 
 const setupEventListener = (browserWindow: BrowserWindow, sender: WebContents) => {
     browserWindow.addListener('maximize', () => {

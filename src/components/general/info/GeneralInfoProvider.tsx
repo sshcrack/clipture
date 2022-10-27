@@ -8,7 +8,7 @@ type Props = FlexProps & {
     onEditor: React.MouseEventHandler<HTMLDivElement>,
     baseName: string
 }
-export default function GeneralInfoProvider({ baseName, onEditor, children, ...props }: Props) {
+export default function GeneralInfoProvider({ baseName, children, ...props }: Props) {
     const { selection, setSelection } = useContext(SelectionContext)
     const [checked, setChecked] = useState(false)
 

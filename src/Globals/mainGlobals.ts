@@ -23,7 +23,7 @@ function isDev() {
     return process.argv[2] === "dev"
 }
 
-let isDevCached = isDev()
+const isDevCached = isDev()
 export class MainGlobals {
     static isPackaged = packaged
     static window: BrowserWindow

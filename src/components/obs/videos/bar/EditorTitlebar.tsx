@@ -1,11 +1,10 @@
-import { Button, Flex, FormControl, FormErrorMessage, FormHelperText, FormLabel, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react'
-import React, { ChangeEvent, useContext, useEffect, useState } from "react"
+import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react'
+import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { BiPencil } from 'react-icons/bi'
 import { GoChevronLeft } from 'react-icons/go'
 import NameValidator from 'src/components/general/validator/nameValidator'
 import TitleBarItem from 'src/components/titlebar/TitleBarItem'
-import { useDebounce } from 'use-debounce'
 import { EditorContext } from '../Editor'
 
 export default function EditorTitlebar() {
@@ -65,7 +64,7 @@ export default function EditorTitlebar() {
                 console.log("Cutting with selection", selection)
                 setCuttingClips(true)
                 onClose()
-                clips.cut(desiredClipName, videoName, start, end, () => { })
+                clips.cut(desiredClipName, videoName, start, end, () => {/**/})
                     .then(() => setCuttingClips(false))
                 location.href='#/clips'
             })

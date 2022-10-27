@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react"
 export default function Volmeter({ source, ...props }: { source: string } & BoxProps) {
     const { audio } = window.api
     const [percentage, setPercentage] = useState(0)
-    const [currVal, setCurrVal] = useState(-Infinity)
+    const [, setCurrVal] = useState(-Infinity)
 
     useEffect(() => {
         const filter = new ExpFilter(0, 0.2, 0.2)

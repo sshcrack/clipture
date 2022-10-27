@@ -3,6 +3,7 @@ import Select, { GroupBase } from "react-select";
 import makeAnimated from 'react-select/animated';
 
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type SelectProps<Option = unknown, IsMulti extends boolean = false, Group extends GroupBase<Option> = GroupBase<Option>> = React.ComponentProps<typeof Select<Option, IsMulti, Group>>
 
 const animatedComponents = makeAnimated();

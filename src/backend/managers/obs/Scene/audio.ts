@@ -177,7 +177,7 @@ export class AudioSceneManager {
     static async initializeAudioSources(scene: IScene) {
         if (!this.initialized)
             throw new Error("Could not initialize audio sources, not initialized")
-        this.NodeObs.RegisterSourceCallback(() => { })
+        this.NodeObs.RegisterSourceCallback(() => {/**/})
 
         log.info("Setting up audio sources...")
         this.Global.setOutputSource(1, scene);
@@ -231,12 +231,13 @@ export class AudioSceneManager {
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
         const dummyDevice = this.InputFactory.create(osName, audioType, { device_id: 'does_not_exist' });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const devices = (dummyDevice.properties.get('device_id') as any).details.items.map(({ name, value }: { name: string, value: string }) => {
             return { device_id: value, name, };
         });
         dummyDevice.release();
         return devices;
-    };
+    }
 
     public static addAudioDevice(device_id: string, currTrack: number, type: DeviceType, volume: number) {
         volume = clamp(volume, 0, 1)

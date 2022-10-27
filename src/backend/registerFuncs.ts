@@ -10,7 +10,6 @@ import { Scene } from './managers/obs/Scene';
 import { AudioSceneManager } from './managers/obs/Scene/audio';
 import { Prerequisites } from './managers/prerequisites';
 import { SettingsManager } from './managers/settings';
-import { StorageManager } from './managers/storage';
 import { SystemManager } from './managers/system';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';

@@ -1,14 +1,12 @@
+import { UseToastOptions } from '@chakra-ui/react';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
+import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
-import got from "got"
-import fsProm from "fs/promises"
-import { DetectableGame, WindowInformation } from '../obs/Scene/interfaces';
-import { UseToastOptions } from '@chakra-ui/react';
 import { isDetectableGameInfo } from '../obs/core/tools';
+import { DetectableGame, WindowInformation } from '../obs/Scene/interfaces';
 import { GeneralGame } from './interface';
-import { Prerequisites } from '../prerequisites';
 
 export type ProcessManagerCallback = (info: WindowInformation[]) => void
 

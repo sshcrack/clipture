@@ -34,9 +34,8 @@ export default function CloudIndicator() {
         <Progress
             value={percentage}
             style={{
-                //@ts-ignore
                 "--prog-color": color
-            }}
+            } as any}
             {...progGeneral}
         />
         <Text color='white' pl='2'>{prettierUsed} / {prettierTotal}</Text>
