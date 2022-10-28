@@ -6,9 +6,8 @@
 ![lines](https://img.shields.io/tokei/lines/github/sshcrack/clipture?style=for-the-badge)
 ![status](https://img.shields.io/github/workflow/status/sshcrack/clipture/Release?style=for-the-badge)
 
-# Download & Install (Windows only)
-<!-- BEGIN LATEST DOWNLOAD BUTTON -->
-<!-- END LATEST DOWNLOAD BUTTON -->
+# Download (Windows only)
+### Official Build:&nbsp;&nbsp;&nbsp;&nbsp;[![Official Build](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white)](https://clipture.sshcrack.me/api/download)
 
 ## Selfhosting
 Make sure you have yarn installed, if not sure:
