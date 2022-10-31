@@ -15,32 +15,13 @@ Make sure you have yarn installed, if not sure:
 npm i -g yarn
 ```
 
-Clone repository
-```bash
-git clone https://github.com/sshcrack/clipture-server
-```
-Replace defaults with your config files in .env.local
-
-Build:
-```bash
- yarn build
-```
-
-Start: 
-```bash
-  yarn start
-```
-
-Build the client: 
-<a href="#building">Click here</a>
-
-## Building
-Replace url and other information with yours in file src/Globals/MainGlobals.ts
-
-Build obs-studio-node and add it to the project:
-```
-git clone https://github.com/sshcrack/obs-studio-node-fix && cd obs-studio-node-fix && yarn local:config && yarn local:build && cd obs-studio-node && tar -cvf ../out.tar.gz . && cd .. && cd .. && yarn add ./obs-studio-node-fix/out.tar.gz
-```
+1. [Setup server](https://github.com/sshcrack/clipture-server)
+2. Clone Repo
+3. Update variables in src/Globals/
+4. Install
+ ```bash
+  yarn
+ ```
 
 ### Releasing
 Generate setup files:
