@@ -1,4 +1,3 @@
-import { CaptureMethod } from '@backend/managers/obs/core/interface';
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn, CurrRec, Encoder } from '@backend/managers/obs/types';
 import { getAddRemoveListener } from '@general/tools/listener';
@@ -44,8 +43,7 @@ const obs = {
 
     getCurrent: () => reg.emitPromise("obs_get_current"),
     getSettings: () => reg.emitPromise("obs_get_settings"),
-    setSettings: (e: OBSSettings) => reg.emitPromise("obs_set_settings", e),
-    updateSettings: (fps: number, bitrate: number, captureMethod: CaptureMethod) => reg.emitPromise("obs_update_settings", fps, bitrate, captureMethod),
+    updateSettings: (e: Partial<OBSSettings>) => reg.emitPromise("obs_update_settings", e),
     automaticRecord: (autoRecord: boolean) => reg.emitPromise("obs_automatic_record", autoRecord),
     isAutoRecord: () => reg.emitPromise("obs_is_automatic_record"),
 

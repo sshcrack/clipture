@@ -24,8 +24,7 @@ export default function OBSVideoBitrate() {
         return addSaveListener(async () => {
             console.log("Adding Save listener for bitrate", customBitrate)
 
-            const settings = await obs.getSettings()
-            await obs.setSettings({ ...settings, bitrate: customBitrate })
+            await obs.updateSettings({ bitrate: customBitrate })
         })
     }, [customBitrate, addSaveListener])
 

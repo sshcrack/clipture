@@ -1,4 +1,4 @@
-import { CaptureMethod, OutCurrentType } from '@backend/managers/obs/core/interface'
+import { OutCurrentType } from '@backend/managers/obs/core/interface'
 import { CurrentSetting, WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn, CurrRec, Encoder } from '@backend/managers/obs/types'
 import type { OBSSettings } from '@Globals/storage'
@@ -12,9 +12,8 @@ export type OBSEventsSync = addPrefixUnderscoreToObject<{
 
 export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     initialize: () => void,
-    update_settings: (fps: number, bitrate: number, capture_method: CaptureMethod) => void,
+    update_settings: (settings: Partial<OBSSettings>) => void,
     get_settings: () => OBSSettings,
-    set_settings: (e: OBSSettings) => void,
     available_monitors: () => number,
     preview_init: (bounds: ClientBoundRecReturn) => ({
         displayId: string,

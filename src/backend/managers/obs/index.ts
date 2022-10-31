@@ -254,7 +254,6 @@ export class OBSManager {
         log.log("Registering OBS Events...")
         reg.onSync("obs_is_initialized", () => this.obsInitialized)
         reg.onPromise("obs_initialize", () => this.initialize())
-        reg.onPromise("obs_set_settings", async (_, e) => Storage.set("obs", e))
         reg.onPromise("obs_get_settings", async () => {
             const e = Storage.get("obs")
             return {
@@ -283,17 +282,21 @@ export class OBSManager {
             Storage.set("obs_encoder", encoder)
             Storage.set("obs_preset", preset)
         })
-        reg.onPromise("obs_update_settings", async (_, fps, bitrate, captureMethod) => {
-            if (fps <= 0)
+        reg.onPromise("obs_update_settings", async (_, partly) => {
+            const { fps, bitrate, capture_method } = partly
+            log.info("Updating settings", fps, bitrate, capture_method)
+            const isNull = <T>(e: T | undefined | null) => typeof e === "undefined" || e === null
+
+            if (!isNull(fps) && fps <= 0)
                 throw new Error("Invalid fps number")
 
-            if (bitrate <= 0)
+            if (!isNull(bitrate) && bitrate <= 0)
                 throw new Error("Invalid bitrate")
 
-            if (captureMethod !== "desktop" && captureMethod !== "window")
+            if (!isNull(capture_method) && capture_method !== "desktop" && capture_method !== "window")
                 throw new Error("Invalid capture method")
 
-            Storage.set("obs", { fps, bitrate, capture_method: captureMethod })
+            Storage.set("obs", { ...(Storage.get("obs")), ...partly })
             this.updateSettings()
         })
     }

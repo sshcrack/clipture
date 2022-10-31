@@ -20,12 +20,11 @@ export default function OBSCaptureMethod() {
             })
     }, [saving])
 
-    useEffect(() => {
+    useEffect(() =>
         addSaveListener(async () => {
-            const settings = await obs.getSettings()
-            await obs.setSettings({ ...settings, capture_method: method })
+            await obs.updateSettings({ capture_method: method })
         })
-    }, [addSaveListener, method])
+        , [addSaveListener, method])
 
     const { t } = useTranslation("settings", { keyPrefix: "obs.video.capture_method" })
     const captureMethodSelector = <Select

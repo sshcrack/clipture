@@ -24,8 +24,7 @@ export default function OBSVideoFPS() {
         return addSaveListener(async () => {
             console.log("Adding Save listener for fps", fps)
 
-            const settings = await obs.getSettings()
-            await obs.setSettings({ ...settings, fps: fps })
+            await obs.updateSettings({ fps: fps })
         })
     }, [fps, addSaveListener])
 
