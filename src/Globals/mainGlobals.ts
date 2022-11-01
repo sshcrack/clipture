@@ -4,11 +4,24 @@ import { getWebpackDir } from "@backend/tools/fs";
 import { app, BrowserWindow, nativeImage } from 'electron';
 
 const wDir = getWebpackDir()
-const cliptureDir = path.join(process.env.CLIPTURE_APPDATA ?? app.getPath("appData"), "clipture")
-const assetsDir = path.join(cliptureDir, "assets")
+const appPath = app.getAppPath();
+const packaged = app.isPackaged || !process.argv.includes("dev")
+
+const _cliptureDir = path.join( app.getPath("appData"), "clipture")
+let assetsDir = path.join(_cliptureDir, "assets")
+
+if(app.isPackaged) {
+    if(!fs.existsSync(assetsDir))
+        assetsDir = path.join(appPath, "assets")
+
+} else
+    assetsDir = path.join(process.cwd(), "devAssets")
+
+
+
 if(!fs.existsSync(assetsDir))
     fs.mkdirSync(assetsDir, { recursive: true })
-const packaged = app.isPackaged || !process.argv.includes("dev")
+
 const ffmpegExe = packaged ? path.join(assetsDir, "ffmpeg.exe") : path.join(process.cwd(), "devAssets", "ffmpeg.exe");
 const ffprobeExe = packaged ? path.join(assetsDir, "ffprobe.exe") : path.join(process.cwd(), "devAssets", "ffprobe.exe");
 
@@ -17,12 +30,15 @@ process.env.FFPROBE_PATH = ffprobeExe
 
 import { OBSManager } from '@backend/managers/obs';
 import os from "os";
+import { MainLogger } from 'src/interfaces/mainLogger';
 
 
 function isDev() {
     return process.argv[2] === "dev"
 }
 
+const log = MainLogger.get("Globals", "MainGlobals")
+log.silly("Using assetDir", assetsDir)
 const isDevCached = isDev()
 export class MainGlobals {
     static isPackaged = packaged

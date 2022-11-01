@@ -28,6 +28,8 @@ type ListenerType = (isRecording: boolean) => unknown
 
 export class RecordManager {
     private recording = false;
+    private recordingInitializing = false;
+    private stopInitializing = false;
     private NodeObs: typedObs = null
     private recordProm: Promise<unknown>
     private current = {
@@ -110,12 +112,21 @@ export class RecordManager {
             if (window && this.isRecording()) {
                 const isRunning = processRunning(window.pid)
                 if (!isRunning && this.automaticRecord) {
-                    new Notification({
-                        title: "Recording stopped",
-                        body: `${window.title ?? "Monitor " + monitor} has been recorded successfully`,
-                        silent: true
-                    }).show()
                     this.stopRecording()
+                        .then(() =>
+                            new Notification({
+                                title: "Recording stopped",
+                                body: `${window.title ?? "Monitor " + monitor} has been recorded successfully`,
+                                silent: true
+                            }).show()
+                        )
+                        .catch(e => {
+                            if (e === "init_fail")
+                                return log.silly("Init fail stop.")
+
+                            log.error("Record stop Err", e)
+                            throw e
+                        })
                 }
             }
         }, 2500)
@@ -146,7 +157,10 @@ export class RecordManager {
         if (!this.initialized)
             return log.warn("Could not start recording, not initialized")
 
-        this.recording = true
+        if (this.recordingInitializing || this.stopInitializing)
+            throw new Error("init_fail")
+
+        this.recordingInitializing = true
         const prom = (async () => {
             const recordPath = this.NodeObs.OBS_settings_getSettings(SettingsCat.Output)
                 .data
@@ -225,6 +239,7 @@ export class RecordManager {
                 })
                 await this.save()
             }
+            this.recording = true
         })()
 
 
@@ -236,6 +251,7 @@ export class RecordManager {
             })
             .finally(() => {
                 this.recordProm = null
+                this.recordingInitializing = false
             })
     }
 
@@ -246,12 +262,16 @@ export class RecordManager {
         if (!this.initialized)
             return log.warn("Could not stop recording, not initialized")
 
+        if (this.stopInitializing && !this.recordingInitializing)
+            throw new Error("init_fail")
+
         if (this.recordProm) {
             log.info("Waiting for recording prom...")
             await this.recordProm
         }
 
         log.info("Stopped recording")
+        this.stopInitializing = true
         this.NodeObs.OBS_service_stopRecording()
         if (this.current?.currentInfoPath) {
             const { currentInfoPath, gameId, bookmarks } = this.current
@@ -272,6 +292,7 @@ export class RecordManager {
         this.listeners.map(e => e(false))
         RegManMain.send("obs_record_change", false)
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
+        this.stopInitializing = false
     }
 
     public addRecordListener(func: ListenerType) {
@@ -363,6 +384,13 @@ export class RecordManager {
                     silent: true
                 }).show()
             )
+                .catch(e => {
+                    if (e?.message === "init_fail")
+                        return log.silly("Init fail start")
+
+                    log.error("Could not start recording", e)
+                    throw e
+                })
         }
     }
 

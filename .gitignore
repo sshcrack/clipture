@@ -8,6 +8,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+devAssets
 osn-data
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
