@@ -4,7 +4,7 @@ import { getWebpackDir } from "@backend/tools/fs";
 import { app, BrowserWindow, nativeImage } from 'electron';
 
 const wDir = getWebpackDir()
-const cliptureDir = path.join(app.getPath("appData"), "clipture")
+const cliptureDir = path.join(process.env.CLIPTURE_APPDATA ?? app.getPath("appData"), "clipture")
 const assetsDir = path.join(cliptureDir, "assets")
 if(!fs.existsSync(assetsDir))
     fs.mkdirSync(assetsDir, { recursive: true })
