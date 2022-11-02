@@ -8,7 +8,7 @@ export function isDetectableGameInfo(detectable: DetectableGame, winInfo: Window
     const args = winInfo.arguments;
 
     const isGame = detectable?.executables?.some(exe => {
-        const isExe = exe?.name && exe?.name?.includes("/") ? fullExe.includes(exe.name) : exe.name === executable
+        const isExe = exe?.name && exe?.name?.includes("/") ? fullExe.includes(exe.name) : exe.name.toLowerCase() === executable.toLowerCase()
         return (
             isExe ||
             args?.some(e => e?.toLowerCase()?.includes(exe?.arguments?.toLowerCase()))
