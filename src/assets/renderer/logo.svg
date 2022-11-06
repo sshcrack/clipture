@@ -99,10 +99,10 @@
      showgrid="false"
      inkscape:snap-object-midpoints="false"
      inkscape:zoom="22.627417"
-     inkscape:cx="9.1781701"
-     inkscape:cy="12.258883"
+     inkscape:cx="0.9309864"
+     inkscape:cy="15.018535"
      inkscape:window-x="1358"
-     inkscape:window-y="59"
+     inkscape:window-y="58"
      inkscape:window-maximized="1"
      inkscape:current-layer="svg8" />
   <g
@@ -113,4 +113,11 @@
        id="path4"
        style="fill:url(#linearGradient904);fill-opacity:1;fill-rule:nonzero;stroke:url(#linearGradient867);stroke-width:0" />
   </g>
+  <ellipse
+     style="fill:var(--inner-ring, transparent);stroke-width:0"
+     id="path16"
+     cx="11.997669"
+     cy="13.699924"
+     rx="5.6979766"
+     ry="5.7010255" />
 </svg>

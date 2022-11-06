@@ -3,6 +3,7 @@ import React from "react"
 import { useTranslation } from 'react-i18next'
 import BehaviorDiscord from 'src/components/settings/categories/Game/Behavior/GameDiscord'
 import GameHotkey from 'src/components/settings/categories/Game/Behavior/GameHotkey'
+import OverlayEnable from 'src/components/settings/categories/Game/Behavior/OverlayEnable'
 
 export default function GameBehavior() {
     const { t } = useTranslation("settings", { keyPrefix: "game.behavior" })
@@ -16,6 +17,7 @@ export default function GameBehavior() {
         >
             <GameHotkey />
             <BehaviorDiscord />
+            <OverlayEnable />
         </Flex>
     </>
 }

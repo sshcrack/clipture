@@ -290,7 +290,7 @@ export class CloudManager {
         }).json<CloudClip[]>()
 
         this.cached = res
-        setTimeout(() => { this.cached = null; console.log("Invalidating cache...") }, CACHE_EXPIRE)
+        setTimeout(() => this.cached = null, CACHE_EXPIRE)
         return res
     }
 

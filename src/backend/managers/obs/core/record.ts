@@ -292,6 +292,7 @@ export class RecordManager {
         this.listeners.map(e => e(false))
         RegManMain.send("obs_record_change", false)
         BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(null, ""))
+        Scene.removeMainSource()
         this.stopInitializing = false
     }
 

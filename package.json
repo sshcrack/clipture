@@ -90,6 +90,14 @@
                   "preload": {
                     "js": "./src/preload/main/index.ts"
                   }
+                },
+                {
+                  "html": "./src/pages/global/index.html",
+                  "js": "./src/pages/overlay/renderer.ts",
+                  "name": "overlay_window",
+                  "preload": {
+                    "js": "./src/preload/overlay/index.ts"
+                  }
                 }
               ]
             }
@@ -140,7 +148,9 @@
     "@chakra-ui/react": "^2.2.1",
     "@emotion/react": "11",
     "@emotion/styled": "11",
+    "@streamlabs/game_overlay": "https://github.com/sshcrack/clipture-overlay/releases/download/v0.1.45/streamlabs-game_overlay-v0.1.45.tgz",
     "@streamlabs/obs-studio-node": "https://github.com/sshcrack/obs-studio-node-fix/releases/download/v0.8.8/obs-studio-node.tar.gz",
+    "@svgr/webpack": "^6.5.1",
     "auto-launch": "^5.0.5",
     "chart.js": "^3.8.0",
     "classnames": "^2.3.1",

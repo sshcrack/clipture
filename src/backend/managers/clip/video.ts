@@ -82,7 +82,7 @@ export class VideoManager {
 
 
         const detectable = await GameManager.getDetectableGames()
-        console.log("Video List:", sorted)
+        console.log("Video List:", JSON.stringify(sorted))
         return Promise.all(sorted.map(async ({ modified, file }) => {
             let gameInfo = this.videoInfoCache.get(file) as GeneralGame | null
             let displayName = this.videoDisplayNameCache.get(file) as string | null

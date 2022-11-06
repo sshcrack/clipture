@@ -1,0 +1,18 @@
+html {
+    --chakra-colors-chakra-body-bg: #111111 !important;
+    color: rgb(254, 254, 254) !important;
+}
+
+@keyframes recordingAnimate {
+    0% {
+        --inner-ring: rgb(255, 255, 255);
+    }
+
+    50% {
+        --inner-ring: rgb(255, 0, 0);
+    }
+
+    100% {
+        --inner-ring: rgb(255, 255, 255);
+    }
+}

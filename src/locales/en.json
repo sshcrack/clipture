@@ -148,6 +148,20 @@
                         "WEEK_OLD": "if older than one week",
                         "DAY_OLD": "if older than one day"
                     }
+                },
+                "overlay": {
+                    "title": "Overlay",
+                    "alignment": {
+                        "DISABLED": "Disabled",
+                        "TOP_LEFT": "on top left",
+                        "TOP_CENTER": "on top center",
+                        "TOP_RIGHT": "on top right",
+                        "CENTER_LEFT": "on center left",
+                        "CENTER_RIGHT": "on center right",
+                        "BOTTOM_LEFT": "on bottom left",
+                        "BOTTOM_CENTER": "on bottom center",
+                        "BOTTOM_RIGHT": "on bottom right"
+                    }
                 }
             },
             "list": {

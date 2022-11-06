@@ -5,7 +5,7 @@ import { Storage } from '@Globals/storage';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { isDetectableGameInfo } from '../obs/core/tools';
-import { DetectableGame, WindowInformation } from '../obs/Scene/interfaces';
+import { DetectableGame, MonitorDimensions, WindowInformation } from '../obs/Scene/interfaces';
 import { GeneralGame } from './interface';
 
 export type ProcessManagerCallback = (info: WindowInformation[]) => void
@@ -227,8 +227,23 @@ export class GameManager {
         }
     }
 
+    static async getMonitorDimensions(hwnd: number) {
+        const execa = (await import("execa")).execa
+        const out = execa(MainGlobals.nativeMngExe, ["monitor", hwnd.toFixed(0)])
+        try {
+            const outProc = await out;
+            const stdout = outProc.stdout
+            const res = JSON.parse(stdout) as MonitorDimensions
+            if (!res || isNaN(res.width) || isNaN(res.height) || isNaN(res.index))
+                throw { errno: -999, command: `monitor ${hwnd.toFixed(0)}`, stdout: res, stderr: outProc.stderr }
+            return res
+        } catch (error) {
+            throw new Error(`Errno: ${error.errno} command: ${error.command} stdout: ${error.stdout} err: ${error.stderr}`)
+        }
+    }
+
     static async getIconPath(pid: number) {
-        if(!pid)
+        if (!pid)
             return
 
         const execa = (await import("execa")).execa

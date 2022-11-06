@@ -33,8 +33,10 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
   app.quit()
 }
-
-
+/*
+declare const OVERLAY_WINDOW_WEBPACK_ENTRY: string;
+declare const OVERLAY_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+*/
 
 app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling,MediaSession')
 logger.log("Is packaged", app.isPackaged, "Name", app.getName(), "Version", app.getVersion())

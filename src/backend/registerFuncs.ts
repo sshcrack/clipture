@@ -5,6 +5,7 @@ import { ClipManager } from './managers/clip';
 import { CloudManager } from './managers/cloud';
 import { DiscordManager } from './managers/discord';
 import { GameManager } from './managers/game';
+import { OverlayManager } from './managers/game/overlay';
 import { BookmarkManager } from './managers/obs/bookmark';
 import { Scene } from './managers/obs/Scene';
 import { AudioSceneManager } from './managers/obs/Scene/audio';
@@ -29,5 +30,6 @@ export const registerFuncs = [
     () => SettingsManager.register(),
     () => BookmarkManager.register(),
     () => DiscordManager.register(),
-    () => CloudManager.register()
+    () => CloudManager.register(),
+    () => OverlayManager.register()
 ]

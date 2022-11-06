@@ -12,12 +12,16 @@ module.exports = {
     rules: [
       ...rules,
       {
-        test: /\.(png|jpe?g|gif|ico|svg)$/,
+        test: /\.(png|jpe?g|gif|ico)$/,
         type: 'asset/resource'
       },
       {
         test: /\.css$/,
         use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+      },
+      {
+        test: /\.svg$/,
+        loader: '@svgr/webpack'
       }
     ],
   },

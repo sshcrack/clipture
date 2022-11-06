@@ -9,13 +9,15 @@ export interface WindowInformation {
     pid: number,
     hwnd: number,
     productName: string,
-    monitorDimensions?: {
-        width: number,
-        height: number,
-        index: number
-    },
+    monitorDimensions?: MonitorDimensions,
     intersectsMultiple: boolean,
     focused: boolean
+}
+
+export type MonitorDimensions = {
+    width: number,
+    height: number,
+    index: number
 }
 
 export type CurrentSetting = null | {

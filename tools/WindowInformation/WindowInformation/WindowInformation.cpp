@@ -203,6 +203,36 @@ int main(int argc, char** argv)
             checkGame = true;
             mode = WindowSearchMode::INCLUDE_MINIMIZED;
         }
+        if (firstArg.compare("monitor") == 0) {
+            if (argc >= 3) {
+                string hwndArgument(argv[2]);
+                HMONITOR monitor;
+                int hwnd = stoi(hwndArgument);
+                
+
+                int width, height;
+                bool monitorRes = HWNDToMonitor((HWND)hwnd, monitor);
+                if (!monitorRes) {
+                    cerr << "Invalid HWND";
+                    exit(-1);
+                }
+
+                int index = GetMonitorIndex(monitor);
+                if (GetMonitorDimensions(monitor, width, height)) {
+                    cout << std::format("{{\"width\": {}, \"height\": {}, \"index\": {}}}", width, height, index);
+                    exit(0);
+                }
+                else {
+                    cerr << "Could not get monitor dimensions";
+                    exit(-1);
+                }
+
+            }
+            else {
+                cerr << "Handle has to be given as next argument";
+                exit(-1);
+            }
+        }
         if (firstArg.compare("icon") == 0) {
             if (argc >= 3) {
                 string pidArgument(argv[2]);

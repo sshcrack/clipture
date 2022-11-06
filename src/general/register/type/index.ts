@@ -14,6 +14,7 @@ import { CloudEventsPromises, CloudMainToRender } from './cloud'
 import { PrerequisitesEventsPromises, PrerequisitesMainToRender } from './prerequisites'
 import { DiscordEventsPromises } from './discord'
 import { StorageEventsPromises, StorageMainToRender } from './storage'
+import { OverlayEventPromises, OverlayMainToRender } from './overlay'
 
 export type RegisterEvents = LockEventsSync & OBSEventsSync & SystemEventsSync
 
@@ -23,7 +24,7 @@ export type RegisterEventsPromises = AuthEventsPromises & AudioEventsPromises
     & SettingsEventsPromises & ClipsEventPromises
     & BookmarkEventsPromises & PrerequisitesEventsPromises
     & CloudEventsPromises & DiscordEventsPromises
-    & StorageEventsPromises
+    & StorageEventsPromises & OverlayEventPromises
 
 export type MainToRender = {
     performance: (stats: PerformanceStatistics) => void,
@@ -35,3 +36,4 @@ export type MainToRender = {
     & BookmarkMainToRender
     & SystemMainToRender & PrerequisitesMainToRender
     & CloudMainToRender & StorageMainToRender
+    & OverlayMainToRender

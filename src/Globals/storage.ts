@@ -1,4 +1,5 @@
 import { GeneralGame } from '@backend/managers/game/interface';
+import { OverlayAlignment } from '@backend/managers/game/overlay/interface';
 import { CaptureMethod } from '@backend/managers/obs/core/interface';
 import { Encoder } from '@backend/managers/obs/types';
 import { DeleteMethods } from '@backend/managers/storage/interface';
@@ -85,7 +86,9 @@ const defaults = {
     "language": undefined as string,
     "delete_method": [] as DeleteMethods[],
     "obs_encoder": null as Encoder,
-    "obs_preset": null as string
+    "obs_preset": null as string,
+    "overlay_enabled": false,
+    "overlay_alignment": OverlayAlignment.TOP_RIGHT
 }
 export const Storage = new StorageExtended({
     defaults

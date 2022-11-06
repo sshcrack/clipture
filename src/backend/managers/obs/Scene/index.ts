@@ -209,7 +209,7 @@ export class Scene {
             .forEach(i => i.remove())
     }
 
-    private static removeMainSource() {
+    public static removeMainSource() {
         this._scene.getItems()
             .filter(i => i.source.name === this.MAIN_WIN_SOURCE || i.source.name === this.MAIN_GAME_SOURCE)
             .map(e => e.remove())

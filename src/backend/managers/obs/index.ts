@@ -8,6 +8,7 @@ import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
 import { DiscordManager } from '../discord'
 import { GameManager } from '../game'
+import { OverlayManager } from '../game/overlay'
 import { LockManager } from '../lock'
 import { StorageManager } from '../storage'
 import { setOBSSetting as setSetting } from './base'
@@ -86,6 +87,10 @@ export class OBSManager {
             {
                 title: "Adding to storage manager...",
                 func: () => StorageManager.register()
+            },
+            {
+                title: "Overlay starting...",
+                func: () => OverlayManager.initialize()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 

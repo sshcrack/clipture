@@ -18,6 +18,7 @@ import settings from './settings';
 import videos from './videos';
 import discord from "./discord"
 import prerequisites from './prerequisites';
+import overlay from './overlay';
 
 
 
@@ -42,6 +43,7 @@ export const API = {
     prerequisites,
     discord,
     cloud,
+    overlay,
     shutdown: () => ipcRenderer.send("quit-app"),
     onToast: (handler: ToastHandlerFunc) => toastHandlers.push(e => handler(e)),
     isDev: () => ipcRenderer.sendSync("isDev") as boolean

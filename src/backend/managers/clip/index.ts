@@ -239,7 +239,6 @@ export class ClipManager extends VideoManager {
                         if (!gameId && rawGameInfo.original) {
                             const appended = rawGameInfo.original.endsWith(".mkv") ? rawGameInfo.original : rawGameInfo.original + ".mkv"
                             const videoInfo = await getVideoInfo(clipPath, appended)
-                            console.log("VideoInfo", videoInfo)
                             gameId = videoInfo?.gameId
                         }
 
