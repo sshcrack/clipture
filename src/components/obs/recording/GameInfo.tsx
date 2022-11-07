@@ -15,7 +15,7 @@ export default function GameInfo({ game, name }: { game: GeneralGame, name: stri
         justifyContent='center'
         alignItems='center'
     >
-        <Image borderRadius='20%' src={imageSrc} pr='4' />
-        <Text>{gameName}</Text>
+        <Image h='6rem' borderRadius='20%' src={imageSrc} pr='4' />
+        <Text fontSize='xl'>{gameName}</Text>
     </Flex>
 }

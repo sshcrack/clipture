@@ -194,7 +194,7 @@ export class RecordManager {
                 throw new Error("Could not start recording.")
 
 
-            const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording())
+            const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
             this.recordTimer = Date.now()
             const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
             const infoPathAvailable = recordPath && videoName

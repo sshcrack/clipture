@@ -22,10 +22,7 @@ export default function SwitchMonitorBtn() {
     useEffect(() => {
         obs.getSceneInfo().then(({ monitor }) => {
             if (monitor === undefined || monitor === null)
-                return toast({
-                    status: "error",
-                    description: "Cant get scene info."
-                })
+                return
 
             setCurrMonitor(monitor)
         }).catch(e => {

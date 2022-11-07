@@ -41,6 +41,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
     }, [])
 
     const { game } = current ?? {}
+    console.log("Current", current)
     return <Flex
         w='100%'
         h='100%'
@@ -163,7 +164,7 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         alignItems='center'
                     >
                         <Heading size='xl'>Recording</Heading>
-                        {!game && <GameInfo game={game} name={current?.videoName} />}
+                        {game && <GameInfo game={game} name={current?.videoName} />}
                         <PerformanceStatistics />
                     </Flex>
                 }
