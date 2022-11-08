@@ -208,18 +208,22 @@ export class OBSManager {
     private configure() {
         log.info("Configuring OBS")
         const Output = SettingsCat.Output
+        const cpuEncoder = getOS() === 'win32' ? 'x264' : 'obs_x264'
 
         setSetting(this.NodeObs, Output, "Mode", "Advanced")
-        setSetting(this.NodeObs, Output, 'StreamEncoder', getOS() === 'win32' ? 'x264' : 'obs_x264');
+        setSetting(this.NodeObs, Output, 'StreamEncoder', cpuEncoder);
 
-        log.info("Defaulting to x264")
+        log.info("Defaulting to", cpuEncoder)
         setSetting(this.NodeObs, Output, 'RecPreset', 'fast')
-        setSetting(this.NodeObs, Output, 'RecEncoder', 'x264');
+        setSetting(this.NodeObs, Output, 'RecEncoder', cpuEncoder);
 
         const storageEncoder = Storage.get("obs_encoder")
         const availableEncoders = getEncoders(this.NodeObs)
 
-        const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : availableEncoders.slice(-1)[0]
+        const gpuEncoder = availableEncoders?.filter(e => e !== cpuEncoder).slice(-1)[0] ?? cpuEncoder
+        const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : gpuEncoder
+
+        log.info("Available encoders are", JSON.stringify(availableEncoders), "using", encoder)
         Storage.set("obs_encoder", encoder)
 
         const availablePresets = getEncoderPresets(encoder as Encoder)

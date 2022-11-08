@@ -181,6 +181,9 @@ export class GameManager {
         let reportedError = false
         while (!this.shouldExit) {
             await this.timeout(1000)
+            if(this.shouldExit)
+                break
+
             const curr = await this.getAvailableWindows(true)
                 .then(e => {
                     reportedError = false

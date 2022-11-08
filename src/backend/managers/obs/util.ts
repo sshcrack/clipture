@@ -19,6 +19,7 @@ export function decodeString(str: string) {
 
 export function getEncoderPresets(encoder: Encoder) {
     switch (encoder) {
+        case "x264":
         case "obs_x264":
             return ["ultrafast", "superfast", "veryfast", "faster", "fast", "medium", "slow", "slower"]
         case "obs_qsv11":
