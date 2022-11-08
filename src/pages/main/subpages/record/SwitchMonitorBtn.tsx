@@ -20,7 +20,8 @@ export default function SwitchMonitorBtn() {
     }, [])
 
     useEffect(() => {
-        obs.getSceneInfo().then(({ monitor }) => {
+        obs.getSceneInfo().then(e => {
+            const { monitor } = e ?? {}
             if (monitor === undefined || monitor === null)
                 return
 

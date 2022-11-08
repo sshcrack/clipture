@@ -23,7 +23,6 @@ const obs = {
     resizePreview: (id: string, react: ClientBoundRecReturn) => reg.emitPromise("obs_preview_resize", id, react),
     previewSize: () => reg.emitPromise("obs_preview_size"),
 
-
     availableMonitors: () => reg.emitPromise("obs_available_monitors"),
 
     switchDesktop: (monitor: number) => reg.emitPromise("obs_switch_desktop", monitor),

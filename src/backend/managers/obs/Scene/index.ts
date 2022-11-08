@@ -1,5 +1,6 @@
 import { byOS } from '@backend/tools/operating-system';
 import { RegManMain } from '@general/register/main';
+import { scaleKeepRatioSpecific } from '@general/tools';
 import type { InputFactory as inputType, IScene, SceneFactory as sceneType } from '@streamlabs/obs-studio-node';
 import { screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
@@ -101,28 +102,36 @@ export class Scene {
     static async switchDesktopWindow(monitor: number, winInfo?: WindowInformation) {
         const videoSource = this.InputFactory.create(byOS({ "win32": 'monitor_capture', "darwin": 'display_capture' }), this.MAIN_WIN_SOURCE);
         const { physicalWidth, physicalHeight } = await getDisplayInfoFromIndex(monitor)
+        let oldSize = this._setting?.oldSize
+        if (!oldSize) {
+            oldSize = { width: physicalWidth, height: physicalHeight }
+            log.silly("Setting old size", physicalWidth, physicalHeight)
+        }
+
+        const optHeight = oldSize?.height ?? physicalHeight
+        const optWidth = oldSize?.width ?? physicalWidth
+        const [scaledW, scaledH] = scaleKeepRatioSpecific(physicalWidth, physicalHeight, { height: optHeight, width: optWidth}, true)
+
 
         const settings = videoSource.settings;
-        settings.width = physicalWidth
-        settings.height = physicalHeight
+        settings.width = scaledW
+        settings.height = scaledH
         settings.monitor = monitor
 
         videoSource.update(settings)
         videoSource.save()
 
 
-        const resolution = `${physicalWidth}x${physicalHeight}`
+        const resolution = `${optWidth}x${optHeight}`
         setSetting(this.NodeObs, SettingsCat.Video, "Base", resolution)
         setSetting(this.NodeObs, SettingsCat.Video, "Output", resolution)
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)
 
-        sceneItem.bounds = { x: physicalWidth, y: physicalHeight }
+        sceneItem.bounds = { x: optWidth, y: optHeight }
         sceneItem.boundsType = EBoundsType.ScaleInner as number
         sceneItem.alignment = EAlignment.TopLeft as number
-
-        log.info("Switching to desktop capture: width", physicalWidth, "height", physicalHeight, "with monitor", monitor)
 
         this._setting = {
             window: winInfo,
@@ -130,8 +139,10 @@ export class Scene {
             size: {
                 width: physicalWidth,
                 height: physicalHeight
-            }
+            },
+            oldSize: oldSize
         }
+        log.silly("changing resolution to", resolution, "Setting:", this._setting)
     }
 
     static async switchWindow(options: WindowInformation) {
@@ -205,11 +216,15 @@ export class Scene {
     }
 
     private static removeAllItems() {
+        if (this._setting?.oldSize)
+            this._setting.oldSize = null
         this._scene.getItems()
             .forEach(i => i.remove())
     }
 
     public static removeMainSource() {
+        if (this._setting?.oldSize)
+            this._setting.oldSize = null
         this._scene.getItems()
             .filter(i => i.source.name === this.MAIN_WIN_SOURCE || i.source.name === this.MAIN_GAME_SOURCE)
             .map(e => e.remove())

@@ -23,6 +23,10 @@ export type MonitorDimensions = {
 export type CurrentSetting = null | {
     window: WindowInformation,
     monitor?: number,
+    oldSize?: {
+        width: number,
+        height: number
+    },
     size: {
         width: number,
         height: number
