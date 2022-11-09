@@ -14,7 +14,7 @@ import { MainLogger } from 'src/interfaces/mainLogger'
 import { CloudManager } from '../cloud'
 import { CloudClip } from '../cloud/interface'
 import { GameManager } from '../game'
-import { GeneralGame } from '../game/interface'
+import { CloudGeneralGame, GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
 import { addToCached, getHexCached } from './fs'
 import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoPath } from './func'
@@ -315,12 +315,12 @@ export class ClipManager extends VideoManager {
         const cloudOnly = uploaded.filter(e => !res.some(x => e.hex === x.hex))
             .map(({ dcGameId, title, uploadDate, windowInfo, id }) => {
                 const gameInfo = dcGameId ? {
-                    type: "discord",
+                    type: "detectable",
                     game: detectable.find(e => e.id === dcGameId)
-                } : {
-                    type: "window",
+                } as CloudGeneralGame : {
+                    type: "cloud",
                     game: windowInfo
-                }
+                } as CloudGeneralGame
 
                 return {
                     clipName: title,

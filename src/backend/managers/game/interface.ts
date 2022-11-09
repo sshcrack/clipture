@@ -1,3 +1,4 @@
+import { CloudWindowInfo } from '../cloud/interface'
 import { DetectableGame, WindowInformation } from '../obs/Scene/interfaces'
 
 export type GeneralGame = {
@@ -6,4 +7,8 @@ export type GeneralGame = {
 } | {
     type: "window",
     game: WindowInformation
+}
+export type CloudGeneralGame = GeneralGame | {
+    type: "cloud",
+    game: CloudWindowInfo
 }

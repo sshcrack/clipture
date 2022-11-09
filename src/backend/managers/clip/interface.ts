@@ -1,5 +1,5 @@
 import { Progress } from '@backend/processors/events/interface';
-import { GeneralGame } from '../game/interface';
+import { CloudGeneralGame, GeneralGame } from '../game/interface';
 
 
 export type Video = {
@@ -14,7 +14,7 @@ export type Video = {
 
 export type Clip = {
     modified: number,
-    game: GeneralGame | null,
+    game: CloudGeneralGame | null,
     clipName: string,
     original: string,
     icoName: string | null,

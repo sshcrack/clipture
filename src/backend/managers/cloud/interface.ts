@@ -5,11 +5,11 @@ export interface CloudClip {
     uploadDate: string;
     title:      string;
     dcGameId:   null;
-    windowInfo: WindowInfo | null;
+    windowInfo: CloudWindowInfo | null;
     hex: string
 }
 
-export interface WindowInfo {
+export interface CloudWindowInfo {
     id:     string;
     userId: string;
     title:  string;

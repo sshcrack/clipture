@@ -70,7 +70,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             const { gameName, icon, id } = getGameInfo(game, original)
             const baseName = clipName.replace(".clipped.mp4", "")
 
-            const imageSrc = cloudOnly ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+            const imageSrc = cloudOnly && icoName ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
             const ico = icoName && !cloudOnly ? getIcoUrl(icoName) : imageSrc
             const isOpened = openedMenus.some(e => e === clipName)
 
