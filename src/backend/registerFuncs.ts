@@ -3,6 +3,7 @@ import { registerLockEvents } from './events';
 import { AuthManager } from './managers/auth';
 import { ClipManager } from './managers/clip';
 import { CloudManager } from './managers/cloud';
+import { DiscoverManager } from './managers/cloud/discover';
 import { DiscordManager } from './managers/discord';
 import { GameManager } from './managers/game';
 import { OverlayManager } from './managers/game/overlay';
@@ -31,5 +32,6 @@ export const registerFuncs = [
     () => BookmarkManager.register(),
     () => DiscordManager.register(),
     () => CloudManager.register(),
+    () => DiscoverManager.register(),
     () => OverlayManager.register()
 ]

@@ -285,11 +285,14 @@ export class ClipManager extends VideoManager {
                         clipInfo = {
                             ...rawGameInfo,
                             clipName,
-                            cloudOnly: false,
+                            cloud: cloudVid ? {
+                                cloudOnly: false,
+                                id: cloudVid?.id,
+                                isPublic: cloudVid?.isPublic
+                            } : null,
                             game: gameInfo,
                             icoName: icoPath && path.basename(icoPath),
                             uploaded: uploaded ? !!cloudVid : null,
-                            cloudId: cloudVid?.id,
                             tooLarge: clipSize > usage.maxClipSize
                         }
                         this.clipInfoCache.set(file, clipInfo)
@@ -307,13 +310,17 @@ export class ClipManager extends VideoManager {
                         uploaded: uploaded ? !!cloudVid : null,
                         cloudId: cloudVid?.id,
                         modified,
-                        cloudOnly: false
+                        cloud: cloudVid ? {
+                            cloudOnly: false,
+                            id: cloudVid?.id,
+                            isPublic: cloudVid?.isPublic
+                        } : null,
                     } as Clip & { hex?: string }
                 })
         )
 
         const cloudOnly = uploaded.filter(e => !res.some(x => e.hex === x.hex))
-            .map(({ dcGameId, title, uploadDate, windowInfo, id }) => {
+            .map(({ dcGameId, title, uploadDate, windowInfo, id, isPublic }) => {
                 const gameInfo = dcGameId ? {
                     type: "detectable",
                     game: detectable.find(e => e.id === dcGameId)
@@ -326,12 +333,15 @@ export class ClipManager extends VideoManager {
                     clipName: title,
                     game: gameInfo,
                     uploaded: true,
-                    cloudOnly: true,
                     modified: new Date(uploadDate).getTime(),
                     icoName: windowInfo?.icon,
                     original: null,
                     tooLarge: false,
-                    cloudId: id
+                    cloud: {
+                        id,
+                        cloudOnly: true,
+                        isPublic: isPublic
+                    }
                 } as Clip
             })
         const unsortedClips = res.concat(cloudOnly)

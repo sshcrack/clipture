@@ -25,14 +25,14 @@ type MaxProps = Omit<GridItemProps, "onError"> & {
 }
 
 export type VideoGridState = {
-    gridRef: MutableRefObject<HTMLDivElement>,
+    gridRef: MutableRefObject<HTMLElement>,
     cachedDurations: Map<string, number>,
     setCachedDurations: ReactSetState<Map<string, number>>
 }
 export const VideoGridContext = React.createContext<VideoGridState>({
     gridRef: null,
     cachedDurations: new Map(),
-    setCachedDurations: () => {/**/}
+    setCachedDurations: () => {/**/ }
 })
 
 const log = RenderLogger.get("Components", "General", "Grid", "Video")
@@ -81,18 +81,18 @@ export function VideoGridItem({ update, onClick, children, ...rest }: VideoGridI
         minHeight='20em'
         className='videoGridItem'
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
-        backgroundSize='110% auto'
+        backgroundSize='auto 100%'
         backgroundRepeat='no-repeat'
         rounded="2xl"
         flexDir='column'
-        bgImage={bg}
         cursor='pointer'
         _hover={{
             filter: " drop-shadow(10px 2px 45px black)",
             transform: "scale(1.0125)"
         }}
         style={{
-            transition: "all .2s ease-out"
+            transition: "all .2s ease-out",
+            backgroundImage: bg
         }}
         onClick={onClick ?? undefined}
         {...props}

@@ -1,3 +1,4 @@
+import { ClipCloudInfo } from '@backend/managers/clip/interface';
 import { useToast } from '@chakra-ui/react';
 import React, { PropsWithChildren, useState } from "react";
 import { useTranslation } from 'react-i18next';
@@ -14,6 +15,7 @@ import DeleteItem from './both/DeleteItem';
 import RenameItem from './both/RenameItem';
 import ShareMenuItem from './cloud/ShareMenuItem';
 import UploadMenuItem from './cloud/UploadMenuItem';
+import VisibilityMenuItem from './cloud/VisibilityMenuItem';
 
 type Props = {
     clipName: string,
@@ -22,16 +24,17 @@ type Props = {
     uploaded: boolean,
     cloudDisabled: boolean,
     tooLarge: boolean,
-    cloudOnly: boolean
+    cloud: ClipCloudInfo
 }
 
 const log = RenderLogger.get("Components", "ClipContextMenu")
-export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled, tooLarge, cloudOnly }: PropsWithChildren<Props>) {
+export default function ClipContextMenu({ children, clipName, setUpdate, setOpen, uploaded, cloudDisabled, tooLarge, cloud: cloudInfo }: PropsWithChildren<Props>) {
     const { system, cloud } = window.api
     const { t } = useTranslation("general", { keyPrefix: "menu.context_menu" })
 
     const [isCloudDeleting, setCloudDeleting] = useState(false)
 
+    const cloudOnly = cloudInfo?.cloudOnly
     const toast = useToast()
     const localItems = <>
         <ContextMenuCategory>{t("local")}</ContextMenuCategory>
@@ -52,7 +55,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
             <ContextMenuCategory>{t("cloud")}</ContextMenuCategory>
             {!uploaded ?
                 <UploadMenuItem clipName={clipName} disabled={cloudDisabled} setUpdate={setUpdate} tooLarge={tooLarge} /> :
-                <ShareMenuItem clipName={clipName} cloudOnly={cloudOnly} />
+                <ShareMenuItem clipName={clipName} cloud={cloudInfo} />
             }
             <ContextMenuItem
                 isDisabled={cloudDisabled || isCloudDeleting || !uploaded}
@@ -78,6 +81,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                 }}
                 leftIcon={<BsTrashFill />}
             >{t("delete")}</ContextMenuItem>
+            {cloud && <VisibilityMenuItem cloud={cloudInfo} setUpdate={setUpdate}/>}
         </ContextMenuList>
     </ContextMenu>
     </>

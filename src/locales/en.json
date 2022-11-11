@@ -38,6 +38,12 @@
                 "usage_wait" : "Getting usage",
                 "share": "Share",
                 "rename": "Rename",
+                "visibility": {
+                    "make_public": "Make public",
+                    "make_private": "Make private",
+                    "desc_public": "Visibility set to public",
+                    "desc_private": "Visibility set to private"
+                },
                 "dialog": {
                     "title": "Confirm deletion",
                     "body": "Are you sue? The video/clip will be deleted forever.",
@@ -74,7 +80,9 @@
             "uploaded_to_cloud": "Uploaded  to cloud.",
             "cloud_only": "Only in cloud, not local storage",
             "general_info": {
-                "cloud_only": "Cloud only"
+                "cloud_only": "Cloud only",
+                "public": "public",
+                "private": "private"
             }
         },
         "videos": {

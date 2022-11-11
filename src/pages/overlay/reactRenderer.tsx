@@ -5,6 +5,7 @@ import "src/pages/main/scrollbar.css";
 import "../main/global.css"
 import "./global.css"
 import theme from "../global/theme";
+import { addErrorCatch } from '../global/catchErrors';
 
 
 
@@ -12,6 +13,7 @@ export function renderOverlay(Comp: () => JSX.Element) {
     const app = document.getElementById("app")
     const root = createRoot(app)
 
+    addErrorCatch()
 
     console.log("Rendering...")
     root.render(

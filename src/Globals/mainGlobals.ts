@@ -34,7 +34,7 @@ import { MainLogger } from 'src/interfaces/mainLogger';
 
 
 function isDev() {
-    return process.argv[2] === "dev"
+    return process.argv.slice(1).includes("dev")
 }
 
 const log = MainLogger.get("Globals", "MainGlobals")

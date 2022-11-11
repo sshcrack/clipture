@@ -12,6 +12,12 @@ export type Video = {
     displayName: string
 }
 
+export type ClipCloudInfo = {
+    cloudOnly: boolean,
+    id: string,
+    isPublic: boolean
+}
+
 export type Clip = {
     modified: number,
     game: CloudGeneralGame | null,
@@ -20,11 +26,10 @@ export type Clip = {
     icoName: string | null,
     uploaded: boolean,
     tooLarge: boolean,
-    cloudOnly: boolean,
-    cloudId: string
+    cloud: ClipCloudInfo | null
 }
 
-export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded" | "cloudOnly" | "tooLarge" | "clipName" | "cloudId"> & {
+export type ClipRaw = Omit<Clip, "game" | "icoName" | "uploaded" | "tooLarge" | "clipName" | "cloud"> & {
     gameId: string
     hex: string,
     originalInfo: VideoInfo

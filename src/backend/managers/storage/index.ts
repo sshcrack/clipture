@@ -52,6 +52,7 @@ export class StorageManager {
             toDelete = []
 
         this.lockedVideos = toDelete.map(e => e.videoName)
+        console.log("LockedVids are", this.lockedVideos)
         RegManMain.send("storage_lock", this.lockedVideos)
 
         log.silly("Waiting for frontend to update...")

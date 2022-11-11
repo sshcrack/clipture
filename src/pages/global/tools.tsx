@@ -4,20 +4,21 @@ import { createRoot } from "react-dom/client";
 import { TitleBar } from 'src/components/titlebar';
 import TitlebarBalancer from 'src/components/titlebar/TitlebarBalancer';
 import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
-import '../../components/titlebar/style.css';
-import "../main/global.css"
+import i18n from "src/locales/i18n";
 import "src/pages/main/scrollbar.css";
-import i18n from "src/locales/i18n"
-import theme from "./theme";
+import '../../components/titlebar/style.css';
+import "../main/global.css";
+import { addErrorCatch } from './catchErrors';
 import OnlyUnminimizedRender from "./OnlyUnminimizedRender";
+import theme from "./theme";
 import ToastNotifier from './ToastNotifier';
-
 
 
 export function renderMain(Comp: () => JSX.Element) {
     const app = document.getElementById("app")
     const root = createRoot(app)
     window.onbeforeunload = () => window.api.shutdown();
+    addErrorCatch()
 
     console.log("Rendering main...")
     window.api.system.getLanguage()

@@ -140,7 +140,7 @@ const handleExit = () => {
 
 ipcMain.handle("quit-app", () => handleExit())
 ipcMain.on("isDev", e => {
-  e.returnValue = process.argv[2] === "dev"
+  e.returnValue = process.argv.slice(1).includes("dev")
 })
 app.on("will-quit", () => {
   handleExit()

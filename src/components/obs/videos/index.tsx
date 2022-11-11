@@ -7,6 +7,8 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
+import HoverVideoBookmarks from 'src/components/general/grid/HoverVideo/inner/HoverVideoBookmarks';
+import HoverVideoInner from 'src/components/general/grid/HoverVideo/inner/HoverVideoInner';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import GeneralInfo from 'src/components/general/info/GeneralInfo';
 import GeneralInfoProvider from 'src/components/general/info/GeneralInfoProvider';
@@ -68,6 +70,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
         const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
         const isOpened = openedMenus.some(e => e === videoName)
         const isLocked = lockedVideos.some(e => e === videoName)
+        console.log("Locked", lockedVideos, videoName)
 
         const onEditor = () => location.hash = `/editor/${videoName}`
         const ico = icoName ? getIcoUrl(icoName) : imageSrc
@@ -97,12 +100,15 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                 >
                     {!isOpened && !isLocked ? <HoverVideoWrapper
                         source={videoName}
-                        bookmarks={bookmarks}
                         w='100%'
                         h='100%'
                         flex='1'
                         onClick={onEditor}
-                    /> : <Flex w='100%' h='100%' flex='1' onClick={onEditor} />}
+                    >
+                        <HoverVideoInner>
+                            {bookmarks && <HoverVideoBookmarks bookmarks={bookmarks} />}
+                        </HoverVideoInner>
+                    </HoverVideoWrapper> : <Flex w='100%' h='100%' flex='1' onClick={onEditor} />}
                     <GeneralInfoProvider baseName={videoName} onEditor={onEditor}>
                         <GeneralInfo
                             displayName={displayName}
@@ -110,7 +116,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                             gameName={gameName}
                             imageSrc={ico}
                             modified={modified}
-                            cloudOnly={false}
+                            cloud={null}
                         />
                     </GeneralInfoProvider>
                 </VideoGridItem>

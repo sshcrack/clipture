@@ -1,3 +1,4 @@
+import { ClipCloudInfo } from '@backend/managers/clip/interface';
 import { Badge, Flex, FlexProps, Image, Text } from '@chakra-ui/react';
 import prettyMS from "pretty-ms";
 import React from "react";
@@ -9,12 +10,12 @@ type Props = React.PropsWithChildren<FlexProps & {
     gameName: string,
     modified: number,
     baseName: string,
-    cloudOnly: boolean
+    cloud: ClipCloudInfo
 }>
 
 export default function GeneralInfo({
     children, baseName, gameName,
-    imageSrc, modified, cloudOnly,
+    imageSrc, modified, cloud,
     displayName, ...props
 }: Props) {
     const { t } = useTranslation("dashboard", { keyPrefix: "clips.general_info" })
@@ -41,7 +42,7 @@ export default function GeneralInfo({
                 textOverflow: "ellipsis",
                 textAlign: "center"
             }}>{displayName ?? baseName.replace(".mkv", "")}</Text>
-            {cloudOnly && <Badge colorScheme='green'>{t("cloud_only")}</Badge>}
+            {cloud?.cloudOnly && <Badge colorScheme='green'>{t("cloud_only")}</Badge>}
         </Flex>
     </Flex>
 }

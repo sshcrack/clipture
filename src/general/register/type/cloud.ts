@@ -1,4 +1,4 @@
-import { CloudClip, CloudClipStatus, CloudUsage } from '@backend/managers/cloud/interface';
+import { CloudClip, CloudClipStatus, CloudUsage, DiscoverResponse } from '@backend/managers/cloud/interface';
 import { addPrefixUnderscoreToObject } from 'src/types/additions';
 export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     delete: (clipName: string) => void,
@@ -11,7 +11,9 @@ export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     rename: (id: string, newName: string) => unknown,
     usage: () => CloudUsage,
     thumbnail: (id: string) => string,
-    open_id: (id: string) => void
+    open_id: (id: string) => void,
+    discover_list: (offset: number, limit: number) => DiscoverResponse,
+    discover_visibility: (id: string, isPublic: boolean) => unknown
 }, "cloud">
 
 export type CloudMainToRender = addPrefixUnderscoreToObject<{

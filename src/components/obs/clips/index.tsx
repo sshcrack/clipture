@@ -9,6 +9,8 @@ import { useTranslation } from 'react-i18next';
 import { MdCloudDone } from "react-icons/md";
 import RenderIfVisible from 'react-render-if-visible';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
+import HoverVideoCloudVisibility from 'src/components/general/grid/HoverVideo/inner/HoverVideoCloudVisibility';
+import HoverVideoInner from 'src/components/general/grid/HoverVideo/inner/HoverVideoInner';
 import "src/components/general/grid/placeholder.css";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import GeneralInfo from 'src/components/general/info/GeneralInfo';
@@ -66,17 +68,18 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const elements = [
         ...additionalElements,
         ...currClips.map((clip, i) => {
-            const { game, clipName, modified, icoName, uploaded, original, tooLarge, cloudOnly, cloudId } = clip ?? {}
+            const { game, clipName, modified, icoName, uploaded, original, tooLarge, cloud } = clip ?? {}
             const { gameName, icon, id } = getGameInfo(game, original)
             const baseName = clipName.replace(".clipped.mp4", "")
 
-            const imageSrc = cloudOnly && icoName ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
-            const ico = icoName && !cloudOnly ? getIcoUrl(icoName) : imageSrc
+            const imageSrc = cloud && icoName ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+            const ico = icoName && !cloud ? getIcoUrl(icoName) : imageSrc
             const isOpened = openedMenus.some(e => e === clipName)
 
             const currUploading = uploadingClips.find(e => e.clipName === baseName)
 
-            const onEditor = () => cloudOnly ? window.api.cloud.openId(cloudId) : location.hash = `/editor/${clipName}`
+            const cloudOnly = cloud?.cloudOnly
+            const onEditor = () => cloud ? window.api.cloud.openId(cloud.id) : location.hash = `/editor/${clipName}`
             return <RenderIfVisible
                 defaultHeight={416}
                 key={`RenderIfVisible-${i}`}
@@ -84,12 +87,12 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 rootElementClass='grid-root-element'
             >
                 <ClipContextMenu
-                    clipName={cloudOnly ? cloudId : clipName}
+                    clipName={cloud ? cloud.id : clipName}
                     setUpdate={setUpdate}
                     uploaded={uploaded}
                     tooLarge={tooLarge}
                     cloudDisabled={!!currUploading}
-                    cloudOnly={cloudOnly}
+                    cloud={cloud}
                     setOpen={opened => {
                         const filtered = openedMenus.concat([]).filter(e => e !== clipName)
                         if (!opened)
@@ -102,19 +105,23 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                     <VideoGridItem
                         update={update}
                         type='clips'
-                        fileName={cloudOnly ? `cloud#${cloudId}` : clipName}
+                        fileName={cloudOnly ? `cloud#${cloud.id}` : clipName}
                         key={`VideoGrid-${i}`}
                     >
                         {currUploading && <UploadingStatus status={currUploading.progress} />}
                         {!currUploading && (!isOpened ?
                             <HoverVideoWrapper
                                 source={clipName}
-                                cloudId={cloudOnly && cloudId}
+                                cloudId={cloudOnly && cloud?.id}
                                 w='100%'
                                 h='100%'
                                 flex='1'
                                 onClick={onEditor}
-                            /> :
+                            >
+                                <HoverVideoInner>
+                                    {cloud && <HoverVideoCloudVisibility cloud={cloud} />}
+                                </HoverVideoInner>
+                            </HoverVideoWrapper> :
                             <Flex w='100%' h='100%' flex='1' onClick={onEditor} />
                         )}
                         <GeneralInfoProvider baseName={baseName} onEditor={onEditor}>
@@ -123,7 +130,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                                 gameName={gameName}
                                 imageSrc={ico}
                                 modified={modified}
-                                cloudOnly={cloudOnly}
+                                cloud={cloud}
                             >
                                 {(uploaded || cloudOnly) && <Tooltip label={uploaded ? t("uploaded_to_cloud") : t("cloud_only")} shouldWrapChildren >
                                     <MdCloudDone style={{ fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em" }} />
