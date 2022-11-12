@@ -1,10 +1,10 @@
 import { DiscoverClip } from '@backend/managers/cloud/interface';
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import InfiniteScroll from 'react-infinite-scroller';
-import { VideoGridContext } from '../general/grid/video';
-import GeneralSpinner from '../general/spinner/GeneralSpinner';
+import { VideoGridContext } from '../../general/grid/video';
+import "../../general/grid/video.css";
+import GeneralSpinner from '../../general/spinner/GeneralSpinner';
 import DiscoverItem from './DiscoverItem';
-import "../general/grid/video.css"
 
 
 const CLIP_LIMIT = 20

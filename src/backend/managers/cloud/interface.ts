@@ -46,5 +46,5 @@ export type FilteredClip = {
 export type DiscoverClip = Omit<FilteredClip, "hex">
 export type DiscoverResponse = {
     clips: DiscoverClip[],
-    leftOver: boolean
+    leftOver: number
 }

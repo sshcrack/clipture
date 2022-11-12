@@ -1,3 +1,4 @@
+import { IsLikedResponse } from '@backend/managers/cloud/discover/interface';
 import { CloudClip, CloudClipStatus, CloudUsage, DiscoverResponse } from '@backend/managers/cloud/interface';
 import { addPrefixUnderscoreToObject } from 'src/types/additions';
 export type CloudEventsPromises = addPrefixUnderscoreToObject<{
@@ -13,7 +14,9 @@ export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     thumbnail: (id: string) => string,
     open_id: (id: string) => void,
     discover_list: (offset: number, limit: number) => DiscoverResponse,
-    discover_visibility: (id: string, isPublic: boolean) => unknown
+    discover_visibility: (id: string, isPublic: boolean) => unknown,
+    discover_is_liked: (id: string) => IsLikedResponse
+    discover_set_liked: (id: string, liked: boolean) => unknown
 }, "cloud">
 
 export type CloudMainToRender = addPrefixUnderscoreToObject<{

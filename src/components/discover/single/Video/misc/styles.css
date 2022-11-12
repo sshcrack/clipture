@@ -1,0 +1,15 @@
+.videoWrapper {
+    width: 100%;
+    height: calc(100% - 64px);
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: var(--chakra-space-10);
+}
+
+@media screen and (max-width: 632px) {
+    .videoWrapper {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}

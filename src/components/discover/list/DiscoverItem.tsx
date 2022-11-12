@@ -2,10 +2,10 @@ import { DiscoverClip } from '@backend/managers/cloud/interface';
 import { getGameInfo } from '@general/tools/game';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useState } from "react";
-import HoverVideoWrapper from '../general/grid/HoverVideo/HoverVideoWrapper';
-import { VideoGridItem } from '../general/grid/video';
-import GeneralInfo from '../general/info/GeneralInfo';
-import GeneralInfoProvider from '../general/info/GeneralInfoProvider';
+import HoverVideoWrapper from '../../general/grid/HoverVideo/HoverVideoWrapper';
+import { VideoGridItem } from '../../general/grid/video';
+import GeneralInfo from '../../general/info/GeneralInfo';
+import GeneralInfoProvider from '../../general/info/GeneralInfoProvider';
 
 export type DiscoverItemProps = {
     item: DiscoverClip

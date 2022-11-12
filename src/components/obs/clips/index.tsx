@@ -79,7 +79,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             const currUploading = uploadingClips.find(e => e.clipName === baseName)
 
             const cloudOnly = cloud?.cloudOnly
-            const onEditor = () => cloud ? window.api.cloud.openId(cloud.id) : location.hash = `/editor/${clipName}`
+            const onEditor = () => cloud?.cloudOnly ? window.api.cloud.openId(cloud.id) : location.hash = `/editor/${clipName}`
             return <RenderIfVisible
                 defaultHeight={416}
                 key={`RenderIfVisible-${i}`}
