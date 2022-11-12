@@ -1,7 +1,9 @@
+import { CloudWindowInfo } from '@backend/managers/cloud/interface';
 import { Flex, Text } from '@chakra-ui/react';
-import { WindowInformation } from '@prisma/client';
+import React from "react";
+
 type Props = {
-    info: WindowInformation,
+    info: CloudWindowInfo,
     imgSize?: string,
     fontSize?: string
 }
@@ -16,7 +18,6 @@ export default function WindowInfo({ info, fontSize, imgSize }: Props) {
         borderBottomRightRadius='md'
         gap='3'
     >
-        {/*eslint-disable-next-line @next/next/no-img-element*/}
         <img
             src={`/api/clip/icon/${icon}`}
             alt='Game Image'
@@ -26,6 +27,6 @@ export default function WindowInfo({ info, fontSize, imgSize }: Props) {
                 borderRadius: "var(--chakra-radii-md)"
             }}
         />
-        <Text fontSize={fontSize}>{title}</Text>
+        <Text fontSize={fontSize} whiteSpace='nowrap'>{title}</Text>
     </Flex>
 }

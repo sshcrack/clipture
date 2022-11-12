@@ -12,11 +12,13 @@ const getElHeight = (elm: HTMLElement) => Math.max(elm.scrollHeight, elm.offsetH
 
 export type Props = {
     setHeight?: ReactSetState<string>,
-    setWidth?: ReactSetState<string>
+    setWidth?: ReactSetState<string>,
+    hovered: boolean,
+    setHovered: ReactSetState<boolean>,
+    vidRef: React.MutableRefObject<HTMLVideoElement>
 }
 
-export default function Video({ children, setWidth: sW, setHeight: sH, ...props }: MediaHTMLAttributes<HTMLVideoElement> & Props) {
-    const vidRef = useRef<HTMLVideoElement>(null)
+export default function Video({ vidRef, children, hovered, setHovered, setWidth: sW, setHeight: sH, ...props }: MediaHTMLAttributes<HTMLVideoElement> & Props) {
     const gridRef = useRef<HTMLDivElement>(null)
     const [loading, setLoading] = useState(true)
     const [fetched, setFetched] = useState(false)
@@ -25,7 +27,6 @@ export default function Video({ children, setWidth: sW, setHeight: sH, ...props 
     const [width, setWidth] = useState("100%")
     const [, setUpdate] = useState(0)
 
-    const [hovered, setHovered] = useState(false)
     const [timeoutId, setTimeoutId] = useState<NodeJS.Timeout | null>(null)
 
     useEffect(() => {
@@ -78,6 +79,9 @@ export default function Video({ children, setWidth: sW, setHeight: sH, ...props 
                     sW && sW(wPx)
                     sH && sH(hPx)
                     locked = false
+
+                    console.log("Vid", newWidth, newHeight)
+                    console.log("NewH", wPx, hPx)
                     curr.classList.remove("invisible-children")
                 })
             }, 10)
@@ -124,6 +128,17 @@ export default function Video({ children, setWidth: sW, setHeight: sH, ...props 
         }
     }, [vidRef])
 
+    const onMouseEnter = () => {
+        setHovered(true)
+        if (!timeoutId)
+            return
+
+        clearTimeout(timeoutId)
+        setTimeoutId(null)
+    }
+
+    const onMouseLeave = () => setTimeoutId(setTimeout(() => setHovered(false), 2000))
+
     const vid = vidRef?.current
     let controls = <></>;
     const transition = 'all .2s ease-in-out'
@@ -159,15 +174,8 @@ export default function Video({ children, setWidth: sW, setHeight: sH, ...props 
                 cursor="pointer"
                 transition={transition}
                 onClick={toggleVid}
-                onMouseEnter={() => {
-                    setHovered(true)
-                    if (!timeoutId)
-                        return
-
-                    clearTimeout(timeoutId)
-                    setTimeoutId(null)
-                }}
-                onMouseLeave={() => setTimeoutId(setTimeout(() => setHovered(false), 2000))}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 {vid.paused && <FaPlay />}
             </Flex>
@@ -190,7 +198,7 @@ export default function Video({ children, setWidth: sW, setHeight: sH, ...props 
                     {vid.paused ? <FaPlay /> : <FaPause />}
                 </Flex>
                 <Slider
-                    max={vid.duration}
+                    max={isNaN(vid.duration) ? 0 : vid.duration}
                     value={isNaN(vid.currentTime) ? 0 : vid.currentTime}
                     onChange={e => vid.currentTime = e}
                     step={.01}
@@ -246,7 +254,7 @@ export default function Video({ children, setWidth: sW, setHeight: sH, ...props 
     }
 
     return <Grid
-        w='100%'
+        w='90%'
         h='100%'
         className='videoWrapper'
         ref={gridRef}

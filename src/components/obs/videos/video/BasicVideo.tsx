@@ -70,7 +70,7 @@ export default function BasicVideo({ source, bgGeneratorRef, setPaused, paused, 
                 alignItems='center'
                 transition={transition}
                 cursor='pointer'
-                position='relative'
+                {/*position='relative'*/...{}}
                 style={{ background: paused ? "rgba(0,0,0,.4)" : "rgba(0,0,0,0)" }}
                 onClick={() => pauseVideo(!paused)}
                 onMouseEnter={() => setHovered(true)}

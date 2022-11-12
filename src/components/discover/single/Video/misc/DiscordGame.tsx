@@ -1,5 +1,6 @@
 import { DetectableGame } from '@backend/managers/obs/Scene/interfaces';
 import { Flex, Spinner, Text, useToast } from '@chakra-ui/react';
+import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from 'react';
 
 export type Props = { id: string, imgSize?: string, fontSize?: string }
@@ -8,8 +9,7 @@ export default function DiscordGame({ id, fontSize, imgSize }: Props) {
     const toast = useToast()
 
     useEffect(() => {
-        fetch("/api/game/detection")
-            .then(e => e.json() as Promise<DetectableGame[]>)
+        window.api.game.detectable()
             .then(e => setGames(e))
             .catch(err => {
                 console.error(err)
@@ -27,8 +27,22 @@ export default function DiscordGame({ id, fontSize, imgSize }: Props) {
 
     const { icon, id: gameId, name } = games.find(e => e.id === id) ?? {}
     if (!icon || !gameId)
-        return <Flex>
-            <img src='unknown.png' width={32} height={32} alt='Unknown Game' />
+        return <Flex
+        p='3'
+        justifyContent='center'
+        alignItems='center'
+        borderBottomRightRadius='md'
+        gap='3'
+    >
+            <img
+                src='https://clipture.sshcrack.me/api/game/image?id=null&icon=null'
+                alt='Unknown Game'
+                style={{
+                    width: imgSize ?? "1.5rem",
+                    height: imgSize ?? "1.5rem",
+                    borderRadius: "var(--chakra-radii-md)"
+                }} />
+            <Text fontSize={fontSize} whiteSpace='nowrap'>Unknown Game</Text>
         </Flex>
 
     return <Flex
@@ -39,7 +53,7 @@ export default function DiscordGame({ id, fontSize, imgSize }: Props) {
         gap='3'
     >
         <img
-            src={`/api/game/image?id=${gameId}&icon=${icon}`}
+            src={`${RenderGlobals.baseUrl}/api/game/image?id=${gameId}&icon=${icon}`}
             alt='Game Image'
             style={{
                 width: imgSize ?? "1.5rem",
@@ -47,6 +61,6 @@ export default function DiscordGame({ id, fontSize, imgSize }: Props) {
                 borderRadius: "var(--chakra-radii-md)"
             }}
         />
-        <Text fontSize={fontSize}>{name}</Text>
+        <Text fontSize={fontSize} whiteSpace='nowrap'>{name}</Text>
     </Flex>
 }

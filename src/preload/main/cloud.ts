@@ -27,6 +27,13 @@ export default {
     openId: (id: string) => reg.emitPromise("cloud_open_id", id),
     discover: {
         list: (offset: number, limit: number) => reg.emitPromise("cloud_discover_list", offset, limit),
-        visibility: (id: string, isPublic: boolean) => reg.emitPromise("cloud_discover_visibility", id, isPublic)
+        visibility: (id: string, isPublic: boolean) => reg.emitPromise("cloud_discover_visibility", id, isPublic),
+        user: {
+            get: (cuid: string) => reg.emitPromise("cloud_discover_get_user", cuid)
+        },
+        like: {
+            has: (id: string) => reg.emitPromise("cloud_discover_is_liked", id),
+            set: (id: string, liked: boolean) => reg.emitPromise("cloud_discover_set_liked", id, liked)
+        }
     }
 }

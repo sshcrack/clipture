@@ -1,8 +1,10 @@
+import { BasicUser } from '@backend/managers/cloud/discover/interface';
 import { Avatar, Flex, FlexProps, Text } from '@chakra-ui/react';
-import { User } from '@prisma/client';
+import { RenderGlobals } from '@Globals/renderGlobals';
+import React from "react"
 
-export default function ClipUser({ user, ...props }: { user: User } & Omit<FlexProps, "children">) {
-    const { id, name } = user
+export default function ClipUser({ user, ...props }: { user: BasicUser } & Omit<FlexProps, "children">) {
+    const { id, name } = user ?? {}
     return <Flex
         gap='5'
         justifyContent='center'
@@ -10,8 +12,7 @@ export default function ClipUser({ user, ...props }: { user: User } & Omit<FlexP
         pr='5'
         {...props}
     >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <Avatar size='sm' src={`/api/user/image?id=${id}`} name={name ?? "Unknown User"} />
+        <Avatar size='sm' src={`${RenderGlobals.baseUrl}/api/user/image?id=${id}`} name={name ?? "Unknown User"} />
         <Text>{name}</Text>
     </Flex>
 }
