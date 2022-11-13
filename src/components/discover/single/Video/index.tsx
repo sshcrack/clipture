@@ -8,6 +8,7 @@ import LikeButton from './misc/like/LikeButton';
 import ClipUser from './misc/User';
 import { getCloudSourceUrl } from '@general/tools';
 import { RenderGlobals } from '@Globals/renderGlobals';
+import { useTranslation } from 'react-i18next';
 export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
     const { title, id, dcGameId, uploaderId, windowInfo } = item
     const [width, setWidth] = useState("100%")
@@ -15,6 +16,7 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
     const [hovered, setHovered] = useState(false)
     const [rndId] = useState(() => Math.random().toString())
     const vidRef = useRef<HTMLVideoElement>(null)
+    const { t } = useTranslation("general", { keyPrefix: "video" })
 
     const onHoverEnter = () => {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -32,7 +34,7 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const onHoverLeave = () => window[rndId] = setTimeout(() => setHovered(false), 3000)
+    const onHoverLeave = () => window[rndId] = setTimeout(() => setHovered(false), 4000)
     useEffect(() => {
         onHoverEnter()
         onHoverLeave()
@@ -40,8 +42,20 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
 
     useEffect(() => {
         const listener = (e: KeyboardEvent) => {
-            if (e.key === " ") {
-                vidRef?.current && vidRef.current.play()
+            if (!vidRef?.current)
+                return
+
+            const curr = vidRef.current
+            if (e.key === " " || e.key == "k") {
+                curr.paused ? curr.play() : curr.pause()
+            }
+
+            if (e.key === "j") {
+                curr.currentTime = Math.max(0, curr.currentTime - 5)
+            }
+
+            if (e.key === "l") {
+                curr.currentTime = Math.min(curr.duration, curr.currentTime + 5)
             }
         }
 
@@ -80,7 +94,7 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
                     fontSize='xl'
                     boxShadow='0 0 10px 6px black'
                     bg='black'
-                > {title} </Text>
+                >{title}</Text>
             </Flex>
         </Video>
         < Flex style={{ width: width }}>
@@ -92,10 +106,10 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
                 justifyContent='center'
                 alignItems='center'
             >
-                <LikeButton id={id} listen/>
+                <LikeButton id={id} listen />
             </Flex>
             {uploader && <ClipUser user={uploader} />}
         </Flex>
-        <Link href='mailto:getclipture@gmail.com' > Report </Link>
+        <Link href='mailto:getclipture@gmail.com' >{t("report")} </Link>
     </Flex>
 }

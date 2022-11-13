@@ -107,10 +107,10 @@ export default function App() {
 
     const initialized = !isLocked && obsInitialized && downloadedModules && status !== SessionStatus.LOADING
 
-    const { status: progStat, percent } = progress ?? { percent: 0, status: t("initializing")}
+    const { status: progStat, percent } = progress ?? { percent: 0, status: t("initializing") }
     const relativePercentage = downloadedModules ? percent * 0.5 + 0.5 : percent * 0.5
     if (!initialized)
-        return <InitializePage progress={{status: progStat, percent: originalDownloadedModules ? percent : relativePercentage}} />
+        return <InitializePage progress={{ status: progStat, percent: originalDownloadedModules ? percent : relativePercentage }} />
 
     if (status === SessionStatus.UNAUTHENTICATED)
         return <LoginPage />
@@ -120,6 +120,8 @@ export default function App() {
             <Route path="/" element={<DashboardPage data={data} />} />
             <Route path="/:mode" element={<DashboardPage data={data} />} />
             <Route path="/discover" element={<DiscoverPage data={data} />} />
+            <Route path="/discover/single" element={<DiscoverPage data={data} type='single' />} />
+            <Route path="/discover/list" element={<DiscoverPage data={data} type='list' />} />
             <Route path="/record" element={<RecordPage data={data} />} />
             <Route path="/settings" element={<SettingsPage data={data} prevPage={prevPage} />} />
             <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />} />

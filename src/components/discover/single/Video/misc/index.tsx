@@ -6,6 +6,7 @@ import "./styles.css"
 import React, { MediaHTMLAttributes, useEffect, useRef, useState } from 'react';
 import { ReactSetState } from 'src/types/reactUtils';
 import { scaleKeepRatioSpecific } from '@general/tools';
+import prettyMS from "pretty-ms"
 
 const getElWidth = (elm: HTMLElement) => Math.max(elm.scrollWidth, elm.offsetWidth, elm.clientWidth)
 const getElHeight = (elm: HTMLElement) => Math.max(elm.scrollHeight, elm.offsetHeight, elm.clientHeight)
@@ -123,7 +124,7 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
         const id = setInterval(() => setUpdate(Math.random()))
         return () => {
             curr?.removeEventListener("loadeddata", listener)
-            curr.removeEventListener("fullscreenchange", onFullscreen)
+            curr?.removeEventListener("fullscreenchange", onFullscreen)
             clearInterval(id)
         }
     }, [vidRef])
@@ -138,6 +139,18 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
     }
 
     const onMouseLeave = () => setTimeoutId(setTimeout(() => setHovered(false), 2000))
+
+    useEffect(() => {
+        if (!vidRef.current)
+            return
+        const listener = () => {
+            onMouseEnter()
+            onMouseLeave()
+        }
+
+        vidRef.current.addEventListener("play", listener)
+        return () => vidRef?.current?.removeEventListener("play", listener)
+    }, [vidRef, onMouseEnter, onMouseLeave])
 
     const vid = vidRef?.current
     let controls = <></>;
@@ -196,6 +209,21 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
                     cursor='pointer'
                 >
                     {vid.paused ? <FaPlay /> : <FaPause />}
+                </Flex>
+                <Flex flex='0'>
+                    {
+                        !isNaN(vid.currentTime) &&
+                        prettyMS(vid.currentTime * 1000, {
+                            colonNotation: true,
+                            secondsDecimalDigits: 0
+                        })
+                    }/{
+                        !isNaN(vid.duration) &&
+                        prettyMS(vid.duration * 1000, {
+                            colonNotation: true,
+                            secondsDecimalDigits: 0
+                        })
+                    }
                 </Flex>
                 <Slider
                     max={isNaN(vid.duration) ? 0 : vid.duration}

@@ -1,5 +1,6 @@
-import { Button, Flex, Grid, Spinner, Text, useToast } from '@chakra-ui/react';
+import { Button, Flex, Grid, Spinner, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaHeart, FaHeartBroken } from 'react-icons/fa';
 import { ReactSetState } from 'src/types/reactUtils';
 import LikeShortcut from './LikeShortcut';
@@ -9,6 +10,7 @@ export default function LikeButton({ id, setCount: sC, listen }: { id: string, s
     const [requesting, setRequesting] = useState(false)
     const [count, setCount] = useState(0)
     const { discover } = window.api.cloud
+    const { t } = useTranslation("discover", { keyPrefix: "button.like" })
 
     const toast = useToast()
     useEffect(() => {
@@ -47,7 +49,7 @@ export default function LikeButton({ id, setCount: sC, listen }: { id: string, s
         alignItems='center'
         gap='3'
     >
-        {listen && <LikeShortcut like={like} liked={liked}/>}
+        {listen && <LikeShortcut like={like} liked={liked} />}
         {
             typeof liked !== "undefined" ?
                 (<Grid>
@@ -55,7 +57,7 @@ export default function LikeButton({ id, setCount: sC, listen }: { id: string, s
                         gridRow='1'
                         gridColumn='1'
                         isLoading
-                        loadingText='Liking...'
+                        loadingText={t("loading")}
                     />
                     <Button
                         gridRow='1'
@@ -70,14 +72,10 @@ export default function LikeButton({ id, setCount: sC, listen }: { id: string, s
                             <FaHeartBroken /> :
                             <FaHeart />
                         }
-                    >{liked ? "Unlike" : "Like"}</Button>
+                    >{liked ? `unlike (${count} like${count !== 1 ? "s" : ""})` : t("like", { likes: count })}</Button>
                 </Grid>)
 
                 : <Spinner />
         }
-        <Grid>
-            <Text gridRow='1' gridColumn='1'>{count} like{count > 1 || count === 0 && "s"}</Text>
-            <Text gridRow='1' gridColumn='1' opacity='0'>{count + 1} likes</Text>
-        </Grid>
     </Flex>
 }

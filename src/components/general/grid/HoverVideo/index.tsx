@@ -35,7 +35,7 @@ export default function HoverVideo({ source, children, cloudId, ...props }: BoxP
 
         grid.addEventListener("scroll", listener)
         return () => {
-            grid.removeEventListener("scroll", listener)
+            grid?.removeEventListener("scroll", listener)
             if (!timerId)
                 clearTimeout(timerId)
         }

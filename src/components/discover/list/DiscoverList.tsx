@@ -18,6 +18,7 @@ export default function DiscoverList() {
     const [gridRef, setGridRef] = useState({ current: null })
     const [cachedDurations, setCachedDurations] = useState(new Map<string, number>())
 
+    useEffect(() => localStorage.setItem("discover-page-default", "list"), [])
     const fetchClips = (offset: number) => cloud.discover.list(offset, CLIP_LIMIT)
 
     useEffect(() => {
@@ -77,7 +78,9 @@ export default function DiscoverList() {
                     overflowY: 'auto',
                     padding: '5',
                     paddingRight: '2',
-                    marginRight: '4'
+                    marginRight: '4',
+                    alignSelf: 'start',
+                    justifySelf: 'start'
                 }}
             >
                 {items.map(item => <DiscoverItem key={`discover-${item.id}`} item={item} />)}

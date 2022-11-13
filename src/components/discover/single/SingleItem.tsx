@@ -25,7 +25,7 @@ export default function SingleItem({ item }: SingleItemProps) {
         }
         curr.addEventListener("loadeddata", offLoading)
 
-        return () => curr.removeEventListener("loadeddata", offLoading)
+        return () => curr?.removeEventListener("loadeddata", offLoading)
     }, [videoRef, item])
 
     return <Flex

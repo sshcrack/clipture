@@ -23,6 +23,9 @@
         }
     },
     "general": {
+        "video": {
+            "report": "Report"
+        },
         "menu": {
             "context_menu": {
                 "local": "Local",
@@ -292,6 +295,20 @@
                 "empty": "Clip Name can not be empty",
                 "invalid_characters": "Clip Name can only contain letters, whitespaces and numbers"
             }
+        }
+    },
+    "discover": {
+        "button": {
+            "single": "Go to single",
+            "list": "Go to list",
+            "like": {
+                "loading": "Liking...",
+                "like": "{likes, plural, =1 {1 like} other {# persons}}",
+                "unlike": "Unlike"
+            }
+        },
+        "single": {
+            "loading": "Loading clips..."
         }
     }
 }

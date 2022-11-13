@@ -1,6 +1,7 @@
 import { DiscoverClip } from '@backend/managers/cloud/interface'
-import { Flex, useToast } from '@chakra-ui/react'
-import React, { useState, useEffect } from "react"
+import { useToast } from '@chakra-ui/react'
+import React, { useEffect, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import OuterNavigation from './navigation'
 import SingleItem from './SingleItem'
@@ -12,11 +13,13 @@ export default function SingleDiscoverPage() {
     const [offset, setOffset] = useState(0)
     const [left, setLeft] = useState(Infinity)
     const [fetching, setFetching] = useState(false)
+    const { t } = useTranslation("discover", { keyPrefix: "single" })
 
     const { discover } = window.api.cloud
     const toast = useToast()
 
-    const fetchNextItems = () => {
+    useEffect(() => localStorage.setItem("discover-page-default", "single"), [])
+    const fetchNextItems = async () => {
         if (fetching)
             return
 
@@ -41,10 +44,8 @@ export default function SingleDiscoverPage() {
             })
             .finally(() => setFetching(false))
     }
-    useEffect(() => {
-        fetchNextItems()
-    }, [])
 
+    useEffect(() => { fetchNextItems() }, [])
     const previousPage = async () => {
         const prevIndex = currIndex - 1
         if (prevIndex < 0)
@@ -69,21 +70,13 @@ export default function SingleDiscoverPage() {
 
     const curr = items && items[currIndex]
     const isLoaded = items && (typeof currIndex !== "undefined" || currIndex !== null)
-    return <Flex
-        w='100%'
-        h='100%'
-        gap='5'
-        justifyContent='center'
-        alignItems='center'
+    return <OuterNavigation
+        hasNext={isLoaded && currIndex + 1 < items.length}
+        hasPrevious={isLoaded && currIndex - 1 >= 0}
+        nextPage={nextPage}
+        previousPage={previousPage}
     >
-        <OuterNavigation
-            hasNext={isLoaded && currIndex + 1 < items.length}
-            hasPrevious={isLoaded && currIndex - 1 >= 0}
-            nextPage={nextPage}
-            previousPage={previousPage}
-        >
-            {fetching && <GeneralSpinner loadingText='Getting clip info...' />}
-            {curr && !fetching ? <SingleItem item={curr} /> : <GeneralSpinner loadingText='Loading clips...' />}
-        </OuterNavigation>
-    </Flex>
+        {fetching && <GeneralSpinner loadingText={t("loading")} />}
+        {curr && !fetching ? <SingleItem item={curr} /> : <GeneralSpinner loadingText={t("loading")} />}
+    </OuterNavigation>
 }

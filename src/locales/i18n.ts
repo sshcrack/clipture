@@ -1,4 +1,5 @@
 import i18n from 'i18next';
+import ICU from 'i18next-icu'
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import en from "src/locales/en.json"
@@ -7,6 +8,7 @@ import de from "src/locales/de.json"
 
 // eslint-disable-next-line import/no-named-as-default-member
 i18n
+    .use(ICU)
     .use(LanguageDetector)
     .use(initReactI18next)
     .init({

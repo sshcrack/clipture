@@ -13,6 +13,7 @@ function randomBetween(min: number, max: number) {
 
 type HeartInfo = {
     x: number,
+    color: string,
     y: number,
     velocity: {
         x: number,
@@ -44,8 +45,8 @@ export default function LikeShortcut({ like, liked }: LikeShortcutProps) {
                 const minSize = 1
                 const maxSize = 5
 
-                const minVelocityY = 5
-                const maxVelocityY = 7
+                const minVelocityY = 9
+                const maxVelocityY = 13
 
                 const minVelocityX = 0.1
                 const maxVelocityX = 2
@@ -59,8 +60,13 @@ export default function LikeShortcut({ like, liked }: LikeShortcutProps) {
                 const size = randomBetween(minSize, maxSize)
 
 
+                const randHSL = Math.floor(randomBetween(202, 281))
+                const lightness = Math.floor(randomBetween(40, 80))
+                const randColor = `hsl(${randHSL}, 100%, ${lightness}%)`
+
                 hearts.push({
                     size: Math.floor(size),
+                    color: randColor,
                     velocity: {
                         y: velY,
                         x: velX
@@ -94,7 +100,7 @@ export default function LikeShortcut({ like, liked }: LikeShortcutProps) {
                 ctx.scale(e.size, e.size)
                 ctx.translate(Math.floor(e.x), Math.floor(e.y))
 
-                ctx.fillStyle = 'red'
+                ctx.fillStyle = e.color
                 ctx.fill(heartPath)
                 ctx.restore()
 
@@ -120,6 +126,7 @@ export default function LikeShortcut({ like, liked }: LikeShortcutProps) {
                 if (!animationRunning && !liked)
                     drawLikeAnimation()
 
+                console.log("Shotcut: Setting liked to", !liked)
                 like(!liked)
             }
         }
@@ -145,7 +152,7 @@ export default function LikeShortcut({ like, liked }: LikeShortcutProps) {
             window.removeEventListener("keyup", listener)
             window.removeEventListener("resize", resizeEvent)
         }
-    }, [liked, canvasRef, animationRunning])
+    }, [liked, canvasRef, animationRunning, like])
     return <Flex w='100%' h='100%' position='absolute' top='0' left='0' pointerEvents='none' zIndex='100'
     >
         <canvas style={{
