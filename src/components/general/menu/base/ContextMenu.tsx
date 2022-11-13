@@ -40,7 +40,7 @@ export const ContextMenu = ({ children, setOpen }: React.PropsWithChildren<Props
 
     useEffect(() => {
         if (prevOpen !== isOpen)
-            setOpen(isOpen)
+            setOpen && setOpen(isOpen)
 
         setPrevOpen(isOpen)
     }, [isOpen])
