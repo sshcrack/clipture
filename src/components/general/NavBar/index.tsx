@@ -10,10 +10,11 @@ import "src/components/general/Navbar/index.css";
 import NavBarButton from './NavBarButton';
 
 type Props = { data: SessionData, ref?: LegacyRef<HTMLDivElement> } & FlexProps
-const NavBar = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
+const NavBar = React.forwardRef<HTMLDivElement, Props>(({ data, ...props}: Props, ref) => {
     const { auth, obs } = window.api
     const { t } = useTranslation("navbar")
 
+    data;
     const [recording, setRecording] = useState(() => window.api.obs.isRecording())
 
     useEffect(() => {
@@ -50,7 +51,7 @@ const NavBar = React.forwardRef<HTMLDivElement, Props>((props: Props, ref) => {
                     chakraColor='brand.secondary'
                 />
                 <NavBarButton
-                    active={location.hash === "#/discover"}
+                    active={location.hash === "#/discover" || location.hash === "#/discover/single" || location.hash === "#/discover/list"}
                     icon={AiOutlineCompass}
                     onClick={() => location.hash = "/discover"}
                     tooltip={t("discover")}

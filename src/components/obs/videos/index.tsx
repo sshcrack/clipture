@@ -6,11 +6,13 @@ import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
+import CloudGame from 'src/components/discover/single/Video/misc/CloudGame';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import HoverVideoBookmarks from 'src/components/general/grid/HoverVideo/inner/HoverVideoBookmarks';
 import HoverVideoInner from 'src/components/general/grid/HoverVideo/inner/HoverVideoInner';
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import GeneralInfo from 'src/components/general/info/GeneralInfo';
+import GeneralInfoModified from 'src/components/general/info/GeneralInfoModified';
 import GeneralInfoProvider from 'src/components/general/info/GeneralInfoProvider';
 import { SelectionProvider } from 'src/components/general/info/SelectionProvider';
 import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
@@ -115,9 +117,11 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                             baseName={videoName}
                             gameName={gameName}
                             imageSrc={ico}
-                            modified={modified}
                             cloud={null}
-                        />
+                            displayGame
+                        >
+                            <GeneralInfoModified modified={modified} />
+                        </GeneralInfo>
                     </GeneralInfoProvider>
                 </VideoGridItem>
             </VideoContextMenu>

@@ -42,7 +42,7 @@ export default function HoverVideo({ source, children, cloudId, ...props }: BoxP
     }, [gridRef])
 
     useEffect(() => {
-        const cached = cachedDurations.get(source)
+        const cached = cachedDurations.get(source ?? cloudId)
         if (cached)
             return setDuration(cached)
 
@@ -50,9 +50,12 @@ export default function HoverVideo({ source, children, cloudId, ...props }: BoxP
             return
 
         const listener = () => {
-            console.log("Ref current", ref?.current)
+            if (!ref?.current)
+                return
+
+            console.log("Ref", ref.current.duration)
             setDuration(ref.current.duration)
-            cachedDurations.set(source, ref.current.duration)
+            cachedDurations.set(source ?? cloudId, ref.current.duration)
             setCachedDurations(new Map(cachedDurations.entries()))
         }
 
@@ -87,7 +90,7 @@ export default function HoverVideo({ source, children, cloudId, ...props }: BoxP
         }
     }, [hovered, ref, update])
 
-    const videoElement = debounced && (!cachedDurations.has(source) || hovered) ?
+    const videoElement = (debounced && (!cachedDurations.has(source) || hovered)) ?
         <video
             ref={ref}
             src={cloudId ? getCloudSourceUrl(RenderGlobals.baseUrl, cloudId) : getVideoSourceUrl(source)}

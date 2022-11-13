@@ -299,12 +299,13 @@
     },
     "discover": {
         "button": {
-            "single": "Go to single",
-            "list": "Go to list",
+            "single": "Single View",
+            "list": "List View",
+            "exit": "Go back",
             "like": {
                 "loading": "Liking...",
-                "like": "{likes, plural, =1 {1 like} other {# persons}}",
-                "unlike": "Unlike"
+                "like": "{likes, plural, =1 {1 like} other {# likes}}",
+                "unlike": "unlike ({likes, plural, =1 {1 like} other {# likes}})"
             }
         },
         "single": {

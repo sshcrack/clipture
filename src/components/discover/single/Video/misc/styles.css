@@ -4,7 +4,6 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    padding: var(--chakra-space-10);
 
     text-align: center;
 }

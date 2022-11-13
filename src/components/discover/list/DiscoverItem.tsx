@@ -1,29 +1,37 @@
+import { BasicUser } from '@backend/managers/cloud/discover/interface';
 import { DiscoverClip } from '@backend/managers/cloud/interface';
-import { getGameInfo } from '@general/tools/game';
-import { RenderGlobals } from '@Globals/renderGlobals';
-import React, { useState } from "react";
+import { Flex } from '@chakra-ui/react';
+import React, { useEffect, useState } from "react";
+import HoverVideoInner from 'src/components/general/grid/HoverVideo/inner/HoverVideoInner';
+import GeneralInfoModified from 'src/components/general/info/GeneralInfoModified';
 import HoverVideoWrapper from '../../general/grid/HoverVideo/HoverVideoWrapper';
 import { VideoGridItem } from '../../general/grid/video';
 import GeneralInfo from '../../general/info/GeneralInfo';
 import GeneralInfoProvider from '../../general/info/GeneralInfoProvider';
+import CloudGame from '../single/Video/misc/CloudGame';
+import ClipUser from '../single/Video/misc/User';
 
 export type DiscoverItemProps = {
     item: DiscoverClip
 }
 
 export default function DiscoverItem({ item }: DiscoverItemProps) {
-    const { id, title, game, uploadDate, windowInfo } = item
-
-    const icoName = windowInfo?.icon
+    const { id, title, uploadDate, uploaderId, game } = item
+    const [uploader, setUploader] = useState<BasicUser>(null)
     const [update, setUpdate] = useState(0)
-    const { gameName, icon: gameIcon, id: gameId } = getGameInfo(game, null)
-    const imageSrc = icoName ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${gameId ?? "null"}&icon=${gameIcon ?? "null"}`
+    const { discover } = window.api.cloud
 
+
+    useEffect(() => {
+        discover.user.get(uploaderId)
+            .then(e => setUploader(e))
+    }, [uploaderId])
     return <VideoGridItem
         update={update}
         type='clips'
         fileName={`cloud#${id}`}
         key={`VideoGrid-${id}`}
+        onClick={() => location.hash = `#/videoSingle/${id}`}
     >
         <HoverVideoWrapper
             source={null}
@@ -32,15 +40,29 @@ export default function DiscoverItem({ item }: DiscoverItemProps) {
             h='100%'
             flex='1'
         >
+            <HoverVideoInner>
+                <Flex
+                    bg='rgba(0,0,0,0.75)'
+                    borderTopLeftRadius='2xl'
+                    borderBottomRightRadius='2xl'
+                    justifyContent='center'
+                    alignItems='center'
+                    alignSelf='start'
+                    gap='2'
+                    p='2'
+                >
+                    <ClipUser user={uploader} />
+                </Flex>
+            </HoverVideoInner>
         </HoverVideoWrapper>
-        <GeneralInfoProvider baseName={title}>
+        <GeneralInfoProvider baseName={title} multiSelect={false}>
             <GeneralInfo
                 baseName={title}
-                gameName={gameName}
-                imageSrc={imageSrc}
-                modified={new Date(uploadDate).getTime()}
                 cloud={null}
-            />
+            >
+                {game && <CloudGame game={game} />}
+                <GeneralInfoModified modified={new Date(uploadDate).getTime()} />
+            </GeneralInfo>
         </GeneralInfoProvider>
     </VideoGridItem>
 }

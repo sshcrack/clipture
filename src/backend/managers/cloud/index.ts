@@ -63,6 +63,7 @@ export class CloudManager {
     }
 
     static async getThumbnail(id: string) {
+        console.log("Getting cloud thumbnail from id", id)
         const res = await got(`${MainGlobals.baseUrl}/api/clip/thumbnail/${id}`)
         return res.rawBody.toString("base64")
     }

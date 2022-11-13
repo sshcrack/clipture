@@ -62,7 +62,8 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
                 locked = true
 
                 console.log("Handle")
-                curr.classList.add("invisible-children")
+                Array.from(curr.children).forEach(e => e.setAttribute("data-basic-video-invisible-check", "true"))
+                document.body.setAttribute("data-basic-video-invisible-children", "true")
                 requestAnimationFrame(() => {
                     const vidHeight = currVid.videoHeight
                     const vidWidth = currVid.videoWidth
@@ -83,7 +84,7 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
 
                     console.log("Vid", newWidth, newHeight)
                     console.log("NewH", wPx, hPx)
-                    curr.classList.remove("invisible-children")
+                    document.body.setAttribute("data-basic-video-invisible-children", "false")
                 })
             }, 10)
         }
@@ -212,13 +213,13 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
                 </Flex>
                 <Flex flex='0'>
                     {
-                        !isNaN(vid.currentTime) &&
+                        !isNaN(vid?.currentTime) &&
                         prettyMS(vid.currentTime * 1000, {
                             colonNotation: true,
                             secondsDecimalDigits: 0
                         })
                     }/{
-                        !isNaN(vid.duration) &&
+                        !isNaN(vid?.duration) &&
                         prettyMS(vid.duration * 1000, {
                             colonNotation: true,
                             secondsDecimalDigits: 0
@@ -281,17 +282,23 @@ export default function Video({ vidRef, children, hovered, setHovered, setWidth:
         </Flex>
     }
 
-    return <Grid
-        w='90%'
+    return <Flex
+        padding='10'
+        w='100%'
         h='100%'
-        className='videoWrapper'
-        ref={gridRef}
     >
-        <video {...props}
-            ref={vidRef}
-            autoPlay
-            style={{ width: width, height: height, zIndex: -1 }}
-        />
-        {loading ? <Spinner /> : controls}
-    </Grid>
+        <Grid
+            w='100%'
+            h='100%'
+            className='videoWrapper'
+            ref={gridRef}
+        >
+            <video {...props}
+                ref={vidRef}
+                autoPlay
+                style={{ width: width, height: height, zIndex: -1 }}
+            />
+            {loading ? <Spinner /> : controls}
+        </Grid>
+    </Flex>
 }

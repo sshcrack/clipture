@@ -3,6 +3,7 @@ import { useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Route, Routes } from "react-router-dom"
+import DiscoverListSingle from 'src/components/discover/list/DiscoverListSingle'
 import { useLock } from 'src/components/hooks/useLock'
 import { useSession } from 'src/components/hooks/useSession'
 import { RenderLogger } from 'src/interfaces/renderLogger'
@@ -122,6 +123,7 @@ export default function App() {
             <Route path="/discover" element={<DiscoverPage data={data} />} />
             <Route path="/discover/single" element={<DiscoverPage data={data} type='single' />} />
             <Route path="/discover/list" element={<DiscoverPage data={data} type='list' />} />
+            <Route path="/videoSingle/:id" element={<DiscoverListSingle data={data} />} />
             <Route path="/record" element={<RecordPage data={data} />} />
             <Route path="/settings" element={<SettingsPage data={data} prevPage={prevPage} />} />
             <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />} />

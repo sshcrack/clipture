@@ -14,6 +14,7 @@ import HoverVideoInner from 'src/components/general/grid/HoverVideo/inner/HoverV
 import "src/components/general/grid/placeholder.css";
 import { VideoGrid, VideoGridItem } from 'src/components/general/grid/video';
 import GeneralInfo from 'src/components/general/info/GeneralInfo';
+import GeneralInfoModified from 'src/components/general/info/GeneralInfoModified';
 import GeneralInfoProvider from 'src/components/general/info/GeneralInfoProvider';
 import { SelectionProvider } from 'src/components/general/info/SelectionProvider';
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
@@ -129,9 +130,10 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                                 baseName={baseName}
                                 gameName={gameName}
                                 imageSrc={ico}
-                                modified={modified}
                                 cloud={cloud}
+                                displayGame
                             >
+                                <GeneralInfoModified modified={modified} />
                                 {(uploaded || cloudOnly) && <Tooltip label={uploaded ? t("uploaded_to_cloud") : t("cloud_only")} shouldWrapChildren >
                                     <MdCloudDone style={{ fill: "var(--chakra-colors-green-300)", width: "1.5em", height: "1.5em" }} />
                                 </Tooltip>}

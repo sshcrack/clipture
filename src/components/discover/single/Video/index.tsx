@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useRef } from "react"
-import { Flex, Link, Text } from '@chakra-ui/react';
-import Video from './misc';
-import DiscordGame from './misc/DiscordGame';
-import WindowInfo from './misc/WindowInfo';
 import { DiscoverClip } from '@backend/managers/cloud/interface';
-import LikeButton from './misc/like/LikeButton';
-import ClipUser from './misc/User';
+import { Flex, Link, Text } from '@chakra-ui/react';
 import { getCloudSourceUrl } from '@general/tools';
 import { RenderGlobals } from '@Globals/renderGlobals';
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
+import Video from './misc';
+import CloudGame from './misc/CloudGame';
+import LikeButton from './misc/like/LikeButton';
+import ClipUser from './misc/User';
 export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
-    const { title, id, dcGameId, uploaderId, windowInfo } = item
-    const [width, setWidth] = useState("100%")
+    const { title, id, game, uploaderId } = item
     const [uploader, setUploader] = useState(null)
     const [hovered, setHovered] = useState(false)
     const [rndId] = useState(() => Math.random().toString())
@@ -81,7 +79,6 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
             vidRef={vidRef}
             src={getCloudSourceUrl(RenderGlobals.baseUrl, id)}
             title={title}
-            setWidth={setWidth}
             hovered={hovered}
             setHovered={setHovered}
         >
@@ -97,10 +94,8 @@ export default function VideoSingleItem({ item }: { item: DiscoverClip }) {
                 >{title}</Text>
             </Flex>
         </Video>
-        < Flex style={{ width: width }}>
-            {(!dcGameId && !windowInfo) && <DiscordGame imgSize='2.5rem' fontSize='xl' id='' />}
-            {dcGameId && <DiscordGame imgSize='2.5rem' fontSize='xl' id={dcGameId} />}
-            {windowInfo && <WindowInfo imgSize='2.5rem' fontSize='xl' info={windowInfo} />}
+        < Flex style={{ width: "100%" }}>
+            <CloudGame game={game} />
             <Flex
                 w='100%'
                 justifyContent='center'

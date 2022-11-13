@@ -75,6 +75,7 @@ export default function SingleDiscoverPage() {
         hasPrevious={isLoaded && currIndex - 1 >= 0}
         nextPage={nextPage}
         previousPage={previousPage}
+        p='5'
     >
         {fetching && <GeneralSpinner loadingText={t("loading")} />}
         {curr && !fetching ? <SingleItem item={curr} /> : <GeneralSpinner loadingText={t("loading")} />}

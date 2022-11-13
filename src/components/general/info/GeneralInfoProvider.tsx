@@ -6,9 +6,10 @@ import { SelectionContext } from './SelectionProvider';
 
 type Props = FlexProps & {
     onEditor?: React.MouseEventHandler<HTMLDivElement>,
-    baseName: string
+    baseName: string,
+    multiSelect?: boolean
 }
-export default function GeneralInfoProvider({ baseName, onEditor, children, ...props }: Props) {
+export default function GeneralInfoProvider({ baseName, onEditor, children, multiSelect = true, ...props }: Props) {
     onEditor;
     const { selection, setSelection } = useContext(SelectionContext)
     const [checked, setChecked] = useState(false)
@@ -23,7 +24,7 @@ export default function GeneralInfoProvider({ baseName, onEditor, children, ...p
     return <Flex flex='0' justifyContent='center' alignItems='center' flexDir='row' bg='brand.bg' borderRadius="xl" borderTopLeftRadius='0' borderTopRightRadius='0' gridRow='1' gridColumn='1' p='1'
         {...props}
     >
-        <Flex flex='0' pl='5' pr='5'
+        {multiSelect && <Flex flex='0' pl='5' pr='5'
         >
             <Checkbox className='checkbox_larger' isChecked={checked} onChange={e => {
                 const c = e.target.checked
@@ -35,7 +36,7 @@ export default function GeneralInfoProvider({ baseName, onEditor, children, ...p
                 setSelection(base)
             }}
             />
-        </Flex>
+        </Flex>}
         {children}
     </Flex>
 }

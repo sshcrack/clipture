@@ -1,19 +1,18 @@
-import { Flex, Kbd } from '@chakra-ui/react'
+import { Flex, FlexProps, Kbd } from '@chakra-ui/react'
 import React, { CSSProperties, useEffect } from "react"
 import { FaCaretLeft, FaCaretRight } from 'react-icons/fa'
 
-export type OuterNavigationProps = React.PropsWithChildren<{
+export type OuterNavigationProps = {
     previousPage: () => unknown,
     nextPage: () => unknown,
     hasPrevious: boolean,
     hasNext: boolean
-}>
+} & FlexProps
 
-export default function OuterNavigation({ nextPage, previousPage, hasNext, hasPrevious, children }: OuterNavigationProps) {
+export default function OuterNavigation({ nextPage, previousPage, hasNext, hasPrevious, children, ...props }: OuterNavigationProps) {
     const icoStyle: CSSProperties = {
         width: "3em",
-        height: "3em",
-        cursor: "pointer"
+        height: "3em"
     }
 
 
@@ -37,18 +36,20 @@ export default function OuterNavigation({ nextPage, previousPage, hasNext, hasPr
         h='100%'
         justifyContent='center'
         alignItems='center'
+        {...props}
     >
         <Flex
             h='100%'
             justifyContent='center'
             alignItems='center'
+            cursor="pointer"
+            onClick={() => hasPrevious && previousPage()}
         >
             <FaCaretLeft
                 style={{
                     ...icoStyle,
                     color: hasPrevious ? "rgb(255, 255, 255)" : "rgba(255, 255, 255, 0.5)"
                 }}
-                onClick={() => hasPrevious && previousPage()}
             />
             <Kbd>A</Kbd>
         </Flex>
@@ -57,6 +58,8 @@ export default function OuterNavigation({ nextPage, previousPage, hasNext, hasPr
             h='100%'
             justifyContent='center'
             alignItems='center'
+            cursor="pointer"
+            onClick={() => hasPrevious && previousPage()}
         >
             <Kbd>D</Kbd>
             <FaCaretRight

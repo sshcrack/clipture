@@ -4,18 +4,22 @@ import prettyMS from "pretty-ms";
 import React from "react";
 import { useTranslation } from 'react-i18next';
 
+type PropsGame = {
+    imageSrc?: string,
+    gameName?: string,
+    displayGame?: boolean
+}
+
 type Props = React.PropsWithChildren<FlexProps & {
     displayName?: string,
-    imageSrc: string,
-    gameName: string,
-    modified: number,
     baseName: string,
     cloud: ClipCloudInfo
-}>
+} & PropsGame>
 
 export default function GeneralInfo({
     children, baseName, gameName,
-    imageSrc, modified, cloud,
+    imageSrc, cloud,
+    displayGame,
     displayName, ...props
 }: Props) {
     const { t } = useTranslation("dashboard", { keyPrefix: "clips.general_info" })
@@ -30,9 +34,11 @@ export default function GeneralInfo({
         {...props}
     >
         <Flex gap='1em' justifyContent='center' alignItems='center' w='70%'>
-            <Image borderRadius='20%' src={imageSrc} w="1.5em" />
-            <Text textOverflow='ellipsis' whiteSpace='nowrap'>{gameName}</Text>
-            <Text ml='auto'>{prettyMS(Date.now() - modified, { compact: true })}</Text>
+            {displayGame && <>
+                <Image borderRadius='20%' src={imageSrc} w="1.5em" />
+                <Text textOverflow='ellipsis' whiteSpace='nowrap'>{gameName}</Text>
+            </>
+            }
             {children}
         </Flex>
         <Flex w='90%' alignItems='center' justifyContent='space-around'>

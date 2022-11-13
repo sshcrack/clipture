@@ -25,8 +25,9 @@ export default {
     addUsageListener: (listener: UsageFunc) => getAddRemoveListener(listener, usageListener),
     thumbnail: (id: string) => reg.emitPromise("cloud_thumbnail", id),
     openId: (id: string) => reg.emitPromise("cloud_open_id", id),
+    getId: (id: string) => reg.emitPromise("cloud_discover_get_clip", id),
     discover: {
-        list: (offset: number, limit: number) => reg.emitPromise("cloud_discover_list", offset, limit),
+        list: (offset: number, limit: number, search?: string) => reg.emitPromise("cloud_discover_list", offset, limit, search),
         visibility: (id: string, isPublic: boolean) => reg.emitPromise("cloud_discover_visibility", id, isPublic),
         user: {
             get: (cuid: string) => reg.emitPromise("cloud_discover_get_user", cuid)

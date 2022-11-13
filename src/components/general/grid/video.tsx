@@ -54,9 +54,12 @@ export function VideoGridItem({ update, onClick, children, ...rest }: VideoGridI
         if (!fileName)
             return setThumbnail(null)
 
-        console.log("Getting thumbnail from", rest.type, "FileName", fileName)
+        console.log("Getting thumbnail from", rest.fileName.startsWith("cloud#") ? "cloud" : rest.type, "FileName", fileName)
         api.thumbnail(fileName.replace("cloud#", ""))
-            .then(e => setThumbnail(e))
+            .then(e => {
+                console.log("Setting thumbnail to", e.length)
+                setThumbnail(e)
+            })
             .catch(e => {
                 log.error("Could not get thumbnail", e)
                 setThumbnail(null)
@@ -76,6 +79,7 @@ export function VideoGridItem({ update, onClick, children, ...rest }: VideoGridI
         `url("data:image/png;base64,${thumbnail}")` :
         "linear-gradient(45deg, var(--chakra-colors-brand-primary), var(--chakra-colors-brand-secondary))"
 
+    console.log("Bg is", thumbnail?.length)
     return <GridItem
         display='flex'
         minHeight='20em'
