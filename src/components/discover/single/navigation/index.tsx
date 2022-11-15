@@ -59,7 +59,7 @@ export default function OuterNavigation({ nextPage, previousPage, hasNext, hasPr
             justifyContent='center'
             alignItems='center'
             cursor="pointer"
-            onClick={() => hasPrevious && previousPage()}
+            onClick={() => hasNext && nextPage()}
         >
             <Kbd>D</Kbd>
             <FaCaretRight
