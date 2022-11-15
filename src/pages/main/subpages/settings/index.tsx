@@ -1,4 +1,4 @@
-import { SessionData } from '@backend/managers/auth/interfaces'
+import { SessionData, SessionInfo } from '@backend/managers/auth/interfaces'
 import { Flex, Heading, IconButton } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
@@ -41,7 +41,7 @@ const onlyAvailableWhenNotRecording = [
 }[]
 
 
-export default function SettingsPage({ prevPage }: { data: SessionData, prevPage: string }) {
+export default function SettingsPage({ prevPage }: { prevPage: string }) {
     const { item } = useParams()
     const [recording, setRecording] = useState(true)
     const [ update, setUpdate ] = useState(0)

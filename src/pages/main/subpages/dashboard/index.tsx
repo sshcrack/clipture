@@ -1,4 +1,4 @@
-import { SessionData } from '@backend/managers/auth/interfaces';
+import { SessionData, SessionInfo } from '@backend/managers/auth/interfaces';
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +12,7 @@ import "src/pages/main/subpages/dashboard/index.css";
 
 
 //TODO: Add Illustration credits to settings
-export default function DashboardPage({ data }: { data: SessionData }) {
+export default function DashboardPage({ info }: { info: SessionInfo }) {
     const [currentPage, setCurrentPage] = useState(0)
     const [initialized, setInitialized] = useState(false)
     const [resizeUpdate, setResizeUpdate] = useState(0)
@@ -20,6 +20,7 @@ export default function DashboardPage({ data }: { data: SessionData }) {
     const outerRef = useRef<HTMLDivElement>()
 
     const { system } = window.api
+    const { data } = info
     const { mode } = useParams()
     const { t } = useTranslation("dashboard")
 

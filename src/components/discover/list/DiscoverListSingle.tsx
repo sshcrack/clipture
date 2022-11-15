@@ -1,7 +1,7 @@
-import { SessionData } from '@backend/managers/auth/interfaces'
+import { SessionInfo } from '@backend/managers/auth/interfaces'
 import { DiscoverClip } from '@backend/managers/cloud/interface'
 import { Button, Flex, useToast } from '@chakra-ui/react'
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { GoChevronLeft } from 'react-icons/go'
 import { useParams } from 'react-router-dom'
@@ -11,10 +11,11 @@ import TitleBarItem from 'src/components/titlebar/TitleBarItem'
 import TitlebarSize from 'src/components/titlebar/TitlebarSize'
 import VideoSingleItem from '../single/Video'
 
-export default function DiscoverListSingle({ data }: { data: SessionData }) {
+export default function DiscoverListSingle({ info }: { info: SessionInfo }) {
     const { id } = useParams()
     const { t } = useTranslation("discover", { "keyPrefix": "button" })
     const [item, setItem] = useState<DiscoverClip>(null)
+    const { data } = info
     const toast = useToast()
 
     useEffect(() => {

@@ -1,17 +1,19 @@
-import { SessionData } from '@backend/managers/auth/interfaces';
+import { SessionInfo, SessionStatus } from '@backend/managers/auth/interfaces';
 import { Button, Flex } from '@chakra-ui/react';
-import React, { useRef, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import DiscoverList from 'src/components/discover/list/DiscoverList';
 import DiscoverProvider from 'src/components/discover/list/DiscoverProvider';
 import DiscoverSearch from 'src/components/discover/list/DiscoverSearch';
 import SingleDiscoverPage from 'src/components/discover/single/SingleProvider';
 import NavBar from 'src/components/general/NavBar';
+import OfflinePlaceholder from 'src/components/general/placeholder/OfflinePlaceholder';
 
 export type DiscoverDisplayType = "single" | "list"
 
-export default function DiscoverPage({ data, type }: { data: SessionData, type?: DiscoverDisplayType }) {
+export default function DiscoverPage({ info, type }: { info: SessionInfo, type?: DiscoverDisplayType }) {
     const { t } = useTranslation("discover", { keyPrefix: "button" })
+    const { status, data } = info
 
     const [resizeUpdate, setResizeUpdate] = useState(0)
     const discoverRef = useRef<HTMLDivElement>(null)
@@ -40,6 +42,32 @@ export default function DiscoverPage({ data, type }: { data: SessionData, type?:
     }, [])
 
     const oppositeType = type === "list" ? "single" : "list"
+
+
+    const comps = status === SessionStatus.OFFLINE ?
+        <OfflinePlaceholder /> :
+        <>
+            <Flex w='100%'>
+                <Button
+                    colorScheme='teal'
+                    onClick={() => {
+                        localStorage.setItem("discover-page-default", oppositeType)
+                        location.hash = `#/discover/${oppositeType}`
+                    }}
+                >{t(oppositeType)}</Button>
+                {type === "list" && <DiscoverSearch />}
+            </Flex>
+            <Flex
+                w='100%'
+                h='100%'
+                justifyContent='center'
+                alignItems='center'
+                overflowY='hidden'
+            >
+                {type === "list" ? <DiscoverList /> : <SingleDiscoverPage />}
+            </Flex>
+        </>
+
     return <DiscoverProvider>
         <Flex
             h='100%'
@@ -63,25 +91,7 @@ export default function DiscoverPage({ data, type }: { data: SessionData, type?:
                 gap='4'
                 ref={discoverRef}
             >
-                <Flex w='100%'>
-                    <Button
-                        colorScheme='teal'
-                        onClick={() => {
-                            localStorage.setItem("discover-page-default", oppositeType)
-                            location.hash = `#/discover/${oppositeType}`
-                        }}
-                    >{t(oppositeType)}</Button>
-                    {type === "list" && <DiscoverSearch />}
-                </Flex>
-                <Flex
-                    w='100%'
-                    h='100%'
-                    justifyContent='center'
-                    alignItems='center'
-                    overflowY='hidden'
-                >
-                    {type === "list" ? <DiscoverList /> : <SingleDiscoverPage />}
-                </Flex>
+                {comps}
             </Flex>
         </Flex>
     </DiscoverProvider>

@@ -28,6 +28,7 @@
         },
         "menu": {
             "context_menu": {
+                "offline_unavailable": "Disabled because offline",
                 "local": "Local",
                 "cloud": "Cloud",
                 "show_folder": "Show in Explorer",
@@ -64,8 +65,14 @@
             }
         },
         "placeholder": {
-            "title": "Pretty empty isn't it? Gonna ahead, play some games!",
-            "subtitle": "They'll automatically be recorded"
+            "empty": {
+                "title": "Pretty empty isn't it? Gonna ahead, play some games!",
+                "subtitle": "They'll automatically be recorded"
+            },
+            "offline": {
+                "title": "No connection to clipture servers",
+                "subtitle": "Either you have no internet or the clipture servers are down"
+            }
         }
     },
     "dashboard": {
@@ -93,6 +100,10 @@
             "could_not_list": "Could not list videos",
             "retry": "{{message}}. Retrying in 5 seconds",
             "loading": "Loading videos..."
+        },
+        "cloud_indicator": {
+            "loading": "Loading...",
+            "offline_mode": "Offline Mode"
         }
     },
     "navbar": {
@@ -112,7 +123,8 @@
         },
         "switch_monitor": "Switch Monitor",
         "refresh": "Recheck for games",
-        "enable_tooltip": "Enable automatic recording to check for games."
+        "enable_tooltip": "Enable automatic recording to check for games.",
+        "offline": "Not available if offline"
     },
     "settings": {
         "menu": {

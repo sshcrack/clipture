@@ -46,6 +46,9 @@ export class CloudManager {
         if (this.cachedUsage)
             return this.cachedUsage
 
+        if (AuthManager.isOffline())
+            return null
+
         const cookies = await AuthManager.getCookies()
         if (!cookies)
             throw new Error("Not authenticated.")
@@ -63,6 +66,9 @@ export class CloudManager {
     }
 
     static async getThumbnail(id: string) {
+        if(AuthManager.isOffline())
+            return null
+
         console.log("Getting cloud thumbnail from id", id)
         const res = await got(`${MainGlobals.baseUrl}/api/clip/thumbnail/${id}`)
         return res.rawBody.toString("base64")
@@ -95,6 +101,9 @@ export class CloudManager {
     }
 
     static async uploadClip(clipName: string) {
+        if(AuthManager.isOffline())
+            throw new Error("Cant upload clip when offline")
+
         const rootPath = Storage.get("clip_path")
         const clipPath = getClipVideoPath(rootPath, clipName)
 
@@ -261,6 +270,9 @@ export class CloudManager {
     }
 
     static async deleteId(id: string) {
+        if(AuthManager.isOffline())
+            throw new Error("Cannot delete clip when offline")
+
         log.info("Deleting with id", id)
         const cookies = await AuthManager.getCookies()
         if (!cookies)
@@ -279,6 +291,9 @@ export class CloudManager {
     }
 
     static async list() {
+        if(AuthManager.isOffline())
+            throw new Error("Cannot list when offline.")
+
         console.log("List cached is", !!this.cached)
         if (this.cached)
             return this.cached

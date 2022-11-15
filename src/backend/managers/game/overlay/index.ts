@@ -57,18 +57,6 @@ export class OverlayManager {
         this.initializeWindow();
 
         this.initialized = true
-        GameManager.getAvailableWindows()
-            .then(e => {
-                const notepad = e.find(e => e.title.includes("Notepad"))
-                log.info("Finding notepad", notepad)
-                if (!notepad)
-                    return log.error("Notepad not found")
-
-                if (!Storage.get("overlay_enabled"))
-                    return
-
-                this.startOverlay(notepad)
-            })
     }
 
     static initializeWindow() {

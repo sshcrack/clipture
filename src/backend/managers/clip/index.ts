@@ -215,7 +215,7 @@ export class ClipManager extends VideoManager {
             throw e
         }))
 
-        const usage = await CloudManager.getUsage()
+        const usage = await CloudManager.getUsage().catch(() => null)
         const detectable = await GameManager.getDetectableGames()
         const uploaded: CloudClip[] | null = await CloudManager.list().catch(e => {
             log.error("Could not get uploaded clips", e)
@@ -243,7 +243,7 @@ export class ClipManager extends VideoManager {
                         }
 
 
-                        const detectableCurr = detectable.find(e => e.id === gameId)
+                        const detectableCurr = detectable?.find(e => e.id === gameId)
                         let gameInfo = null as GeneralGame
 
                         if (detectableCurr)
@@ -279,7 +279,7 @@ export class ClipManager extends VideoManager {
                         }
 
                         addToCached(file, hex)
-                        const cloudVid = uploaded.find(e => e.hex === hex)
+                        const cloudVid = uploaded?.find(e => e.hex === hex)
 
                         const clipSize = (await stat(file)).size
                         clipInfo = {
@@ -293,14 +293,14 @@ export class ClipManager extends VideoManager {
                             game: gameInfo,
                             icoName: icoPath && path.basename(icoPath),
                             uploaded: uploaded ? !!cloudVid : null,
-                            tooLarge: clipSize > usage.maxClipSize
+                            tooLarge: clipSize > usage?.maxClipSize
                         }
                         this.clipInfoCache.set(file, clipInfo)
                     }
 
                     const fileName = path.basename(file)
                     const hex = await getHexCached(file)
-                    const cloudVid = uploaded.find(e => e.hex === hex)
+                    const cloudVid = uploaded?.find(e => e.hex === hex)
 
                     return {
                         original: fileName.split("_UUID_").shift(),
@@ -319,7 +319,7 @@ export class ClipManager extends VideoManager {
                 })
         )
 
-        const cloudOnly = uploaded.filter(e => !res.some(x => e.hex === x.hex))
+        const cloudOnly = uploaded?.filter(e => !res.some(x => e.hex === x.hex))
             .map(({ dcGameId, title, uploadDate, windowInfo, id, isPublic }) => {
                 const gameInfo = dcGameId ? {
                     type: "detectable",
@@ -343,7 +343,7 @@ export class ClipManager extends VideoManager {
                         isPublic: isPublic
                     }
                 } as Clip
-            })
+            }) ?? []
         const unsortedClips = res.concat(cloudOnly)
         return unsortedClips
             .sort((a, b) => b.modified - a.modified)

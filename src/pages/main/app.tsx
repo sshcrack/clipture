@@ -22,7 +22,8 @@ export default function App() {
 
     const toast = useToast()
 
-    const { data, status } = useSession()
+    const info = useSession()
+    const { status } = info
 
     const { progress, isLocked } = useLock()
     const [prevPage, setPrevPage] = useState("/")
@@ -118,15 +119,15 @@ export default function App() {
 
     return <HashRouter>
         <Routes>
-            <Route path="/" element={<DashboardPage data={data} />} />
-            <Route path="/:mode" element={<DashboardPage data={data} />} />
-            <Route path="/discover" element={<DiscoverPage data={data} />} />
-            <Route path="/discover/single" element={<DiscoverPage data={data} type='single' />} />
-            <Route path="/discover/list" element={<DiscoverPage data={data} type='list' />} />
-            <Route path="/videoSingle/:id" element={<DiscoverListSingle data={data} />} />
-            <Route path="/record" element={<RecordPage data={data} />} />
-            <Route path="/settings" element={<SettingsPage data={data} prevPage={prevPage} />} />
-            <Route path="/settings/:item" element={<SettingsPage data={data} prevPage={prevPage} />} />
+            <Route path="/" element={<DashboardPage info={info} />} />
+            <Route path="/:mode" element={<DashboardPage info={info} />} />
+            <Route path="/discover" element={<DiscoverPage info={info} />} />
+            <Route path="/discover/single" element={<DiscoverPage info={info} type='single' />} />
+            <Route path="/discover/list" element={<DiscoverPage info={info} type='list' />} />
+            <Route path="/videoSingle/:id" element={<DiscoverListSingle info={info} />} />
+            <Route path="/record" element={<RecordPage info={info} />} />
+            <Route path="/settings" element={<SettingsPage prevPage={prevPage} />} />
+            <Route path="/settings/:item" element={<SettingsPage prevPage={prevPage} />} />
             <Route path="/editor/:videoName" element={<EditorPage />} />
         </Routes>
     </HashRouter>

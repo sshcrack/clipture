@@ -1,20 +1,60 @@
 import { RegManMain } from '@general/register/main';
+import { getAddRemoveListener } from '@general/tools/listener';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import { Notification, shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { v4 as uuid } from "uuid";
-import { SessionData, SessionStatus } from './interfaces';
+import { OfflineChangeListener, SessionData, SessionInfo, SessionStatus } from './interfaces';
 
 
 const log = MainLogger.get("Backend", "Managers", "AuthManager")
 const baseUrl = MainGlobals.baseUrl;
+const OFFLINE_CHECK_INTERVAL = 5000
+const CACHE_INVALIDATE = 2000
 
 export class AuthManager {
-    public static readonly TIMEOUT = 1000 * 60 * 10// 10 Minutes
+    public static readonly TIMEOUT = 1000 * 60 * 10 // 10 Minutes
     public static readonly FetchInterval = 100
+
     private static currId = null as string
+    private static offlineMode = true
+    private static offlineLoopId = null as NodeJS.Timer
+
+    private static cachedSession = undefined as SessionInfo
+    private static listeners = [] as OfflineChangeListener[]
+
+    static async addOfflineChangeListener(listener: OfflineChangeListener) {
+        return getAddRemoveListener(listener, this.listeners)
+    }
+
+    static async activeOfflineCheck() {
+        const isOffline = await got(MainGlobals.baseUrl, { method: "HEAD" })
+            .then(() => false)
+            .catch(() => true)
+        return isOffline
+    }
+
+    static async offlineCheck() {
+        const isOffline = await this.activeOfflineCheck()
+
+        if (isOffline !== this.offlineMode) {
+            log.info("Offline Check returned new mode:", isOffline ? "offline" : "online")
+            this.listeners.map(e => e(isOffline))
+        }
+
+        this.offlineMode = isOffline
+    }
+
+    static isOffline() {
+        return this.offlineMode
+    }
+
+    static shutdown() {
+        if (this.offlineLoopId)
+            clearInterval(this.offlineLoopId)
+    }
 
     static async authenticate() {
         const id = uuid() + uuid()
@@ -93,44 +133,65 @@ export class AuthManager {
         return cookieString
     }
 
-    static async getSession(): Promise<GetSessionReturn> {
-        log.debug("Getting session...")
-        const { recordManager } = MainGlobals.obs
-        const cookieString = await this.getCookies()
+    static async getSession(): Promise<SessionInfo> {
+        const innerSession = async () => {
+            const { recordManager } = MainGlobals.obs
+            const cookieString = await this.getCookies()
 
-        if (!cookieString)
-            return {
-                status: SessionStatus.UNAUTHENTICATED,
-                data: null
+            if (!cookieString) {
+                this.offlineMode = false
+                return {
+                    status: SessionStatus.UNAUTHENTICATED,
+                    data: null
+                }
             }
 
-        const apiUrl = `${baseUrl}/api/auth/session`
-        const response = await got(apiUrl, {
-            headers: {
-                cookie: cookieString
-            }
-        }).then(e => JSON.parse(e.body) as SessionData)
+            const apiUrl = `${baseUrl}/api/auth/session`
+            const response = await got(apiUrl, {
+                headers: {
+                    cookie: cookieString
+                }
+            }).then(e => (JSON.parse(e.body) as SessionData))
+                .catch(e => {
+                    log.error("Could not login starting in offline mode...")
+                    console.error("Login error", e)
+                    return null
+                })
 
-        if (Object.keys(response).length === 0) {
-            log.info("UNAUTHENTICATED: No Keys in Response")
+            if (response === null) {
+                this.offlineMode = true
+                recordManager.enable()
+                return {
+                    data: null,
+                    status: SessionStatus.OFFLINE
+                }
+            }
+
+            this.offlineMode = false
+            if (Object.keys(response).length === 0) {
+                log.info("UNAUTHENTICATED: No Keys in Response")
+                return {
+                    data: undefined,
+                    status: SessionStatus.UNAUTHENTICATED
+                }
+            }
+
+            recordManager.enable()
+            log.info("AUTHENTICATED: with session")
             return {
-                data: undefined,
-                status: SessionStatus.UNAUTHENTICATED
+                data: response,
+                status: SessionStatus.AUTHENTICATED
             }
         }
 
-        recordManager.enable()
-        log.info("AUTHENTICATED: with session", {
-            ...response,
-            user: {
-                ...response.user,
-                email: "REDACTED"
-            }
-        })
-        return {
-            data: response,
-            status: SessionStatus.AUTHENTICATED
-        }
+        if (this.cachedSession)
+            return this.cachedSession
+
+        const res = await innerSession()
+        setTimeout(() => this.cachedSession = null, CACHE_INVALIDATE)
+
+        this.cachedSession = res
+        return res
     }
 
     static async signOut() {
@@ -161,6 +222,12 @@ export class AuthManager {
         RegManMain.onPromise("auth_authenticate", () => this.authenticate())
         RegManMain.onPromise("auth_get_session", () => this.getSession())
         RegManMain.onPromise("auth_signout", () => this.signOut())
+        RegManMain.onPromise("auth_is_offline", async () => this.isOffline())
+
+        if (!this.offlineLoopId)
+            this.offlineLoopId = setInterval(() => this.offlineCheck(), OFFLINE_CHECK_INTERVAL)
+
+        this.addOfflineChangeListener(() => RegManMain.send("auth_update"))
     }
 }
 
@@ -175,11 +242,6 @@ interface ClientSessionInterface {
     cookie: string,
     key: string,
     type: CookieType
-}
-
-type GetSessionReturn = {
-    data: SessionData,
-    status: SessionStatus
 }
 
 function getID(type: CookieType, obj: "key" | "value") {

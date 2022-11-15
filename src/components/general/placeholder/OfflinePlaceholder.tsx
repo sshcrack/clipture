@@ -6,8 +6,8 @@ import { useTranslation } from 'react-i18next'
 
 
 const FlexMotion = motion(Flex)
-export default function EmptyPlaceholder({ img }: { img?: string }) {
-    const { t } = useTranslation("general", { keyPrefix: "placeholder.empty" })
+export default function OfflinePlaceholder({ img }: { img?: string }) {
+    const { t } = useTranslation("general", { keyPrefix: "placeholder.offline" })
 
     const primary = getCSSVariable("--chakra-colors-illustration-primary")
     const secondary = getCSSVariable("--chakra-colors-illustration-secondary")
@@ -26,12 +26,12 @@ export default function EmptyPlaceholder({ img }: { img?: string }) {
             backgroundRepeat='no-repeat'
             backgroundPosition='center'
             backgroundSize='contain'
-            backgroundImage={img ?? 'url(../assets/illustrations/empty.gif)'}
+            backgroundImage={img ?? 'url(../assets/illustrations/offline_mode.gif)'}
             width='100%'
             height='100%'
             animate={{
-                "--placeholder-color": [primary, secondary, tertiary],
-                "--placeholder-blur-size": ["7rem", "2rem", "8rem"]
+                "--placeholder-color": [ primary, secondary, tertiary],
+                "--placeholder-blur-size": [ "7rem", "2rem", "8rem"]
             } as any}
             transition={{
                 repeat: Infinity,

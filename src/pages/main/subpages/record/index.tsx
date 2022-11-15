@@ -1,10 +1,11 @@
-import { SessionData } from '@backend/managers/auth/interfaces';
+import { SessionInfo, SessionStatus } from '@backend/managers/auth/interfaces';
 import { OutCurrentType } from '@backend/managers/obs/core/interface';
-import { Button, Flex, Heading, useToast } from '@chakra-ui/react';
+import { Button, Flex, Heading, Tooltip, useToast } from '@chakra-ui/react';
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import NavBar from 'src/components/general/NavBar';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
+import { useSession } from 'src/components/hooks/useSession';
 import GameInfo from 'src/components/obs/recording/GameInfo';
 import PerformanceStatistics from 'src/components/obs/recording/PerformanceStats';
 import ActiveVolmeter from 'src/components/obs/recording/Volmeter';
@@ -12,12 +13,15 @@ import Preview from 'src/components/obs/videos/preview';
 import RefreshGamesBtn from './RefreshGames';
 import SwitchMonitorBtn from './SwitchMonitorBtn';
 
-export default function RecordPage({ data }: { data: SessionData }) {
-    const { obs } = window.api
+export default function RecordPage({ info }: { info: SessionInfo }) {
+    const { obs, game: gameApi } = window.api
+    const { data } = info
+
     const { t } = useTranslation("record")
+    const { status } = useSession()
 
     const [recording, setRecording] = useState(false)
-    const [automaticRecord, setAutomaticRecord] = useState<boolean>(null)
+    const [automaticRecord, setAutomaticRecord] = useState<boolean | null>(undefined)
     const [isSaving, setSaving] = useState(false)
     const [current, setCurrent] = useState(undefined as OutCurrentType)
     const toast = useToast()
@@ -31,17 +35,45 @@ export default function RecordPage({ data }: { data: SessionData }) {
         }
 
         obs.isAutoRecord()
-            .then(e => setAutomaticRecord(e))
+            .then(async e => {
+                const hasCache = await gameApi.hasCache()
+                if (!hasCache && status === SessionStatus.OFFLINE)
+                    return setAutomaticRecord(null)
+
+                setAutomaticRecord(e)
+            })
 
         return obs.onRecordChange(r => {
             setRecording(r)
             obs.getCurrent()
                 .then(e => setCurrent(e))
         })
-    }, [])
+    }, [status])
 
     const { game } = current ?? {}
     console.log("Current", current)
+
+    const autoRecordBtn = (disabled: boolean) => <Button
+        colorScheme={automaticRecord ? "red" : "green"}
+        isLoading={isSaving}
+        isDisabled={disabled}
+        loadingText={"Saving..."}
+        disabled={automaticRecord === null}
+        onClick={() => {
+            setSaving(true)
+            obs.automaticRecord(!automaticRecord)
+                .then(() => setAutomaticRecord(!automaticRecord))
+                .catch(e => {
+                    console.error(e)
+                    toast({
+                        status: "error",
+                        title: "Error",
+                        description: e?.message ?? e?.stack ?? e
+                    })
+                })
+                .finally(() => setSaving(false))
+        }}
+    >{automaticRecord ? t("automatic.disable") : t("automatic.enable")}</Button>
     return <Flex
         w='100%'
         h='100%'
@@ -122,26 +154,9 @@ export default function RecordPage({ data }: { data: SessionData }) {
                         >{recording ? t("stop") : t("start")}</Button>
                         {!recording && <RefreshGamesBtn automaticRecord={automaticRecord} />}
                         {recording && automaticRecord === false && <SwitchMonitorBtn />}
-                        <Button
-                            colorScheme={automaticRecord ? "red" : "green"}
-                            isLoading={isSaving}
-                            loadingText={"Saving..."}
-                            disabled={automaticRecord === null}
-                            onClick={() => {
-                                setSaving(true)
-                                obs.automaticRecord(!automaticRecord)
-                                    .then(() => setAutomaticRecord(!automaticRecord))
-                                    .catch(e => {
-                                        console.error(e)
-                                        toast({
-                                            status: "error",
-                                            title: "Error",
-                                            description: e?.message ?? e?.stack ?? e
-                                        })
-                                    })
-                                    .finally(() => setSaving(false))
-                            }}
-                        >{automaticRecord ? t("automatic.disable") : t("automatic.enable")}</Button>
+                        {automaticRecord !== null ? autoRecordBtn(false) :
+                            <Tooltip label={t("offline")} shouldWrapChildren>{autoRecordBtn(true)}</Tooltip>
+                        }
                     </Flex>
                     <ActiveVolmeter
                         mt='5'

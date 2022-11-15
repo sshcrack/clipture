@@ -19,7 +19,7 @@ export type DiscoverItemProps = {
 export default function DiscoverItem({ item }: DiscoverItemProps) {
     const { id, title, uploadDate, uploaderId, game } = item
     const [uploader, setUploader] = useState<BasicUser>(null)
-    const [update, setUpdate] = useState(0)
+    const [update] = useState(0)
     const { discover } = window.api.cloud
 
 

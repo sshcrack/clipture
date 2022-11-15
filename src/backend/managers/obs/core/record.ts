@@ -1,3 +1,4 @@
+import { AuthManager } from '@backend/managers/auth'
 import { VideoInfo } from '@backend/managers/clip/interface'
 import { GameManager } from '@backend/managers/game'
 import { BookmarkManager } from "@backend/managers/obs/bookmark"
@@ -50,7 +51,7 @@ export class RecordManager {
     public async getCurrent() {
         const detectable = await GameManager.getDetectableGames()
         const { gameId, videoPath, ...left } = this.current ?? {}
-        const detectableGame = detectable.find(e => e.id === gameId)
+        const detectableGame = detectable?.find(e => e.id === gameId)
         const winInfo = this.windowInformation.get(gameId)
         const curr = {
             ...left,
@@ -84,6 +85,10 @@ export class RecordManager {
         return this.recordTimer
     }
 
+    public async isAutomaticRecording() {
+        return this.automaticRecord && (!AuthManager.isOffline() || (await GameManager.hasCache()))
+    }
+
     public isDesktopView() {
         return (Storage.get("obs").capture_method ?? "window") === "desktop"
     }
@@ -107,11 +112,12 @@ export class RecordManager {
 
 
         log.debug("Registering automatic recording stop")
-        setInterval(() => {
+        setInterval(async () => {
             const { window, monitor } = Scene.getCurrentSetting() ?? {}
             if (window && this.isRecording()) {
                 const isRunning = processRunning(window.pid)
-                if (!isRunning && this.automaticRecord) {
+                const recordingAutomatically = await this.isAutomaticRecording()
+                if (!isRunning && recordingAutomatically) {
                     this.stopRecording()
                         .then(() =>
                             new Notification({
@@ -352,14 +358,14 @@ export class RecordManager {
     }
 
     public async onGameUpdate(info: WindowInformation[]) {
-        const available = await getAvailableGame(info)
+        if (!(await this.isAutomaticRecording()))
+            return
+
+        const available = await getAvailableGame(info).catch(() => null)
         if (!available)
             return
+
         const { diff, winInfo, game, gameDiff } = available ?? {}
-
-        if (!this.automaticRecord)
-            return
-
         if (winInfo && (diff || !Scene.getCurrentSetting()?.window)) {
             if (this.isDesktopView() && winInfo.monitorDimensions)
                 await Scene.switchDesktopWindow(winInfo.monitorDimensions.index, winInfo)

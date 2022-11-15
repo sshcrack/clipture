@@ -3,8 +3,8 @@ import { Flex, Spinner, Text, useToast } from '@chakra-ui/react';
 import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from 'react';
 
-export type Props = { id: string, imgSize?: string, fontSize?: string }
-export default function DiscordGame({ id, fontSize, imgSize }: Props) {
+export type Props = { id: string, imgSize?: string, fontSize?: string, update?: number }
+export default function DiscordGame({ id, fontSize, imgSize, update }: Props) {
     const [games, setGames] = useState<DetectableGame[] | null>(null)
     const toast = useToast()
 
@@ -35,7 +35,7 @@ export default function DiscordGame({ id, fontSize, imgSize }: Props) {
         gap='3'
     >
             <img
-                src='https://clipture.sshcrack.me/api/game/image?id=null&icon=null'
+                src={`https://clipture.sshcrack.me/api/game/image?id=null&icon=null&update=${update}`}
                 alt='Unknown Game'
                 style={{
                     width: imgSize ?? "1.5rem",
@@ -53,7 +53,7 @@ export default function DiscordGame({ id, fontSize, imgSize }: Props) {
         gap='3'
     >
         <img
-            src={`${RenderGlobals.baseUrl}/api/game/image?id=${gameId}&icon=${icon}`}
+            src={`${RenderGlobals.baseUrl}/api/game/image?id=${gameId}&icon=${icon}&update=${update}`}
             alt='Game Image'
             style={{
                 width: imgSize ?? "1.5rem",

@@ -79,7 +79,6 @@ export function VideoGridItem({ update, onClick, children, ...rest }: VideoGridI
         `url("data:image/png;base64,${thumbnail}")` :
         "linear-gradient(45deg, var(--chakra-colors-brand-primary), var(--chakra-colors-brand-secondary))"
 
-    console.log("Bg is", thumbnail?.length)
     return <GridItem
         display='flex'
         minHeight='20em'

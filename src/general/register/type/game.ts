@@ -17,6 +17,8 @@ export type GameEventsPromises = addPrefixUnderscoreToObject<{
     remove_include: (info: GeneralGame) => void,
     list_include: () => GeneralGame[],
     set_include: (info: GeneralGame[]) => void,
+
+    has_cache: () => boolean
 }, "game">
 
 export type GameMainToRender = addPrefixUnderscoreToObject<{

@@ -6,7 +6,6 @@ import { RenderGlobals } from '@Globals/renderGlobals';
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import RenderIfVisible from 'react-render-if-visible';
-import CloudGame from 'src/components/discover/single/Video/misc/CloudGame';
 import HoverVideoWrapper from 'src/components/general/grid/HoverVideo/HoverVideoWrapper';
 import HoverVideoBookmarks from 'src/components/general/grid/HoverVideo/inner/HoverVideoBookmarks';
 import HoverVideoInner from 'src/components/general/grid/HoverVideo/inner/HoverVideoInner';
@@ -18,6 +17,7 @@ import { SelectionProvider } from 'src/components/general/info/SelectionProvider
 import VideoContextMenu from 'src/components/general/menu/VideoContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
+import { useSession } from 'src/components/hooks/useSession';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("obs", "clips")
@@ -30,9 +30,14 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
     const [openedMenus, setOpenedMenus] = useState([] as string[])
     const [lockedVideos, setLockedVideos] = useState([] as string[])
     const [loading, setLoading] = React.useState(true)
+    const { status } = useSession()
 
     const { videos, obs, storage } = window.api
     const { t } = useTranslation("dashboard", { "keyPrefix": "videos" })
+
+    useEffect(() => {
+        setRetry(Math.random())
+    }, [ status ])
 
     useEffect(() => {
         const funcs = [
@@ -69,7 +74,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
 
     const clipElements = currVideos.map(({ displayName, game, videoName, modified, bookmarks, icoName }, i) => {
         const { gameName, icon, id } = getGameInfo(game, videoName)
-        const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
+        const imageSrc = `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}&update=${retry}`
         const isOpened = openedMenus.some(e => e === videoName)
         const isLocked = lockedVideos.some(e => e === videoName)
         console.log("Locked", lockedVideos, videoName)

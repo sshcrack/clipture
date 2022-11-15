@@ -28,7 +28,9 @@ const game = {
 
     detectable: () => reg.emitPromise("game_detectable_games"),
     currDetectable: () => reg.emitPromise("game_curr_detectable"),
-    addUpdateListener: (cb: Listener) => getAddRemoveListener(cb, listeners)
+    addUpdateListener: (cb: Listener) => getAddRemoveListener(cb, listeners),
+
+    hasCache: () => reg.emitPromise("game_has_cache")
 }
 
 export default game;

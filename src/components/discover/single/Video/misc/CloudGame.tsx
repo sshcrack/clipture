@@ -7,11 +7,12 @@ import WindowInfo from './WindowInfo'
 
 export type CloudGameProps = {
     game: CloudGeneralGame,
+    update?: number,
     original?: string,
     imgSize?: string, fontSize?: string
 }
 
-export default function CloudGame({ game, original, imgSize, fontSize }: CloudGameProps) {
+export default function CloudGame({ game, original, imgSize, fontSize, update }: CloudGameProps) {
     let dcGameId: string = null
     let windowInfo: CloudWindowInfo = null
 
@@ -36,8 +37,8 @@ export default function CloudGame({ game, original, imgSize, fontSize }: CloudGa
     }
 
     return <>
-        {(!dcGameId && !windowInfo) && <DiscordGame imgSize={imgSize} fontSize={fontSize} id='' />}
-        {dcGameId && <DiscordGame imgSize={imgSize} fontSize={fontSize} id={dcGameId} />}
+        {(!dcGameId && !windowInfo) && <DiscordGame update={update} imgSize={imgSize} fontSize={fontSize} id='' />}
+        {dcGameId && <DiscordGame update={update} imgSize={imgSize} fontSize={fontSize} id={dcGameId} />}
         {windowInfo && <WindowInfo imgSize={imgSize} fontSize={fontSize} info={windowInfo} />}
     </>
 }

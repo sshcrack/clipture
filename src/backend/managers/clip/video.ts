@@ -9,6 +9,7 @@ import { readFile, stat, writeFile } from 'fs/promises'
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
+import { AuthManager } from '../auth'
 import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
@@ -93,7 +94,7 @@ export class VideoManager {
 
                 displayName = info?.displayName
                 bookmarks = info?.bookmarks
-                const detec = detectable.find(e => e.id === info?.gameId)
+                const detec = detectable?.find(e => e.id === info?.gameId)
                 if (detec)
                     gameInfo = {
                         type: "detectable",

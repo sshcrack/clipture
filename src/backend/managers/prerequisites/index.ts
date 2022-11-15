@@ -12,6 +12,7 @@ import fs from "fs/promises";
 import path from "path";
 import { MainLogger } from "src/interfaces/mainLogger";
 import { v4 as uuid } from "uuid";
+import { AuthManager } from '../auth';
 import { LockManager } from "../lock";
 import { importOBS } from "../obs/tool";
 
@@ -98,15 +99,18 @@ export class Prerequisites {
         if (await existsProm(nativeMngExe))
             await fs.unlink(nativeMngExe)
 
-        await downloadFile("NativeMng", nativeMngUrl, nativeMngExe, () => {/**/})
+        await downloadFile("NativeMng", nativeMngUrl, nativeMngExe, () => {/**/ })
     }
 
     static async initialize(onProgress: (prog: Progress) => unknown) {
-        if(this.initialized)
+        if (this.initialized)
             return
 
         if (this.initializing)
             throw new Error("[I] Already initializing.")
+
+        if (await AuthManager.activeOfflineCheck())
+            return log.warn("Prerequisites could not check, in offline mode")
 
         this.initializing = true
         const installMethods = {

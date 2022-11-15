@@ -1,9 +1,13 @@
+import { existsProm } from '@backend/tools/fs';
 import { UseToastOptions } from '@chakra-ui/react';
 import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
+import { readFile, writeFile } from 'fs/promises';
 import got from "got";
+import path from 'path';
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { AuthManager } from '../auth';
 import { isDetectableGameInfo } from '../obs/core/tools';
 import { DetectableGame, MonitorDimensions, WindowInformation } from '../obs/Scene/interfaces';
 import { GeneralGame } from './interface';
@@ -13,11 +17,15 @@ export type ProcessManagerCallback = (info: WindowInformation[]) => void
 const log = MainLogger.get("Backend", "Managers", "Game")
 export class GameManager {
     static readonly UPDATE_INTERVAL = 1000
+    static readonly CACHE_INVALIDATE = 1000 * 15
+
     private static prevProcesses = [] as WindowInformation[]
     private static listeners = [] as ProcessManagerCallback[]
     private static excludeGames = [] as GeneralGame[]
     private static includedGames = [] as GeneralGame[]
+
     private static detectableGames: DetectableGame[] = null
+
     private static initialized = false
     private static shouldExit = false
     private static hasUpdateLoop = false;
@@ -29,17 +37,48 @@ export class GameManager {
 
         this.updateLoop()
         this.hasUpdateLoop = true
+        AuthManager.addOfflineChangeListener(offline => {
+            if (offline)
+                return
+
+            this.detectableGames = null
+        })
     }
 
 
-    static async getDetectableGames() {
+    static async getDetectableGames(cache?: boolean) {
         if (!this.detectableGames)
-            this.detectableGames = await this.refreshDetectableGames()
+            this.detectableGames = await this.refreshDetectableGames(false, cache)
 
         return this.detectableGames
     }
 
-    private static refreshDetectableGames(showToast = true) {
+    private static getCachePath() {
+        return path.join(Storage.get("clip_path"), "detectable_games.json")
+    }
+
+    public static hasCache() {
+        const cachePath = this.getCachePath()
+
+        return existsProm(cachePath)
+    }
+
+
+    private static async refreshDetectableGames(showToast = true, useCache = true) {
+        const cachePath = this.getCachePath()
+        if (AuthManager.isOffline()) {
+            if (!(await existsProm(cachePath)))
+                return log.warn("No cache for detectable games and in offline mode")
+
+            if (!useCache)
+                return log.warn("Usage of cache disabled and in offline mode.")
+
+            const cacheRaw = await readFile(cachePath, "utf-8")
+            const cache = JSON.parse(cacheRaw)
+
+            return cache
+        }
+
         return got(MainGlobals.gameUrl).then(e => JSON.parse(e.body))
             .catch(e => {
                 log.warn("Could not fetch detectable games", e)
@@ -51,12 +90,18 @@ export class GameManager {
                     } as UseToastOptions)
                 return []
             })
+            .then(async e => {
+                console.log("Saving detectable games to cache...")
+                await writeFile(cachePath, JSON.stringify(e))
+                return e
+            })
     }
 
     static save() {
         log.info("Saving included and excluded games")
         Storage.set("games_include", this.includedGames)
         Storage.set("games_exclude", this.excludeGames)
+        writeFile(this.getCachePath(), JSON.stringify(this.detectableGames))
     }
 
     static register() {
@@ -82,6 +127,8 @@ export class GameManager {
         RegManMain.onPromise("game_remove_include", async (_, game) => this.removeInclude(game))
         RegManMain.onPromise("game_list_include", async () => this.getIncludeList())
         RegManMain.onPromise("game_set_include", async (_, toSet) => this.setInclude(toSet))
+
+        RegManMain.onPromise("game_has_cache", () => this.hasCache())
 
         this.excludeGames = Storage.get("games_exclude", [])
         this.includedGames = Storage.get("games_include", [])
@@ -181,7 +228,7 @@ export class GameManager {
         let reportedError = false
         while (!this.shouldExit) {
             await this.timeout(1000)
-            if(this.shouldExit)
+            if (this.shouldExit)
                 break
 
             const curr = await this.getAvailableWindows(true)
@@ -241,7 +288,7 @@ export class GameManager {
                 throw { errno: -999, command: `monitor ${hwnd.toFixed(0)}`, stdout: res, stderr: outProc.stderr }
             return res
         } catch (error) {
-            throw new Error(`Errno: ${error.errno} command: ${error.command} stdout: ${error.stdout} err: ${error.stderr}`)
+            throw new Error(`Errno: ${error.errno} command: ${error.command} stdout: ${JSON.stringify(error.stdout)} err: ${error.stderr}`)
         }
     }
 

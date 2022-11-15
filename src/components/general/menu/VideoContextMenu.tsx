@@ -26,13 +26,14 @@ export default function VideoContextMenu({ children, videoName, setUpdate, setOp
                 {children}
             </ContextMenuTrigger>
             <ContextMenuList>
-                <ContextMenuCategory>{t("local")}</ContextMenuCategory>
-                <ContextMenuItem
-                    onClick={() => system.open_clip(videoName)}
-                    leftIcon={<AiFillFolderOpen />}
-                >{t("show_folder")}</ContextMenuItem>
-                <RenameItem baseName={videoName.replace(".mkv", "")} type={"videos"} setUpdate={setUpdate} />
-                <DeleteItem baseName={videoName} setUpdate={setUpdate} />
+                <ContextMenuCategory name={t("local")}>
+                    <ContextMenuItem
+                        onClick={() => system.open_clip(videoName)}
+                        leftIcon={<AiFillFolderOpen />}
+                    >{t("show_folder")}</ContextMenuItem>
+                    <RenameItem baseName={videoName.replace(".mkv", "")} type={"videos"} setUpdate={setUpdate} />
+                    <DeleteItem baseName={videoName} setUpdate={setUpdate} />
+                </ContextMenuCategory>
             </ContextMenuList>
         </ContextMenu>
     </>

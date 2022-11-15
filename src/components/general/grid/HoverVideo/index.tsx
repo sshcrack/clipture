@@ -53,7 +53,6 @@ export default function HoverVideo({ source, children, cloudId, ...props }: BoxP
             if (!ref?.current)
                 return
 
-            console.log("Ref", ref.current.duration)
             setDuration(ref.current.duration)
             cachedDurations.set(source ?? cloudId, ref.current.duration)
             setCachedDurations(new Map(cachedDurations.entries()))

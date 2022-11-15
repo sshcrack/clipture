@@ -21,11 +21,17 @@ export class DiscoverManager {
     }
 
     public static async infoSingle(id: string) {
+        if(AuthManager.isOffline())
+            throw new Error("Cannot get info when in offline mode")
+
         return await got(`${MainGlobals.baseUrl}/api/clip/info?id=${id}`)
             .json<DiscoverClip>()
     }
 
     public static async discover({ offset, limit, search }: { offset: number, limit: number, search?: string }) {
+        if(AuthManager.isOffline())
+            throw new Error("Cannot discover when in offline mode")
+
         const url = `${MainGlobals.baseUrl}/api/clip/discover?limit=${limit}&offset=${offset}${search ? `&query=${search}` : ""}`
         const detectable = await GameManager.getDetectableGames()
 
@@ -59,12 +65,17 @@ export class DiscoverManager {
     }
 
     public static async getUser(cuid: string) {
+        if(AuthManager.isOffline())
+            throw new Error("Cannot get user when offline")
+
         return await got(`${MainGlobals.baseUrl}/api/user/get/${encodeURIComponent(cuid)}`)
             .json<BasicUser>()
     }
 
     public static async setLike(id: string, like: boolean) {
-        5
+        if(AuthManager.isOffline())
+            throw new Error("Cannot like when offline")
+
         const cookies = await AuthManager.getCookies()
         if (!cookies)
             throw new Error("Not authenticated.")
@@ -75,6 +86,9 @@ export class DiscoverManager {
     }
 
     public static async isLiked(id: string) {
+        if(AuthManager.isOffline())
+            return null
+
         const cookies = await AuthManager.getCookies()
         if (!cookies)
             throw new Error("Not authenticated.")
@@ -86,6 +100,9 @@ export class DiscoverManager {
     }
 
     public static async setVisibility(id: string, isPublic: boolean) {
+        if(AuthManager.isOffline())
+            throw new Error("Cannot set visibility when offline")
+
         log.debug("Setting visibility for cloud item", id, "to", isPublic)
 
         const list = await CloudManager.list()

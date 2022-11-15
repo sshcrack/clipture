@@ -20,6 +20,7 @@ import { SelectionProvider } from 'src/components/general/info/SelectionProvider
 import ClipContextMenu from 'src/components/general/menu/ClipContextMenu';
 import EmptyPlaceholder from 'src/components/general/placeholder/EmptyPlaceholder';
 import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner';
+import { useSession } from 'src/components/hooks/useSession';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 import UploadingStatus from '../progress/UploadingStatus';
 
@@ -33,8 +34,14 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
     const [openedMenus, setOpenedMenus] = useState([] as string[])
     const { clips, obs, cloud } = window.api
     const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
+    const { status } = useSession()
 
     const toast = useToast()
+
+
+    useEffect(() => {
+        setUpdate(Math.random())
+    }, [status])
 
     useEffect(() => {
         const unregister = [
@@ -44,6 +51,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 if (prog?.percent !== 1 && prog)
                     return
 
+                console.log("Received clip update.")
                 setUpdate(Math.random())
             })
         ]
@@ -74,7 +82,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             const baseName = clipName.replace(".clipped.mp4", "")
 
             const imageSrc = cloud && icoName ? `${RenderGlobals.baseUrl}/api/clip/icon/${icoName}` : `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}`
-            const ico = icoName && !cloud ? getIcoUrl(icoName) : imageSrc
+            const ico = (icoName && !cloud ? getIcoUrl(icoName) : imageSrc) + `&update=${update}`
             const isOpened = openedMenus.some(e => e === clipName)
 
             const currUploading = uploadingClips.find(e => e.clipName === baseName)

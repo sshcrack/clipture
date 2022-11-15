@@ -21,8 +21,9 @@ export default function DiscoverContextMenu({ children, cloudId, setOpen }: Prop
                 {children}
             </ContextMenuTrigger>
             <ContextMenuList>
-                <ContextMenuCategory>{t("cloud")}</ContextMenuCategory>
-                <ShareMenuItem clipName={cloudId} cloud={{ cloudOnly: true, isPublic: true, id: cloudId }} />
+                <ContextMenuCategory name={t("cloud")}>
+                    <ShareMenuItem clipName={cloudId} cloud={{ cloudOnly: true, isPublic: true, id: cloudId }} />
+                </ContextMenuCategory>
             </ContextMenuList>
         </ContextMenu>
     </>
