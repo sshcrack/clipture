@@ -80,7 +80,6 @@ export class AudioSceneManager {
         if (this.allVolmeters.some(e => e.device_id === device_id))
             return
 
-        log.silly("Adding volmeter with device_id", device_id)
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
 
@@ -101,7 +100,6 @@ export class AudioSceneManager {
             throw new Error("Could not attach volmeter, not initialized")
         const volmeter = this.VolmeterFactory.create(1)
 
-        log.info("Attaching to", device_id, "with volume", volume)
         volmeter.attach(audioSource)
         volmeter.addCallback((...args) => {
             const volModified = args.map(e => e.map(x => x - 60 * (1 - volume))) as [magnitude: number[], peak: number[], inputPeak: number[]]

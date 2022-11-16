@@ -50,6 +50,10 @@ export default function CustomSelect<Option = unknown, IsMulti extends boolean =
             menu: (prev) => ({
                 ...prev,
                 backgroundColor: "var(--chakra-colors-gray-900)"
+            }),
+            input: (prev) => ({
+                ...prev,
+                color: "white"
             })
         }}
         {...props}

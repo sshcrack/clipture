@@ -10,7 +10,7 @@ const packaged = app.isPackaged || !process.argv.includes("dev")
 const _cliptureDir = path.join( app.getPath("appData"), "clipture")
 let assetsDir = path.join(_cliptureDir, "assets")
 
-if(app.isPackaged) {
+if(app.isPackaged || process.argv.includes("release")) {
     if(!fs.existsSync(assetsDir))
         assetsDir = path.join(appPath, "assets")
 
