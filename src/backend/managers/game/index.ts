@@ -227,40 +227,44 @@ export class GameManager {
         log.info("Initializing update loop...")
         let reportedError = false
         while (!this.shouldExit) {
-            await this.timeout(1000)
-            if (this.shouldExit)
-                break
+            try {
+                await this.timeout(1000)
+                if (this.shouldExit)
+                    break
 
-            const curr = await this.getAvailableWindows(true)
-                .then(e => {
-                    reportedError = false
-                    return e;
-                })
-                .catch(e => {
-                    !reportedError && log.error("Failed to get available windows", e)
-                    reportedError = true
-                    return undefined
-                }) as WindowInformation[]
+                const curr = await this.getAvailableWindows(true)
+                    .then(e => {
+                        reportedError = false
+                        return e;
+                    })
+                    .catch(e => {
+                        !reportedError && log.error("Failed to get available windows", e)
+                        reportedError = true
+                        return undefined
+                    }) as WindowInformation[]
 
-            const diff = [
-                // New processes (either completely new or focused another window)
-                ...(curr?.filter(e =>
-                    !this.prevProcesses.some(f => f.pid === e.pid)
-                    || this.prevProcesses.some(f => f.pid === e.pid && f.focused !== e.focused)
-                ) as WindowInformation[]),
+                const diff = [
+                    // New processes (either completely new or focused another window)
+                    ...(curr?.filter(e =>
+                        !this.prevProcesses.some(f => f.pid === e.pid)
+                        || this.prevProcesses.some(f => f.pid === e.pid && f.focused !== e.focused)
+                    ) as WindowInformation[]),
 
-                // Closed processes
-                ...(this.prevProcesses?.filter(e =>
-                    !curr.some(f => f.pid === e.pid)
-                ) as WindowInformation[])
-            ]?.filter((e, i, a) => a?.findIndex(f => f.pid === e.pid) === i)
+                    // Closed processes
+                    ...(this.prevProcesses?.filter(e =>
+                        !curr.some(f => f.pid === e.pid)
+                    ) as WindowInformation[])
+                ]?.filter((e, i, a) => a?.findIndex(f => f.pid === e.pid) === i)
 
-            if (diff.length > 0) {
-                this.listeners.map(e => e(diff))
-                RegManMain.send("game_update", this.prevProcesses, diff)
+                if (diff.length > 0) {
+                    this.listeners.map(e => e(diff))
+                    RegManMain.send("game_update", this.prevProcesses, diff)
+                }
+
+                this.prevProcesses = curr
+            } catch (e) {
+                log.error("Game Update Loop Error", e)
             }
-
-            this.prevProcesses = curr
         }
     }
 

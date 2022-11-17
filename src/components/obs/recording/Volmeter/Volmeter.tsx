@@ -8,7 +8,7 @@ export default function Volmeter({ source, ...props }: { source: string } & BoxP
     const [, setCurrVal] = useState(-Infinity)
 
     useEffect(() => {
-        const filter = new ExpFilter(0, 0.2, 0.2)
+        const filter = new ExpFilter(0, 0.05, 0.05)
         setPercentage(0)
         const audioRemove = audio.onVolmeterChange((innerSource, ...channels) => {
             if (innerSource !== source)
