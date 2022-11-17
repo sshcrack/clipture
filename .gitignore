@@ -9,6 +9,7 @@ yarn-error.log*
 lerna-debug.log*
 
 devAssets/*
+!/devAssets/.gitkeep
 osn-data
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
