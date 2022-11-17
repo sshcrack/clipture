@@ -1,11 +1,28 @@
-import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, useDisclosure, useToast } from '@chakra-ui/react'
+import { Button, Flex, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure, useToast } from '@chakra-ui/react'
 import React, { useContext, useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 import { BiPencil } from 'react-icons/bi'
 import { GoChevronLeft } from 'react-icons/go'
+import { components, OptionProps } from 'react-select'
 import NameValidator from 'src/components/general/validator/nameValidator'
+import CustomSelect from 'src/components/settings/categories/Game/List/CustomSelect'
 import TitleBarItem from 'src/components/titlebar/TitleBarItem'
 import { EditorContext } from '../Editor'
+
+const { Option } = components;
+function IconOption(props: OptionProps) {
+    const data = props.data as { [key: string]: any }
+
+    return <Option {...props}>
+        <Flex w='100%' justifyContent='center' alignItems='center' gap='2'>
+            {data.icon}
+            {data.label}
+        </Flex>
+
+    </Option>
+}
+
 
 export default function EditorTitlebar() {
     const { selection, videoName } = useContext(EditorContext)
@@ -15,6 +32,7 @@ export default function EditorTitlebar() {
     const [desiredClipName, setDesiredClipName] = useState("")
 
     const [isError, setError] = useState(true)
+    const [isPublic, setPublic] = useState(true)
 
     const { isOpen, onOpen, onClose } = useDisclosure()
     const [loading, setLoading] = useState(false)
@@ -41,7 +59,7 @@ export default function EditorTitlebar() {
     }, [])
 
     const onBack = () => history.back()
-    const generateClip = () => {
+    const generateClip = (shouldUpload: boolean) => {
         if (isCuttingClips || isError)
             return
 
@@ -64,11 +82,32 @@ export default function EditorTitlebar() {
                 console.log("Cutting with selection", selection)
                 setCuttingClips(true)
                 onClose()
-                clips.cut(desiredClipName, videoName, start, end, () => {/**/})
+                clips.cut({
+                    clipName: desiredClipName,
+                    videoName,
+                    start,
+                    end
+                }, () => {/**/ }, {
+                    upload: shouldUpload,
+                    isPublic
+                })
                     .then(() => setCuttingClips(false))
-                location.href='#/clips'
+                location.href = '#/clips'
             })
     }
+
+    const options = [
+        {
+            label: t("save_dialog.visibility.private"),
+            value: "private",
+            icon: <AiFillEyeInvisible />
+        },
+        {
+            label: t("save_dialog.visibility.public"),
+            value: "public",
+            icon: <AiFillEye />
+        }
+    ]
 
     return <TitleBarItem>
         <Button
@@ -99,6 +138,36 @@ export default function EditorTitlebar() {
                 <ModalHeader>{t("save_dialog.title")}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
+                    <Flex
+                        justifyContent='center'
+                        alignItems='center'
+                        w='100%'
+                        gap='9'
+                    >
+                        <Text>{t("save_dialog.visibility.name")}</Text>
+                        <CustomSelect
+                            components={{
+                                Option: IconOption, SingleValue: (e) => {
+                                    const data = e.data as typeof options[0]
+                                    return <Flex
+                                        w='100%'
+                                        alignItems='center'
+                                        gap='2'
+                                        justifyContent='left'
+                                        ml='2px'
+                                        mr='2px'
+                                        gridArea='1/1/2/3'
+                                    >
+                                        {data.icon}
+                                        {data.label}
+                                    </Flex>
+                                }
+                            }}
+                            value={options.find(e => e.value === (isPublic ? "public" : "private"))}
+                            onChange={(e: typeof options[0]) => setPublic(e.value === "public")}
+                            options={options}
+                        />
+                    </Flex>
                     <NameValidator
                         isError={isError}
                         setError={setError}
@@ -122,7 +191,10 @@ export default function EditorTitlebar() {
                 </ModalBody>
 
                 <ModalFooter>
-                    <Button colorScheme='green' mr={3} onClick={generateClip}>
+                    <Button colorScheme='green' mr={3} onClick={() => generateClip(false)}>
+                        {t("save")}
+                    </Button>
+                    <Button colorScheme='green' mr={3} onClick={() => generateClip(true)}>
                         {t("save_share")}
                     </Button>
                     <Button variant='ghost' onClick={onClose}>{t("save_dialog.cancel")}</Button>

@@ -52,3 +52,8 @@ export interface ClipProcessingInfo {
     progress: Progress,
     info: ClipCutInfo & { clipPath: string }
 }
+
+export type AdditionalCutInfo = {
+    upload: boolean,
+    isPublic: boolean
+}

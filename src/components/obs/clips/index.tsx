@@ -47,6 +47,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
         const unregister = [
             obs.onRecordChange(() => setTimeout(() => setUpdate(Math.random()), 500)),
             cloud.onUpdate(u => setUploadingClips(u)),
+            cloud.onDone(() => setUpdate(Math.random())),
             clips.add_listener((_, prog) => {
                 if (prog?.percent !== 1 && prog)
                     return
@@ -96,7 +97,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
                 rootElementClass='grid-root-element'
             >
                 <ClipContextMenu
-                    clipName={cloud ? cloud.id : clipName}
+                    clipName={clipName}
                     setUpdate={setUpdate}
                     uploaded={uploaded}
                     tooLarge={tooLarge}

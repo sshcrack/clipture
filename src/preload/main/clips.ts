@@ -1,4 +1,4 @@
-import { ClipCutInfo } from '@backend/managers/clip/interface';
+import { AdditionalCutInfo, ClipCutInfo } from '@backend/managers/clip/interface';
 import { Progress } from '@backend/processors/events/interface';
 import { RegManRender } from '@general/register/render';
 import { getAddRemoveListener } from '@general/tools/listener';
@@ -16,8 +16,9 @@ const clips = {
     list: () => RegManRender.emitPromise("clips_list"),
     thumbnail: (clipName: string) => RegManRender.emitPromise("clips_thumbnail", clipName),
     exists: (name: string) => RegManRender.emitPromise("clips_exists", name),
-    cut: async (clipName: string, videoName: string, selectStart: number, selectEnd: number, onProgress: (prog: Progress) => void) => {
-        const prom = RegManRender.emitPromise("clips_cut", { videoName, start: selectStart, end: selectEnd, clipName })
+    cut: async (cutInfo: ClipCutInfo, onProgress: (prog: Progress) => void, additional: AdditionalCutInfo = { isPublic: false, upload: false }) => {
+        const prom = RegManRender.emitPromise("clips_cut", cutInfo, additional)
+        const { end: selectEnd, start: selectStart, videoName } = cutInfo
         const listener = (clip: ClipCutInfo, prog: Progress) => {
             if (clip.videoName !== videoName || clip.start !== selectStart || clip.end !== selectEnd)
                 return

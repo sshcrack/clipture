@@ -33,7 +33,7 @@ export default function UploadMenuItem({ clipName, disabled, setUpdate, tooLarge
                     duration: 1000 * 10
                 })
 
-            cloud.upload(clipName.replace(".clipped.mp4", ""))
+            cloud.upload(clipName.replace(".clipped.mp4", ""), true)
                 .catch(e => toast({
                     status: "error",
                     title: "Could not upload clip",

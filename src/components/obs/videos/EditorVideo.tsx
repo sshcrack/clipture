@@ -1,6 +1,6 @@
 import { GridItemProps } from '@chakra-ui/react'
 import { getVideoSourceUrl } from '@general/tools'
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useEffect } from "react"
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import { EditorContext } from './Editor'
 import BasicVideo from './video/BasicVideo'

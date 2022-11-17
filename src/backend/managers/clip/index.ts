@@ -18,7 +18,7 @@ import { CloudGeneralGame, GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
 import { addToCached, getHexCached } from './fs'
 import { getClipInfo, getClipInfoPath, getClipVideoPath, getClipVideoProcessingPath, getVideoIco, getVideoInfo, getVideoPath } from './func'
-import { Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw } from './interface'
+import { AdditionalCutInfo, Clip, ClipCutInfo, ClipProcessingInfo, ClipRaw } from './interface'
 import { VideoManager } from './video'
 
 const log = MainLogger.get("Backend", "Managers", "Clips")
@@ -27,7 +27,7 @@ export class ClipManager extends VideoManager {
     private static execa: typeof execaType = null
     private static processing = new Map<string, ClipProcessingInfo>()
 
-    static async cut(clipObj: ClipCutInfo, onProgress: (prog: Progress) => void) {
+    static async cut(clipObj: ClipCutInfo, onProgress: (prog: Progress) => void, additional: AdditionalCutInfo) {
         // eslint-disable-next-line prefer-const
         let { videoName, start, end, clipName } = clipObj
         videoName = videoName.split(".mkv").join("")
@@ -155,6 +155,10 @@ export class ClipManager extends VideoManager {
             status: "Clip successfully cut.",
             percent: 1
         })
+
+        if (additional.upload) {
+            CloudManager.uploadClip(clipName, true, additional.isPublic)
+        }
     }
 
     static async delete(videoClipName: string) {
@@ -382,7 +386,7 @@ export class ClipManager extends VideoManager {
 
         RegManMain.onPromise("clips_list", () => this.listClips())
         RegManMain.onPromise("clips_delete", (_, clipName) => this.delete(clipName))
-        RegManMain.onPromise("clips_cut", (_, e) => this.cut(e, prog => RegManMain.send("clips_update", e, prog)))
+        RegManMain.onPromise("clips_cut", (_, e, additional) => this.cut(e, prog => RegManMain.send("clips_update", e, prog), additional))
         RegManMain.onPromise("clips_cutting", async () => Array.from(this.processing.entries()))
         RegManMain.onPromise("clips_thumbnail", (_, clipName) => this.getClipThumbnail(clipName))
         RegManMain.onPromise("clips_rename", (_, original, newName) => this.renameClip(original, newName))

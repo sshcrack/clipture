@@ -41,6 +41,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
 
     const cloudOnly = cloudInfo?.cloudOnly
     const toast = useToast()
+
     const localItems = <>
         <ContextMenuCategory name={t("local")}>
             <ContextMenuItem
@@ -74,7 +75,8 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                     onClick={() => {
                         setCloudDeleting(true)
                         const method = cloudOnly ? "deleteId" : "deleteClip"
-                        cloud[method](clipName.replace(".clipped.mp4", ""))
+                        const deleteId = cloudOnly ? cloudInfo.id : clipName.replace(".clipped.mp4", "")
+                        cloud[method](deleteId)
                             .catch(e => {
                                 log.error(e)
                                 toast({
@@ -91,7 +93,7 @@ export default function ClipContextMenu({ children, clipName, setUpdate, setOpen
                     }}
                     leftIcon={<BsTrashFill />}
                 >{t("delete")}</ContextMenuItem>
-                {cloud && <VisibilityMenuItem cloud={cloudInfo} setUpdate={setUpdate} />}
+                {cloudInfo && <VisibilityMenuItem cloud={cloudInfo} setUpdate={setUpdate} />}
             </ContextMenuCategory>
         </ContextMenuList>
     </ContextMenu>

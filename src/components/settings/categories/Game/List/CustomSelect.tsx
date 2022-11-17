@@ -54,6 +54,14 @@ export default function CustomSelect<Option = unknown, IsMulti extends boolean =
             input: (prev) => ({
                 ...prev,
                 color: "white"
+            }),
+            singleValue: (prev) => ({
+                ...prev,
+                color: "white"
+            }),
+            menuList: (prev) => ({
+                ...prev,
+                borderRadius: "var(--chakra-radii-md)"
             })
         }}
         {...props}

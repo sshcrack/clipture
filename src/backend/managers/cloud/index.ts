@@ -3,7 +3,7 @@ import { RegManMain } from '@general/register/main';
 import { validateId } from '@general/tools/validator';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { clipboard, shell } from 'electron';
+import { clipboard, Notification, shell } from 'electron';
 import FormData from "form-data";
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
@@ -27,7 +27,7 @@ export class CloudManager {
     static cachedUsage = null as CloudUsage
 
     static register() {
-        RegManMain.onPromise("cloud_upload", (_, clipName) => this.uploadClip(clipName));
+        RegManMain.onPromise("cloud_upload", (_, clipName, notify) => this.uploadClip(clipName, notify));
         RegManMain.onPromise("cloud_delete", (_, clipName) => this.deleteClipName(clipName));
         RegManMain.onPromise("cloud_delete_id", (_, id) => this.deleteId(id))
         RegManMain.onPromise("cloud_list", () => this.list());
@@ -66,10 +66,9 @@ export class CloudManager {
     }
 
     static async getThumbnail(id: string) {
-        if(AuthManager.isOffline())
+        if (AuthManager.isOffline())
             return null
 
-        console.log("Getting cloud thumbnail from id", id)
         const res = await got(`${MainGlobals.baseUrl}/api/clip/thumbnail/${id}`)
         return res.rawBody.toString("base64")
     }
@@ -100,8 +99,8 @@ export class CloudManager {
         shell.openExternal(`${MainGlobals.baseUrl}/clip/${id}`)
     }
 
-    static async uploadClip(clipName: string) {
-        if(AuthManager.isOffline())
+    static async uploadClip(clipName: string, notifyUpload = false, isPublic = false) {
+        if (AuthManager.isOffline())
             throw new Error("Cant upload clip when offline")
 
         const rootPath = Storage.get("clip_path")
@@ -190,7 +189,7 @@ export class CloudManager {
         await new Promise<void>((resolve, reject) => {
             prog.on("error", err => { log.error(err); reject(err) })
             prog.on("response", (response: Response) => {
-                const handle = () => {
+                const handle = async () => {
                     const rawBody = chunks.length === 0 ? response.rawBody.toString("utf-8") :
                         Buffer.concat(chunks).toString("utf-8")
                     try {
@@ -199,7 +198,22 @@ export class CloudManager {
                         if (response.statusCode === 200) {
                             const { id } = body
                             log.info("Clip uploaded with id", id)
+                            if(isPublic) {
+                                log.info("Setting clip visibility to", isPublic)
+                                await got(`${MainGlobals.baseUrl}/api/clip/visibility/${id}?public=${isPublic ? "true" : "false"}`, {
+                                    headers: { cookie: cookieHeader }
+                                })
+                            }
 
+                            if (notifyUpload) {
+                                const notification = new Notification({
+                                    title: `"${path.basename(clipName, path.extname(clipName))}" uploaded`,
+                                    body: "Clip has been uploaded to cloud."
+                                })
+
+                                notification.addListener("click", () => MainGlobals.window.focus())
+                                notification.show()
+                            }
                             return resolve()
                         }
 
@@ -239,6 +253,7 @@ export class CloudManager {
             this.getUsage()
                 .then(e => RegManMain.send("cloud_usageUpdate", e))
             RegManMain.send("cloud_update", this.uploading)
+            RegManMain.send("cloud_done")
         });
     }
 
@@ -249,6 +264,9 @@ export class CloudManager {
     }
 
     static async deleteClipName(clipName: string) {
+        if(clipName.includes(".."))
+            throw new Error("Invalid go back thingy")
+
         const clips = await this.list()
         const rootPath = Storage.get("clip_path")
         const clipPath = getClipVideoPath(rootPath, clipName)
@@ -270,7 +288,7 @@ export class CloudManager {
     }
 
     static async deleteId(id: string) {
-        if(AuthManager.isOffline())
+        if (AuthManager.isOffline())
             throw new Error("Cannot delete clip when offline")
 
         log.info("Deleting with id", id)
@@ -291,7 +309,7 @@ export class CloudManager {
     }
 
     static async list() {
-        if(AuthManager.isOffline())
+        if (AuthManager.isOffline())
             throw new Error("Cannot list when offline.")
 
         console.log("List cached is", !!this.cached)

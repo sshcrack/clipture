@@ -4,7 +4,7 @@ import { addPrefixUnderscoreToObject } from 'src/types/additions';
 export type CloudEventsPromises = addPrefixUnderscoreToObject<{
     delete: (clipName: string) => void,
     delete_id: (id: string) => void,
-    upload: (clipName: string) => void,
+    upload: (clipName: string, notify: boolean) => void,
     share: (clipName: string) => void,
     share_id: (id: string) => void,
     list: () => CloudClip[],
@@ -23,5 +23,6 @@ export type CloudEventsPromises = addPrefixUnderscoreToObject<{
 
 export type CloudMainToRender = addPrefixUnderscoreToObject<{
     update: (uploading: ReadonlyArray<CloudClipStatus>) => unknown,
-    usageUpdate: (usage: CloudUsage) => unknown
+    usageUpdate: (usage: CloudUsage) => unknown,
+    done: () => unknown
 }, "cloud">

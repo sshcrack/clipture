@@ -297,15 +297,21 @@
             "exit": "Exit Editor",
             "loading": "Loading...",
             "saving": "Saving...",
-            "save_share": "Save & Share",
+            "save_share": "Cut & Upload",
+            "save": "Cut",
             "save_dialog": {
-                "title": "Save & Share",
+                "title": "Cut / Upload",
                 "cancel": "Cancel",
                 "clip_name": "Clip Name",
                 "clip_name_prompt": "Enter how the clip should be named",
                 "exists": "Clip Name exists already",
                 "empty": "Clip Name can not be empty",
-                "invalid_characters": "Clip Name can only contain letters, whitespaces and numbers"
+                "invalid_characters": "Clip Name can only contain letters, whitespaces and numbers",
+                "visibility": {
+                    "name": "Visibility",
+                    "public": "Public",
+                    "private": "Private"
+                }
             }
         }
     },
