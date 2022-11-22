@@ -3,7 +3,7 @@ import { RegManMain } from '@general/register/main';
 import { validateId } from '@general/tools/validator';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { clipboard, Notification, shell } from 'electron';
+import { clipboard, shell } from 'electron';
 import FormData from "form-data";
 import { createReadStream } from 'fs';
 import fs from 'fs/promises';
@@ -15,6 +15,7 @@ import { AuthManager } from '../auth';
 import { getHexCached } from '../clip/fs';
 import { getClipInfo, getClipVideoPath, getVideoIco, getVideoInfo } from '../clip/func';
 import { GameManager } from '../game';
+import { clickableNotification } from '../obs/core/backend_only_tools';
 import { RecordManager } from '../obs/core/record';
 import { WindowInformation } from '../obs/Scene/interfaces';
 import { CloudClip, CloudClipStatus, CloudUsage } from './interface';
@@ -198,22 +199,18 @@ export class CloudManager {
                         if (response.statusCode === 200) {
                             const { id } = body
                             log.info("Clip uploaded with id", id)
-                            if(isPublic) {
+                            if (isPublic) {
                                 log.info("Setting clip visibility to", isPublic)
                                 await got(`${MainGlobals.baseUrl}/api/clip/visibility/${id}?public=${isPublic ? "true" : "false"}`, {
                                     headers: { cookie: cookieHeader }
                                 })
                             }
 
-                            if (notifyUpload) {
-                                const notification = new Notification({
+                            if (notifyUpload)
+                                clickableNotification({
                                     title: `"${path.basename(clipName, path.extname(clipName))}" uploaded`,
                                     body: "Clip has been uploaded to cloud."
-                                })
-
-                                notification.addListener("click", () => MainGlobals.window.focus())
-                                notification.show()
-                            }
+                                }, () => MainGlobals.window.show()).show()
                             return resolve()
                         }
 
@@ -264,7 +261,7 @@ export class CloudManager {
     }
 
     static async deleteClipName(clipName: string) {
-        if(clipName.includes(".."))
+        if (clipName.includes(".."))
             throw new Error("Invalid go back thingy")
 
         const clips = await this.list()

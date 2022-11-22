@@ -2,10 +2,11 @@ import { RegManMain } from '@general/register/main';
 import { getAddRemoveListener } from '@general/tools/listener';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import { Notification, shell } from 'electron';
+import { shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { v4 as uuid } from "uuid";
+import { clickableNotification } from '../obs/core/backend_only_tools';
 import { OfflineChangeListener, SessionData, SessionInfo, SessionStatus } from './interfaces';
 
 
@@ -208,11 +209,11 @@ export class AuthManager {
         recordManager.disable()
         if (isRecording) {
             await recordManager.stopRecording()
-            new Notification({
+            clickableNotification({
                 title: "Recording stopped",
                 body: "You have been signed out, because you've signed out",
                 silent: true
-            }).show()
+            }, () => MainGlobals.window.show()).show()
         }
 
         this.updateListeners()

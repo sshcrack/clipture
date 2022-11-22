@@ -1,4 +1,5 @@
 import { GameManager } from '@backend/managers/game'
+import { Notification, NotificationConstructorOptions } from 'electron'
 import fs from "fs/promises"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { Scene } from '../Scene'
@@ -71,4 +72,11 @@ export async function getAvailableGame(info: WindowInformation[]) {
         gameDiff: !prevGame || !game || (prevGame.id !== game.id),
         diff
     }
+}
+
+
+export function clickableNotification(options: NotificationConstructorOptions, onClick: () => unknown) {
+    const notify = new Notification(options)
+    notify.on("click", () => onClick())
+    return notify
 }

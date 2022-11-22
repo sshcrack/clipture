@@ -7,7 +7,7 @@ import { RegManMain } from '@general/register/main'
 import { getAddRemoveListener } from '@general/tools/listener'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
-import { BrowserWindow, Notification } from 'electron'
+import { BrowserWindow } from 'electron'
 import fs from "fs/promises"
 import path from 'path'
 import sound from "sound-play"
@@ -18,7 +18,7 @@ import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
 import { importOBS } from '../tool'
-import { getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
+import { clickableNotification, getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
 import { CurrentType, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
 
@@ -120,11 +120,11 @@ export class RecordManager {
                 if (!isRunning && recordingAutomatically) {
                     this.stopRecording()
                         .then(() =>
-                            new Notification({
+                            clickableNotification({
                                 title: "Recording stopped",
                                 body: `${window.title ?? "Monitor " + monitor} has been recorded successfully`,
                                 silent: true
-                            }).show()
+                            }, () => MainGlobals.window.show()).show()
                         )
                         .catch(e => {
                             if (e === "init_fail")
@@ -385,11 +385,11 @@ export class RecordManager {
                 arguments: ["censored"]
             } as WindowInformation, "Recording", this.isRecording())
             this.startRecording(game, winInfo).then(() =>
-                new Notification({
+                clickableNotification({
                     title: "Recording started",
                     body: `Recording started for ${winInfo?.productName ?? winInfo?.title ?? winInfo.executable}`,
                     silent: true
-                }).show()
+                }, () => MainGlobals.window.show()).show()
             )
                 .catch(e => {
                     if (e?.message === "init_fail")
