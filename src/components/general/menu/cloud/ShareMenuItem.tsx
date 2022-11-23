@@ -17,7 +17,7 @@ export default function ShareMenuItem({ clipName, cloud: cloudInfo }: { clipName
         leftIcon={<AiOutlineLink />}
         onClick={() => {
             const method = cloudOnly ? "shareId" : "share"
-            const name = cloudOnly ? cloudInfo.id : clipName
+            const name = cloudOnly ? cloudInfo.id : clipName.replace(".clipped.mp4", "")
             cloud[method](name)
                 .then(() => toast({
                     description: t("to_clipboard")
