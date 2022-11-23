@@ -7,7 +7,6 @@ import { constants as fsConstants } from "fs";
 import fsProm from "fs/promises";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
-import { setOBSSetting } from '../obs/base';
 
 const log = MainLogger.get("Backend", "Managers", "Settings")
 export class SettingsManager {
