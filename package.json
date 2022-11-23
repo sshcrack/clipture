@@ -1,7 +1,7 @@
 {
   "name": "clipture",
   "productName": "clipture",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
