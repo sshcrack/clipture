@@ -65,7 +65,7 @@ export default function Videos({ additionalElements }: { additionalElements?: JS
                 log.error(e)
                 toast({
                     title: t("could_not_list"),
-                    description: t("retry", { message: e.message }),
+                    description: t("retry", { message: e.message ?? e.stack ?? e }),
                 })
                 setTimeout(() => setRetry(Math.random()), 5000)
             })

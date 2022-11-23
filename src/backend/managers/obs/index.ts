@@ -1,5 +1,7 @@
+import { existsProm } from '@backend/tools/fs'
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
+import { mkdir } from 'fs/promises'
 import prettyMS from "pretty-ms"
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
@@ -205,9 +207,18 @@ export class OBSManager {
             setPresetWithEncoder(this.NodeObs, encoder as Encoder, preset)
     }
 
-    private configure() {
-        log.info("Configuring OBS")
+    public async configure() {
+        log.info("Configuring obs...")
         const Output = SettingsCat.Output
+        const Video = SettingsCat.Video
+
+        const fps = Storage.get("obs")?.fps ?? 60
+        const bitrate = Storage.get("obs")?.bitrate ?? 10000 // 10 Mbps
+
+        setSetting(this.NodeObs, Video, 'FPSCommon', fps);
+        setSetting(this.NodeObs, Output, 'VBitrate', bitrate);
+        setSetting(this.NodeObs, Output, 'Bitrate', bitrate);
+
         const cpuEncoder = getOS() === 'win32' ? 'x264' : 'obs_x264'
 
         setSetting(this.NodeObs, Output, "Mode", "Advanced")
@@ -239,24 +250,11 @@ export class OBSManager {
 
         this.setEncoderPreset(encoder, preset)
 
-        setSetting(this.NodeObs, Output, 'RecFilePath', Storage.get("clip_path"));
+        const clipPath = Storage.get("clip_path")
+        if (!(await existsProm(clipPath)))
+            await mkdir(clipPath)
+        setSetting(this.NodeObs, Output, 'RecFilePath', clipPath);
         setSetting(this.NodeObs, Output, 'RecFormat', 'mkv');
-
-        this.updateSettings()
-
-        log.info("Configured OBS successfully!")
-    }
-
-    public updateSettings() {
-        const Output = SettingsCat.Output
-        const Video = SettingsCat.Video
-
-        const fps = Storage.get("obs")?.fps ?? 60
-        const bitrate = Storage.get("obs")?.bitrate ?? 10000 // 10 Mbps
-
-        setSetting(this.NodeObs, Video, 'FPSCommon', fps);
-        setSetting(this.NodeObs, Output, 'VBitrate', bitrate);
-        setSetting(this.NodeObs, Output, 'Bitrate', bitrate);
     }
 
     private register() {
@@ -306,7 +304,7 @@ export class OBSManager {
                 throw new Error("Invalid capture method")
 
             Storage.set("obs", { ...(Storage.get("obs")), ...partly })
-            this.updateSettings()
+            this.configure()
         })
     }
 }

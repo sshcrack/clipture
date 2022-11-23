@@ -69,7 +69,7 @@ export default function Clips({ additionalElements }: { additionalElements: JSX.
             log.error(e)
             toast({
                 title: t("could_not_list"),
-                description: t("retry", { message: e.message }),
+                description: t("retry", { message: e.message ?? e.stack ?? e }),
             })
             setTimeout(() => setUpdate(Math.random()), 5000)
         })

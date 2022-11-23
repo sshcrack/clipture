@@ -48,7 +48,7 @@ export default function App() {
                 log.error(e)
                 toast({
                     title: t("valid_error"),
-                    description: t("retrying", { error: e })
+                    description: t("retrying", { error: e.message ?? e.stack ?? e })
                 })
                 setTimeout(() => setTryAgainValid(Math.random()), 5000)
             })

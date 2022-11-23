@@ -1,11 +1,13 @@
 import { existsProm } from '@backend/tools/fs';
 import { RegManMain } from '@general/register/main';
+import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import { BrowserWindow, dialog, shell } from 'electron';
 import { constants as fsConstants } from "fs";
 import fsProm from "fs/promises";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { setOBSSetting } from '../obs/base';
 
 const log = MainLogger.get("Backend", "Managers", "Settings")
 export class SettingsManager {
@@ -20,7 +22,7 @@ export class SettingsManager {
             })
         })
         RegManMain.onPromise("settings_set_clip_path", async (_, newPath) => {
-            if(!newPath)
+            if (!newPath)
                 return
 
             const folderExists = await existsProm(newPath)
@@ -47,6 +49,7 @@ export class SettingsManager {
                 throw new Error("Clipture can not read the directory you selected.")
 
             Storage.set("clip_path", newPath)
+            await MainGlobals.obs.configure()
         })
     }
 }
