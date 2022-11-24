@@ -10,9 +10,11 @@
         "hwnd",
         "maximizable",
         "minimizable",
+        "Redist",
         "subpages",
         "titlebar",
         "unmaximize",
+        "vcredist",
         "volmeter",
         "Volmeters"
     ]

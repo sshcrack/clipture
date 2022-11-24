@@ -15,6 +15,7 @@ import { v4 as uuid } from "uuid";
 import { AuthManager } from '../auth';
 import { LockManager } from "../lock";
 import { importOBS } from "../obs/tool";
+import { checkVCRedist, installVCRedist } from '../system/vcredist';
 
 const { ffmpegExe, ffprobeExe, obsRequirePath, baseUrl, nativeMngExe } = MainGlobals
 const { FFMPEG, FFPROBE, NATIVE_MNG, OBS_STUDIO } = HashList
@@ -73,7 +74,8 @@ export class Prerequisites {
             ffmpeg: validateFile(ffmpegExe, FFMPEG),
             ffprobe: validateFile(ffprobeExe, FFPROBE),
             native_mng: validateFile(nativeMngExe, NATIVE_MNG),
-            obs: this.validateOBS()
+            obs: this.validateOBS(),
+            vcredist: checkVCRedist()
         }
 
         log.info("Validating...")
@@ -117,7 +119,8 @@ export class Prerequisites {
             "ffmpeg": (e: (prog: Progress) => unknown) => downloadFile("FFmpeg", ffmpegUrl, ffmpegExe, e),
             "ffprobe": (e: (prog: Progress) => unknown) => downloadFile("FFprobe", ffprobeUrl, ffprobeExe, e),
             "obs": (e: (prog: Progress) => unknown) => this.installOBS(e),
-            "native_mng": (e: (prog: Progress) => unknown) => downloadFile("NativeMng", nativeMngUrl, nativeMngExe, e)
+            "native_mng": (e: (prog: Progress) => unknown) => downloadFile("NativeMng", nativeMngUrl, nativeMngExe, e),
+            "vcredist": (e: (prog: Progress) => unknown) => installVCRedist(e)
         }
 
         const { errors, valid } = await this.validate()

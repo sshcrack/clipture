@@ -59,7 +59,7 @@ export class SystemManager {
     static handleWindowCloseButton(window: BrowserWindow) {
         const currSetting = Storage.get("close_behavior") ?? "unset"
         if (currSetting === "close")
-            return window.close()
+            return app.quit()
 
         if (currSetting === "unset")
             return window.webContents.send("close_behavior_dialog")
