@@ -135,7 +135,7 @@ export default function RecordPage({ info }: { info: SessionInfo }) {
                                     .then(async () => {
                                         setAutomaticRecord(false)
                                         await obs.startRecording()
-                                        await obs.switchDesktop(1)
+                                        await obs.switchDesktop(0)
                                     })
 
                                 setSaving(true)
