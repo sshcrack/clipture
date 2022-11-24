@@ -279,6 +279,17 @@ export class RecordManager {
         log.info("Stopped recording")
         this.stopInitializing = true
         this.NodeObs.OBS_service_stopRecording()
+        const getNextSignal = () => SignalsManager.getNextSignalInfo().catch(() => { log.warn("Timeout signal"); return { signal: EOBSOutputSignal.Stop } });
+        let signal = await getNextSignal()
+        if (signal.signal === EOBSOutputSignal.Stopping) {
+            log.debug("Stopping... waiting for new signal")
+            signal = await getNextSignal()
+        }
+
+        if (signal.signal !== EOBSOutputSignal.Stop) {
+            this.stopInitializing = false
+            throw new Error("Could not stop recording")
+        }
         if (this.current?.currentInfoPath) {
             const { currentInfoPath, gameId, bookmarks } = this.current
             await fs.writeFile(currentInfoPath, JSON.stringify({

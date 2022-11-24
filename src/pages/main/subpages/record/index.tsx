@@ -138,17 +138,21 @@ export default function RecordPage({ info }: { info: SessionInfo }) {
                                         await obs.switchDesktop(0)
                                     })
 
+                                console.log("Setting saving to true record")
                                 setSaving(true)
                                 prom
                                     .catch(e => {
                                         console.error(e)
                                         toast({
                                             colorScheme: "error",
-                                            description: e,
+                                            description: e?.message ?? e?.stack ?? JSON.stringify(e),
                                             title: "Error"
                                         })
                                     })
-                                    .finally(() => setSaving(false))
+                                    .finally(() => {
+                                        setSaving(false)
+                                        console.log("Setting saving to false record")
+                                    })
                             }
                             }
                         >{recording ? t("stop") : t("start")}</Button>
