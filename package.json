@@ -17,7 +17,8 @@
     "lint": "eslint --ext .ts,.tsx .",
     "server": "cd .. && cd clipture-server && yarn start -p 3001",
     "serdev": "cd .. && cd clipture-server && yarn dev -p 3001",
-    "hex": "node tools/scripts/get_hex.js"
+    "hex": "node tools/scripts/get_hex.js",
+    "translate": "node tools/scripts/prepare_translate.js"
   },
   "keywords": [],
   "author": {

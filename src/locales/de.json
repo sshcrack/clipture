@@ -1,4 +1,16 @@
 {
+    "login": {
+        "sign_in": "Anmelden mit Discord",
+        "opening_browser": "Öffne Browser..."
+    },
+    "titlebar": {
+        "close_behavior": {
+            "header": "Verhalten beim Schließen",
+            "body": "Was soll der Schließen-Knopf tun?",
+            "minimize": "In Taskleiste minmimieren",
+            "close": "Programm schließen"
+        }
+    },
     "app": {
         "obs_initialize_error": "OBS konnte nicht initialiiert werden",
         "initializing": "Initialisierung...",
@@ -23,8 +35,12 @@
         }
     },
     "general": {
+        "video": {
+            "report": "Melden"
+        },
         "menu": {
             "context_menu": {
+                "offline_unavailable": "Deaktiviert weil offline",
                 "local": "Lokal",
                 "cloud": "Cloud",
                 "show_folder": "In Ordner anzeigen",
@@ -34,10 +50,17 @@
                 "to_clipboard": "Link ist in der Zwischenablage!",
                 "upload": "Hochladen",
                 "too_large": "Der Clip ist zu groß",
+                "too_large_tooltip": "Clip zu groß.",
                 "uploading": "Lädt hoch",
-                "usage_wait" : "Erkenne Größe...",
+                "usage_wait": "Erkenne Größe...",
                 "share": "Teilen",
                 "rename": "Umbenennen",
+                "visibility": {
+                    "make_public": "Öffentlich machen",
+                    "make_private": "Privat machen",
+                    "desc_public": "Sichtbarkeit auf öffentlich gesetzt.",
+                    "desc_private": "Sichtbarkeit auf privat gesetzt."
+                },
                 "dialog": {
                     "title": "Löschen bestätigen",
                     "body": "Bist du sicher? Es wird für immer gelöscht sein.",
@@ -55,12 +78,19 @@
             }
         },
         "placeholder": {
-            "title": "Ziemlich leer hier oder? Komm schon, spiele doch mal eine Runde!",
-            "subtitle": "Wir nehmen das Spiel automatisch auf"
+            "empty": {
+                "title": "Ziemlich leer hier oder? Komm schon, spiele doch mal eine Runde!",
+                "subtitle": "Wir nehmen das Spiel automatisch auf"
+            },
+            "offline": {
+                "title": "Keine Verbindung zu Clitpure Servern",
+                "subtitle": "Entweder sind die Clitpure Server offline oder du hast kein Internet"
+            }
         }
     },
     "dashboard": {
         "clips": {
+            "cutting": "Schneidet...",
             "title": "Clips",
             "could_not_list": "Clips konnten nicht gelistet werden",
             "retry": "{{message}}. Neuer Versuch in 5 Sekunden",
@@ -74,7 +104,9 @@
             "uploaded_to_cloud": "Hochgeladen.",
             "cloud_only": "Nur in der Cloud, nicht lokal",
             "general_info": {
-                "cloud_only": "Nur Cloud"
+                "cloud_only": "Nur Cloud",
+                "public": "öffentlich",
+                "private": "privat"
             }
         },
         "videos": {
@@ -82,6 +114,10 @@
             "could_not_list": "Videos konnten nicht gelistet werden",
             "retry": "{{message}}. Neuer Versuch in 5 Sekunden",
             "loading": "Lade Videos..."
+        },
+        "cloud_indicator": {
+            "loading": "Loading...",
+            "offline_mode": "Offline Mode"
         }
     },
     "navbar": {
@@ -99,11 +135,20 @@
             "enable": "Automatisches Aufnehmen aktivieren",
             "disable": "Automatisches Aufnehmen deaktivieren"
         },
+        "recording": "Nimmt auf",
         "switch_monitor": "Monitor ändern",
+        "switching_monitor": "Switching monitor...",
         "refresh": "Für neue Spielen suchen",
-        "enable_tooltip": "Um nach Spielen zu suchen, muss Automatisches Aufnehmen aktiviert sein"
+        "enable_tooltip": "Um nach Spielen zu suchen, muss Automatisches Aufnehmen aktiviert sein",
+        "offline": "Nicht verfügbar wenn offline."
     },
     "settings": {
+        "select": {
+            "audio_select": {
+                "placeholder": "Option auswählen",
+                "add": "Quelle hinzufügen"
+            }
+        },
         "menu": {
             "obs_clipture": {
                 "title": "OBS / Clipture",
@@ -114,7 +159,7 @@
             "game": {
                 "title": "Spiel",
                 "list": "Liste",
-                "behavior": "Hotkey"
+                "behavior": "Verhalten"
             }
         },
         "popup": {
@@ -141,12 +186,27 @@
                 },
                 "delete": {
                     "title": "Videos löschen:",
+                    "loading": "Lädt...",
                     "and": "und",
                     "delete_methods": {
                         "NONE": "niemals",
                         "NO_BOOKMARKS": "wenn keine Lesezeichen",
                         "WEEK_OLD": "wenn älter als eine  Woche",
                         "DAY_OLD": "wenn älter als ein Tag"
+                    }
+                },
+                "overlay": {
+                    "title": "Overlay",
+                    "alignment": {
+                        "DISABLED": "Deaktiviert",
+                        "TOP_LEFT": "Oben Links",
+                        "TOP_CENTER": "oben mittig",
+                        "TOP_RIGHT": "oben rechts",
+                        "CENTER_LEFT": "mittig links",
+                        "CENTER_RIGHT": "mittig rechts",
+                        "BOTTOM_LEFT": "unten links",
+                        "BOTTOM_CENTER": "unten mittig",
+                        "BOTTOM_RIGHT": "unten rechts"
                     }
                 }
             },
@@ -232,7 +292,11 @@
                 },
                 "encoder_preset": {
                     "encoder": "Encoder",
-                    "preset": "Voreinstellung"
+                    "preset": "Voreinstellung",
+                    "loading_encoders": "Lade Encoders...",
+                    "loading_presets": "Lade Presets...",
+                    "no_encoders": "Encoder konnten nicht geladen werden",
+                    "no_curr_preset": "Presets konnten nicht geladen werden."
                 }
             }
         },
@@ -242,6 +306,11 @@
         }
     },
     "editor": {
+        "video_info": {
+            "loading": "Lade Video Informationen...",
+            "heading": "Video Informationen konnten nicht geladen werden.",
+            "subtitle": "Sieht so aus als wäre das Video gelöscht worden."
+        },
         "loading": "Laden...",
         "titlebar": {
             "generate": {
@@ -258,6 +327,7 @@
             "loading": "Laden...",
             "saving": "Speichern...",
             "save_share": "Speichern & Teilen",
+            "save": "Cut",
             "save_dialog": {
                 "title": "Speichern & Teilen",
                 "cancel": "Abbrechen",
@@ -265,8 +335,32 @@
                 "clip_name_prompt": "Wie soll der Clip heißen?",
                 "exists": "Den Clipnamen gibt es bereits",
                 "empty": "Du musst einen Namen eingeben",
-                "invalid_characters": "Der Clipname darf nur Buchstaben, Leerzeichen und Nummern beinhalten"
+                "invalid_characters": "Der Clipname darf nur Buchstaben, Leerzeichen und Nummern beinhalten",
+                "visibility": {
+                    "name": "Sichtbarkeit",
+                    "public": "Öffentlich",
+                    "private": "Privat"
+                }
             }
+        }
+    },
+    "discover": {
+        "button": {
+            "single": "Einzelansicht",
+            "list": "Listansicht",
+            "exit": "Zurück",
+            "like": {
+                "loading": "Wird geliked...",
+                "like": "{likes, plural, =1 {1 like} other {# likes}}",
+                "unlike": "unlike ({likes, plural, =1 {1 like} other {# likes}})"
+            }
+        },
+        "single": {
+            "loading": "Lädt clips..."
+        },
+        "search": {
+            "placeholder": "Suche hier eingeben",
+            "action": "Suchen"
         }
     }
 }
