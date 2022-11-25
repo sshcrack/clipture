@@ -1,6 +1,7 @@
 import { AudioDevice, DeviceType } from '@backend/managers/obs/Scene/interfaces';
 import { Button, Flex, Select } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import Volmeter from 'src/components/obs/recording/Volmeter/Volmeter';
 import { SourceInfo } from './interface';
 
@@ -13,6 +14,7 @@ type Props = {
 export default function AudioSelect({ devices, onAdd, defaultDev, type }: Props) {
     const [currSelected, setCurrSelected] = useState(devices[0] as AudioDevice)
     const ref = useRef<HTMLSelectElement>(null)
+    const { t } = useTranslation("settings", { keyPrefix: "select.audio_select" })
 
     useEffect(() => {
         if (!ref.current)
@@ -38,7 +40,7 @@ export default function AudioSelect({ devices, onAdd, defaultDev, type }: Props)
         >
             <Select
                 ref={ref}
-                placeholder='Select option'
+                placeholder={t("placeholder")}
                 onChange={e => {
                     const temp = e.target.selectedIndex
                     const currIndex = temp === 0 ? 1 : temp
@@ -56,6 +58,6 @@ export default function AudioSelect({ devices, onAdd, defaultDev, type }: Props)
                 volume: 1,
                 type
             })}
-        >Add Source</Button>
+        >{t("add")}</Button>
     </Flex>
 }

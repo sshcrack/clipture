@@ -66,13 +66,13 @@ export default function LikeButton({ id, setCount: sC, listen }: { id: string, s
                         _focus={{ background: hoverBg }}
                         _hover={{ background: hoverBg }}
                         isLoading={requesting}
-                        loadingText='Liking...'
+                        loadingText={t("loading")}
                         onClick={() => like(!liked)}
                         leftIcon={liked ?
                             <FaHeartBroken /> :
                             <FaHeart />
                         }
-                    >{liked ? `unlike (${count} like${count !== 1 ? "s" : ""})` : t("like", { likes: count })}</Button>
+                    >{liked ? t("unlike", { likes: count }) : t("like", { likes: count })}</Button>
                 </Grid>)
 
                 : <Spinner />

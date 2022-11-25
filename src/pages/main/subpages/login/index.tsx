@@ -1,11 +1,13 @@
 import { Box, Button, Flex, Grid, GridItem, Heading, Image, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FaDiscord } from "react-icons/fa";
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("OBS", "LoginPage")
 export default function LoginPage() {
     const { auth } = window.api
+    const { t } = useTranslation("login")
     const [authenticating, setAuthenticating] = useState(false)
     const toast = useToast()
 
@@ -13,9 +15,9 @@ export default function LoginPage() {
         isLoading={disabled}
         leftIcon={<FaDiscord />}
         aria-label='Sign In Discord'
-        loadingText='Opening browser...'
+        loadingText={t("opening_browser")}
         bg='rgba(88, 101, 242, 1)'
-    >Sign in using Discord</Button>
+    >{t("sign_in")}</Button>
 
     return <Flex
         alignItems='center'

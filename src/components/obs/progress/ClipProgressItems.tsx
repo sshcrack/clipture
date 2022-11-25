@@ -1,12 +1,14 @@
 import { ClipProcessingInfo } from '@backend/managers/clip/interface'
 import { Flex, Text } from '@chakra-ui/react'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { VideoGridItem } from 'src/components/general/grid/video'
 import AnimatedProgress from './AnimatedProgress'
 
 type ClipInfoArray = [string, ClipProcessingInfo]
 export default function ClipProcessingItems() {
     const [clipsProg, setClipsProg] = useState<ClipInfoArray[]>([])
+    const { t } = useTranslation("dashboard", { keyPrefix: "clips" })
     const [update, setUpdate] = useState(0)
 
     const { clips } = window.api
@@ -39,7 +41,7 @@ export default function ClipProcessingItems() {
             boxShadow='inset 0px 0px 10px 0px var(--chakra-colors-brand-secondary)'
         >
             <AnimatedProgress
-                status={"Cutting..."}
+                status={t("cutting")}
                 percent={progress?.percent ?? 0}
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}

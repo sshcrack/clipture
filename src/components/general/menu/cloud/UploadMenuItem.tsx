@@ -55,5 +55,5 @@ export default function UploadMenuItem({ clipName, disabled, setUpdate, tooLarge
     if (!tooLarge)
         return item
 
-    return <Tooltip shouldWrapChildren label='Clip is too large.'>{item}</Tooltip>
+    return <Tooltip shouldWrapChildren label={t("too_large_tooltip")}>{item}</Tooltip>
 }

@@ -67,7 +67,7 @@ export default function OBSDelete() {
 
                 setCurr(newArr)
             })}
-        /> : <GeneralSpinner loadingText='Loading...' />}
+        /> : <GeneralSpinner loadingText={t("loading")} />}
     </Flex>
 
 }

@@ -1,4 +1,16 @@
 {
+    "login": {
+        "sign_in": "Sign in using Discord",
+        "opening_browser": "Opening browser..."
+    },
+    "titlebar": {
+        "close_behavior": {
+            "header": "Close Behavior",
+            "body": "What do you want the close button to do?",
+            "minimize": "Minimize App to tray",
+            "close": "Close App"
+        }
+    },
     "app": {
         "obs_initialize_error": "OBS could not be initialized",
         "initializing": "Initializing...",
@@ -38,6 +50,7 @@
                 "to_clipboard": "Link copied to clipboard!",
                 "upload": "Upload",
                 "too_large": "Clip is too large to be uploaded.",
+                "too_large_tooltip": "Clip too large.",
                 "uploading": "Uploading",
                 "usage_wait" : "Getting usage",
                 "share": "Share",
@@ -77,6 +90,7 @@
     },
     "dashboard": {
         "clips": {
+            "cutting": "Cutting...",
             "title": "Clips",
             "could_not_list": "Could not list clips",
             "retry": "{{message}}. Retrying in 5 seconds",
@@ -121,12 +135,20 @@
             "enable": "Enable automatic recording",
             "disable": "Disable automatic recording"
         },
+        "recording": "Recording",
         "switch_monitor": "Switch Monitor",
+        "switching_monitor": "Switching monitor...",
         "refresh": "Recheck for games",
         "enable_tooltip": "Enable automatic recording to check for games.",
         "offline": "Not available if offline"
     },
     "settings": {
+        "select": {
+            "audio_select": {
+                "placeholder": "Select option",
+                "add": "Add source"
+            }
+        },
         "menu": {
             "obs_clipture": {
                 "title": "OBS / Clipture",
@@ -164,6 +186,7 @@
                 },
                 "delete": {
                     "title": "Delete videos:",
+                    "loading": "Loading...",
                     "and": "and",
                     "delete_methods": {
                         "NONE": "never",
@@ -270,7 +293,8 @@
                 "encoder_preset": {
                     "encoder": "Encoder",
                     "preset": "Preset",
-                    "loading": "Loading encoders...",
+                    "loading_encoders": "Loading encoders...",
+                    "loading_presets": "Loading presets...",
                     "no_encoders": "Could not load encoders",
                     "no_curr_preset": " Could not get current preset"
                 }
@@ -282,6 +306,11 @@
         }
     },
     "editor": {
+        "video_info": {
+            "loading": "Getting video info...",
+            "heading": "Video information could not be loaded.",
+            "subtitle": "This video seems to be deleted."
+        },
         "loading": "Loading...",
         "titlebar": {
             "generate": {
@@ -328,6 +357,10 @@
         },
         "single": {
             "loading": "Loading clips..."
+        },
+        "search": {
+            "placeholder": "Search for",
+            "action": "Search"
         }
     }
 }

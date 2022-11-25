@@ -1,10 +1,12 @@
 import { useDisclosure, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, Button } from '@chakra-ui/react'
 import React, { useEffect } from "react"
+import { useTranslation } from 'react-i18next'
 import { RenderLogger } from 'src/interfaces/renderLogger'
 
 const log = RenderLogger.get("Components", "Titlebar", "CloseBehaviorListener")
 export default function CloseBehaviorListener({ children }: React.PropsWithChildren) {
     const { system } = window.api
+    const { t } = useTranslation("titlebar", { keyPrefix: "close_behavior"})
     const { isOpen, onOpen, onClose } = useDisclosure()
     const cancelRef = React.useRef()
 
@@ -32,11 +34,11 @@ export default function CloseBehaviorListener({ children }: React.PropsWithChild
             <AlertDialogOverlay>
                 <AlertDialogContent>
                     <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                        Window Close Behavior
+                        {t("header")}
                     </AlertDialogHeader>
 
                     <AlertDialogBody>
-                        What do you want the close button to do?
+                        {t("body")}
                     </AlertDialogBody>
 
                     <AlertDialogFooter>
@@ -44,14 +46,14 @@ export default function CloseBehaviorListener({ children }: React.PropsWithChild
                             colorScheme='blue'
                             onClick={() => { onClose(); setBehavior("minimize") }}
                         >
-                            Minimize App to tray
+                            {t("minimize")}
                         </Button>
                         <Button
                             colorScheme='red'
                             onClick={() => { onClose(); setBehavior("close") }}
                             ml={3}
                         >
-                            Close App
+                            {t("close")}
                         </Button>
                     </AlertDialogFooter>
                 </AlertDialogContent>

@@ -182,7 +182,7 @@ export default function RecordPage({ info }: { info: SessionInfo }) {
                         justifyContent='center'
                         alignItems='center'
                     >
-                        <Heading size='xl'>Recording</Heading>
+                        <Heading size='xl'>{t("recording")}</Heading>
                         {game && <GameInfo game={game} name={current?.videoName} />}
                         <PerformanceStatistics />
                     </Flex>

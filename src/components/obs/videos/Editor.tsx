@@ -1,5 +1,6 @@
 import { Flex, Heading } from "@chakra-ui/react"
 import React, { useEffect, useRef, useState } from "react"
+import { useTranslation } from 'react-i18next'
 import GeneralSpinner from "src/components/general/spinner/GeneralSpinner"
 import { ReactSetState } from 'src/types/reactUtils'
 
@@ -26,18 +27,18 @@ export type EditorState = {
 export const EditorContext = React.createContext<EditorState>({
     videoName: null as string,
     duration: undefined,
-    setDuration: () => {/**/},
-    onBack: (() => {/**/}) as () => unknown,
+    setDuration: () => {/**/ },
+    onBack: (() => {/**/ }) as () => unknown,
     selection: {
         end: undefined,
         offset: 0,
         start: 0,
         range: undefined
     },
-    setSelection: () => {/**/},
+    setSelection: () => {/**/ },
     videoRef: undefined,
     paused: true,
-    setPaused: () => {/**/},
+    setPaused: () => {/**/ },
     bookmarks: []
 })
 
@@ -47,6 +48,7 @@ type Props = {
 }
 
 export default function Editor({ children, videoName, onBack }: React.PropsWithChildren<Props>) {
+    const { t } = useTranslation("editor", { keyPrefix: "video_info" })
     const videoRef = useRef<HTMLVideoElement>(null);
     const bgGeneratorRef = useRef<HTMLVideoElement>(null);
     const [paused, setPaused] = useState(true)
@@ -74,7 +76,7 @@ export default function Editor({ children, videoName, onBack }: React.PropsWithC
 
     if (!loaded)
         return <Flex>
-            <GeneralSpinner loadingText='Getting video info...' />
+            <GeneralSpinner loadingText={t("loading")} />
         </Flex>
 
     if (!bookmarks) {
@@ -83,8 +85,8 @@ export default function Editor({ children, videoName, onBack }: React.PropsWithC
             justifyContent='center'
             alignItems='center'
         >
-            <Heading>Video information could not be loaded.</Heading>
-            <Heading size='sm'>This video seems to be deleted.</Heading>
+            <Heading>{t("heading")}</Heading>
+            <Heading size='sm'>{t("subtitle")}</Heading>
         </Flex>
     }
 

@@ -24,7 +24,6 @@ export default function RefreshGamesBtn({ automaticRecord }: { automaticRecord: 
     if (automaticRecord)
         return btn
 
-    console.log("Tooltip lol")
     return <Tooltip label={t("enable_tooltip") as string} shouldWrapChildren>
         {btn}
     </Tooltip>

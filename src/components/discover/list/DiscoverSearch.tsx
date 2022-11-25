@@ -1,9 +1,11 @@
 import { Button, Flex, Input } from '@chakra-ui/react';
 import React, { useState, useContext } from "react";
+import { useTranslation } from 'react-i18next';
 import { DiscoverContext } from './DiscoverProvider';
 
 export default function DiscoverSearch() {
     const [localSearch, setLocalSearch] = useState("")
+    const { t } = useTranslation("discover", { keyPrefix: "search" })
     const { setSearch } = useContext(DiscoverContext)
 
     const search = () => {
@@ -18,7 +20,7 @@ export default function DiscoverSearch() {
     >
         <Input
             w='50%'
-            placeholder='Search query'
+            placeholder={t("placeholder")}
             borderBottomRightRadius='0'
             borderTopRightRadius='0'
             value={localSearch}
@@ -33,7 +35,7 @@ export default function DiscoverSearch() {
             variant='outline'
             onClick={() => search()}
         >
-            Search
+            {t("action")}
         </Button>
     </Flex>
 }

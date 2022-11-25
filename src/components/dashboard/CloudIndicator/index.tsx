@@ -58,7 +58,7 @@ export default function CloudIndicator() {
 
     const placeholder = <>
         <Progress isAnimated hasStripe value={1} {...progGeneral} />
-        <Text color='white' pl='2'> Loading</Text>
+        <Text color='white' pl='2'> {t("loading")}</Text>
     </>
 
     console.log("Usage is", usage)

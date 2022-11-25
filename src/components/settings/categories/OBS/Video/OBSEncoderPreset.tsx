@@ -42,7 +42,7 @@ export default function OBSEncoderPreset() {
     }, [addSaveListener, currEncoder, currPreset])
 
     if(availableEncoders === undefined || currPreset === undefined)
-        return <GeneralSpinner loadingText={t("loading")} />
+        return <GeneralSpinner loadingText={t("loading_encoders")} />
 
     if(availableEncoders === null)
         return <GeneralSpinner loadingText={t("no_encoders")} />
@@ -83,7 +83,7 @@ export default function OBSEncoderPreset() {
 
         <Flex h='1.5em' />
         <Text alignSelf='start' mb='8px'>{t("preset")}</Text>
-        {!availablePresets ? <GeneralSpinner loadingText='Loading presets...' /> :
+        {!availablePresets ? <GeneralSpinner loadingText={t("loading_presets")} /> :
             <Select value={currPreset} onChange={e => {
                 const newPreset = e.target.value
                 setPreset(newPreset)

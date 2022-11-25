@@ -38,7 +38,7 @@ export default function SwitchMonitorBtn() {
     return <Button
         colorScheme='blue'
         isLoading={switching}
-        loadingText={"Switching monitor..."}
+        loadingText={t("switching_monitor")}
         onClick={() => {
             setSwitching(true)
             obs.switchDesktop((currMonitor + 1) % monitors)
