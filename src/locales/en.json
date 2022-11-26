@@ -4,7 +4,7 @@
             "timed_out": "Timeout of {{timeout}}ms exceeded",
             "sign_out": {
                 "title": "Recording stopped",
-                "body": "You have been signed out, because you've signed out"
+                "body": "The recording has been stopped because you've signed out."
             }
         },
         "clip": {
