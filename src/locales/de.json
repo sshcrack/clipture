@@ -336,20 +336,20 @@
                 "exclude": {
                     "loading": "Laden...",
                     "error": {
-                        "list": "Ausgeblendete Spiele konnten nicht gelistet werden",
-                        "available": "Ausgeblendete Spiele konnten nicht gelistet werden"
+                        "list": "Nicht aufzunehmenden Spiele konnten nicht gelistet werden",
+                        "available": "Nicht aufzunehmenden Spiele konnten nicht gelistet werden"
                     },
-                    "title": "Ausgeblendete Spiele",
-                    "placeholder": "Spiele zum ausblenden"
+                    "title": "Nicht aufzunehmende Spiele",
+                    "placeholder": "Spiele die nicht aufzunehmen sind"
                 },
                 "include": {
-                    "title": "Eingeblendete Spiele",
-                    "placeholder": "Spiele zum einblenden",
+                    "title": "Aufzunehmende Spiele",
+                    "placeholder": "Spiele zum aufnehmen",
                     "require_restart": "Du musst das Spiel neustarten, damit wir es aufnehmen können",
                     "loading": "Laden...",
                     "error": {
-                        "list": "Eingeblendete Spiele konnten nicht gelistet werden",
-                        "available": "Eingeblendete Spiele konnten nicht gelistet werden"
+                        "list": "Aufzunehmende Spiele konnten nicht gelistet werden",
+                        "available": "Aufzunehmende Spiele konnten nicht gelistet werden"
                     }
                 }
             }
