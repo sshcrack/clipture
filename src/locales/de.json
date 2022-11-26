@@ -1,7 +1,123 @@
 {
     "backend": {
+        "auth": {
+            "timed_out": "Timeout von {{timeout}}ms überschritten",
+            "sign_out": {
+                "title": "Aufnahme gestoppt",
+                "body": "Die Aufnahme wurde gestoppt, weil du dich abgemeldet hast"
+            }
+        },
         "clip": {
-            "cutting": "Clip wird geschnitten..."
+            "invalid_name": "Ungültiger VideoName({{videoName}}) oder ClipName {{clipName}}",
+            "exists": "Ein Clip mit diesem Namen existiert bereits.",
+            "video_not_found": "Orginal Video mit dem Name {{videoName}} existiert nicht in dem Clip-Ordner",
+            "cutting": "Clip wird geschnitten...",
+            "calculating": "Hash wird berechnet...",
+            "success": "Clip successfully cut.",
+            "invalid_rename": "Ungültiger neuer name.",
+            "original_not_found": "Orginal-clip existiert nicht."
+        },
+        "discover": {
+            "offline": "Informationen nicht im Offline mode verfügbar.",
+            "user_offline": "User kann nicht geladen werden wenn offline",
+            "like_offline": "Kann nicht liken wenn offline",
+            "not_authenticated": "Nicht authentifiziert.",
+            "visibility_offline": "Sichtbarkeit kann nicht eingestellt werden wenn offline",
+            "id_not_found": "Konnte id nicht in der Cloud finden."
+        },
+        "cloud": {
+            "invalid_back": "Invalid go back thingy",
+            "not_authenticated": "Nicht authentifiziert.",
+            "no_matching": "Keine passenden Clips konnten gefunden werden.",
+            "invalid_id": "Ungültige Id",
+            "offline": "Clip kann nicht hochgeladen werden wenn offline",
+            "not_found": "Clip wurde nicht gefunden.",
+            "initializing": "Initialisiere...",
+            "uploading": "Lade Clip hoch...",
+            "unknown": "Unbekannter Fehler",
+            "too_large": "Clip ist zu groß.",
+            "invalid_body": "Konnte nicht Antwort-Body parsen.",
+            "insufficient_storage": "Die Clipture-Server haben kein Speicherplatz mehr :((",
+            "notify_upload": {
+                "title": "\"{{name}}\" wurde hochgeladen",
+                "body": "Clip wurde auf die Cloud hochgeladen."
+            },
+            "delete_offline": "Clip kann nicht gelöscht werden wenn offline",
+            "invalid_response": "Ungültige Antwort:",
+            "list_offline": "Liste von Clips in der Cloud nicht verfügbar wenn offline",
+            "id_not_found": "Id konnte nicht in der Cloud gefunden werden."
+        },
+        "obs": {
+            "signal_timeout": "Ausgangssignal Zeitüberschreitung",
+            "monitor_not_exists": "Monitor mit id {{monitorIndex}} existiert nicht",
+            "audio": {
+                "add_not_initialized": "Konnte Audio-Quellen nicht hinzufügen, nicht initialisiert",
+                "get_not_initialized": "Konnte Audio-Qullen nicht listen, nicht initialisiert",
+                "audio_not_initialized": "Konnte Audio nicht iniialisieren, OBS nicht initialisiert",
+                "attach_not_initialized": "Konnte Volmeter nicht attachen, nicht initialisiert",
+                "not_initialized": "Konnte Volmeter nicht hinzufügen, nicht initialisiert"
+            },
+            "bookmark": {
+                "timeout": "Zeitüberschreitung von 15s erreicht."
+            },
+            "prerequisites": {
+                "already": "Wird bereits initialisiert.",
+                "invalid_lock": "Konnte nicht locken.",
+                "initializing": " Initialisiere Vorbereitungen...",
+                "obs_already_installing": "OBS wird bereits installiert.",
+                "downloading_obs": "Lade OBS herunter...",
+                "extracting_obs": "Entpacke OBS..."
+            },
+            "initialize": {
+                "importing": "Importiere OBS...",
+                "initializing": "Initialisiere OBS...",
+                "configuring": "Konfiguriere OBS...",
+                "connect": "Verbinde Signale...",
+                "scene": "Bereite Szene vor...",
+                "auto_record": "Stelle automatisches Aufnehmen ein...",
+                "hotkeys": "Regestriere Hotkeys...",
+                "discord": "Füge Discord-Manager hinzu...",
+                "preview": "Initialisiere Vorschau...",
+                "game_changes": "Achte auf Spielveränderungen...",
+                "storage_manager": "Füge Speicher-Manager hinzu...",
+                "overlay": "Starte Overlasy...",
+                "loading": "Lade...",
+                "obs_initialized": "OBS initialisiert",
+                "errors": {
+                    "minus_two": "DirectX konnte auf deinem System nicht gefunden werden. Bitte installiere die neuste DirectX-Version hier <https://www.microsoft.com/en-us/download/details.aspx?id=35?> und versuche es erneut.",
+                    "minus_five": "Konnte OBS nicht initialisieren. Deine Grafiktreiber sind entweder veraltet oder libobs wird auf deinem System nicht unterstützt.",
+                    "unknown": "`Ein unbekannter Fehler #{{initResult}} ist aufgetreten beim Initialisieren von OBS.`",
+                    "shut_down": "Konnte OBS nicht herunterfahren: {{e}}",
+                    "encoder": "Encoder nicht verfügbar",
+                    "preset": "Preset nicht verfügbar",
+                    "fps": "Ungültige FPS-Angabe",
+                    "bitrate": "Ungültige Bitrate",
+                    "clip_method": "Ungültige Aufnahmemethode"
+                }
+            },
+            "preview": {
+                "not_twice": "Preview-Klasse kann nicht zwei mal konstruiert werden.",
+                "obs_not_initialized": "NodeObs wurde noch nicht initialisiert."
+            },
+            "record": {
+                "not_twice": "Record-Klasse kann nicht zwei mal konstruiert werden.",
+                "could_not_start": "Konnte Aufnahme nicht starten.",
+                "could_not_stop": "Konnte Aufnahme nicht stoppen.",
+                "notification": {
+                    "start": {
+                        "title": "Aufnahme gestartet",
+                        "body": "Aufnahme gestartet für {{name}}"
+                    },
+                    "stop": {
+                        "title": "Aufnahme gestoppt",
+                        "body": "{{monitorName}} wurde erfolgreich aufgenommen."
+                    }
+                }
+            }
+        },
+        "settings": {
+            "not_writable": "Clipture kann nicht in den Ordner schreiben, den du ausgewählt hast.",
+            "not_readable": "Clipture kann nicht den Ordner, den du ausgewählt hast, lesen."
         }
     },
     "login": {
