@@ -7,6 +7,7 @@ import { constants as fsConstants } from "fs";
 import fsProm from "fs/promises";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { getLocalizedT } from 'src/locales/backend_i18n';
 
 const log = MainLogger.get("Backend", "Managers", "Settings")
 export class SettingsManager {
@@ -41,11 +42,12 @@ export class SettingsManager {
                 .catch(() => false)
 
             log.debug("Path", newPath, "readable", readable, "writable", writable)
+            const t = getLocalizedT("backend", "settings")
             if (!writable)
-                throw new Error("Clipture can not write to the directory you selected.")
+                throw new Error(t("not_writable"))
 
             if (!readable)
-                throw new Error("Clipture can not read the directory you selected.")
+                throw new Error(t("not_readable"))
 
             Storage.set("clip_path", newPath)
             await MainGlobals.obs.configure()

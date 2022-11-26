@@ -11,6 +11,7 @@ import { app } from "electron";
 import fs from "fs/promises";
 import path from "path";
 import { MainLogger } from "src/interfaces/mainLogger";
+import { getLocalizedT } from 'src/locales/backend_i18n';
 import { v4 as uuid } from "uuid";
 import { AuthManager } from '../auth';
 import { LockManager } from "../lock";
@@ -105,11 +106,12 @@ export class Prerequisites {
     }
 
     static async initialize(onProgress: (prog: Progress) => unknown) {
+        const t = getLocalizedT("backend", "obs.prerequisites")
         if (this.initialized)
             return
 
         if (this.initializing)
-            throw new Error("[I] Already initializing.")
+            throw new Error(t("already"))
 
         if (await AuthManager.activeOfflineCheck())
             return log.warn("Prerequisites could not check, in offline mode")
@@ -132,12 +134,12 @@ export class Prerequisites {
         const locked = LockManager.instance.isLocked()
         if (locked) {
             this.initializing = false
-            throw new Error("Could not acquire lock.")
+            throw new Error(t("invalid_lock"))
         }
 
         LockManager.instance.lock({
             percent: 0,
-            status: "Initializing prerequisites..."
+            status: t("initializing")
         })
 
         const partPercent = 1 / errors.length
@@ -201,9 +203,10 @@ export class Prerequisites {
     }
 
     private static async installOBS(onProgress: (prog: Progress) => unknown) {
+        const t = getLocalizedT("backend", "obs.prerequisites")
         if (this.obsInstalling) {
             log.warn("Could not install obs as it is already installing")
-            return Promise.reject(new Error("OBS is already installing."))
+            return Promise.reject(new Error(t("obs_already_installing")))
         }
 
         const installFunc = async () => {
@@ -219,7 +222,7 @@ export class Prerequisites {
                     url: downloadUrl,
                     overwrite: true,
                     messages: {
-                        downloading: "Downloading OBS..."
+                        downloading: t("downloading_obs")
                     }
                 }),
                 new Unpacker({
@@ -228,7 +231,7 @@ export class Prerequisites {
                     overwrite: true,
                     deleteExistent: true,
                     messages: {
-                        extracting: "Extracting OBS..."
+                        extracting: t("extracting_obs")
                     }
                 })
             ], onProgress)

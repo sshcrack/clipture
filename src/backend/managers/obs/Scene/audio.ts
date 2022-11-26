@@ -7,6 +7,7 @@ import { Storage } from '@Globals/storage';
 import type { Global as globalType, IInput, InputFactory as inputType, IScene, IVolmeter, VolmeterFactory as volType } from "@streamlabs/obs-studio-node";
 import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { getLocalizedT } from 'src/locales/backend_i18n';
 import { SettingsCat } from 'src/types/obs/obs-enums';
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { FixedLengthArray } from 'type-fest';
@@ -71,8 +72,9 @@ export class AudioSceneManager {
     }
 
     private static addVolmeter({ device_id, type, volume }: SourceInfo) {
+        const t = getLocalizedT("backend", "obs.audio")
         if (!this.initialized)
-            throw new Error("Could not add volmeter, not initialized")
+            throw new Error(t("not_initialized"))
 
         if (device_id.toLowerCase() === "default")
             return log.warn("Cannot add volmeter with device id default.")
@@ -96,8 +98,9 @@ export class AudioSceneManager {
     }
 
     private static attachVolmeter(audioSource: IInput, device_id: string, volume = 1) {
+        const t = getLocalizedT("backend", "obs.audio")
         if (!this.initialized)
-            throw new Error("Could not attach volmeter, not initialized")
+            throw new Error(t("attach_not_initialized"))
         const volmeter = this.VolmeterFactory.create(1)
 
         volmeter.attach(audioSource)
@@ -173,9 +176,10 @@ export class AudioSceneManager {
     }
 
     static async initializeAudioSources(scene: IScene) {
+        const t = getLocalizedT("backend", "obs.audio")
         if (!this.initialized)
-            throw new Error("Could not initialize audio sources, not initialized")
-        this.NodeObs.RegisterSourceCallback(() => {/**/})
+            throw new Error(t("audio_not_initialized"))
+        this.NodeObs.RegisterSourceCallback(() => {/**/ })
 
         log.info("Setting up audio sources...")
         this.Global.setOutputSource(1, scene);
@@ -222,8 +226,9 @@ export class AudioSceneManager {
     }
 
     static getAudioDevices(type: DeviceType): { device_id: string, name: string }[] {
+        const t = getLocalizedT("backend", "obs.audio")
         if (!this.initialized)
-            throw new Error("Could not get audio devices, not initialized")
+            throw new Error(t("get_not_initialized"))
 
         const osName = this.getAudioType(type)
         const audioType = type === "desktop" ? "desktop-audio" : "mic-audio"
@@ -240,13 +245,14 @@ export class AudioSceneManager {
     public static addAudioDevice(device_id: string, currTrack: number, type: DeviceType, volume: number) {
         volume = clamp(volume, 0, 1)
 
+        const t = getLocalizedT("backend", "obs.audio")
         if (this.activeSources.length >= 2) {
             log.error("Could not add audio device", device_id, type, "because too many devices are already added.")
             return currTrack
         }
 
         if (!this.initialized) {
-            throw new Error("Couldn't add audio sources, not initialized")
+            throw new Error(t("add_not_initialized"))
         }
 
         const osName = this.getAudioType(type)

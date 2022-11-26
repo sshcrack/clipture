@@ -1,4 +1,125 @@
 {
+    "backend": {
+        "auth": {
+            "timed_out": "Timeout of {{timeout}}ms exceeded",
+            "sign_out": {
+                "title": "Recording stopped",
+                "body": "You have been signed out, because you've signed out"
+            }
+        },
+        "clip": {
+            "invalid_name": "Invalid VideoName({{videoName}}) or ClipName {{clipName}}",
+            "exists": "A clip with that name exists already.",
+            "video_not_found": "Video with name {{videoName}} does not exist in clip directory",
+            "cutting": "Cutting clip...",
+            "calculating": "Calculating hash...",
+            "success": "Clip successfully cut.",
+            "invalid_rename": "Invalid new name",
+            "original_not_found": "Original clip does not exist"
+        },
+        "discover": {
+            "offline":" Cannot get info when in offline mode",
+            "user_offline": "Cannot get user when offline",
+            "like_offline": "Cannot like when offline",
+            "not_authenticated": "Not authenticated.",
+            "visibility_offline": "Cannot set visibility when offline",
+            "id_not_found":" Could not find id in cloud."
+        },
+        "cloud": {
+            "invalid_back": "Invalid go back thingy",
+            "not_authenticated": "Not authenticated.",
+            "no_matching": "Matching clips could not be found.",
+            "invalid_id": "Invalid id",
+            "offline": "Can't upload clip when offline",
+            "not_found": "Clip not found.",
+            "initializing": "Initializing...",
+            "uploading": "Uploading clip...",
+            "unknown": "Unknown Error.",
+            "too_large": "Clip is too large.",
+            "invalid_body": "Could not parse response body.",
+            "insufficient_storage": "The clipture servers do not have any storage left :(",
+            "notify_upload": {
+                "title": "\"{{name}}\" uploaded",
+                "body": "Clip has been uploaded to cloud."
+            },
+            "delete_offline": "Can not delete clip when offline",
+            "invalid_response": "Invalid response:",
+            "list_offline": "Can not list when offline",
+            "id_not_found": " Could not find id in cloud."
+        },
+        "obs": {
+            "signal_timeout": "Output signal timeout",
+            "monitor_not_exists": "Monitor with id {{monitorIndex}} does not exist",
+            "audio": {
+                "add_not_initialized": "Couldn't add audio sources, not initialized",
+                "get_not_initialized": "Could not get audio devices, not initialized",
+                "audio_not_initialized": "Could not initialize audio sources, not initialized",
+                "attach_not_initialized": "Could not attach volmeter, not initialized",
+                "not_initialized": "Could not add volmeter, not initialized"
+            },
+            "bookmark": {
+                "timeout": "Timeout of 15s reached."
+            },
+            "prerequisites": {
+                "already": "Already initializing.",
+                "invalid_lock": "Could not acquire lock.",
+                "initializing":" Initializing prerequisites...",
+                "obs_already_installing": "OBS is already installing.",
+                "downloading_obs": "Downloading OBS...",
+                "extracting_obs": "Extracting OBS..."
+            },
+            "initialize": {
+                "importing": "Importing OBS...",
+                "initializing": "Initializing OBS...",
+                "configuring": "Configuring OBS...",
+                "connect": "Connecting signals...",
+                "scene": "Initializing scene...",
+                "auto_record": "Setting up auto record...",
+                "hotkeys": "Registering hotkeys...",
+                "discord": "Adding discord presence...",
+                "preview": "Initializing preview...",
+                "game_changes": "Listening to game changes...",
+                "storage_manager": "Adding to storage manager...",
+                "overlay": "Overlay starting...",
+                "loading": "Loading...",
+                "obs_initialized": "OBS initialized",
+                "errors": {
+                    "minus_two": "DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.",
+                    "minus_five": "Failed to initialize OBS. Your video drivers may be out of date, or libObs may not be supported on your system.",
+                    "unknown": "`An unknown error #{{initResult}} was encountered while initializing OBS.`",
+                    "shut_down": "Exception when shutting down OBS process {{e}}",
+                    "encoder": "Encoder not available",
+                    "preset": "Preset not available",
+                    "fps": "Invalid fps number",
+                    "bitrate": "Invalid bitrate",
+                    "clip_method": "Invalid capture method"
+                }
+            },
+            "preview": {
+                "not_twice": "Preview class cannot be instantiated twice.",
+                "obs_not_initialized": "NodeObs not initialized yet."
+            },
+            "record": {
+                "not_twice": "Record class cannot be instantiated twice.",
+                "could_not_start": "Could not start recording.",
+                "could_not_stop": "Could not stop recording.",
+                "notification": {
+                    "start": {
+                        "title": "Recording started",
+                        "body": "Recording started for {{name}}"
+                    },
+                    "stop": {
+                        "title": "Recording stopped",
+                        "body": "{{monitorName}} has been recorded successfully."
+                    }
+                }
+            }
+        },
+        "settings": {
+            "not_writable": "Clipture can not write to the directory you selected.",
+            "not_readable": "Clipture can not read the directory you selected."
+        }
+    },
     "login": {
         "sign_in": "Sign in using Discord",
         "opening_browser": "Opening browser..."

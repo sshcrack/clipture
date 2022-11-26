@@ -107,7 +107,6 @@ export class DiscordManager {
             }
 
             this.loginInterval = setInterval(async () => {
-                console.log("Interval")
                 if (this.loggedIn) {
                     console.log("Logged in, clearing")
                     clearInterval(this.loginInterval)

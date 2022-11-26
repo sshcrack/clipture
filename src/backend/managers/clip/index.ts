@@ -11,6 +11,7 @@ import fs from "fs"
 import { copyFile, rename, rm, stat, unlink, writeFile } from 'fs/promises'
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
+import { getLocalizedT } from 'src/locales/backend_i18n'
 import { CloudManager } from '../cloud'
 import { CloudClip } from '../cloud/interface'
 import { GameManager } from '../game'
@@ -33,9 +34,10 @@ export class ClipManager extends VideoManager {
         videoName = videoName.split(".mkv").join("")
         clipName = clipName.split(".mp4").join("")
 
+        const t = getLocalizedT("backend", "clip")
         if (!isFilenameValid(videoName) || !isFilenameValid(clipName)) {
             log.error("Can't cut, invalid Video or Clip Name", videoName, clipName)
-            throw new Error(`Invalid VideoName (${videoName}) or ClipName ${clipName}`)
+            throw new Error(t("invalid_name", { videoName, clipName }))
         }
 
 
@@ -45,7 +47,7 @@ export class ClipManager extends VideoManager {
         const clipProcessing = getClipVideoProcessingPath(clipRoot, clipName)
 
         if (await existsProm(clipOut))
-            throw new Error("A clip with that name exists already.")
+            throw new Error(t("exists"))
 
         if (await existsProm(clipProcessing)) {
             log.silly("Clip processing", clipProcessing, "exists already, unlinking...")
@@ -54,7 +56,7 @@ export class ClipManager extends VideoManager {
 
         if (!(await existsProm(videoPath))) {
             log.error("Can't cut, video with path", videoPath, "does not exist.")
-            throw new Error(`Video with name ${videoName} does not exist in clip directory`)
+            throw new Error(t("video_not_found", { videoName }))
         }
 
         this.processing.set(clipOut, {
@@ -103,7 +105,7 @@ export class ClipManager extends VideoManager {
 
             lastOutput = ""
             const prog = {
-                status: "Cutting clip...",
+                status: t("cutting"),
                 percent: curr / duration * 0.9
             }
 
@@ -121,7 +123,7 @@ export class ClipManager extends VideoManager {
         await commandOut
 
         onProgress({
-            status: "Calculating hash...",
+            status: t("calculating"),
             percent: .9
         })
 
@@ -152,7 +154,7 @@ export class ClipManager extends VideoManager {
 
         log.log("Clip was being cut successfully.")
         onProgress({
-            status: "Clip successfully cut.",
+            status: t("success"),
             percent: 1
         })
 
@@ -354,8 +356,9 @@ export class ClipManager extends VideoManager {
     }
 
     static async renameClip(original: string, newName: string) {
+        const t = getLocalizedT("backend", "clip")
         if (!isFilenameValid(newName))
-            throw new Error("Invalid new name")
+            throw new Error(t("invalid_rename"))
 
         const root = Storage.get("clip_path")
         const originalPath = getClipVideoPath(root, original)
@@ -363,10 +366,10 @@ export class ClipManager extends VideoManager {
 
         log.debug("Renaming from", originalPath, "to", renamedPath)
         if (await existsProm(renamedPath))
-            throw new Error("A clip with that name exists already")
+            throw new Error(t("exists"))
 
         if (!(await existsProm(originalPath)))
-            throw new Error("Original clip does not exist")
+            throw new Error(t("original_not_found"))
 
         const originalInfo = getClipInfoPath(root, original)
         const renamedInfo = getClipInfoPath(root, newName)

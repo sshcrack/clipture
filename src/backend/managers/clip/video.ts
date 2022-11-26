@@ -8,8 +8,8 @@ import fs from "fs"
 import { readFile, stat, writeFile } from 'fs/promises'
 import path from "path"
 import { MainLogger } from 'src/interfaces/mainLogger'
+import { getLocalizedT } from 'src/locales/backend_i18n'
 import { generateThumbnail, lookupThumbnail } from "thumbsupply"
-import { AuthManager } from '../auth'
 import { GameManager } from '../game'
 import { GeneralGame } from '../game/interface'
 import { RecordManager } from '../obs/core/record'
@@ -24,8 +24,9 @@ export class VideoManager {
     public static imageData = new Map<string, string>()
 
     static async renameVideo(original: string, newName: string) {
+        const t = getLocalizedT("backend", "clip")
         if (!isFilenameValid(newName))
-            throw new Error("Invalid new name")
+            throw new Error(t("invalid_name"))
 
         log.info("Renaming video from", original, newName)
         const root = Storage.get("clip_path")
@@ -34,10 +35,10 @@ export class VideoManager {
 
         log.debug("Renaming from", originalPath, "to", renamedPath)
         if (await existsProm(renamedPath))
-            throw new Error("A clip with that name exists already")
+            throw new Error(t("exists"))
 
         if (!(await existsProm(originalPath)))
-            throw new Error("Original clip does not exist")
+            throw new Error(t("original_not_found"))
 
         const currInfoPath = getVideoInfoPath(root, original + ".mkv")
         const currInfo = await getVideoInfo(root, original + ".mkv") ?? {}

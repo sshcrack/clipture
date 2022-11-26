@@ -3,6 +3,7 @@ import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
 import { mkdir } from 'fs/promises'
 import prettyMS from "pretty-ms"
+import { getLocalizedT } from 'src/locales/backend_i18n'
 import { SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
@@ -38,6 +39,7 @@ export class OBSManager {
     }
 
     public async initialize() {
+        const t = getLocalizedT("backend", "obs.initialize")
         const inst = LockManager.instance
         await inst.waitTillReleased()
 
@@ -47,58 +49,58 @@ export class OBSManager {
         log.info("Initializing OBS...")
         const steps = [
             {
-                title: "Importing OBS...",
+                title: t("importing"),
                 func: async () => this.NodeObs = (await importOBS()).NodeObs
             },
             {
-                title: "Initializing OBS...",
+                title: t("initializing"),
                 func: () => this.initOBS()
             },
             {
-                title: "Configuring OBS...",
+                title: t("configuring"),
                 func: () => this.configure()
             },
             {
-                title: "Connecting signals...",
+                title: t("connect"),
                 func: () => SignalsManager.initialize()
             },
             {
-                title: "Initializing scene...",
+                title: t("scene"),
                 func: () => Scene.initialize()
             },
             {
-                title: "Setting up auto record...",
+                title: t("auto_record"),
                 func: () => RecordManager.instance.initialize()
             },
             {
-                title: "Registering hotkeys...",
+                title: t("hotkeys"),
                 func: () => BookmarkManager.initialize()
             },
             {
-                title: "Adding discord presence",
+                title: t("discord"),
                 func: () => DiscordManager.initialize()
             },
             {
-                title: "Initializing Preview...",
+                title: t("preview"),
                 func: () => this.previewInstance.initialize()
             },
             {
-                title: "Listening to game changes...",
+                title: t("game_changes"),
                 func: () => GameManager.addUpdateLoop()
             },
             {
-                title: "Adding to storage manager...",
+                title: t("storage_manager"),
                 func: () => StorageManager.register()
             },
             {
-                title: "Overlay starting...",
+                title: t("overlay"),
                 func: () => OverlayManager.initialize()
             }
         ] as { title: string, func: () => Promise<unknown> }[]
 
         inst.lock({
             percent: 0,
-            status: "Loading.."
+            status: t("loading")
         })
 
         for (let i = 0; i < steps.length; i++) {
@@ -135,7 +137,7 @@ export class OBSManager {
 
         inst.unlock({
             percent: 1,
-            status: "OBS initialized"
+            status: t("obs_initialized")
         })
 
         StorageManager.check().catch(e => { log.error("Storage:", e) })
@@ -155,16 +157,17 @@ export class OBSManager {
         this.NodeObs.SetWorkingDirectory(workDir);
 
         const obsDataPath = getOBSDataPath()
+        const t = getLocalizedT("backend", "obs.initialize")
         const initResult = this.NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
         if (initResult !== 0) {
             const errorReasons = {
-                "-2": "DirectX could not be found on your system. Please install the latest version of DirectX for your machine here <https://www.microsoft.com/en-us/download/details.aspx?id=35?> and try again.",
-                "-5": "Failed to initialize OBS. Your video drivers may be out of date, or libObs may not be supported on your system.",
+                "-2": t("errors.minus_two"),
+                "-5": t("errors.minus_five"),
             };
 
 
             const result = initResult.toString() as keyof typeof errorReasons;
-            const errorMessage = errorReasons[result] ?? `An unknown error #${initResult} was encountered while initializing OBS.`;
+            const errorMessage = errorReasons[result] ?? t("errors.unknown", { initResult });
 
             log.error("Could not initialize OBS", errorMessage);
             this.shutdown(true);
@@ -177,6 +180,7 @@ export class OBSManager {
     }
 
     public async shutdown(force = false) {
+        const t = getLocalizedT("backend", "obs.initialize")
         if (!this.obsInitialized && !force)
             return
 
@@ -188,7 +192,7 @@ export class OBSManager {
             this.NodeObs.OBS_service_removeCallback();
             this.NodeObs.IPC.disconnect()
         } catch (e) {
-            const newErr = new Error(`Exception when shutting down OBS process${e}`)
+            const newErr = new Error(t("errors.shut_down", { e }))
             log.error(newErr)
 
             throw newErr;
@@ -277,13 +281,15 @@ export class OBSManager {
             preset: Storage.get("obs_preset")
         }))
         reg.onPromise("obs_set_rec", async (_, { encoder, preset }) => {
+            const t = getLocalizedT("backend", "obs.initialize")
+
             const available = getEncoders(this.NodeObs)
             if (!available || !available.includes(encoder))
-                throw new Error("Encoder not available")
+                throw new Error(t("errors.encoder"))
 
             const presets = getEncoderPresets(encoder)
             if (!presets || !presets.includes(preset))
-                throw new Error("Preset not available")
+                throw new Error(t("error.preset"))
 
             this.setEncoderPreset(encoder, preset)
             Storage.set("obs_encoder", encoder)
@@ -291,17 +297,19 @@ export class OBSManager {
         })
         reg.onPromise("obs_update_settings", async (_, partly) => {
             const { fps, bitrate, capture_method } = partly
+            const t = getLocalizedT("backend", "obs.initialize")
+
             log.info("Updating settings", fps, bitrate, capture_method)
             const isNull = <T>(e: T | undefined | null) => typeof e === "undefined" || e === null
 
             if (!isNull(fps) && fps <= 0)
-                throw new Error("Invalid fps number")
+                throw new Error(t("errors.fps"))
 
             if (!isNull(bitrate) && bitrate <= 0)
-                throw new Error("Invalid bitrate")
+                throw new Error(t("errors.bitrate"))
 
             if (!isNull(capture_method) && capture_method !== "desktop" && capture_method !== "window")
-                throw new Error("Invalid capture method")
+                throw new Error(t("errors.clip_method"))
 
             Storage.set("obs", { ...(Storage.get("obs")), ...partly })
             this.configure()

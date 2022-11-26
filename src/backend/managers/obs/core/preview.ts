@@ -1,6 +1,7 @@
 import { webContentsToWindow } from '@backend/tools/window'
 import { BrowserWindow, IpcMainInvokeEvent, screen } from 'electron'
 import { MainLogger } from 'src/interfaces/mainLogger'
+import { getLocalizedT } from 'src/locales/backend_i18n'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../../general/register/main'
@@ -19,8 +20,9 @@ export class PreviewManager {
     static instance: PreviewManager = null;
 
     constructor() {
+        const t = getLocalizedT("backend", "obs.preview")
         if (PreviewManager.instance)
-            throw new Error("Preview class cannot be instantiated twice.")
+            throw new Error(t("not_twice"))
 
         PreviewManager.instance = this;
         this.register()
@@ -42,8 +44,9 @@ export class PreviewManager {
     }
 
     public async initPreview(event: IpcMainInvokeEvent, bounds: ClientBoundRecReturn) {
+        const t = getLocalizedT("backend", "obs.preview")
         if (!this.NodeObs)
-            throw new Error("NodeObs not initialized yet.")
+            throw new Error(t("obs_not_initialized"))
 
         const window = webContentsToWindow(event.sender)
         const handle = window.getNativeWindowHandle()
@@ -70,8 +73,9 @@ export class PreviewManager {
     }
 
     public async resizePreview(displayId: string, window: BrowserWindow, bounds: ClientBoundRecReturn) {
+        const t = getLocalizedT("backend", "obs.preview")
         if (!this.NodeObs)
-            throw new Error("could not resize. OBS is not initialized yet.")
+            throw new Error(t("obs_not_initialized"))
 
         const winBounds = window.getBounds();
         const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
@@ -89,8 +93,9 @@ export class PreviewManager {
     }
 
     public async removePreview(displayId: string) {
+        const t = getLocalizedT("backend", "obs.preview")
         if (!this.NodeObs)
-            throw new Error("could not remove. OBS is not initialized yet.")
+            throw new Error(t("obs_not_initialized"))
 
         log.debug("Destroying display with id", displayId)
         const window = this.displayWindowMap.get(displayId)

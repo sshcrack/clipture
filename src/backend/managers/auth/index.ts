@@ -5,10 +5,11 @@ import { Storage } from '@Globals/storage';
 import { shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { getLocalizedT } from 'src/locales/backend_i18n';
+import i18n from 'src/locales/i18n';
 import { v4 as uuid } from "uuid";
 import { clickableNotification } from '../obs/core/backend_only_tools';
 import { OfflineChangeListener, SessionData, SessionInfo, SessionStatus } from './interfaces';
-
 
 const log = MainLogger.get("Backend", "Managers", "AuthManager")
 const baseUrl = MainGlobals.baseUrl;
@@ -88,9 +89,11 @@ export class AuthManager {
     private static authFetch(id: string, startTime: number) {
         // eslint-disable-next-line no-async-promise-executor
         return new Promise<ClientSessionInterface[]>(async (resolve, reject) => {
+            const t = getLocalizedT("backend", "auth")
+
             if (Date.now() - startTime > this.TIMEOUT) {
                 log.info("Timeout has  been exceeded", Date.now() - startTime)
-                return reject(new Error("Timeout of " + this.TIMEOUT + "ms exceeded"))
+                return reject(new Error(t("timed_out", { timeout: this.TIMEOUT })))
             }
 
             if (id !== this.currId)
@@ -196,6 +199,7 @@ export class AuthManager {
     }
 
     static async signOut() {
+        const t = getLocalizedT("backend", "auth.signout")
         const { recordManager } = MainGlobals.obs
         for (const key of availableCookieTypes) {
             const id = getID(key, "key")
@@ -210,8 +214,8 @@ export class AuthManager {
         if (isRecording) {
             await recordManager.stopRecording()
             clickableNotification({
-                title: "Recording stopped",
-                body: "You have been signed out, because you've signed out",
+                title: t("title"),
+                body: t("body"),
                 silent: true
             }, () => MainGlobals.window.show()).show()
         }

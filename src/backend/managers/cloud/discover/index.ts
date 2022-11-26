@@ -5,6 +5,7 @@ import { RegManMain } from '@general/register/main';
 import { MainGlobals } from '@Globals/mainGlobals';
 import got from 'got';
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { getLocalizedT } from 'src/locales/backend_i18n';
 import { CloudManager } from '..';
 import { DiscoverClip, DiscoverResponse } from '../interface';
 import { BasicUser, IsLikedResponse, SuccessResponse } from './interface';
@@ -21,16 +22,18 @@ export class DiscoverManager {
     }
 
     public static async infoSingle(id: string) {
+        const t = getLocalizedT("backend", "discover")
         if(AuthManager.isOffline())
-            throw new Error("Cannot get info when in offline mode")
+            throw new Error(t("offline"))
 
         return await got(`${MainGlobals.baseUrl}/api/clip/info?id=${id}`)
             .json<DiscoverClip>()
     }
 
     public static async discover({ offset, limit, search }: { offset: number, limit: number, search?: string }) {
+        const t = getLocalizedT("backend", "discover")
         if(AuthManager.isOffline())
-            throw new Error("Cannot discover when in offline mode")
+            throw new Error(t("offline"))
 
         const url = `${MainGlobals.baseUrl}/api/clip/discover?limit=${limit}&offset=${offset}${search ? `&query=${search}` : ""}`
         const detectable = await GameManager.getDetectableGames()
@@ -65,20 +68,22 @@ export class DiscoverManager {
     }
 
     public static async getUser(cuid: string) {
+        const t = getLocalizedT("backend", "discover")
         if(AuthManager.isOffline())
-            throw new Error("Cannot get user when offline")
+            throw new Error(t("user_offline"))
 
         return await got(`${MainGlobals.baseUrl}/api/user/get/${encodeURIComponent(cuid)}`)
             .json<BasicUser>()
     }
 
     public static async setLike(id: string, like: boolean) {
+        const t = getLocalizedT("backend", "discover")
         if(AuthManager.isOffline())
-            throw new Error("Cannot like when offline")
+            throw new Error(t("like_offline"))
 
         const cookies = await AuthManager.getCookies()
         if (!cookies)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         return await got(`${MainGlobals.baseUrl}/api/user/like/${encodeURIComponent(id)}/${like ? "add" : "remove"}`, {
             headers: { cookie: cookies }
@@ -86,12 +91,13 @@ export class DiscoverManager {
     }
 
     public static async isLiked(id: string) {
+        const t = getLocalizedT("backend", "discover")
         if(AuthManager.isOffline())
             return null
 
         const cookies = await AuthManager.getCookies()
         if (!cookies)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         return await got(`${MainGlobals.baseUrl}/api/user/like/${encodeURIComponent(id)}/has`, {
             headers: { cookie: cookies }
@@ -100,19 +106,20 @@ export class DiscoverManager {
     }
 
     public static async setVisibility(id: string, isPublic: boolean) {
+        const t = getLocalizedT("backend", "discover")
         if(AuthManager.isOffline())
-            throw new Error("Cannot set visibility when offline")
+            throw new Error(t("visibility_offline"))
 
         log.debug("Setting visibility for cloud item", id, "to", isPublic)
 
         const list = await CloudManager.list()
         const found = list.find(e => e.id === id)
         if (!found)
-            throw new Error("Could not find id in cloud.")
+            throw new Error(t("id_not_found"))
 
         const cookies = await AuthManager.getCookies()
         if (!cookies)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         const res = await got(`${MainGlobals.baseUrl}/api/clip/visibility/${encodeURIComponent(id)}/?public=${encodeURIComponent(isPublic)}`, {
             headers: { cookie: cookies }

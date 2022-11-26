@@ -1,4 +1,9 @@
 {
+    "backend": {
+        "clip": {
+            "cutting": "Clip wird geschnitten..."
+        }
+    },
     "login": {
         "sign_in": "Anmelden mit Discord",
         "opening_browser": "Öffne Browser..."

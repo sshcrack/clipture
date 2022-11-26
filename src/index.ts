@@ -17,6 +17,8 @@ import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
+import i18n from './locales/i18n';
+import { getLocalizedT } from './locales/backend_i18n';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;

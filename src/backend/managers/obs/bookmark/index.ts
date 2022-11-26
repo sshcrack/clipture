@@ -3,6 +3,7 @@ import { getAddRemoveListener } from '@general/tools/listener';
 import { Storage } from "@Globals/storage";
 import { globalShortcut, Input } from "electron";
 import { MainLogger } from "src/interfaces/mainLogger";
+import { getLocalizedT } from 'src/locales/backend_i18n';
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Bookmark")
 export class BookmarkManager {
@@ -27,9 +28,9 @@ export class BookmarkManager {
                     if (meta)
                         hotkey.push("meta")
 
-                    if(!hotkey.some(e => e.toLowerCase() === key.toLowerCase()) &&
+                    if (!hotkey.some(e => e.toLowerCase() === key.toLowerCase()) &&
                         !(control && key.toLowerCase() === "control")
-                        )
+                    )
                         hotkey.push(key)
                     e.preventDefault()
 
@@ -38,8 +39,10 @@ export class BookmarkManager {
 
                 sender.once("before-input-event", func)
                 setTimeout(() => {
+                    const t = getLocalizedT("backend", "obs.bookmark")
+
                     sender.removeListener("before-input-event", func)
-                    reject(new Error("Timeout of 15s reached."))
+                    reject(new Error(t("timeout")))
                 }, 15000)
             })
 

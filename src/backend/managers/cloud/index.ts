@@ -10,6 +10,7 @@ import fs from 'fs/promises';
 import got, { Progress as GotProgress, Response } from "got";
 import path from "path";
 import { MainLogger } from 'src/interfaces/mainLogger';
+import { getLocalizedT } from 'src/locales/backend_i18n';
 import HttpStatusCode from 'src/types/HttpStatusCodes';
 import { AuthManager } from '../auth';
 import { getHexCached } from '../clip/fs';
@@ -44,6 +45,7 @@ export class CloudManager {
     }
 
     static async getUsage() {
+        const t = getLocalizedT("backend", "cloud")
         if (this.cachedUsage)
             return this.cachedUsage
 
@@ -52,7 +54,7 @@ export class CloudManager {
 
         const cookies = await AuthManager.getCookies()
         if (!cookies)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         const res = await got(`${MainGlobals.baseUrl}/api/clip/usage`, { headers: { cookie: cookies } })
             .json<CloudUsage>()
@@ -75,6 +77,7 @@ export class CloudManager {
     }
 
     static async shareClipName(clipName: string) {
+        const t = getLocalizedT("backend", "cloud")
         const clips = await this.list()
         const rootPath = Storage.get("clip_path")
         const clipPath = getClipVideoPath(rootPath, clipName)
@@ -82,16 +85,17 @@ export class CloudManager {
 
         const matchingClips = clips.filter(e => e.hex === fileHex)
         if (matchingClips.length === 0)
-            throw new Error("Matching clips could not be found")
+            throw new Error(t("no_matching"))
 
         const { id } = matchingClips[0]
         this.shareId(id)
     }
 
     static async shareId(id: string) {
+        const t = getLocalizedT("backend", "cloud")
         log.info("Share with id", id)
         if (!validateId(id))
-            throw new Error("Invalid id")
+            throw new Error(t("invalid_id"))
 
         clipboard.writeText(`${MainGlobals.baseUrl}/clip/${id}`)
     }
@@ -101,21 +105,22 @@ export class CloudManager {
     }
 
     static async uploadClip(clipName: string, notifyUpload = false, isPublic = false) {
+        const t = getLocalizedT("backend", "cloud")
         if (AuthManager.isOffline())
-            throw new Error("Cant upload clip when offline")
+            throw new Error(t("offline"))
 
         const rootPath = Storage.get("clip_path")
         const clipPath = getClipVideoPath(rootPath, clipName)
 
         const cookieHeader = await AuthManager.getCookies()
         if (!cookieHeader)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         if (this.uploading.some(({ clipName: e }) => e === clipName))
             throw new Error("Already uploading this clip.")
 
         if (!existsProm(clipPath))
-            throw new Error("Clip not found.")
+            throw new Error(t("not_found"))
 
         // eslint-disable-next-line prefer-const
         let { original, gameId } = await getClipInfo(rootPath, clipName + ".clipped.mp4") ?? {}
@@ -156,7 +161,7 @@ export class CloudManager {
         log.info("Uploading clip", clipName, "and size", size, "...")
         this.uploading.push({
             clipName,
-            progress: { percent: 0, status: "Initializing..." }
+            progress: { percent: 0, status: t("initializing") }
         })
 
         RegManMain.send("cloud_update", this.uploading)
@@ -177,7 +182,7 @@ export class CloudManager {
                 clipName,
                 progress: {
                     percent: p.percent,
-                    status: "Uploading clip..."
+                    status: t("uploading")
                 }
             }
 
@@ -206,10 +211,11 @@ export class CloudManager {
                                 })
                             }
 
+                            const visibleName = path.basename(clipName, path.extname(clipName))
                             if (notifyUpload)
                                 clickableNotification({
-                                    title: `"${path.basename(clipName, path.extname(clipName))}" uploaded`,
-                                    body: "Clip has been uploaded to cloud."
+                                    title: t("title", { name: visibleName }),
+                                    body: t("notify_upload.body")
                                 }, () => MainGlobals.window.show()).show()
                             return resolve()
                         }
@@ -221,16 +227,16 @@ export class CloudManager {
                         }
 
                         log.error("Unknown error", body)
-                        return reject(new Error("Unknown error"))
+                        return reject(new Error(t("unknown")))
                     } catch (e) {
                         if (response.statusCode === HttpStatusCode.PAYLOAD_TOO_LARGE)
-                            return reject(new Error("Clip is too large."))
+                            return reject(new Error(t("too_large")))
 
                         if (response.statusCode === HttpStatusCode.INSUFFICIENT_STORAGE)
-                            return reject(new Error("The clipture server do not have any storage left :("))
+                            return reject(new Error(t("insufficient_storage")))
 
                         log.error(e)
-                        reject(new Error("Could not parse response body."))
+                        reject(new Error(t("invalid_body")))
                     }
                 }
 
@@ -261,8 +267,9 @@ export class CloudManager {
     }
 
     static async deleteClipName(clipName: string) {
+        const t = getLocalizedT("backend", "cloud")
         if (clipName.includes(".."))
-            throw new Error("Invalid go back thingy")
+            throw new Error(t("invalid_back"))
 
         const clips = await this.list()
         const rootPath = Storage.get("clip_path")
@@ -285,18 +292,19 @@ export class CloudManager {
     }
 
     static async deleteId(id: string) {
+        const t = getLocalizedT("backend", "cloud")
         if (AuthManager.isOffline())
-            throw new Error("Cannot delete clip when offline")
+            throw new Error(t("delete_offline"))
 
         log.info("Deleting with id", id)
         const cookies = await AuthManager.getCookies()
         if (!cookies)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         const res = got(`${MainGlobals.baseUrl}/api/clip/delete?id=${id}`, {
             headers: { cookie: cookies }
         }).json()
-            .catch(e => { throw new Error(`Invalid response: ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`) })
+            .catch(e => { throw new Error(`${t("invalid_response")} ${e?.response?.statusCode} - ${e?.response?.body}, ${e}`) })
 
         log.silly("Result of deleting:", res)
         this.clearCache()
@@ -306,8 +314,9 @@ export class CloudManager {
     }
 
     static async list() {
+        const t = getLocalizedT("backend", "cloud")
         if (AuthManager.isOffline())
-            throw new Error("Cannot list when offline.")
+            throw new Error(t("list_offline"))
 
         console.log("List cached is", !!this.cached)
         if (this.cached)
@@ -332,14 +341,15 @@ export class CloudManager {
 
         const list = await this.list()
         const originalHex = await getHexCached(originalPath);
+        const t = getLocalizedT("backend", "cloud")
 
         const found = list.find(e => e.hex === originalHex)
         if (!found)
-            throw new Error("Could not find id in cloud.")
+            throw new Error(t("id_not_found"))
 
         const cookies = await AuthManager.getCookies()
         if (!cookies)
-            throw new Error("Not authenticated.")
+            throw new Error(t("not_authenticated"))
 
         return got(`${MainGlobals.baseUrl}/api/clip/rename?title=${encodeURIComponent(newName)}&id=${found.id}`, {
             headers: {

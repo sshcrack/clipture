@@ -12,6 +12,7 @@ import fs from "fs/promises"
 import path from 'path'
 import sound from "sound-play"
 import { MainLogger } from 'src/interfaces/mainLogger'
+import { getLocalizedT } from 'src/locales/backend_i18n'
 import { EOBSOutputSignal, SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { Scene } from '../Scene'
@@ -70,8 +71,9 @@ export class RecordManager {
     }
 
     constructor() {
+        const t = getLocalizedT("backend", "obs.record")
         if (RecordManager.instance)
-            throw new Error("Record class cannot be instantiated twice.")
+            throw new Error(t("not_twice"))
 
         RecordManager.instance = this;
         this.register()
@@ -118,11 +120,13 @@ export class RecordManager {
                 const isRunning = processRunning(window.pid)
                 const recordingAutomatically = await this.isAutomaticRecording()
                 if (!isRunning && recordingAutomatically) {
+                    const monitorName = window.title ?? "Monitor " + monitor
+                    const not = getLocalizedT("backend", "obs.record.notification.stop")
                     this.stopRecording()
                         .then(() =>
                             clickableNotification({
-                                title: "Recording stopped",
-                                body: `${window.title ?? "Monitor " + monitor} has been recorded successfully`,
+                                title: not("title"),
+                                body: not("body", { monitorName }),
                                 silent: true
                             }, () => MainGlobals.window.show()).show()
                         )
@@ -196,8 +200,9 @@ export class RecordManager {
                 break;
             }
 
+            const t = getLocalizedT("backend", "obs.record")
             if (!started)
-                throw new Error("Could not start recording.")
+                throw new Error(t("could_not_start"))
 
 
             const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
@@ -262,6 +267,7 @@ export class RecordManager {
     }
 
     public async stopRecording() {
+        const t = getLocalizedT("backend", "obs.record")
         if (!this.recording)
             return
 
@@ -288,7 +294,7 @@ export class RecordManager {
 
         if (signal.signal !== EOBSOutputSignal.Stop) {
             this.stopInitializing = false
-            throw new Error("Could not stop recording")
+            throw new Error(t("could_not_stop"))
         }
         if (this.current?.currentInfoPath) {
             const { currentInfoPath, gameId, bookmarks } = this.current
@@ -395,10 +401,13 @@ export class RecordManager {
                 ...(Scene.getCurrentSetting()?.window ?? {}),
                 arguments: ["censored"]
             } as WindowInformation, "Recording", this.isRecording())
+
+            const name = winInfo?.productName ?? winInfo?.title ?? winInfo.executable
+            const not = getLocalizedT("backend", "obs.record.notification.start")
             this.startRecording(game, winInfo).then(() =>
                 clickableNotification({
-                    title: "Recording started",
-                    body: `Recording started for ${winInfo?.productName ?? winInfo?.title ?? winInfo.executable}`,
+                    title: not("title"),
+                    body: not("body", { name }),
                     silent: true
                 }, () => MainGlobals.window.show()).show()
             )
