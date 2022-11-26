@@ -1,5 +1,5 @@
 import { Progress } from '@backend/processors/events/interface';
-import { Flex, Heading, useColorModeValue, Progress as ProgressBar, Text } from '@chakra-ui/react';
+import { Flex, Heading, useColorModeValue, Progress as ProgressBar, Text, Grid } from '@chakra-ui/react';
 import { motion } from "framer-motion";
 import * as React from "react";
 
@@ -28,38 +28,41 @@ export function InitializePage({ progress }: { progress: Progress }) {
             gap='5'
         >
             <svg xmlns="http://www.w3.org/2000/svg"
-            width='1'
-            height='1'
-            style={{ width: "5em", height: "5em" }}
-            viewBox='0 0 100 100'
-        >
-            <motion.circle
-                cx={50}
-                cy={50}
-                fill={primary}
-                animate={{ r: [0, 40] }}
-            />
-            <motion.circle
-                cx={50}
-                cy={50}
-                fill={secondary}
-                animate={{ r: [0,  35, 0] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-            />
-            <motion.circle
-                cx={50}
-                cy={50}
-                fill={third}
-                animate={{ r: [0, 30, 0] }}
-                transition={{ repeat: Infinity, duration: 2, delay: 1 }}
-            />
-        </svg>
+                width='1'
+                height='1'
+                style={{ width: "5em", height: "5em" }}
+                viewBox='0 0 100 100'
+            >
+                <motion.circle
+                    cx={50}
+                    cy={50}
+                    fill={primary}
+                    animate={{ r: [0, 40] }}
+                />
+                <motion.circle
+                    cx={50}
+                    cy={50}
+                    fill={secondary}
+                    animate={{ r: [0, 35, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                />
+                <motion.circle
+                    cx={50}
+                    cy={50}
+                    fill={third}
+                    animate={{ r: [0, 30, 0] }}
+                    transition={{ repeat: Infinity, duration: 2, delay: 1 }}
+                />
+            </svg>
 
-        <Heading marginLeft='1em'>{status}</Heading>
+            <Heading marginLeft='1em'>{status}</Heading>
         </Flex>
         <Flex w='75%' h='100%' gap='5' alignItems='center'>
             <ProgressBar rounded='md' w='100%' colorScheme='green' size='md' value={percent} max={1} />
-            <Text justifySelf='end'>{(percent * 100).toFixed(2)}%</Text>
+            <Grid justifyContent='end' alignItems='center'>
+                <Text justifySelf='end'>{(percent * 100).toFixed(2)}%</Text>
+                <Text justifySelf='end' opacity='0'>000.00%</Text>
+            </Grid>
         </Flex>
     </Flex >
 }

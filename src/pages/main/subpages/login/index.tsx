@@ -47,7 +47,7 @@ export default function LoginPage() {
                 alignItems='center'
                 flex='.5'
             >
-                <Heading mb='10'>Sign In</Heading>
+                <Heading mb='10'>{t("sign_in")}</Heading>
                 <Grid>
                     <GridItem gridRow='1' gridColumn='1' zIndex='100'>
                         <Box onClick={() => {

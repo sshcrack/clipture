@@ -6,7 +6,6 @@ import { shell } from 'electron';
 import got from "got";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { getLocalizedT } from 'src/locales/backend_i18n';
-import i18n from 'src/locales/i18n';
 import { v4 as uuid } from "uuid";
 import { clickableNotification } from '../obs/core/backend_only_tools';
 import { OfflineChangeListener, SessionData, SessionInfo, SessionStatus } from './interfaces';

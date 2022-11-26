@@ -24,18 +24,22 @@ export function renderMain(Comp: () => JSX.Element) {
     window.api.system.getLanguage()
         .then(e => {
             if (!e)
-                return
+                return window.api.system.setLanguage(i18n.language)
 
             i18n.changeLanguage(e)
         })
 
+    i18n.on("languageChanged", lang => {
+        console.log("Setting language to", lang)
+        window.api.system.setLanguage(lang)
+    })
 
     console.log("Rendering...")
     root.render(
         <ChakraProvider theme={theme}>
             <TitleBarProvider>
                 <TitleBar icon='../assets/logo.svg' />
-                <TitlebarBalancer className='sc2' style={{ /*overflowY: "hidden"*/ }}>
+                <TitlebarBalancer className='sc2'>
                     <ToastNotifier />
                     <OnlyUnminimizedRender>
                         <Comp />

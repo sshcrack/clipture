@@ -19,7 +19,7 @@ export class Unpacker extends ProcessEventEmitter {
 
     public async run() {
         logger.info(this.options.messages.extracting)
-        this.emit("progress", { percent: 0, status: `Extracting ${this.options.messages.extracting}...` })
+        this.emit("progress", { percent: 0, status: `${this.options.messages.extracting}...` })
 
         const { destination, src, messages } = this.options;
         const { overwrite } = this.options;
