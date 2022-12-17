@@ -4,8 +4,8 @@ import { GameManager } from './managers/game';
 import { OverlayManager } from './managers/game/overlay';
 
 export const shutdownFuncs = [
-    () => ClipManager.shutdown(),
-    () => MainGlobals.obs.shutdown(),
-    () => GameManager.exit(),
-    () => OverlayManager.shutdown()
+    async () => ClipManager.shutdown(),
+    async () => MainGlobals.obs.shutdown(),
+    async () => GameManager.exit(),
+    async () => OverlayManager.shutdown()
 ]

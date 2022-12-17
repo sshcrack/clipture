@@ -17,8 +17,6 @@ import exitHook from 'exit-hook';
 import { OBSManager } from './backend/managers/obs';
 import { MainLogger } from './interfaces/mainLogger';
 import { addCrashHandler, addUpdater } from './main_funcs';
-import i18n from './locales/i18n';
-import { getLocalizedT } from './locales/backend_i18n';
 
 const logger = MainLogger.get("Main")
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
@@ -53,6 +51,8 @@ try {
 
 let mainWindow: BrowserWindow;
 let trayIcon = null as Tray
+let alreadyShutdown = false
+
 const createWindow = (): void => {
   const { width, height, x, y, manage: manageWindow } = windowStateKeeper({
     defaultHeight: 700,
@@ -94,7 +94,7 @@ const createWindow = (): void => {
 
   trayIcon.setToolTip('Clipture')
   trayIcon.setContextMenu(contextMenu);
-  trayIcon.on("click", () => SystemManager.toTray(mainWindow, false))
+  trayIcon.on("click", () => SystemManager.toTray(MainGlobals.window, false))
 
   MainGlobals.window = mainWindow
   MainGlobals.obs = new OBSManager()
@@ -129,15 +129,14 @@ app.on('activate', () => {
   }
 });
 
-let alreadyShutdown = false
-
 const handleExit = () => {
+  logger.debug("Handling exit already shutdown:", alreadyShutdown, "...")
   if (alreadyShutdown)
     return
 
   logger.log("Shutting down...")
   alreadyShutdown = true
-  shutdownFuncs.map(e => e())
+  shutdownFuncs.map(e => e().catch(() => {/**/ }))
 }
 
 ipcMain.handle("quit-app", () => handleExit())

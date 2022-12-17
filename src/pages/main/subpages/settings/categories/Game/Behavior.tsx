@@ -12,6 +12,7 @@ export default function GameBehavior() {
         <Flex
             w='100%'
             h='100%'
+            gap='3'
             flexDir='column'
             alignItems='center'
         >

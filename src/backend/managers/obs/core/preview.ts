@@ -1,84 +1,102 @@
-import { webContentsToWindow } from '@backend/tools/window'
-import { BrowserWindow, IpcMainInvokeEvent, screen } from 'electron'
-import { MainLogger } from 'src/interfaces/mainLogger'
-import { getLocalizedT } from 'src/locales/backend_i18n'
-import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
-import { v4 as uuid } from "uuid"
-import { RegManMain } from '../../../../general/register/main'
-import { Scene } from '../Scene'
-import { getDisplayInfo } from '../Scene/display'
-import { importOBS } from '../tool'
-import { ClientBoundRecReturn } from '../types'
+import { webContentsToWindow } from "@backend/tools/window";
+import { BrowserWindow, IpcMainInvokeEvent, screen } from "electron";
+import { MainLogger } from "src/interfaces/mainLogger";
+import { getLocalizedT } from "src/locales/backend_i18n";
+import { NodeObs as typedObs } from "src/types/obs/obs-studio-node";
+import { v4 as uuid } from "uuid";
+import { RegManMain } from "../../../../general/register/main";
+import { Scene } from "../Scene";
+import { getDisplayInfo } from "../Scene/display";
+import { importOBS } from "../tool";
+import { ClientBoundRecReturn } from "../types";
 
-const log = MainLogger.get("Backend", "Managers", "OBS", "Preview")
-const reg = RegManMain
+const log = MainLogger.get("Backend", "Managers", "OBS", "Preview");
+const reg = RegManMain;
 
 export class PreviewManager {
-    public displayWindowMap = new Map<string, BrowserWindow>()
+    public displayWindowMap = new Map<string, BrowserWindow>();
     private NodeObs: typedObs;
-    private initialized = false
+    private initialized = false;
     static instance: PreviewManager = null;
 
     constructor() {
-        const t = getLocalizedT("backend", "obs.preview")
-        if (PreviewManager.instance)
-            throw new Error(t("not_twice"))
+        const t = getLocalizedT("backend", "obs.preview");
+        if (PreviewManager.instance) throw new Error(t("not_twice"));
 
         PreviewManager.instance = this;
-        this.register()
+        this.register();
     }
 
     public async initialize() {
-        if (this.initialized)
-            return
+        if (this.initialized) return;
 
-        this.NodeObs = (await importOBS()).NodeObs
-        this.initialized = true
+        this.NodeObs = (await importOBS()).NodeObs;
+        this.initialized = true;
     }
 
     private register() {
-        reg.onPromise("obs_preview_size", async () => Scene.getCurrentSetting()?.size)
-        reg.onPromise("obs_preview_init", (e, bounds) => this.initPreview(e, bounds))
-        reg.onPromise("obs_preview_resize", (e, id, bounds) => this.resizePreview(id, webContentsToWindow(e.sender), bounds))
-        reg.onPromise("obs_preview_destroy", (_, id) => this.removePreview(id))
+        reg.onPromise(
+            "obs_preview_size",
+            async () => Scene.getCurrentSetting()?.size
+        );
+        reg.onPromise("obs_preview_init", (e, bounds) =>
+            this.initPreview(e, bounds)
+        );
+        reg.onPromise("obs_preview_resize", (e, id, bounds) =>
+            this.resizePreview(id, webContentsToWindow(e.sender), bounds)
+        );
+        reg.onPromise("obs_preview_destroy", (_, id) => this.removePreview(id));
     }
 
-    public async initPreview(event: IpcMainInvokeEvent, bounds: ClientBoundRecReturn) {
-        const t = getLocalizedT("backend", "obs.preview")
-        if (!this.NodeObs)
-            throw new Error(t("obs_not_initialized"))
+    public async initPreview(
+        event: IpcMainInvokeEvent,
+        bounds: ClientBoundRecReturn
+    ) {
+        const t = getLocalizedT("backend", "obs.preview");
+        if (!this.NodeObs) throw new Error(t("obs_not_initialized"));
 
-        const window = webContentsToWindow(event.sender)
-        const handle = window.getNativeWindowHandle()
-        const displayId = "PREVIEW_" + uuid()
-        log.info("Initializing preview on", window.id, "total", this.displayWindowMap.size + 1)
-        log.info("Creating Preview Display on id", displayId)
+        const window = webContentsToWindow(event.sender);
+        const handle = window.getNativeWindowHandle();
+        const displayId = "PREVIEW_" + uuid();
+        log.info(
+            "Initializing preview on",
+            window.id,
+            "total",
+            this.displayWindowMap.size + 1
+        );
+        log.info("Creating Preview Display on id", displayId);
 
         this.NodeObs.OBS_content_createSourcePreviewDisplay(
             handle,
             Scene.get().name,
             displayId
-        )
-        this.NodeObs.OBS_content_setShouldDrawUI(displayId, false)
-        this.NodeObs.OBS_content_setPaddingSize(displayId, 0)
-        this.NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255)
+        );
+        this.NodeObs.OBS_content_setShouldDrawUI(displayId, false);
+        this.NodeObs.OBS_content_setPaddingSize(displayId, 0);
+        this.NodeObs.OBS_content_setPaddingColor(displayId, 255, 255, 255);
 
         this.displayWindowMap.set(displayId, window);
-        const setting = Scene.getCurrentSetting()
+        const setting = Scene.getCurrentSetting();
         return {
             displayId,
             sceneSize: setting?.size,
-            preview: await this.resizePreview(displayId, window, bounds)
-        }
+            preview: await this.resizePreview(displayId, window, bounds),
+        };
     }
 
-    public async resizePreview(displayId: string, window: BrowserWindow, bounds: ClientBoundRecReturn) {
-        const t = getLocalizedT("backend", "obs.preview")
-        if (!this.NodeObs)
-            throw new Error(t("obs_not_initialized"))
+    public async resizePreview(
+        displayId: string,
+        window: BrowserWindow,
+        bounds: ClientBoundRecReturn
+    ) {
+        const t = getLocalizedT("backend", "obs.preview");
+        if (!this.NodeObs) throw new Error(t("obs_not_initialized"));
 
         const winBounds = window.getBounds();
-        const currScreen = screen.getDisplayNearestPoint({ x: winBounds.x, y: winBounds.y });
+        const currScreen = screen.getDisplayNearestPoint({
+            x: winBounds.x,
+            y: winBounds.y,
+        });
 
         const { aspectRatio } = await getDisplayInfo(currScreen);
         const displayWidth = Math.floor(bounds.width);
@@ -86,30 +104,44 @@ export class PreviewManager {
         const displayX = Math.floor(bounds.x);
         const displayY = Math.floor(bounds.y);
 
-        log.debug("Resizing display w:", displayWidth, "h:", displayHeight, "x:", displayX, "y:", displayY)
-        this.NodeObs.OBS_content_resizeDisplay(displayId, displayWidth, displayHeight);
+        log.debug(
+            "Resizing display w:",
+            displayWidth,
+            "h:",
+            displayHeight,
+            "x:",
+            displayX,
+            "y:",
+            displayY
+        );
+        this.NodeObs.OBS_content_resizeDisplay(
+            displayId,
+            displayWidth,
+            displayHeight
+        );
         this.NodeObs.OBS_content_moveDisplay(displayId, displayX, displayY);
-        return { height: displayHeight, width: displayWidth }
+        return { height: displayHeight, width: displayWidth };
     }
 
     public async removePreview(displayId: string) {
-        const t = getLocalizedT("backend", "obs.preview")
-        if (!this.NodeObs)
-            throw new Error(t("obs_not_initialized"))
+        const t = getLocalizedT("backend", "obs.preview");
+        if (!this.NodeObs) throw new Error(t("obs_not_initialized"));
 
-        log.debug("Destroying display with id", displayId)
-        const window = this.displayWindowMap.get(displayId)
+        log.debug("Destroying display with id", displayId);
+        const window = this.displayWindowMap.get(displayId);
         if (!window)
-            throw new Error("Window with id " + displayId + " could not be found.")
+            throw new Error("Window with id " + displayId + " could not be found.");
 
-        this.NodeObs.OBS_content_destroyDisplay(displayId)
+        this.NodeObs.OBS_content_destroyDisplay(displayId);
 
-        log.log("Destroyed display with id", displayId)
+        log.log("Destroyed display with id", displayId);
     }
 
     public async shutdown() {
-        const allPreviews = Array.from(this.displayWindowMap.keys())
-        const proms = allPreviews.map(k => this.removePreview(k))
-        await Promise.all(proms)
+        const allPreviews = Array.from(this.displayWindowMap.keys());
+        const proms = allPreviews.map((k) =>
+            this.removePreview(k).catch(() => { /**/ })
+        );
+        await Promise.all(proms);
     }
 }

@@ -63,7 +63,7 @@ export default function GameHotkey() {
     }, [hotkey])
 
     return <Flex
-        w='80%'
+        w='70%'
         justifyContent='center'
         alignItems='center'
     >
