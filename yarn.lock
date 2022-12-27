@@ -6700,7 +6700,7 @@ jsonfile@^6.0.1:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jszip@^3.9.1:
+jszip@^3.10.1:
   version "3.10.1"
   resolved "https://registry.yarnpkg.com/jszip/-/jszip-3.10.1.tgz#34aee70eb18ea1faec2f589208a157d1feb091c2"
   integrity sha512-xXDvecyTpGLrqFrvkrUSoxxfJI5AH7U8zxxtVclpsUtMCq4JQ290LY8AW5c7Ggnr/Y/oK+bQMbqK2qmtk3pN4g==
@@ -9078,6 +9078,11 @@ svgo@^2.8.0:
     csso "^4.2.0"
     picocolors "^1.0.0"
     stable "^0.1.8"
+
+systeminformation@^5.16.9:
+  version "5.16.9"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.16.9.tgz#8a5419c293afea142d93d98dde6850dceb4677b6"
+  integrity sha512-QTlv3GGSromPeLVW3pzM6uxU8RbkacW9e0+ZX23GAXaX+XE0UToSygAxCJDHSty6RB9lAFHCHg+FfiXFChi/+w==
 
 table@^6.0.9:
   version "6.8.0"

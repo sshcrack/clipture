@@ -13,6 +13,7 @@ import { AudioSceneManager } from './managers/obs/Scene/audio';
 import { Prerequisites } from './managers/prerequisites';
 import { SettingsManager } from './managers/settings';
 import { SystemManager } from './managers/system';
+import { DebugGatherer } from './managers/system/debug_gatherer';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 
@@ -33,5 +34,6 @@ export const registerFuncs = [
     () => DiscordManager.register(),
     () => CloudManager.register(),
     () => DiscoverManager.register(),
-    () => OverlayManager.register()
+    () => OverlayManager.register(),
+    () => DebugGatherer.register()
 ]

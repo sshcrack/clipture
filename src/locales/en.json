@@ -380,6 +380,11 @@
             },
             "general": {
                 "title": "General",
+                "debug": {
+                    "title": "Save Debug File",
+                    "success_title": "Debug file saved.",
+                    "error_title": "Error whilst saving"
+                },
                 "autostart": {
                     "title": "Autostart",
                     "loading": "Loading autostart...",

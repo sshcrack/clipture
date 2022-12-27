@@ -24,6 +24,8 @@ const system = {
 
     addTrayEventListener: (func: ToTrayIconFunc) => getAddRemoveListener(func, trayIconListeners),
     setLanguage: (lang: string) => RegManRender.emitPromise("system_change_language", lang),
-    getLanguage: () => RegManRender.emitPromise("system_get_language")
+    getLanguage: () => RegManRender.emitPromise("system_get_language"),
+
+    saveDebugFile: () => RegManRender.emitPromise("system_debug_get")
 }
 export default system;

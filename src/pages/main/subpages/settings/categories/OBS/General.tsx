@@ -1,6 +1,7 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
 import { useTranslation } from 'react-i18next'
+import DebugCreator from 'src/components/settings/categories/OBS/General/DebugCreator'
 import LanguageSelector from 'src/components/settings/categories/OBS/General/LanguageSelector'
 import OBSAutostart from 'src/components/settings/categories/OBS/General/OBSAutostart'
 import OBSClipPath from 'src/components/settings/categories/OBS/General/OBSClipPath'
@@ -21,6 +22,7 @@ export default function OBSGeneral() {
             <OBSDelete />
             <OBSClipPath />
             <LanguageSelector />
+            <DebugCreator />
         </Flex>
     </>
 }
