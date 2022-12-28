@@ -6,7 +6,8 @@ export type OverlayEventPromises = addPrefixUnderscoreToObject<{
     set_enabled: (enabled: boolean) => void,
 
     get_alignment: () => OverlayAlignment,
-    get_enabled: () => boolean
+    get_enabled: () => boolean,
+    open_dev: () => void
 }, "overlay">
 
 export type OverlayMainToRender = addPrefixUnderscoreToObject<{

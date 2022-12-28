@@ -1,4 +1,4 @@
-import { Flex, Heading } from '@chakra-ui/react'
+import { Button, Flex, Heading } from '@chakra-ui/react'
 import React from "react"
 import { useTranslation } from 'react-i18next'
 import BehaviorDiscord from 'src/components/settings/categories/Game/Behavior/GameDiscord'
@@ -19,6 +19,9 @@ export default function GameBehavior() {
             <GameHotkey />
             <BehaviorDiscord />
             <OverlayEnable />
+            <Button onClick={() => window.api.overlay.openDevWindow()}>
+                Open Overlay DevWindow
+            </Button>
         </Flex>
     </>
 }

@@ -6,7 +6,8 @@ const overlay = {
     isEnabled: () => RegManRender.emitPromise("overlay_get_enabled"),
 
     setAlignment: (alignment: OverlayAlignment) => RegManRender.emitPromise("overlay_set_alignment", alignment),
-    getAlignment: () => RegManRender.emitPromise("overlay_get_alignment")
+    getAlignment: () => RegManRender.emitPromise("overlay_get_alignment"),
+    openDevWindow: () => RegManRender.emitPromise("overlay_open_dev")
 }
 
 export default overlay

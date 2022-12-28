@@ -89,6 +89,7 @@ export class OverlayManager {
         RegManMain.onPromise("overlay_get_enabled", async () => Storage.get("overlay_enabled"))
         RegManMain.onPromise("overlay_set_alignment", (_, alignment) => this.setAlignment(alignment))
         RegManMain.onPromise("overlay_set_enabled", (_, enabled) => this.setEnabled(enabled))
+        RegManMain.onPromise("overlay_open_dev", async () => this.win.webContents.openDevTools({ mode: "detach" }))
     }
 
     static shutdown() {
@@ -204,6 +205,16 @@ export class OverlayManager {
         if (!this.win)
             this.initializeWindow()
 
+        log.debug("Getting monitor dimensions with hwnd", hwnd)
+        const monitor = await GameManager.getMonitorDimensions(hwnd).catch(e => {
+            log.error("Overlay error", e)
+            this.currentHWND = null
+            return null
+        })
+
+        if(!monitor)
+            throw new Error(`Invalid handle ${hwnd}`)
+
         this.currentId = overlay.addHWND(cppHWNDToBuffer(hwnd))
         this.currentHWND = hwnd
         overlay.show()
@@ -213,8 +224,6 @@ export class OverlayManager {
         const info = overlay.getInfo(this.currentId)
         log.info("Overlay info", info)
 
-        log.debug("Getting monitor dimensions with hwnd", hwnd)
-        const monitor = await GameManager.getMonitorDimensions(hwnd)
         log.debug("Setting position alignment")
         this.setPosition(Storage.get("overlay_alignment", OverlayAlignment.TOP_LEFT), info, monitor)
 

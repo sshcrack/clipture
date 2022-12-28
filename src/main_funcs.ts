@@ -1,8 +1,13 @@
+import { AuthManager } from '@backend/managers/auth'
+import { DebugGatherer } from '@backend/managers/system/debug_gatherer'
+import { MainGlobals } from '@Globals/mainGlobals'
 import { autoUpdater, dialog } from 'electron'
 import unhandled from "electron-unhandled"
-import { debugInfo, openNewGitHubIssue } from 'electron-util'
+import FormData from 'form-data'
+import { createReadStream } from 'fs'
+import got from 'got/dist/source'
 import { MainLogger } from './interfaces/mainLogger'
-const logger = MainLogger.get("Main", "Updater")
+const log = MainLogger.get("Main", "Updater")
 
 
 export function addUpdater() {
@@ -11,7 +16,7 @@ export function addUpdater() {
     require('update-electron-app')({
         repo: 'sshcrack/clipture',
         updateInterval: '10 minutes',
-        logger: logger
+        logger: log
     })
 
     autoUpdater.on('update-downloaded', (_, releaseNotes, releaseName) => {
@@ -29,20 +34,33 @@ export function addUpdater() {
     })
 
     autoUpdater.on('error', message => {
-        logger.error("Could not check auto-updater:", message)
+        log.error("Could not check auto-updater:", message)
     })
 }
 
 export function addCrashHandler() {
     unhandled({
         showDialog: true,
-        logger: (...e) => logger.error(...e),
-        reportButton: error => {
-            openNewGitHubIssue({
-                user: "sshcrack",
-                repo: "clipture",
-                body: `#Automated Bug Report \n ### This is a bug reported automatically by the crash handler\`\`\`\n${error.stack}\n\`\`\`\n\n---\n\n${debugInfo()}`
+        logger: (...e) => log.error(...e),
+        reportButton: async error => {
+            const logFile = await DebugGatherer.getDebugFile()
+            const body = new FormData()
+            const cookieHeader = await AuthManager.getCookies()
+            if(!cookieHeader)
+                return log.debug("Can not report error because not signed in.")
+
+            body.append("archive", createReadStream(logFile))
+            body.append("error", error.stack)
+
+            log.debug("Uploading report...")
+            log.error(error?.stack)
+            got.post(`${MainGlobals.baseUrl}/api/debug/report`, {
+                headers: { cookie: cookieHeader },
+                body,
+                throwHttpErrors: false,
             })
+            .then(() => log.info("Report uploaded."))
+            .catch(e => log.error("Could not upload report", e))
         }
     })
 }
