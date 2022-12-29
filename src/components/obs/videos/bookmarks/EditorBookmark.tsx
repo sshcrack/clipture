@@ -14,13 +14,14 @@ export default function EditorBookmark({ time, barW }: { time: number, barW: num
   if (time < visibleStart || time > visibleEnd)
     return
 
+    console.log("Time", time, "offset", offset, "range", range)
   const relTime = time - visibleStart
   const placement = relTime / range * barW
   return <Flex
     gridRow='1'
     gridColumn='1'
     w='100%'
-    transform={`translateX(${placement}px + 1em)`}
+    transform={`translateX(calc(${placement}px + 1em))`}
   >
     <MdPlace style={{ width: "2em", height: "2em" }} onClick={() => {
       if(!videoRef?.current?.currentTime)

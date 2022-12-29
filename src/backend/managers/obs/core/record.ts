@@ -206,6 +206,7 @@ export class RecordManager {
 
 
             const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
+            log.debug("Resetting record timer.")
             this.recordTimer = Date.now()
             const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
             const infoPathAvailable = recordPath && videoName
