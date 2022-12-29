@@ -21,6 +21,7 @@ export type MonitorDimensions = {
 }
 
 export type CurrentSetting = null | {
+    resolution: [number, number]
     window: WindowInformation,
     monitor?: number,
     oldSize?: {

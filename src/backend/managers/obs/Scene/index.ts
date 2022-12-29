@@ -110,7 +110,7 @@ export class Scene {
 
         const optHeight = oldSize?.height ?? physicalHeight
         const optWidth = oldSize?.width ?? physicalWidth
-        const [scaledW, scaledH] = scaleKeepRatioSpecific(physicalWidth, physicalHeight, { height: optHeight, width: optWidth}, true)
+        const [scaledW, scaledH] = scaleKeepRatioSpecific(physicalWidth, physicalHeight, { height: optHeight, width: optWidth }, true)
 
 
         const settings = videoSource.settings;
@@ -134,6 +134,7 @@ export class Scene {
         sceneItem.alignment = EAlignment.TopLeft as number
 
         this._setting = {
+            resolution: [optWidth, optHeight],
             window: winInfo,
             monitor: monitor,
             size: {
@@ -206,6 +207,7 @@ export class Scene {
         gameItem.alignment = EAlignment.TopLeft as number
 
         this._setting = {
+            resolution: [physicalWidth, physicalHeight],
             window: options,
             monitor: null,
             size: {
