@@ -20,7 +20,7 @@ import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
 import { importOBS } from '../tool'
 import { clickableNotification, getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
-import { CurrentType, OutCurrentType } from "./interface"
+import { CurrentType, OBSRecordError, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
 
 const reg = RegManMain
@@ -187,12 +187,14 @@ export class RecordManager {
 
             const currVideos = await listVideos(recordPath)
             let started = false
+            let lastErr = null as OBSRecordError
             for (let i = 0; i < 5; i++) {
                 log.debug("Trying to start...")
                 this.NodeObs.OBS_service_startRecording()
                 const signal = await SignalsManager.getNextSignalInfo().catch(() => { log.warn("Timeout signal"); return { signal: EOBSOutputSignal.Start } });
                 if (signal.signal === EOBSOutputSignal.Stop) {
                     log.warn("Could not start recording: ", signal, "trying again...")
+                    lastErr = signal
                     continue;
                 }
 
@@ -200,9 +202,8 @@ export class RecordManager {
                 break;
             }
 
-            const t = getLocalizedT("backend", "obs.record")
             if (!started)
-                throw new Error(t("could_not_start"))
+                throw lastErr
 
 
             const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
@@ -417,7 +418,9 @@ export class RecordManager {
                         return log.silly("Init fail start")
 
                     log.error("Could not start recording", e)
-                    throw e
+                    this.setAutomaticRecord(false)
+
+                    RegManMain.send("obs_record_error", e)
                 })
         }
     }

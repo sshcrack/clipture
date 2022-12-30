@@ -153,6 +153,11 @@
                 "bandwidth": "Bandwidth",
                 "fps": "FPS"
             }
+        },
+        "error": {
+            "title": "Error while recording",
+            "unknown": "Unfortunately an unknown error occurred.",
+            "close": "Close"
         }
     },
     "general": {

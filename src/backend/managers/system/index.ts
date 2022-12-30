@@ -41,6 +41,12 @@ export class SystemManager {
         RegManMain.onPromise("system_is_autolaunch", () => launcher.isEnabled())
         RegManMain.onPromise("system_change_language", async (_, lang) => Storage.set("language", lang))
         RegManMain.onPromise("system_get_language", async () => Storage.get("language"))
+        RegManMain.onPromise("system_driver_open", async (_, type) => {
+            if(type === "nvidia")
+                return shell.openExternal("https://www.nvidia.com/Download/index.aspx")
+
+            shell.openExternal("https://www.amd.com/de/support")
+        })
     }
 
     static openPath(p: string) {

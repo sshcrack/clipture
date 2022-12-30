@@ -1,4 +1,4 @@
-import { OutCurrentType } from '@backend/managers/obs/core/interface'
+import { OBSRecordError, OutCurrentType } from '@backend/managers/obs/core/interface'
 import { CurrentSetting, WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn, CurrRec, Encoder } from '@backend/managers/obs/types'
 import type { OBSSettings } from '@Globals/storage'
@@ -45,4 +45,5 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
 
 export type OBSMainToRender = addPrefixUnderscoreToObject<{
     record_change: (recording: boolean) => void,
+    record_error: (error: OBSRecordError) => void,
 }, "obs">

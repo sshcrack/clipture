@@ -13,7 +13,8 @@ export type SystemEventsPromises = addPrefixUnderscoreToObject<{
     change_language: (lang: string) => void,
     get_language: () => string,
 
-    debug_get:() => void
+    debug_get:() => void,
+    driver_open: (driverType: "nvidia" | "amd") => void
 }, "system">
 
 export type SystemEventsSync = addPrefixUnderscoreToObject<{

@@ -26,6 +26,7 @@ const system = {
     setLanguage: (lang: string) => RegManRender.emitPromise("system_change_language", lang),
     getLanguage: () => RegManRender.emitPromise("system_get_language"),
 
-    saveDebugFile: () => RegManRender.emitPromise("system_debug_get")
+    saveDebugFile: () => RegManRender.emitPromise("system_debug_get"),
+    openDriverPage: (driverType: "nvidia" | "amd") => RegManRender.emitPromise("system_driver_open", driverType)
 }
 export default system;
