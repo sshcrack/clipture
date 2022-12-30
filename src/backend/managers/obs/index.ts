@@ -1,7 +1,7 @@
 import { existsProm } from '@backend/tools/fs'
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
-import { mkdir } from 'fs/promises'
+import { mkdir, readFile } from 'fs/promises'
 import prettyMS from "pretty-ms"
 import { getLocalizedT } from 'src/locales/backend_i18n'
 import { SettingsCat } from 'src/types/obs/obs-enums'
@@ -23,6 +23,9 @@ import { SignalsManager } from './Signals'
 import { getEncoders, getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
 import { Encoder } from './types'
 import { getEncoderPresets, setPresetWithEncoder } from './util'
+import { app } from 'electron'
+import path from 'path'
+import { LightMode } from '@chakra-ui/react'
 
 
 const reg = RegManMain
@@ -188,15 +191,42 @@ export class OBSManager {
         await this.previewInstance.shutdown().catch(log.error)
         await this.recordManager.shutdown().catch(log.error)
         await Scene.shutdown()
+        let err: Error = null
         try {
+            log.debug("Removing callback...")
             this.NodeObs.OBS_service_removeCallback();
+            log.debug("Disconnecting IPC...")
             this.NodeObs.IPC.disconnect()
+
         } catch (e) {
             const newErr = new Error(t("errors.shut_down", { e }))
             log.error(newErr)
 
-            throw newErr;
+            err = newErr
         }
+
+        // Kill OBS now (it should be exited by now)
+        log.debug("Killing OBS")
+        await this.killOBS()
+
+        if(err)
+            throw err
+    }
+
+    private async killOBS() {
+        const pidFile = path.join(app.getPath("temp"), "server.pid")
+        const exists = await existsProm(pidFile)
+
+        log.silly("Killing OBS with pidFile at", pidFile, "exists", exists)
+        if(!exists)
+            return
+
+        const pidFileContent = await readFile(pidFile)
+        const pid = pidFileContent.readInt16LE()
+
+        log.silly("Killing OBS with pid", pid)
+        const execa = (await import("execa")).execa
+        await execa("taskkill", [ "/IM", pid.toString(), "/F"])
     }
 
     private setEncoderPreset(encoder: Encoder, preset: string) {

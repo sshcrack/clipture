@@ -5,7 +5,7 @@
   "description": "My Electron application description",
   "main": ".webpack/main",
   "scripts": {
-    "start": "electron-forge start",
+    "start": "node tools/scripts/clipture_running.js && electron-forge start",
     "analyze": "electron-forge start -- --analyze",
     "dev": "electron-forge start -- --trace-warnings dev",
     "prod": "electron-forge start",

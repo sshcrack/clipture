@@ -52,6 +52,7 @@ try {
 let mainWindow: BrowserWindow;
 let trayIcon = null as Tray
 let alreadyShutdown = false
+let shuttingDown = false
 
 const createWindow = (): void => {
   const { width, height, x, y, manage: manageWindow } = windowStateKeeper({
@@ -143,15 +144,25 @@ const handleExit = () => {
 
   logger.log("Shutting down...")
   alreadyShutdown = true
-  shutdownFuncs.map(e => e().catch(() => {/**/ }))
+  shuttingDown = true
+  const proms = shutdownFuncs.map(e => e().catch(() => {/**/ }))
+  Promise.all(proms)
+    .catch(logger.error)
+    .finally(() => {
+      shuttingDown = false
+      app.quit()
+    })
 }
 
 ipcMain.handle("quit-app", () => handleExit())
 ipcMain.on("isDev", e => {
   e.returnValue = process.argv.slice(1).includes("dev")
 })
-app.on("will-quit", () => {
+app.on("will-quit", (e) => {
   handleExit()
+
+  if(shuttingDown)
+    e.preventDefault()
 })
 
 registerFuncs.map(e => e())
