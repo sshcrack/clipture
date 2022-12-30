@@ -54,8 +54,12 @@ export class SystemManager {
     }
 
     static toTray(window: BrowserWindow, hidden: boolean) {
-        if(!window || window.isDestroyed())
-            throw new Error("Window already has been destroyed.")
+        if(!window || window.isDestroyed()) {
+            if(MainGlobals.window === window) {
+                window = this.createWindow()
+                MainGlobals.window = window
+            }
+        }
 
         if (hidden) {
             window.minimize()
@@ -70,6 +74,7 @@ export class SystemManager {
     }
 
     static createWindow() {
+        log.silly("Creating new window")
         const { width, height, x, y, manage: manageWindow } = windowStateKeeper({
             defaultHeight: 700,
             defaultWidth: 1000
@@ -94,6 +99,8 @@ export class SystemManager {
         mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
         mainWindow.setIcon(MainGlobals.iconFile)
         manageWindow(mainWindow)
+
+        return mainWindow
     }
 
     static handleWindowCloseButton(window: BrowserWindow) {

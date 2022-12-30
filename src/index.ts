@@ -83,7 +83,7 @@ const createWindow = (): void => {
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Show app',
-      click: () => SystemManager.toTray(mainWindow, false)
+      click: () => SystemManager.toTray(MainGlobals.window, false)
     },
     {
       label: 'Quit',
@@ -107,11 +107,17 @@ const createWindow = (): void => {
 
 app.on('second-instance', () => {
   // Someone tried to run a second instance, we should focus our window.
-  if (mainWindow) {
-    if (mainWindow.isMinimized())
-      return SystemManager.toTray(mainWindow, false)
+  let w = MainGlobals.window;
+  console.log("Second instance", w.isDestroyed())
+  if(w.isDestroyed()) {
+    MainGlobals.window = SystemManager.createWindow()
+    w = MainGlobals.window
+  }
+  if (w) {
+    if (w.isMinimized())
+      return SystemManager.toTray(w, false)
 
-    mainWindow.focus()
+    w.focus()
   }
 })
 
@@ -128,6 +134,7 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
 
 const handleExit = () => {
   logger.debug("Handling exit already shutdown:", alreadyShutdown, "...")
