@@ -126,7 +126,7 @@ export class RecordManager {
                         .then(() =>
                             clickableNotification({
                                 title: not("title"),
-                                body: not("body", { monitorName }),
+                                body: not("body").split("{{monitorName}}").join(monitorName),
                                 silent: true
                             }, () => MainGlobals.window.show()).show()
                         )
@@ -241,6 +241,7 @@ export class RecordManager {
             }
 
             log.info("Record current is: ", this.current)
+            log.silly("Output size", this.NodeObs.OBS_settings_getSettings(SettingsCat.Video))
             BrowserWindow.getAllWindows().forEach(e => e.setOverlayIcon(MainGlobals.dotIconNativeImage, "Recording..."))
             RegManMain.send("obs_record_change", true)
             this.listeners.map(e => e(true))
@@ -409,7 +410,7 @@ export class RecordManager {
             this.startRecording(game, winInfo).then(() =>
                 clickableNotification({
                     title: not("title"),
-                    body: not("body", { name }),
+                    body: not("body").split("{{name}}").join(name),
                     silent: true
                 }, () => MainGlobals.window.show()).show()
             )

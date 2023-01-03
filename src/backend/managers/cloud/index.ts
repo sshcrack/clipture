@@ -214,7 +214,7 @@ export class CloudManager {
                             const visibleName = path.basename(clipName, path.extname(clipName))
                             if (notifyUpload)
                                 clickableNotification({
-                                    title: t("title", { name: visibleName }),
+                                    title: t("title").split("{{name}}").join(visibleName),
                                     body: t("notify_upload.body")
                                 }, () => MainGlobals.window.show()).show()
                             return resolve()

@@ -27,7 +27,7 @@ export function getGameInfo(game: CloudGeneralGame, original: string) {
 
     if (game?.type === "window") {
         const { executable, productName, title } = game.game ?? {}
-        gameName = productName ?? executable?.replace(".exe", "") ?? title?.split("-")?.pop()
+        gameName = productName ?? title?.split("-")?.pop() ?? executable?.replace(".exe", "")
         icon = getIcoUrl(original + ".ico")
     }
 

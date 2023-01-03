@@ -133,6 +133,7 @@ export class Scene {
         sceneItem.boundsType = EBoundsType.ScaleInner as number
         sceneItem.alignment = EAlignment.TopLeft as number
 
+
         this._setting = {
             resolution: [optWidth, optHeight],
             window: winInfo,
@@ -143,7 +144,7 @@ export class Scene {
             },
             oldSize: oldSize
         }
-        log.silly("changing resolution to", resolution, "Setting:", this._setting)
+        log.silly("changing resolution to", resolution, "Setting:", this._setting, "Scaled is", [ scaledW, scaledH ])
     }
 
     static async switchWindow(options: WindowInformation) {

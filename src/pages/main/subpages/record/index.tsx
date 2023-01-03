@@ -134,8 +134,8 @@ export default function RecordPage({ info }: { info: SessionInfo }) {
                                 const prom = recording ? obs.stopRecording() : obs.automaticRecord(false)
                                     .then(async () => {
                                         setAutomaticRecord(false)
-                                        await obs.startRecording()
                                         await obs.switchDesktop(0)
+                                        await obs.startRecording()
                                     })
 
                                 console.log("Setting saving to true record")

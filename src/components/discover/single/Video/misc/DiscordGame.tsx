@@ -35,7 +35,7 @@ export default function DiscordGame({ id, fontSize, imgSize, update }: Props) {
         gap='3'
     >
             <img
-                src={`https://clipture.sshcrack.me/api/game/image?id=null&icon=null&update=${update}`}
+                src={`${RenderGlobals.baseUrl}/api/game/image?id=null&icon=null&update=${update}`}
                 alt='Unknown Game'
                 style={{
                     width: imgSize ?? "1.5rem",
