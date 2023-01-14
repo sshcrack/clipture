@@ -180,6 +180,7 @@
     "intl-messageformat": "^10.2.1",
     "jszip": "^3.10.1",
     "lodash": "^4.17.21",
+    "node-global-key-listener": "^0.1.1",
     "pretty-bytes": "^6.0.0",
     "pretty-ms": "^8.0.0",
     "react": "^18.0.0",

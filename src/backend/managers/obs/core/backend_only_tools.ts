@@ -3,7 +3,7 @@ import { Notification, NotificationConstructorOptions } from 'electron'
 import fs from "fs/promises"
 import { MainLogger } from 'src/interfaces/mainLogger'
 import { Scene } from '../Scene'
-import { WindowInformation } from '../Scene/interfaces'
+import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { compareWinInfo, isDetectableGameInfo, isWindowInfoSame, sleepSync } from './tools'
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Tools")
@@ -41,6 +41,13 @@ export async function waitForVideo(dir: string, currVideos: string[], isRecordin
     return videoName
 }
 
+export type AvailableGameReturn = {
+    winInfo: WindowInformation;
+    game: DetectableGame;
+    gameDiff: boolean;
+    diff: boolean;
+}
+
 export async function getAvailableGame(info: WindowInformation[]) {
     const detectableGames = await GameManager.getDetectableGames()
     const toInclude = GameManager.getIncludeList()
@@ -66,12 +73,15 @@ export async function getAvailableGame(info: WindowInformation[]) {
 
     const diff = !compareWinInfo(winInfo, Scene.getCurrentSetting()?.window)
 
-    return {
+
+    const toReturn: AvailableGameReturn = {
         winInfo,
         game,
         gameDiff: !prevGame || !game || (prevGame.id !== game.id),
         diff
     }
+
+    return toReturn
 }
 
 

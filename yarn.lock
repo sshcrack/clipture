@@ -7290,6 +7290,13 @@ node-forge@^1:
   resolved "https://registry.yarnpkg.com/node-forge/-/node-forge-1.3.1.tgz#be8da2af243b2417d5f646a770663a92b7e9ded3"
   integrity sha512-dPEtOeMvF9VMcYV/1Wb8CPoVAXtp6MKMlcbAt4ddqmGqUJ6fQZFXkNZNkNlfevtNkGtaSoXf/vNNNSvgrdXwtA==
 
+node-global-key-listener@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/node-global-key-listener/-/node-global-key-listener-0.1.1.tgz#2697bcb5366b963b1aac6c9d5f72759c876d35bc"
+  integrity sha512-xPuMrjVDJSMWg1VchV4ynrE3I1nCtk84NRZWRr4WiPBAeauBEvmE7bMMmvLZbS7F5Z+xdK6YIhazhervyBINLw==
+  dependencies:
+    sudo-prompt "^9.2.1"
+
 node-gyp-build@^4.2.1:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.5.0.tgz#7a64eefa0b21112f89f58379da128ac177f20e40"
@@ -9023,7 +9030,7 @@ stylis@4.0.13:
   resolved "https://registry.yarnpkg.com/stylis/-/stylis-4.0.13.tgz#f5db332e376d13cc84ecfe5dace9a2a51d954c91"
   integrity sha512-xGPXiFVl4YED9Jh7Euv2V220mriG9u4B2TA6Ybjc1catrstKD2PpIdU3U0RKpkVBC2EhmL/F0sPCr9vrFTNRag==
 
-sudo-prompt@^9.1.1:
+sudo-prompt@^9.1.1, sudo-prompt@^9.2.1:
   version "9.2.1"
   resolved "https://registry.yarnpkg.com/sudo-prompt/-/sudo-prompt-9.2.1.tgz#77efb84309c9ca489527a4e749f287e6bdd52afd"
   integrity sha512-Mu7R0g4ig9TUuGSxJavny5Rv0egCEtpZRNMrZaYS1vxkiIxGiGUwoezU3LazIQ+KE04hTrTfNPgxU5gzi7F5Pw==

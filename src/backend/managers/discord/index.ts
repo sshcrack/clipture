@@ -4,6 +4,7 @@ import { MainGlobals } from "@Globals/mainGlobals";
 import { Storage } from "@Globals/storage";
 import DiscordRPC from "discord-rpc";
 import { MainLogger } from "src/interfaces/mainLogger";
+import { OutCurrentType } from '../obs/core/interface';
 import { RecordManager } from "../obs/core/record";
 
 const clientId = MainGlobals.dcClientId
@@ -18,7 +19,7 @@ export class DiscordManager {
     private static loginInterval: NodeJS.Timer;
 
     static initialize() {
-        RecordManager.instance.addRecordListener(e => this.update(e))
+        RecordManager.instance.addRecordListener(e => this.updateRec(e))
 
         const enabled = Storage.get("discord_rpc", true)
         if (enabled)
@@ -26,8 +27,16 @@ export class DiscordManager {
         else
             this.disable()
     }
+    private static async updateRec(recording: boolean) {
+        const isRec = RecordManager.instance.isRecording()
+        if (!isRec)
+            return this.update(recording, null)
 
-    private static async update(recording: boolean) {
+        const curr = await RecordManager.instance.getCurrent()
+        return this.update(recording, curr)
+    }
+
+    private static async update(recording: boolean, out: OutCurrentType) {
         log.silly("Update", recording, "enabled: ", this.enabled, "rpc", !!this.rpc, "LoggedIn", this.loggedIn)
         if (!this.enabled || !this.rpc || !this.loggedIn)
             return
@@ -48,15 +57,15 @@ export class DiscordManager {
             return this.rpc.setActivity(generalInfo)
         }
 
-        const { game, videoName } = await RecordManager.instance.getCurrent() ?? {}
-        const { gameName } = getGameInfo(game, videoName)
+        const { game, videoName } = out ?? {}
+        const gameName = out ? getGameInfo(game, videoName)?.gameName : null
 
         const startTime = RecordManager.instance.getRecordStart()
         const recordJson = {
             ...generalInfo,
             smallImageText: "Recording...",
             details: "Recording...",
-            state: gameName,
+            state: gameName ?? "Unknown Game",
             smallImageKey: "recording",
             startTimestamp: startTime,
         }
@@ -72,12 +81,12 @@ export class DiscordManager {
 
         let isReady = false
         Storage.set("discord_rpc", true)
-        const readyCallback = () => {
+        const readyCallback = async () => {
             this.loggedIn = true;
             isReady = true;
 
             log.info("RPC is logged in.")
-            this.update(RecordManager.instance.isRecording())
+            this.updateRec(RecordManager.instance.isRecording())
 
             if (this.loginInterval) {
                 console.log("Logged in, clearing")
@@ -129,7 +138,8 @@ export class DiscordManager {
             }, CHECK_INTERVAL)
         }
         this.enabled = true
-        this.update(RecordManager.instance.isRecording())
+        this.updateRec(RecordManager.instance.isRecording())
+
     }
 
     static disable() {

@@ -19,7 +19,7 @@ import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
 import { importOBS } from '../tool'
-import { clickableNotification, getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
+import { AvailableGameReturn, clickableNotification, getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
 import { CurrentType, OBSRecordError, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
 
@@ -381,7 +381,7 @@ export class RecordManager {
         if (!(await this.isAutomaticRecording()))
             return
 
-        const available = await getAvailableGame(info).catch(() => null)
+        const available = await getAvailableGame(info).catch(() => undefined as AvailableGameReturn)
         if (!available)
             return
 

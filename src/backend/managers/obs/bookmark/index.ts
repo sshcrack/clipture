@@ -1,14 +1,26 @@
 import { RegManMain } from "@general/register/main";
 import { getAddRemoveListener } from '@general/tools/listener';
 import { Storage } from "@Globals/storage";
-import { globalShortcut, Input } from "electron";
+import { getWebpackDir } from '@backend/tools/fs';
+import { Input } from 'electron';
+import { GlobalKeyboardListener} from "node-global-key-listener"
 import { MainLogger } from "src/interfaces/mainLogger";
 import { getLocalizedT } from 'src/locales/backend_i18n';
+import path from 'path';
+
+const keyboardPath = getWebpackDir() + "/key-listener/"
+
+const globalShortcut = new GlobalKeyboardListener({
+    mac:  { serverPath: path.join(keyboardPath, "MacKeyServer")},
+    windows:  { serverPath: path.join(keyboardPath, "WinKeyServer.exe")}
+});
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Bookmark")
+type IGlobalKey = Parameters<Parameters<GlobalKeyboardListener["addListener"]>[0]>[0]["name"]
 export class BookmarkManager {
     private static currHotkey = undefined as string
     private static listeners = [] as (() => unknown)[]
+    private static pressedKeys = [] as IGlobalKey[]
 
     static register() {
         RegManMain.onPromise("bookmark_hotkey_get", async () => Storage.get("bookmark_hotkey", "F9"))
@@ -52,43 +64,41 @@ export class BookmarkManager {
     static changeHotkey(hotkey: string) {
         log.info("Changing hotkey to", hotkey)
         Storage.set("bookmark_hotkey", hotkey)
-        this.registerHotkey(hotkey)
+        this.currHotkey = hotkey ?? "F9"
     }
 
-    static initialize() {
+    static async initialize() {
         const hotkey = Storage.get("bookmark_hotkey", "F9")
-        this.registerHotkey(hotkey ?? "F9")
+        this.currHotkey = hotkey ?? "F9"
+        let lastTimeout: NodeJS.Timeout = null
+
+        await globalShortcut.addListener(e => {
+            if(e.state === "DOWN")
+                this.pressedKeys.push(e.name)
+
+            if(this.pressedKeys.length > 15)
+                this.pressedKeys = []
+            if(e.state === "UP") {
+                this.pressedKeys = this.pressedKeys.filter(x => x !== e.name)
+                if(lastTimeout)
+                    clearTimeout(lastTimeout)
+                lastTimeout = setTimeout(() => {
+                    this.pressedKeys = []
+                    const bookmarkHotkey = this.currHotkey.split("+")
+                    const isHotkey = this.pressedKeys.every(e => bookmarkHotkey.includes(e))
+                    if(this.pressedKeys.length <= 0)
+                        return
+
+                    console.log("Bookmark", bookmarkHotkey, "Curr", this.pressedKeys, "is", isHotkey)
+                    if(!isHotkey)
+                        return
+
+                    this.onHotkey()
+                }, 500)
+            }
+
+        })
     }
-
-    private static unregisterHotkey(hotkey: string) {
-        if (!hotkey)
-            return log.info("cannot unregister, Hotkey is undefined")
-
-        const registered = globalShortcut.isRegistered(hotkey)
-        if (!registered)
-            return log.info("Could not unregister hotkey", hotkey, ", already unregistered")
-
-        log.info("Unregister hotkey", hotkey)
-        globalShortcut.unregister(hotkey)
-    }
-
-    private static registerHotkey(hotkey: string) {
-        if (!hotkey)
-            return log.info("cannot unregister, Hotkey is undefined")
-
-        const curr = this.currHotkey
-        const registered = curr && globalShortcut.isRegistered(curr)
-        if (curr) {
-            if (registered)
-                return log.info("Trying to register hotkey", hotkey, "but it is already registered.")
-            log.info("Trying to register hotkey", hotkey, "but", curr, "is already registered.")
-            this.unregisterHotkey(hotkey)
-        }
-
-        log.info("Registering hotkey", hotkey)
-        globalShortcut.register(hotkey, () => this.onHotkey())
-    }
-
     static addHotkeyHook(cb: () => unknown) {
         return getAddRemoveListener(cb, this.listeners)
     }

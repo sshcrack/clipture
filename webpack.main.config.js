@@ -39,6 +39,10 @@ module.exports = {
         {
           from: path.resolve(__dirname, "node_modules", "@streamlabs", "game_overlay", "npm"),
           to: path.resolve(__dirname, ".webpack/main")
+        },
+        {
+          from: path.resolve(__dirname, "node_modules", "node-global-key-listener", "bin"),
+          to: path.resolve(__dirname, ".webpack/main/key-listener")
         }
       ]
     }),
