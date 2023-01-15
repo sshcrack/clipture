@@ -131,7 +131,7 @@ export default function RecordPage({ info }: { info: SessionInfo }) {
                             isLoading={isSaving}
                             loadingText={"Saving..."}
                             onClick={() => {
-                                const prom = recording ? obs.stopRecording() : obs.automaticRecord(false)
+                                const prom = recording ? obs.automaticRecord(false).then(() => obs.stopRecording()) : obs.automaticRecord(false)
                                     .then(async () => {
                                         setAutomaticRecord(false)
                                         await obs.switchDesktop(0)
