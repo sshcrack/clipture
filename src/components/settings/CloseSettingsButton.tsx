@@ -5,12 +5,13 @@ import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSa
 
 export type Props = { prevPage: string }
 export default function CloseSettingsButton({ prevPage }: Props) {
-    const { modified } = useContext(SettingsSaveContext)
+    const { modified, onShake } = useContext(SettingsSaveContext)
     const onClose = () => {
         if(!modified)
             return location.hash = prevPage
-    }
 
+        onShake()
+    }
 
     useEffect(() => {
         const listener = (e: KeyboardEvent) => {

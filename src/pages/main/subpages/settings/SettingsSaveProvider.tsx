@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { v4 as uuid } from "uuid"
 import { RenderLogger } from 'src/interfaces/renderLogger';
+import { Shake } from "reshake"
 
 type Listener = () => Promise<unknown>
 
@@ -11,7 +12,8 @@ export type SettingsSaveState = {
     addModified: (str: string) => void,
     removeModified: (str: string) => void,
     reset: () => void
-    modified: boolean
+    modified: boolean,
+    onShake: () => void,
 }
 export const SettingsSaveContext = React.createContext<SettingsSaveState>({
     addSaveListener: () => (() => {/**/ }),
@@ -20,7 +22,8 @@ export const SettingsSaveContext = React.createContext<SettingsSaveState>({
     modified: false,
     addModified: () => {/**/ },
     removeModified: () => {/**/ },
-    reset: () => {/**/ }
+    reset: () => {/**/ },
+    onShake: () => {/** */ }
 })
 
 const log = RenderLogger.get("Main", "Settings", "SettingsSaveProvider")
@@ -28,6 +31,18 @@ export default function SettingsSaveProvider({ children }: React.PropsWithChildr
     const [listeners] = useState(new Map<string, Listener>())
     const [modified, setModified] = useState([] as string[])
     const [saving, setSaving] = useState(false)
+    const [shaking, setShaking] = useState(null as NodeJS.Timeout)
+
+    const onShake = () => {
+        if (shaking)
+            return
+
+        const id = setTimeout(() => {
+            setShaking(null)
+        }, 100);
+
+        setShaking(id);
+    }
 
     const addModified = (s: string) => {
         const newModified = [s, ...modified.filter(e => e !== s)]
@@ -74,9 +89,14 @@ export default function SettingsSaveProvider({ children }: React.PropsWithChildr
             addModified,
             removeModified,
             save,
-            reset
+            reset,
+            onShake
         }}
     >
-        {children}
+        {
+            <Shake style={!shaking ? { animationName: "none" } : {}}>
+                {children}
+            </Shake>
+        }
     </SettingsSaveContext.Provider>
 }

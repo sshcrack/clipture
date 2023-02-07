@@ -1,5 +1,7 @@
 declare module "reshake" {
-    type ReshakeProps = {
+    import React, { PropsWithChildren } from "react"
+
+    type ReshakeProps = Partial<{
         /**
          * Max Horizontal
          * Unit: 'px'
@@ -76,5 +78,7 @@ declare module "reshake" {
          * @default false
          */
         fixedStop: string
-    }
+    }>
+
+    export function Shake(props: PropsWithChildren<ReshakeProps & React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement>>): JSX.Element
 }
