@@ -82,6 +82,8 @@ export class OverlayManager {
 
         this.win.webContents.setFrameRate(1);
         this.win.on("closed", () => { this.win = null });
+
+        setTimeout(() => this.win && this.win.reload(), 5000)
     }
 
     static register() {

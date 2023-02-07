@@ -1,9 +1,8 @@
-import { SessionData, SessionInfo } from '@backend/managers/auth/interfaces'
-import { Flex, Heading, IconButton } from '@chakra-ui/react'
+import { Flex, Heading } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
-import { AiOutlineClose } from 'react-icons/ai'
 import { useParams } from 'react-router-dom'
+import CloseSettingsButton from 'src/components/settings/CloseSettingsButton'
 import SettingsMenu from 'src/components/settings/navbar/SettingsMenu'
 import SettingsSavePopup from 'src/components/settings/popup/SavePopup'
 import GameBehavior from './categories/Game/Behavior'
@@ -59,24 +58,10 @@ export default function SettingsPage({ prevPage }: { prevPage: string }) {
     //@ts-ignore typescript is being weird with dictionary indexes
     const CurrPage: () => JSX.Element = mappings?.[category]?.[leftOver] ?? defaultPage
 
-    const onClose = () => location.hash = prevPage
-
     useEffect(() => {
         setRecording(obs.isRecording())
         return obs.onRecordChange(newRec => setRecording(newRec))
     }, [])
-
-    useEffect(() => {
-        const listener = (e: KeyboardEvent) => {
-            if (e.key !== "Escape")
-                return
-
-            onClose()
-        }
-
-        window.addEventListener("keydown", listener)
-        return () => window.removeEventListener("keydown", listener)
-    }, [prevPage])
 
     const pageAvailable = !onlyAvailableWhenNotRecording.some(e => e.category === category && e.name === leftOver)
     const displayPage = !recording || pageAvailable
@@ -122,15 +107,7 @@ export default function SettingsPage({ prevPage }: { prevPage: string }) {
                     <Flex
                         flex='0'
                     >
-                        <IconButton
-                            rounded='full'
-                            flex='0'
-                            aria-label='Close'
-                            colorScheme='gray'
-                            variant='outline'
-                            icon={<AiOutlineClose />}
-                            onClick={() => onClose()}
-                        />
+                        <CloseSettingsButton prevPage={prevPage}/>
                     </Flex>
                 </Flex>
             </Flex>

@@ -8364,6 +8364,11 @@ requires-port@^1.0.0:
   resolved "https://registry.yarnpkg.com/requires-port/-/requires-port-1.0.0.tgz#925d2601d39ac485e091cf0da5c6e694dc3dcaff"
   integrity sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==
 
+reshake@^1.2.4:
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/reshake/-/reshake-1.2.4.tgz#4e07b1fbb2299dd2e30cbaa1227f8d61d9368444"
+  integrity sha512-G/T7K1Cv1PZJYfxDQ36EyNvLbw18by75OI1EewpJOwZnWnuEyB6/LNYb/UXesbPMwYjUi/I621d2zF1UAmf1oQ==
+
 resolve-alpn@^1.0.0:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/resolve-alpn/-/resolve-alpn-1.2.1.tgz#b7adbdac3546aaaec20b45e7d8265927072726f9"
