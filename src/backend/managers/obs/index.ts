@@ -1,7 +1,10 @@
 import { existsProm } from '@backend/tools/fs'
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
+import { AdvancedRecordingFactory, ERecordingFormat, ERecSplitType, IAdvancedRecording, SimpleRecordingFactory, VideoEncoderFactory, VideoFactory } from '@streamlabs/obs-studio-node'
+import { app } from 'electron'
 import { mkdir, readFile } from 'fs/promises'
+import path from 'path'
 import prettyMS from "pretty-ms"
 import { getLocalizedT } from 'src/locales/backend_i18n'
 import { SettingsCat } from 'src/types/obs/obs-enums'
@@ -23,9 +26,6 @@ import { SignalsManager } from './Signals'
 import { getEncoders, getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
 import { Encoder } from './types'
 import { getEncoderPresets, setPresetWithEncoder } from './util'
-import { app } from 'electron'
-import path from 'path'
-import { LightMode } from '@chakra-ui/react'
 
 
 const reg = RegManMain
@@ -36,6 +36,7 @@ export class OBSManager {
     private NodeObs: typedObs
     public previewInstance = new PreviewManager()
     public recordManager = new RecordManager()
+    public recording: IAdvancedRecording = null
 
     constructor() {
         this.register()
@@ -209,7 +210,7 @@ export class OBSManager {
         log.debug("Killing OBS")
         await this.killOBS()
 
-        if(err)
+        if (err)
             throw err
     }
 
@@ -218,7 +219,7 @@ export class OBSManager {
         const exists = await existsProm(pidFile)
 
         log.silly("Killing OBS with pidFile at", pidFile, "exists", exists)
-        if(!exists)
+        if (!exists)
             return
 
         const pidFileContent = await readFile(pidFile)
@@ -226,7 +227,7 @@ export class OBSManager {
 
         log.silly("Killing OBS with pid", pid)
         const execa = (await import("execa")).execa
-        await execa("taskkill", [ "/IM", pid.toString(), "/F"])
+        await execa("taskkill", ["/IM", pid.toString(), "/F"])
     }
 
     private setEncoderPreset(encoder: Encoder, preset: string) {
@@ -243,52 +244,45 @@ export class OBSManager {
 
     public async configure() {
         log.info("Configuring obs...")
-        const Output = SettingsCat.Output
-        const Video = SettingsCat.Video
 
         const fps = Storage.get("obs")?.fps ?? 60
-        const bitrate = Storage.get("obs")?.bitrate ?? 10000 // 10 Mbps
-
-        setSetting(this.NodeObs, Video, 'FPSCommon', fps);
-        setSetting(this.NodeObs, Output, 'VBitrate', bitrate);
-        setSetting(this.NodeObs, Output, 'Bitrate', bitrate);
-
-        const cpuEncoder = getOS() === 'win32' ? 'x264' : 'obs_x264'
-
-        setSetting(this.NodeObs, Output, "Mode", "Advanced")
-        setSetting(this.NodeObs, Output, 'StreamEncoder', cpuEncoder);
-
-        log.info("Defaulting to", cpuEncoder)
-        setSetting(this.NodeObs, Output, 'RecPreset', 'fast')
-        setSetting(this.NodeObs, Output, 'RecEncoder', cpuEncoder);
-
-        const storageEncoder = Storage.get("obs_encoder")
-        const availableEncoders = getEncoders(this.NodeObs)
-
-        const gpuEncoder = availableEncoders?.filter(e => e !== cpuEncoder).slice(-1)[0] ?? cpuEncoder
-        const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : gpuEncoder
-
-        log.info("Available encoders are", JSON.stringify(availableEncoders), "using", encoder)
-        Storage.set("obs_encoder", encoder)
-
-        const availablePresets = getEncoderPresets(encoder as Encoder)
-        let preset: string = null
-        if (availablePresets) {
-            const storedPreset = Storage.get("obs_preset")
-            const middlePresets = availablePresets[Math.floor(availablePresets.length / 2)]
-
-            preset = storedPreset && availablePresets.includes(storedPreset) ? storedPreset : middlePresets
-
-            Storage.set("obs_preset", preset)
-        }
-
-        this.setEncoderPreset(encoder, preset)
+        VideoFactory.videoContext.fpsNum = fps
 
         const clipPath = Storage.get("clip_path")
         if (!(await existsProm(clipPath)))
             await mkdir(clipPath)
-        setSetting(this.NodeObs, Output, 'RecFilePath', clipPath);
-        setSetting(this.NodeObs, Output, 'RecFormat', 'mkv');
+
+        const simple = Storage.get("obs_simple_preset")
+        if (!simple) {
+            const recording = AdvancedRecordingFactory.create()
+            recording.enableFileSplit = false
+            recording.format = ERecordingFormat.MKV
+            recording.path = clipPath
+            recording.splitType = ERecSplitType.Manual
+            recording.overwrite = true;
+            recording.noSpace = false;
+            recording.useStreamEncoders = false;
+
+            const cpuEncoder = getOS() === 'win32' ? 'x264' : 'obs_x264'
+
+            const storageEncoder = Storage.get("obs_encoder", cpuEncoder)
+            const availableEncoders = getEncoders(this.NodeObs)
+
+            const gpuEncoder = availableEncoders?.filter(e => e !== cpuEncoder).slice(-1)[0] ?? cpuEncoder
+            const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : gpuEncoder
+            recording.videoEncoder = VideoEncoderFactory.create(encoder, `video-encoder-${uuid()}`);
+
+            this.recording = recording
+        } else {
+            const recording = SimpleRecordingFactory.create()
+            recording.enableFileSplit = false
+            recording.format = ERecordingFormat.MKV
+            recording.path = clipPath
+            recording.splitType = ERecSplitType.Manual
+            recording.overwrite = true
+            recording.noSpace = true
+            recording.quality = simple
+        }
     }
 
     private register() {

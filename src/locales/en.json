@@ -48,6 +48,7 @@
             "id_not_found": " Could not find id in cloud."
         },
         "obs": {
+            "autconfig_timeout": "AutoConfig signal timeout. Please try again.",
             "signal_timeout": "Output signal timeout",
             "monitor_not_exists": "Monitor with id {{monitorIndex}} does not exist",
             "audio": {
@@ -409,6 +410,9 @@
                 "bitrate": {
                     "title": "Bitrate",
                     "loading": "Loading..."
+                },
+                "auto_config": {
+                    "automatic": "Automatically configure"
                 },
                 "fps": {
                     "title": "FPS",

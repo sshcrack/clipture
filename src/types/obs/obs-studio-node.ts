@@ -1,6 +1,14 @@
 import type { IIPC } from '@streamlabs/obs-studio-node';
 import { EOBSOutputSignal, EOBSOutputType, EOutputCode, SettingsCat } from './obs-enums';
 
+export type TConfigEvent = 'starting_step' | 'progress' | 'stopping_step' | 'error' | 'done';
+export interface IConfigProgress {
+    event: TConfigEvent;
+    description: string;
+    percentage?: number;
+    continent?: string;
+}
+
 export interface SettingsParameter {
     name: string,
     currentValue: string | number,
@@ -28,6 +36,11 @@ export interface PerformanceStatistics {
     averageTimeToRenderFrame: number,
     memoryUsage: number,
     diskSpaceAvailable: string
+}
+
+export type AutoConfigOptions= {
+    continent?: string,
+    service_name?: string
 }
 
 
@@ -61,6 +74,15 @@ type INodeObs = {
     OBS_API_getPerformanceStatistics: () => PerformanceStatistics;
     OBS_service_connectOutputSignals: (listener: (signal: IOBSOutputSignalInfo) => unknown) => void;
     RegisterSourceCallback: (callback: () => void) => void;
+
+    InitializeAutoConfig: (callback: (prog: IConfigProgress) => unknown, config: AutoConfigOptions) => boolean;
+    StartBandwidthTest: () => void;
+    StartStreamEncoderTest: () => void;
+    StartRecordingEncoderTest: () => void;
+    StartCheckSettings: () => boolean;
+    StartSetDefaultSettings: () => boolean;
+    StartSaveSettings: () => boolean;
+    TerminateAutoConfig: () => boolean;
 }
 
 export type NodeObs = INodeObs;

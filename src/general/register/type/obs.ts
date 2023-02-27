@@ -1,6 +1,7 @@
 import { OBSRecordError, OutCurrentType } from '@backend/managers/obs/core/interface'
 import { CurrentSetting, WindowInformation } from '@backend/managers/obs/Scene/interfaces'
 import { ClientBoundRecReturn, CurrRec, Encoder } from '@backend/managers/obs/types'
+import { Progress } from '@backend/processors/events/interface'
 import type { OBSSettings } from '@Globals/storage'
 import { addPrefixUnderscoreToObject } from 'src/types/additions'
 
@@ -40,10 +41,12 @@ export type OBSEventsPromises = addPrefixUnderscoreToObject<{
     get_presets: (encoder: Encoder) => string[],
     get_encoders: () => Encoder[],
     get_rec: () => CurrRec,
-    set_rec: (input: CurrRec) => void
+    set_rec: (input: CurrRec) => void,
+    auto_config: () => void
 }, "obs">
 
 export type OBSMainToRender = addPrefixUnderscoreToObject<{
     record_change: (recording: boolean) => void,
     record_error: (error: OBSRecordError) => void,
+    auto_config_progress: (info: Progress) => void,
 }, "obs">

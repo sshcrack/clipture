@@ -1,6 +1,7 @@
 import { OBSRecordError } from '@backend/managers/obs/core/interface';
 import { WindowInformation } from '@backend/managers/obs/Scene/interfaces';
 import type { ClientBoundRecReturn, CurrRec, Encoder } from '@backend/managers/obs/types';
+import { Progress } from '@backend/processors/events/interface';
 import { getAddRemoveListener } from '@general/tools/listener';
 import type { OBSSettings } from '@Globals/storage';
 import { RegManRender } from '@register/render';
@@ -10,14 +11,17 @@ const reg = RegManRender
 type ListenerType = (recording: boolean) => void
 type ListenerPerformance = (stats: PerformanceStatistics) => void
 type ListenerRecordError = (err: OBSRecordError) => void
+type ListenerAutoConfig = (err: Progress) => void
 
 const listeners = [] as ListenerType[]
 const listenersPerformance = [] as ListenerPerformance[]
 const listenersRecordError = [] as ListenerRecordError[]
+const listenersAutoConfig = [] as ListenerAutoConfig[]
 
 reg.on("obs_record_change", (_, recording: boolean) => listeners.map(e => e(recording)))
 reg.on("performance", (_, stats) => listenersPerformance.map(e => e(stats)))
 reg.on("obs_record_error", (_, err) => listenersRecordError.map(e => e(err)))
+reg.on("obs_auto_config_progress", (_, prog) => listenersAutoConfig.map(e => e(prog)))
 
 const obs = {
     isInitialized: () => reg.emitSync("obs_is_initialized"),
@@ -58,7 +62,11 @@ const obs = {
     getRec: () => reg.emitPromise("obs_get_rec"),
     setRec: (c: CurrRec) => reg.emitPromise("obs_set_rec", c),
 
-    onRecordError: (callback: ListenerRecordError) => getAddRemoveListener(callback, listenersRecordError)
+    onRecordError: (callback: ListenerRecordError) => getAddRemoveListener(callback, listenersRecordError),
+
+
+    onAutoConfigProgress: (callback: ListenerAutoConfig) => getAddRemoveListener(callback, listenersAutoConfig),
+    startAutoConfig: () => reg.emitPromise("obs_auto_config")
 }
 
 export default obs;

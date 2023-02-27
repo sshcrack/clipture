@@ -5,8 +5,8 @@ import GeneralSpinner from 'src/components/general/spinner/GeneralSpinner'
 import { SettingsSaveContext } from 'src/pages/main/subpages/settings/SettingsSaveProvider'
 
 export default function OBSVideoBitrate() {
-    const [originalBitrate, setOriginalBitrate] = useState(undefined)
-    const [customBitrate, setCustomBitrate] = useState(undefined)
+    const [originalBitrate, setOriginalBitrate] = useState(undefined as number)
+    const [customBitrate, setCustomBitrate] = useState(undefined as number)
 
     const { addSaveListener, addModified, removeModified, saving } = useContext(SettingsSaveContext)
     const { obs } = window.api
@@ -37,7 +37,7 @@ export default function OBSVideoBitrate() {
             w='100%'
             defaultValue={15}
             min={1000}
-            max={50000}
+            max={100000}
             step={50}
             value={customBitrate}
             onChange={e => {
@@ -65,7 +65,7 @@ export default function OBSVideoBitrate() {
             w='70%'
         >
             <Text mb='8px'>{t("title")}</Text>
-            {originalBitrate && customBitrate ?
+            {originalBitrate !== undefined && customBitrate !== undefined ?
                 numberInput :
                 <GeneralSpinner loadingText={t("loading")} />
             }
