@@ -81,7 +81,7 @@
                 "preview": "Initializing preview...",
                 "game_changes": "Listening to game changes...",
                 "storage_manager": "Adding to storage manager...",
-                "overlay": "Overlay starting...",
+                "overlay": "Starting overlay...",
                 "loading": "Loading...",
                 "obs_initialized": "OBS initialized",
                 "errors": {
@@ -407,6 +407,20 @@
             },
             "video": {
                 "title": "Video",
+                "advanced_selector": {
+                    "simple": "Simple",
+                    "advanced": "Advanced",
+                    "label": "Mode"
+                },
+                "simple_preset": {
+                    "preset": "Quality:",
+                    "presets": {
+                        "Stream": "Default",
+                        "HighQuality": "High Quality, Medium file size",
+                        "HigherQuality": "Indistinguishable Quality, Large file size",
+                        "Lossless": "Lossless Quality, Tremendously Large File Size"
+                    }
+                },
                 "bitrate": {
                     "title": "Bitrate",
                     "loading": "Loading..."

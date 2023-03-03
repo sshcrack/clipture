@@ -1,9 +1,11 @@
 import { AuthManager } from '@backend/managers/auth'
 import { VideoInfo } from '@backend/managers/clip/interface'
 import { GameManager } from '@backend/managers/game'
+import { GeneralGame } from '@backend/managers/game/interface'
 import { BookmarkManager } from "@backend/managers/obs/bookmark"
 import { Prerequisites } from '@backend/managers/prerequisites'
 import { RegManMain } from '@general/register/main'
+import { getGameInfo } from '@general/tools/game'
 import { getAddRemoveListener } from '@general/tools/listener'
 import { MainGlobals } from '@Globals/mainGlobals'
 import { Storage } from '@Globals/storage'
@@ -15,11 +17,13 @@ import { MainLogger } from 'src/interfaces/mainLogger'
 import { getLocalizedT } from 'src/locales/backend_i18n'
 import { EOBSOutputSignal, SettingsCat } from 'src/types/obs/obs-enums'
 import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
+import { v4 as uuid } from 'uuid'
+import type { OBSManager } from '..'
 import { Scene } from '../Scene'
 import { DetectableGame, WindowInformation } from '../Scene/interfaces'
 import { SignalsManager } from '../Signals'
 import { importOBS } from '../tool'
-import { AvailableGameReturn, clickableNotification, getAvailableGame, listVideos, processRunning, waitForVideo } from "./backend_only_tools"
+import { AvailableGameReturn, clickableNotification, getAvailableGame, processRunning } from "./backend_only_tools"
 import { CurrentType, OBSRecordError, OutCurrentType } from "./interface"
 import { getWindowInfoId } from './tools'
 
@@ -48,6 +52,7 @@ export class RecordManager {
     private recordTimer: number = undefined;
     private windowInformation = new Map<string, WindowInformation>()
     private listeners = [] as ListenerType[]
+    private manager = null as OBSManager
 
     public async getCurrent() {
         const detectable = await GameManager.getDetectableGames()
@@ -70,13 +75,14 @@ export class RecordManager {
         return curr
     }
 
-    constructor() {
+    constructor(manager: OBSManager) {
         const t = getLocalizedT("backend", "obs.record")
         if (RecordManager.instance)
             throw new Error(t("not_twice"))
 
         RecordManager.instance = this;
         this.register()
+        this.manager = manager
     }
 
     public getWindowInfo() {
@@ -172,12 +178,8 @@ export class RecordManager {
 
         this.recordingInitializing = true
         const prom = (async () => {
-            const recordPath = this.NodeObs.OBS_settings_getSettings(SettingsCat.Output)
-                .data
-                .find(e => e.nameSubCategory === "Recording")
-                .parameters
-                .find(e => e.name === "RecFilePath")
-                .currentValue as string
+            const recorder = this.manager.recorder;
+            const recordPath = recorder.path
 
             log.info("Starting to record to path", recordPath)
             if (!recordPath)
@@ -185,19 +187,25 @@ export class RecordManager {
             else
                 await fs.stat(recordPath).catch(() => fs.mkdir(recordPath))
 
-            const currVideos = await listVideos(recordPath)
+
+            const generalGame: GeneralGame = discordGameInfo ? { type: "detectable", game: discordGameInfo } : windowInfo ? { type: "window", game: windowInfo} : null
+
+            const info = generalGame && getGameInfo(generalGame, null)
+            const videoId = `${info?.gameName ?? "UnknownGame"}_${new Date().getTime()}`;
+            const videoName = videoId + ".mkv"
+            recorder.fileFormat = videoId
+
             let started = false
             let lastErr = null as OBSRecordError
             for (let i = 0; i < 5; i++) {
                 log.debug("Trying to start...")
-                this.NodeObs.OBS_service_startRecording()
+                recorder.start()
                 const signal = await SignalsManager.getNextSignalInfo().catch(() => { log.warn("Timeout signal"); return { signal: EOBSOutputSignal.Start } });
                 if (signal.signal === EOBSOutputSignal.Stop) {
                     log.warn("Could not start recording: ", signal, "trying again...")
                     lastErr = signal
                     continue;
                 }
-
                 started = true
                 break;
             }
@@ -205,8 +213,6 @@ export class RecordManager {
             if (!started)
                 throw lastErr
 
-
-            const videoName = await waitForVideo(recordPath, currVideos, () => this.isRecording() || this.recordingInitializing)
             log.debug("Resetting record timer.")
             this.recordTimer = Date.now()
             const videoPath = (recordPath + "/" + videoName).split("\\").join("/")
@@ -264,6 +270,7 @@ export class RecordManager {
                 throw e
             })
             .finally(() => {
+                console.log("Prog done initializing")
                 this.recordProm = null
                 this.recordingInitializing = false
             })
@@ -277,6 +284,7 @@ export class RecordManager {
         if (!this.initialized)
             return log.warn("Could not stop recording, not initialized")
 
+        console.log("StopInitializing", this.stopInitializing, "Recording", this.recordingInitializing)
         if (this.stopInitializing && !this.recordingInitializing)
             throw new Error("init_fail")
 
@@ -287,7 +295,7 @@ export class RecordManager {
 
         log.info("Stopped recording")
         this.stopInitializing = true
-        this.NodeObs.OBS_service_stopRecording()
+        this.manager.recorder.stop()
         const getNextSignal = () => SignalsManager.getNextSignalInfo().catch(() => { log.warn("Timeout signal"); return { signal: EOBSOutputSignal.Stop } });
         let signal = await getNextSignal()
         if (signal.signal === EOBSOutputSignal.Stopping) {

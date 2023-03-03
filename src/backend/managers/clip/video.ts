@@ -64,7 +64,6 @@ export class VideoManager {
         const files = (await glob(globPattern))
             .map(e => path.resolve(e))
 
-        log.info("Loading total of", files.length, "videos... (", globPattern, ")")
         const current = await RecordManager.instance.getCurrent()
         const sorted = (await Promise.all(
             files

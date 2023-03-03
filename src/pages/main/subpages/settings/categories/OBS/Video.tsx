@@ -1,11 +1,11 @@
 import { Flex, Heading } from '@chakra-ui/react'
 import React from "react"
 import { useTranslation } from 'react-i18next'
-import OBSAutoConfig from 'src/components/settings/categories/OBS/Video/OBSAutoconfig'
-import OBSCaptureMethod from 'src/components/settings/categories/OBS/Video/OBSCaptureMethod'
-import OBSEncoderPreset from 'src/components/settings/categories/OBS/Video/OBSEncoderPreset'
-import OBSVideoBitrate from 'src/components/settings/categories/OBS/Video/OBSVideoBitrate'
-import OBSVideoFPS from 'src/components/settings/categories/OBS/Video/OBSVideoFPS'
+import AdvancedSelector from 'src/components/settings/categories/OBS/Video/OBSAdvancedSelector'
+import CaptureMethod from 'src/components/settings/categories/OBS/Video/OBSCaptureMethod'
+import EncoderPreset from 'src/components/settings/categories/OBS/Video/OBSEncoderPreset'
+import VideoBitrate from 'src/components/settings/categories/OBS/Video/OBSVideoBitrate'
+import VideoFPS from 'src/components/settings/categories/OBS/Video/OBSVideoFPS'
 
 export default function OBSVideo() {
     const { t } = useTranslation("settings", { keyPrefix: "obs.video" })
@@ -18,11 +18,12 @@ export default function OBSVideo() {
             alignItems='center'
             gap='5'
         >
-            <OBSAutoConfig />
-            <OBSVideoBitrate />
-            <OBSVideoFPS />
-            <OBSCaptureMethod />
-            <OBSEncoderPreset />
+            <AdvancedSelector>
+                <VideoBitrate />
+                <EncoderPreset />
+            </AdvancedSelector>
+            <VideoFPS />
+            <CaptureMethod />
         </Flex>
     </>
 }

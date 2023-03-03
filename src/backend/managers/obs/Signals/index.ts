@@ -3,23 +3,23 @@ import { Subject } from "rxjs";
 import { first } from "rxjs/operators";
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { getLocalizedT } from 'src/locales/backend_i18n';
-import { IConfigProgress, IOBSOutputSignalInfo, NodeObs as typedObs } from "src/types/obs/obs-studio-node";
+import type { IAdvancedRecording, ISimpleRecording, EOutputSignal} from "@streamlabs/obs-studio-node"
+import { IConfigProgress, NodeObs as typedObs } from "src/types/obs/obs-studio-node";
 import { importOBS } from "../tool";
 
 const log = MainLogger.get("Backend", "Managers", "OBS", "Signals")
 export class SignalsManager {
-    private static signals = new Subject<IOBSOutputSignalInfo>()
+    private static signals = new Subject<EOutputSignal>()
     private static NodeObs: typedObs
     private static progress = new Subject<IConfigProgress>()
 
     static async initialize() {
         this.NodeObs = (await importOBS()).NodeObs
-        this.connectOutputSignals()
         RegManMain.onPromise("obs_auto_config", () => this.startAutoConfig())
     }
 
     static getNextSignalInfo() {
-        return new Promise<IOBSOutputSignalInfo>((resolve, reject) => {
+        return new Promise<EOutputSignal>((resolve, reject) => {
             const t = getLocalizedT("backend", "obs")
             this.signals.pipe(first()).subscribe(signalInfo => resolve(signalInfo));
             setTimeout(() => reject(t("signal_timeout")), 30000);
@@ -34,10 +34,10 @@ export class SignalsManager {
         });
     }
 
-    private static connectOutputSignals() {
-        this.NodeObs.OBS_service_connectOutputSignals((signalInfo: IOBSOutputSignalInfo) => {
+    public static reconnectSignals(recorder: IAdvancedRecording | ISimpleRecording) {
+        recorder.signalHandler = (signalInfo: EOutputSignal) => {
             this.signals.next(signalInfo);
-        });
+        };
     }
 
     private static initializeAutoConfig() {

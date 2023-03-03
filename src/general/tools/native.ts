@@ -1,4 +1,5 @@
 import { RECT } from '@streamlabs/game_overlay'
+import { app } from 'electron'
 
 export function cppHWNDToBuffer(hwnd: number) {
 	const buf = Buffer.allocUnsafe(8)
@@ -7,7 +8,7 @@ export function cppHWNDToBuffer(hwnd: number) {
 	return buf
 }
 
-export function rectToDimension({ bottom, left, right, top}: RECT) {
+export function rectToDimension({ bottom, left, right, top }: RECT) {
 	const width = right - left
 	const height = bottom - top
 	return {
@@ -16,4 +17,9 @@ export function rectToDimension({ bottom, left, right, top}: RECT) {
 		x: left,
 		y: top
 	}
+}
+
+export function isSquirrel() {
+	const appPath = app.getAppPath();
+	return appPath.split("/").pop().includes("app-")
 }

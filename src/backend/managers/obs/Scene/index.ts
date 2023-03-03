@@ -5,8 +5,8 @@ import type { InputFactory as inputType, IScene, SceneFactory as sceneType } fro
 import { screen } from 'electron';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { EAlignment, EBoundsType, SettingsCat } from 'src/types/obs/obs-enums';
-import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node';
 import { v4 as uuid } from "uuid";
+import type { OBSManager } from '..';
 import { setOBSSetting as setSetting } from '../base';
 import { importOBS } from '../tool';
 import { encodeString } from '../util';
@@ -24,15 +24,17 @@ export class Scene {
 
     private static SceneFactory: typeof sceneType
     private static InputFactory: typeof inputType
-    private static NodeObs: typedObs
+    private static manager: OBSManager
 
     private static refreshingDevices = false
 
-    static async initialize() {
+    static async initialize(manager: OBSManager) {
         const e = await importOBS()
+
         this.SceneFactory = e.SceneFactory
         this.InputFactory = e.InputFactory
-        this.NodeObs = e.NodeObs
+
+        this.manager = manager
         log.info("Initializing scene...")
 
         try {
@@ -42,8 +44,10 @@ export class Scene {
             this._scene = this.SceneFactory.create(this.SCENE_ID)
         }
 
+        e.Global.setOutputSource(1, this._scene);
+
         await AudioSceneManager.initialize()
-        await AudioSceneManager.initializeAudioSources(this._scene)
+        await AudioSceneManager.initializeAudioSources()
 
         let timeoutId = null as NodeJS.Timeout
         AudioSceneManager.addDeviceUpdateListener(async () => {
@@ -57,7 +61,7 @@ export class Scene {
                 timeoutId = null
                 this.refreshingDevices = true
                 AudioSceneManager.removeAllDevices()
-                AudioSceneManager.initializeAudioSources(this._scene)
+                AudioSceneManager.initializeAudioSources()
                     .then(() => this.refreshingDevices = false)
             }, 250)
 
@@ -90,7 +94,7 @@ export class Scene {
 
     static get() {
         if (!this._scene)
-            this.initialize()
+            throw new Error("Scene not initialized.")
 
         return this._scene;
     }
@@ -123,8 +127,8 @@ export class Scene {
 
 
         const resolution = `${optWidth}x${optHeight}`
-        setSetting(this.NodeObs, SettingsCat.Video, "Base", resolution)
-        setSetting(this.NodeObs, SettingsCat.Video, "Output", resolution)
+        //this.manager.recorder.outputWidth = optWidth
+        //this.manager.recorder.outputHeight = optHeight
 
         this.removeMainSource()
         const sceneItem = this._scene.add(videoSource)
@@ -132,6 +136,7 @@ export class Scene {
         sceneItem.bounds = { x: optWidth, y: optHeight }
         sceneItem.boundsType = EBoundsType.ScaleInner as number
         sceneItem.alignment = EAlignment.TopLeft as number
+        sceneItem.visible = true
 
 
         this._setting = {
@@ -191,8 +196,11 @@ export class Scene {
 
 
         const resolution = `${physicalWidth}x${physicalHeight}`
-        setSetting(this.NodeObs, SettingsCat.Video, "Base", resolution)
-        setSetting(this.NodeObs, SettingsCat.Video, "Output", resolution)
+        setSetting(this.manager.NodeObs, SettingsCat.Video, "Base", resolution)
+        setSetting(this.manager.NodeObs, SettingsCat.Video, "Output", resolution)
+        //this.manager.recorder.outputWidth = physicalWidth
+        //this.manager.recorder.outputHeight = physicalHeight
+
         log.log("Switching to Window View with id ", windowId, "and resolution", resolution, "with window settings", windowSettings, "and game settings", gameSettings)
 
         this.removeMainSource()

@@ -20,7 +20,7 @@ const isSquirrel = appPath.split("/").pop().includes("app-")
 let assetsDir = isSquirrel ? _appDataAssets : path.join(appPath, "assets")
 log.debug("oldClipture", _appDataAssets, "appData", _oldAppAssets, "assetsDir", assetsDir)
 if (app.isPackaged || process.argv.includes("release")) {
-    if (fs.existsSync(_oldAppAssets)) {
+    if (fs.existsSync(_oldAppAssets) && path.normalize(_oldAppAssets) !== path.normalize(assetsDir)) {
         log.info("Moving old assets from", _oldAppAssets, "to", assetsDir)
         moveSync(_oldAppAssets, assetsDir, { overwrite: false })
     }

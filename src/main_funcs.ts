@@ -12,6 +12,7 @@ const log = MainLogger.get("Main", "Updater")
 
 export function addUpdater() {
 
+
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require('update-electron-app')({
         repo: 'sshcrack/clipture',

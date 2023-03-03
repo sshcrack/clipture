@@ -1,14 +1,15 @@
 import { existsProm } from '@backend/tools/fs'
 import { getOS } from '@backend/tools/operating-system'
 import { Storage } from '@Globals/storage'
-import { AdvancedRecordingFactory, ERecordingFormat, ERecSplitType, IAdvancedRecording, SimpleRecordingFactory, VideoEncoderFactory, VideoFactory } from '@streamlabs/obs-studio-node'
+import type obsStudioPackage from "@streamlabs/obs-studio-node"
+import type { ERecordingFormat, ERecSplitType as nativeSplitType, IAdvancedRecording, ISimpleRecording, ERecordingQuality } from '@streamlabs/obs-studio-node'
 import { app } from 'electron'
 import { mkdir, readFile } from 'fs/promises'
 import path from 'path'
 import prettyMS from "pretty-ms"
 import { getLocalizedT } from 'src/locales/backend_i18n'
 import { SettingsCat } from 'src/types/obs/obs-enums'
-import { NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
+import { ERecSplitType, NodeObs as typedObs } from 'src/types/obs/obs-studio-node'
 import { v4 as uuid } from "uuid"
 import { RegManMain } from '../../../general/register/main'
 import { MainLogger } from '../../../interfaces/mainLogger'
@@ -24,8 +25,8 @@ import { RecordManager } from './core/record'
 import { Scene } from './Scene'
 import { SignalsManager } from './Signals'
 import { getEncoders, getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
-import { Encoder } from './types'
-import { getEncoderPresets, setPresetWithEncoder } from './util'
+import { ERecordingQualityIncluded } from './types'
+import { getEncoderPresets } from './util'
 
 
 const reg = RegManMain
@@ -33,10 +34,11 @@ const log = MainLogger.get("Managers", "OBS")
 
 export class OBSManager {
     private obsInitialized = false
-    private NodeObs: typedObs
+    private streamLabsObs: typeof obsStudioPackage
+    public NodeObs: typedObs
     public previewInstance = new PreviewManager()
-    public recordManager = new RecordManager()
-    public recording: IAdvancedRecording = null
+    public recordManager = new RecordManager(this)
+    public recorder: IAdvancedRecording | ISimpleRecording = null
 
     constructor() {
         this.register()
@@ -54,7 +56,10 @@ export class OBSManager {
         const steps = [
             {
                 title: t("importing"),
-                func: async () => this.NodeObs = (await importOBS()).NodeObs
+                func: async () => {
+                    this.streamLabsObs = (await importOBS())
+                    this.NodeObs = this.streamLabsObs.NodeObs
+                }
             },
             {
                 title: t("initializing"),
@@ -65,12 +70,12 @@ export class OBSManager {
                 func: () => this.configure()
             },
             {
-                title: t("connect"),
-                func: () => SignalsManager.initialize()
+                title: t("scene"),
+                func: () => Scene.initialize(this)
             },
             {
-                title: t("scene"),
-                func: () => Scene.initialize()
+                title: t("connect"),
+                func: () => SignalsManager.initialize()
             },
             {
                 title: t("auto_record"),
@@ -230,59 +235,84 @@ export class OBSManager {
         await execa("taskkill", ["/IM", pid.toString(), "/F"])
     }
 
-    private setEncoderPreset(encoder: Encoder, preset: string) {
+    public async configure() {
+        const { AdvancedRecordingFactory, VideoEncoderFactory, SimpleRecordingFactory, AudioEncoderFactory } = this.streamLabsObs
+
+        const Video = SettingsCat.Video
         const Output = SettingsCat.Output
 
-        log.info("Setting encoder", encoder)
-        setSetting(this.NodeObs, Output, 'RecEncoder', encoder);
-
-
-        log.info("Trying to set preset", preset)
-        if (!preset)
-            setPresetWithEncoder(this.NodeObs, encoder as Encoder, preset)
-    }
-
-    public async configure() {
         log.info("Configuring obs...")
 
-        const fps = Storage.get("obs")?.fps ?? 60
-        VideoFactory.videoContext.fpsNum = fps
+        log.silly("Setting context...")
 
         const clipPath = Storage.get("clip_path")
         if (!(await existsProm(clipPath)))
             await mkdir(clipPath)
 
-        const simple = Storage.get("obs_simple_preset")
-        if (!simple) {
-            const recording = AdvancedRecordingFactory.create()
-            recording.enableFileSplit = false
-            recording.format = ERecordingFormat.MKV
-            recording.path = clipPath
-            recording.splitType = ERecSplitType.Manual
-            recording.overwrite = true;
-            recording.noSpace = false;
-            recording.useStreamEncoders = false;
+        const { bitrate, fps, simple_preset, advanced_enabled } = Storage.get("obs", {
+            fps: 60,
+            bitrate: 10000,
+            capture_method: "window",
+            simple_preset: ERecordingQualityIncluded.Stream,
+            advanced_enabled: false
+        })
+        const preset = Storage.get("obs_preset")
 
-            const cpuEncoder = getOS() === 'win32' ? 'x264' : 'obs_x264'
+        setSetting(this.NodeObs, Video, 'FPSCommon', fps);
+        if (advanced_enabled) {
+            //TODO fix blackscreen
+            log.silly("Creating advanced recording factory...")
+            const recorder = AdvancedRecordingFactory.create()
+            recorder.enableFileSplit = false
+            recorder.format = "mkv" as ERecordingFormat
+            recorder.path = clipPath
+            recorder.splitType = ERecSplitType.Manual as unknown as nativeSplitType
+            recorder.overwrite = true;
+            recorder.noSpace = false;
+            recorder.useStreamEncoders = false;
 
-            const storageEncoder = Storage.get("obs_encoder", cpuEncoder)
-            const availableEncoders = getEncoders(this.NodeObs)
-
-            const gpuEncoder = availableEncoders?.filter(e => e !== cpuEncoder).slice(-1)[0] ?? cpuEncoder
-            const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : gpuEncoder
-            recording.videoEncoder = VideoEncoderFactory.create(encoder, `video-encoder-${uuid()}`);
-
-            this.recording = recording
+            this.recorder = recorder
         } else {
-            const recording = SimpleRecordingFactory.create()
-            recording.enableFileSplit = false
-            recording.format = ERecordingFormat.MKV
-            recording.path = clipPath
-            recording.splitType = ERecSplitType.Manual
-            recording.overwrite = true
-            recording.noSpace = true
-            recording.quality = simple
+            log.silly("Creating simple recording factory with quality at path", simple_preset, clipPath)
+            const recorder = SimpleRecordingFactory.create()
+            recorder.enableFileSplit = false
+            recorder.format = "mkv" as ERecordingFormat
+            recorder.path = clipPath
+            recorder.splitType = ERecSplitType.Manual as unknown as nativeSplitType
+            recorder.overwrite = true
+            recorder.noSpace = true;
+            recorder.quality = simple_preset as unknown as ERecordingQuality
+            recorder.audioEncoder = AudioEncoderFactory.create()
+
+            this.recorder = recorder
         }
+
+
+        const availableEncoders = getEncoders(this.streamLabsObs)
+
+        const cpuEncoder = getOS() === 'win32' ? 'x264' : 'obs_x264'
+        const gpuEncoder = availableEncoders?.filter(e => e !== cpuEncoder).slice(-1)[0] ?? cpuEncoder
+
+        const storageEncoder = Storage.get("obs_encoder", gpuEncoder)
+        const encoder = storageEncoder && availableEncoders.includes(storageEncoder) ? storageEncoder : gpuEncoder
+
+        log.info("Using encoder", encoder)
+
+        const vEncoder = VideoEncoderFactory.create(encoder, `video-encoder-${uuid()}`)
+        const settings = vEncoder.settings
+
+        if (!simple_preset) {
+            log.info("Setting advanced options with bitrate", bitrate, "and preset", preset)
+            settings.bitrate = bitrate
+            settings.preset = preset
+            setSetting(this.NodeObs, Output, 'VBitrate', bitrate);
+            setSetting(this.NodeObs, Output, 'Bitrate', bitrate);
+        }
+
+        vEncoder.update(settings)
+
+        this.recorder.videoEncoder = vEncoder
+        SignalsManager.reconnectSignals(this.recorder)
     }
 
     private register() {
@@ -293,13 +323,14 @@ export class OBSManager {
             const e = Storage.get("obs")
             return {
                 ...e,
-                capture_method: e.capture_method ?? "window"
+                capture_method: e.capture_method ?? "window",
+                advanced_enabled: e.advanced_enabled ?? false
             }
         })
         reg.onPromise("obs_automatic_record", async (_, automaticRecord) => this.recordManager.setAutomaticRecord(automaticRecord))
         reg.onPromise("obs_is_automatic_record", async () => Storage.get("automatic_record") ?? true)
         reg.onPromise("obs_get_presets", async (_, encoder) => getEncoderPresets(encoder))
-        reg.onPromise("obs_get_encoders", async () => getEncoders(this.NodeObs))
+        reg.onPromise("obs_get_encoders", async () => getEncoders(this.streamLabsObs))
         reg.onPromise("obs_get_rec", async () => ({
             encoder: Storage.get("obs_encoder"),
             preset: Storage.get("obs_preset")
@@ -307,7 +338,7 @@ export class OBSManager {
         reg.onPromise("obs_set_rec", async (_, { encoder, preset }) => {
             const t = getLocalizedT("backend", "obs.initialize")
 
-            const available = getEncoders(this.NodeObs)
+            const available = getEncoders(this.streamLabsObs)
             if (!available || !available.includes(encoder))
                 throw new Error(t("errors.encoder"))
 
@@ -315,12 +346,13 @@ export class OBSManager {
             if (!presets || !presets.includes(preset))
                 throw new Error(t("error.preset"))
 
-            this.setEncoderPreset(encoder, preset)
             Storage.set("obs_encoder", encoder)
             Storage.set("obs_preset", preset)
+            this.configure()
         })
+
         reg.onPromise("obs_update_settings", async (_, partly) => {
-            const { fps, bitrate, capture_method } = partly
+            const { fps, bitrate, capture_method, simple_preset } = partly
             const t = getLocalizedT("backend", "obs.initialize")
 
             log.info("Updating settings", fps, bitrate, capture_method)
@@ -334,6 +366,11 @@ export class OBSManager {
 
             if (!isNull(capture_method) && capture_method !== "desktop" && capture_method !== "window")
                 throw new Error(t("errors.clip_method"))
+
+
+            const availableValues = Object.values(ERecordingQualityIncluded).filter(e => !isNaN(e as unknown as number))
+            if (!isNull(simple_preset) && !availableValues.includes(simple_preset))
+                throw new Error("Invalid simple recording quality")
 
             Storage.set("obs", { ...(Storage.get("obs")), ...partly })
             this.configure()

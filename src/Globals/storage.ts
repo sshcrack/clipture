@@ -1,9 +1,8 @@
 import { GeneralGame } from '@backend/managers/game/interface';
 import { OverlayAlignment } from '@backend/managers/game/overlay/interface';
 import { CaptureMethod } from '@backend/managers/obs/core/interface';
-import { Encoder } from '@backend/managers/obs/types';
+import { Encoder, ERecordingQualityIncluded } from '@backend/managers/obs/types';
 import { DeleteMethods } from '@backend/managers/storage/interface';
-import { ERecordingQuality } from '@streamlabs/obs-studio-node';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
@@ -78,6 +77,8 @@ const defaults = {
         "fps": 60,
         "bitrate": 10000,
         "capture_method": "window" as CaptureMethod,
+        "advanced_enabled": false as boolean,
+        "simple_preset": ERecordingQualityIncluded.Stream,
     },
     "close_behavior": "unset" as "unset" | "close" | "minimize",
     "automatic_record": true,
@@ -88,7 +89,6 @@ const defaults = {
     "delete_method": [] as DeleteMethods[],
     "obs_encoder": null as Encoder,
     "obs_preset": null as string,
-    "obs_simple_preset": null as null | ERecordingQuality,
     "overlay_enabled": false,
     "overlay_alignment": OverlayAlignment.TOP_RIGHT
 }

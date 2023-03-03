@@ -47,7 +47,7 @@ export class AudioSceneManager {
         if (this.initialized)
             return
 
-        const { NodeObs, VolmeterFactory, InputFactory, Global } = await importOBS()
+        const { NodeObs, VolmeterFactory, InputFactory, Global, AudioTrackFactory } = await importOBS()
         this.VolmeterFactory = VolmeterFactory
         this.NodeObs = NodeObs
         this.InputFactory = InputFactory
@@ -55,6 +55,9 @@ export class AudioSceneManager {
         this.initialized = true
 
         this.addDeviceCheckLoop()
+
+        const track1 = AudioTrackFactory.create(160, 'Mixed: all sources');
+        AudioTrackFactory.setAtIndex(track1, 1);
     }
 
     static register() {
@@ -175,15 +178,11 @@ export class AudioSceneManager {
         this.currentTrack = 2
     }
 
-    static async initializeAudioSources(scene: IScene) {
+    static async initializeAudioSources() {
         const t = getLocalizedT("backend", "obs.audio")
         if (!this.initialized)
             throw new Error(t("audio_not_initialized"))
         this.NodeObs.RegisterSourceCallback(() => {/**/ })
-
-        log.info("Setting up audio sources...")
-        this.Global.setOutputSource(1, scene);
-        setSetting(this.NodeObs, SettingsCat.Output, 'Track1Name', 'Mixed: all sources');
 
         const allDesktopDevices = this.getAudioDevices("desktop")
         const allMicrophones = this.getAudioDevices("microphone")

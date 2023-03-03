@@ -50,7 +50,10 @@ export class OverlayManager {
         })
 
         log.info("Initializing...")
-        overlay.start(path.join(app.getPath("logs"), "overlay.log"));
+        const isFine = overlay.start(path.join(app.getPath("logs"), "overlay.log"));
+        if(isFine !== 1)
+            throw new Error("Could not start overlay")
+
         overlay.setWindowPosCallback((hwnd, rect) => {
             this.handleResize(hwnd, rect)
         })

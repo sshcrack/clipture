@@ -1,9 +1,11 @@
 import { getWebpackDir } from "@backend/tools/fs";
 import { MainGlobals } from "@Globals/mainGlobals";
 import path from "path";
+import fs from "fs/promises"
 import { MainLogger } from "src/interfaces/mainLogger";
 import { SettingsCat } from 'src/types/obs/obs-enums';
 import type { NodeObs } from 'src/types/obs/obs-studio-node';
+import type { VideoEncoderFactory as EncoderFactory } from "@streamlabs/obs-studio-node"
 import { getAvailableValues } from './base';
 import { AvailableEncoders, Encoder } from './types';
 
@@ -22,20 +24,26 @@ export function getOBSBinary() {
     return path.join(getOBSWorkingDir(), "obs64.exe");
 }
 
+let packageFile = null as string;
 export async function importOBS() {
     console.log("OBS Require path is", obsRequirePath, "split", obsRequirePath.split("\\").join("/"))
+    const packagePath = path.join(obsRequirePath, "package.json")
+    if (!packageFile) {
+        packageFile = await fs.readFile(packagePath, "utf-8")
+        const parsed = JSON.parse(packageFile)
+        log.info("OBS Version is", parsed.version)
+    }
+
     const prom = packaged ? eval(`import("${"file:///" + path.join(obsRequirePath, "index.js").split("\\").join("/")}")`) : eval(`import("${obsRequirePath}")`)
     const res = await prom as typeof import("@streamlabs/obs-studio-node")
     log.info("Imported OBS", Object.keys(res ?? {})?.length, "elements")
     return res
 }
 
-export function getEncoders(nodeObs: NodeObs) {
-    for (let i = 0; i < 10; i++) {
-        const availableEncoders = getAvailableValues(nodeObs, SettingsCat.Output, 'Recording', 'RecEncoder');
-        if (availableEncoders.length > 0)
-            return availableEncoders.filter(e => AvailableEncoders.includes(e as Encoder)) as Encoder[]
-    }
+export function getEncoders({ VideoEncoderFactory }: { VideoEncoderFactory: typeof EncoderFactory }) {
+    const availableEncoders = VideoEncoderFactory.types()
+    if (availableEncoders.length > 0)
+        return availableEncoders.filter(e => AvailableEncoders.includes(e as Encoder)) as Encoder[]
 
     return null
 }

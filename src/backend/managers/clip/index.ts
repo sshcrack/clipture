@@ -204,7 +204,6 @@ export class ClipManager extends VideoManager {
         const files = (await glob(globPattern))
             .map(e => path.resolve(e))
 
-        log.info("Loading total of", files.length, "clips... (", globPattern, ")")
         const rawFiles = (await Promise.all(
             files
                 .filter(e => e.endsWith(".mp4"))

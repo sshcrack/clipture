@@ -2,6 +2,14 @@ import type { IIPC } from '@streamlabs/obs-studio-node';
 import { EOBSOutputSignal, EOBSOutputType, EOutputCode, SettingsCat } from './obs-enums';
 
 export type TConfigEvent = 'starting_step' | 'progress' | 'stopping_step' | 'error' | 'done';
+
+
+export const enum ERecSplitType {
+    Time = 0,
+    Size = 1,
+    Manual = 2
+}
+
 export interface IConfigProgress {
     event: TConfigEvent;
     description: string;

@@ -1,7 +1,7 @@
 import { VideoInfo } from '@backend/managers/clip/interface'
 import { GeneralGame } from '@backend/managers/game/interface'
 import { EOBSOutputSignal } from 'src/types/obs/obs-enums'
-import { IOBSOutputSignalInfo } from 'src/types/obs/obs-studio-node'
+import type { EOutputSignal } from "@streamlabs/obs-studio-node"
 
 export type CurrentType = Omit<VideoInfo, "duration"> & {
     videoPath: string | null,
@@ -17,4 +17,4 @@ export type CaptureMethod = "desktop" | "window"
 
 export type RecordingListenerInfo = { gameId: string, bookmarks: number[] }
 
-export type OBSRecordError = IOBSOutputSignalInfo | { signal: EOBSOutputSignal; }
+export type OBSRecordError = EOutputSignal | { signal: EOBSOutputSignal; }

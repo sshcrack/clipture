@@ -30,5 +30,5 @@
   },
   "include": [
     "src/**/*"
-  ]
+, "src/components/settings/categories/OBS/Video/.tsx"  ]
 }
