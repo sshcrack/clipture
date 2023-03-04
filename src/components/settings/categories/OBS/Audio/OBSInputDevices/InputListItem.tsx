@@ -174,7 +174,7 @@ export default function InputListItem({ currDev: currDev, allDevices, defaultDev
                     value={volume}
                     max={1}
                     step={0.01}
-                    min={0}
+                    min={-1}
                     onChange={e => {
                         onChange({
                             ...currDev,

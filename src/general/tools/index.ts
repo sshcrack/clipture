@@ -20,11 +20,11 @@ export function getIcoUrl(icoName: string) {
 export function secondsToDuration(sec_num: number) {
     const hoursNum = Math.floor(sec_num / 3600);
     const minutesNum = Math.floor((sec_num - (hoursNum * 3600)) / 60);
-    const secondsNum = sec_num - (hoursNum * 3600) - (minutesNum * 60);
+    const secondsNum = Math.ceil(sec_num - (hoursNum * 3600) - (minutesNum * 60));
 
     let hours = hoursNum.toString()
     let minutes = minutesNum.toString()
-    let seconds = Math.ceil(secondsNum).toString()
+    let seconds = secondsNum.toString()
 
     if (hoursNum < 10) { hours = "0" + hours; }
     if (minutesNum < 10) { minutes = "0" + minutes; }

@@ -67,7 +67,7 @@ export class MainGlobals {
     static obs: OBSManager;
 
     static getTempDir(shouldDelete = false) {
-        const tempPath = path.join(app.getPath("userData"), "temp");
+        const tempPath = path.join(app.getPath("temp"), "clipture");
 
         if (fs.existsSync(tempPath) && shouldDelete)
             fs.rmSync(tempPath, { recursive: true, force: true });

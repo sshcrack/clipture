@@ -4,7 +4,7 @@ import { RegManMain } from '@general/register/main';
 import { getAddRemoveListener } from '@general/tools/listener';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
-import type { Global as globalType, IInput, InputFactory as inputType, IScene, IVolmeter, VolmeterFactory as volType } from "@streamlabs/obs-studio-node";
+import type { Global as globalType, IInput, InputFactory as inputType, IVolmeter, VolmeterFactory as volType } from "@streamlabs/obs-studio-node";
 import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { getLocalizedT } from 'src/locales/backend_i18n';
@@ -242,7 +242,7 @@ export class AudioSceneManager {
     }
 
     public static addAudioDevice(device_id: string, currTrack: number, type: DeviceType, volume: number) {
-        volume = clamp(volume, 0, 1)
+        volume = clamp(volume, -1, 1)
 
         const t = getLocalizedT("backend", "obs.audio")
         if (this.activeSources.length >= 2) {

@@ -57,11 +57,11 @@ export function InitializePage({ progress }: { progress: Progress }) {
 
             <Heading marginLeft='1em'>{status}</Heading>
         </Flex>
-        <Flex w='75%' h='100%' gap='5' alignItems='center'>
+        <Flex w='75%' h='100%' gap='5' alignItems='center' justifyContent='center'>
             <ProgressBar rounded='md' w='100%' colorScheme='green' size='md' value={percent} max={1} />
             <Grid justifyContent='end' alignItems='center'>
-                <Text justifySelf='end'>{(percent * 100).toFixed(2)}%</Text>
-                <Text justifySelf='end' opacity='0'>000.00%</Text>
+                <Text justifySelf='end' gridRow='1' gridColumn='1'>{(percent * 100).toFixed(2)}%</Text>
+                <Text justifySelf='end' gridRow='1' gridColumn='1' opacity='0'>000.00%</Text>
             </Grid>
         </Flex>
     </Flex >

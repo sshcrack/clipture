@@ -34,16 +34,19 @@ export default function OBSAdvancedSelector({ children }: React.PropsWithChildre
             w='70%'
         >
             <Text>{t("label")}</Text>
-            <Select onChange={e => {
-                const value = e.target.value === "1"
-                console.log("original", originalEnabled, "value", value)
-                if(originalEnabled !== value)
-                    addModified("advanced_select")
-                else
-                    removeModified("advanced_select")
+            <Select
+                value={enabled ? "1" : "0"}
+                onChange={e => {
+                    const value = e.target.value === "1"
+                    console.log("original", originalEnabled, "value", value)
+                    if (originalEnabled !== value)
+                        addModified("advanced_select")
+                    else
+                        removeModified("advanced_select")
 
-                setEnabled(value)
-            }}>
+                    setEnabled(value)
+                }}
+            >
                 <option value={"0"}>{t("simple")}</option>
                 <option value={"1"}>{t("advanced")}</option>
             </Select>
