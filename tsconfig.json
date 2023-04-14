@@ -25,10 +25,11 @@
       "@types/*": ["src/types/*"]
     },
     "typeRoots": [
-      "./src/types",
+      "./src/types/definitions",
     ]
   },
   "include": [
-    "src/**/*"
-, "src/components/settings/categories/OBS/Video/.tsx"  ]
+    "src/**/*"/*,
+    "src/components/settings/categories/OBS/Video/.tsx"*/
+  ]
 }

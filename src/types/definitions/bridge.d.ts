@@ -1,4 +1,4 @@
-import { API } from '../preload/main';
+import { API } from '../../preload/main';
 import log from "electron-log"
 
 
