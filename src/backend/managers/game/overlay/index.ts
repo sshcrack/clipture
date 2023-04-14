@@ -197,6 +197,7 @@ export class OverlayManager {
         overlay.hide()
         overlay.remove(this.currentId)
         this.currentId = null
+        RegManMain.send("overlay_start_update", false)
         return true
     }
 
@@ -233,6 +234,7 @@ export class OverlayManager {
         this.setPosition(Storage.get("overlay_alignment", OverlayAlignment.TOP_LEFT), info, monitor)
 
         this.win.webContents.invalidate();
+        RegManMain.send("overlay_start_update", true)
     }
 
     static async setAlignment(alignment: OverlayAlignment) {

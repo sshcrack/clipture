@@ -192,7 +192,8 @@ export class RecordManager {
 
             const info = generalGame && getGameInfo(generalGame, null)
             const videoId = `${info?.gameName ?? "UnknownGame"}_${new Date().getTime()}`;
-            const videoName = videoId + ".mkv"
+            //TODO Make file path actually valid by using regex from isFilenameValid
+            const videoName = videoId.replace(".", "-") + ".mkv"
             recorder.fileFormat = videoId
 
             let started = false

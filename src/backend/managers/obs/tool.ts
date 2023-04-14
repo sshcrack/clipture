@@ -1,12 +1,9 @@
-import { getWebpackDir } from "@backend/tools/fs";
 import { MainGlobals } from "@Globals/mainGlobals";
+import { getWebpackDir } from "@backend/tools/fs";
+import type { VideoEncoderFactory as EncoderFactory } from "@streamlabs/obs-studio-node";
+import fs from "fs/promises";
 import path from "path";
-import fs from "fs/promises"
 import { MainLogger } from "src/interfaces/mainLogger";
-import { SettingsCat } from 'src/types/obs/obs-enums';
-import type { NodeObs } from 'src/types/obs/obs-studio-node';
-import type { VideoEncoderFactory as EncoderFactory } from "@streamlabs/obs-studio-node"
-import { getAvailableValues } from './base';
 import { AvailableEncoders, Encoder } from './types';
 
 const log = MainLogger.get("Backend", "Maangers", "OBS", "tools")

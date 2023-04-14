@@ -5,11 +5,11 @@ import Logo from "../../assets/renderer/logo_recording.svg"
 
 export default function App() {
     useEffect(() => {
-        setTimeout(() => {
-            //Reload page
+        return window.api.overlay.onEnableUpdate(() => {
+            // Reload page to avoid black overlay
             // eslint-disable-next-line no-self-assign
-            location.href = location.href;
-        }, 2500)
+            location.href = location.href
+        })
     })
     return <div
         style={{

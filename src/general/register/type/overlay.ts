@@ -11,4 +11,5 @@ export type OverlayEventPromises = addPrefixUnderscoreToObject<{
 }, "overlay">
 
 export type OverlayMainToRender = addPrefixUnderscoreToObject<{
+    start_update: (enabled: boolean) => void
 }, "overlay">

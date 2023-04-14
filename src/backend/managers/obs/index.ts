@@ -74,10 +74,6 @@ export class OBSManager {
                 func: () => Scene.initialize(this)
             },
             {
-                title: t("connect"),
-                func: () => SignalsManager.initialize()
-            },
-            {
                 title: t("auto_record"),
                 func: () => RecordManager.instance.initialize()
             },
@@ -167,25 +163,37 @@ export class OBSManager {
 
         const obsDataPath = getOBSDataPath()
         const t = getLocalizedT("backend", "obs.initialize")
-        const initResult = this.NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
-        if (initResult !== 0) {
-            const errorReasons = {
-                "-2": t("errors.minus_two"),
-                "-5": t("errors.minus_five"),
-            };
+        try {
+
+            const initResult = this.NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
+            if (initResult !== 0) {
+                const errorReasons = {
+                    "-2": t("errors.minus_two"),
+                    "-5": t("errors.minus_five"),
+                };
 
 
-            const result = initResult.toString() as keyof typeof errorReasons;
-            const errorMessage = errorReasons[result] ?? t("errors.unknown", { initResult });
+                const result = initResult.toString() as keyof typeof errorReasons;
+                const errorMessage = errorReasons[result] ?? t("errors.unknown", { initResult });
 
-            log.error("Could not initialize OBS", errorMessage);
-            this.shutdown(true);
+                log.error("Could not initialize OBS", errorMessage);
+                this.shutdown(true);
 
-            throw Error(errorMessage);
+                throw new Error(errorMessage);
+            }
+
+            log.info("Successfully initialized OBS!")
+            setInterval(() => {
+                try {
+                    const stat = this.NodeObs.OBS_API_getPerformanceStatistics()
+                    RegManMain.send("performance", stat)
+                } catch (e) { log.warn("Could not get performance stats", e) }
+            }, 2000)
         }
-
-        log.info("Successfully initialized OBS!")
-        setInterval(() => RegManMain.send("performance", this.NodeObs.OBS_API_getPerformanceStatistics()), 2000)
+        catch (e) {
+            log.error("Could not initialize obs: ", e)
+            throw new Error(e);
+        }
     }
 
     public async shutdown(force = false) {
