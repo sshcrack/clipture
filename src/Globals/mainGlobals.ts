@@ -52,6 +52,7 @@ export class MainGlobals {
     static isPackaged = packaged
     static window: BrowserWindow
     static baseUrl = isDevCached ? "http://localhost:3001" : "https://clipture.sshcrack.me"
+    static isDev = isDevCached
     static gameUrl = this.baseUrl + "/api/game/detection"
     static dcClientId = "964216174135103528"
 

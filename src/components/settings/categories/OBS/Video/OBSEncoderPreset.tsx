@@ -58,8 +58,12 @@ export default function OBSEncoderPreset() {
         <option key={e} value={e}>{e}</option>
     ))
 
-    const getPresets = (encoder: Encoder) => obs.getPresets(encoder)
-            .then(e => setAvailablePresets(e))
+    const getPresets = (encoder: Encoder, checkValid: boolean) => obs.getPresets(encoder)
+            .then(e => {
+                setAvailablePresets(e)
+                if(checkValid && e.length > 0)
+                    setPreset(e[0])
+            })
             .catch(() => toast({ status: "error", title: "could not load presets for encoder" }))
 
     return <Flex
@@ -71,7 +75,7 @@ export default function OBSEncoderPreset() {
         <Text alignSelf='start' mb='8px'>{t("encoder")}</Text>
         <Select value={currEncoder} onChange={e => {
             const newEnc = e.target.value as Encoder
-            getPresets(newEnc)
+            getPresets(newEnc, true)
             setEncoder(newEnc)
             if (newEnc !== originalEncoder)
                 addModified("obs_encoder_preset")

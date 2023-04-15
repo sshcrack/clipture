@@ -27,6 +27,7 @@ import { SignalsManager } from './Signals'
 import { getEncoders, getOBSBinary, getOBSDataPath, getOBSWorkingDir, importOBS } from './tool'
 import { ERecordingQualityIncluded } from './types'
 import { getEncoderPresets } from './util'
+import { MainGlobals } from '@Globals/mainGlobals'
 
 
 const reg = RegManMain
@@ -120,7 +121,15 @@ export class OBSManager {
             const start = Date.now()
             let success = false
             let lastErr = undefined
-            for (let i = 0; i < 10; i++) {
+
+            const args = process.argv.concat([]);
+            args.shift();
+            args.push("--tried-restart")
+            console.log("Test args:", args)
+
+            const triedRestart = process.argv.includes("--tried-restart")
+            log.info("Tried restart:", triedRestart)
+            for (let i = 0; i < 3; i++) {
                 const res = await (func()
                     ?.then(() => undefined)
                     ?.catch(e => e))
@@ -128,8 +137,19 @@ export class OBSManager {
                     success = true
                     break;
                 }
+
                 log.error("Could not complete step, retrying... (try: ", i, ")")
                 log.error(res)
+                if(i == 1 && !triedRestart) {
+                    if(!MainGlobals.isPackaged) {
+                        app.relaunch({ args })
+                        app.exit()
+                        break
+                    } else {
+                        log.silly("Would restart, but your application is not packaged, soo not gonna do that alright?")
+                    }
+                }
+
                 lastErr = res
             }
             if (!success) {
@@ -157,13 +177,12 @@ export class OBSManager {
         log.debug(`Initializing OBS... (${hostId}}`);
         log.debug("WorkDir is", workDir)
 
-        this.NodeObs.IPC.setServerPath(binary, workDir)
-        this.NodeObs.IPC.host(hostId);
-        this.NodeObs.SetWorkingDirectory(workDir);
-
         const obsDataPath = getOBSDataPath()
         const t = getLocalizedT("backend", "obs.initialize")
         try {
+            this.NodeObs.IPC.setServerPath(binary, workDir)
+            this.NodeObs.IPC.host(hostId);
+            this.NodeObs.SetWorkingDirectory(workDir);
 
             const initResult = this.NodeObs.OBS_API_initAPI("en-US", obsDataPath, "1.0.0") as number;
             if (initResult !== 0) {
@@ -257,6 +276,7 @@ export class OBSManager {
         if (!(await existsProm(clipPath)))
             await mkdir(clipPath)
 
+        const preset = Storage.get("obs_preset")
         const { bitrate, fps, simple_preset, advanced_enabled } = Storage.get("obs", {
             fps: 60,
             bitrate: 10000,
@@ -264,7 +284,6 @@ export class OBSManager {
             simple_preset: ERecordingQualityIncluded.Stream,
             advanced_enabled: false
         })
-        const preset = Storage.get("obs_preset")
 
         setSetting(this.NodeObs, Video, 'FPSCommon', fps);
         if (advanced_enabled) {
@@ -351,6 +370,7 @@ export class OBSManager {
                 throw new Error(t("errors.encoder"))
 
             const presets = getEncoderPresets(encoder)
+            console.log("Presets available", presets, "preset is '" + preset + "'");
             if (!presets || !presets.includes(preset))
                 throw new Error(t("error.preset"))
 
