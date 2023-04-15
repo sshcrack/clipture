@@ -9,11 +9,9 @@
 # Download (Windows only)
 ### Official Build:&nbsp;&nbsp;&nbsp;&nbsp;[![Official Build](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white)](https://clipture.sshcrack.me/api/download)
 
-## Selfhosting
-Make sure you have yarn installed, if not sure:
-```bash
-npm i -g yarn
-```
+## Prerequisites
+- [Nodejs](https://nodejs.org/en/download) 
+- [yarn](https://classic.yarnpkg.com/en/docs/install#debian-stable)
 
 1. [Setup server](https://github.com/sshcrack/clipture-server)
 2. Clone Repo
