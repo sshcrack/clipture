@@ -21,7 +21,7 @@ export class ExpFilter {
     }
 }
 /*
-    """Simple exponential smoothing filter"""
+    """Simple exponential smoothing filter""" ripped from rpi-music-visualizer
 
     def \
             __init__(self, val=0.0, alpha_decay=0.5, alpha_rise=0.5):
