@@ -1,5 +1,6 @@
-import { Flex } from '@chakra-ui/react';
+import { Box, Flex, Image, Text } from '@chakra-ui/react';
 import React, { ReactNode, useContext } from 'react';
+import '@fontsource/bungee'
 
 
 import { TitlebarContext } from './TitleBarProvider';
@@ -15,13 +16,25 @@ export interface TitleBarProps {
 }
 
 export const TitleBar: React.FC<TitleBarProps> = ({ children, icon, disableMinimize, disableMaximize, className, browserWindowId }) => {
-    const { menu, size } = useContext(TitlebarContext)
+    const { menu, size, sidebar } = useContext(TitlebarContext)
 
     return <>
-        <div id="electron-app-title-bar" className={`electron-app-title-bar ${className || ''}`} style={{ position: "fixed", zIndex: 1000, height: size, "--titlebar-size": size } as any}>
-            <div className="resize-handle resize-handle-top" />
-            <div className="resize-handle resize-handle-left" />
-            {!!icon && <img className="icon" src={icon} />}
+        <Box
+            id="electron-app-title-bar"
+            className={`electron-app-title-bar ${className || ''}`}
+            position="fixed"
+            bg="page.bg.secondary"
+            alignItems='center'
+            justifyContent='center'
+            zIndex={1000}
+            h={size}
+            style={{ "--titlebar-size": size } as any}
+        >
+            <Box className="resize-handle resize-handle-top" />
+            <Box className="resize-handle resize-handle-left" />
+            {sidebar && <Box style={{flex: `0 0 ${sidebar.clientWidth}px`}} />}
+            {!!icon && !sidebar && <Image w='25px' h='25px' className="icon" src={icon} />}
+            <Text fontFamily='Bungee' fontSize='lg'>Clipture</Text>
             <Flex
                 className='no-drag-parent'
                 alignItems='center'
@@ -32,7 +45,7 @@ export const TitleBar: React.FC<TitleBarProps> = ({ children, icon, disableMinim
             </Flex>
             {children}
             <WindowControls disableMinimize={disableMinimize} disableMaximize={disableMaximize} browserWindowId={browserWindowId} />
-        </div>
+        </Box>
         <div style={{ height: size }} />
     </>
 }

@@ -8,7 +8,6 @@
 }
 
 #electron-app-title-bar {
-    background: #24292e;
     border-bottom: 1px solid #000;
     -webkit-app-region: drag;
     flex-grow: 0;
@@ -16,11 +15,10 @@
     width: 100%;
     display: flex;
     flex-direction: row;
-    color: #24292e;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
     font-size: 12px;
   }
-  
+
   /*resize handler*/
   #electron-app-title-bar .resize-handle {
     position: absolute;

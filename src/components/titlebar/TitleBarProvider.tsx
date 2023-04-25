@@ -6,13 +6,17 @@ export type MenuMap = Map<number, React.ReactNode>
 export type TitlebarState = {
     menu: MenuMap,
     size: string,
+    sidebar: HTMLDivElement,
+    setSidebar: ReactSetState<HTMLDivElement>,
     setSize: ReactSetState<string>,
     setUpdate: ReactSetState<number>
 }
 
 export const TitlebarContext = React.createContext<TitlebarState>({
     menu: new Map(),
-    size: "28px",
+    size: "34px",
+    sidebar: null,
+    setSidebar: () => {/**/},
     setSize: () => {/**/},
     setUpdate: () => {/**/}
 })
@@ -20,10 +24,14 @@ export const TitlebarContext = React.createContext<TitlebarState>({
 export default function TitleBarProvider(p: React.PropsWithChildren) {
     const [menu] = useState<MenuMap>(() => new Map())
     const [,setUpdate] = useState(() => Math.random())
-    const [size, setSize] = useState("28px")
+    const [sidebar, setSidebar] = useState(() => null)
+
+    const [size, setSize] = useState("34px")
     return <CloseBehaviorListener>
         <TitlebarContext.Provider
             value={{
+                sidebar,
+                setSidebar,
                 menu,
                 size,
                 setSize,

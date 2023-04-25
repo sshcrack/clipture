@@ -1,15 +1,15 @@
 import { Flex } from '@chakra-ui/react';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import EditorCutBar from 'src/components/obs/videos/bar/EditorCutBar';
-import EditorCutHighlight from 'src/components/obs/videos/bar/EditorCutHighlight';
-import EditorMainBar from 'src/components/obs/videos/bar/EditorMainBar';
-import EditorSeekBar from 'src/components/obs/videos/bar/EditorSeekBar';
-import EditorTitlebar from 'src/components/obs/videos/bar/EditorTitlebar';
-import EditorBookmarks from 'src/components/obs/videos/bookmarks';
-import Editor from 'src/components/obs/videos/Editor';
-import EditorVideo from 'src/components/obs/videos/EditorVideo';
-import EditorTimelineTop from 'src/components/obs/videos/timelineTop/EditorTimelineTop';
+import EditorCutBar from 'src/componentsOld/obs/videos/bar/EditorCutBar';
+import EditorCutHighlight from 'src/componentsOld/obs/videos/bar/EditorCutHighlight';
+import EditorMainBar from 'src/componentsOld/obs/videos/bar/EditorMainBar';
+import EditorSeekBar from 'src/componentsOld/obs/videos/bar/EditorSeekBar';
+import EditorTitlebar from 'src/componentsOld/obs/videos/bar/EditorTitlebar';
+import EditorBookmarks from 'src/componentsOld/obs/videos/bookmarks';
+import Editor from 'src/componentsOld/obs/videos/Editor';
+import EditorVideo from 'src/componentsOld/obs/videos/EditorVideo';
+import EditorTimelineTop from 'src/componentsOld/obs/videos/timelineTop/EditorTimelineTop';
 import TitlebarSize from 'src/components/titlebar/TitlebarSize';
 
 export default function EditorPage() {

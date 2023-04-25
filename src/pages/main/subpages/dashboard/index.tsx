@@ -3,11 +3,11 @@ import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import CloudIndicator from 'src/components/dashboard/CloudIndicator';
-import NavBar from 'src/components/general/NavBar';
-import Clips from 'src/components/obs/clips';
-import ClipProcessingItems from 'src/components/obs/progress/ClipProgressItems';
-import Videos from 'src/components/obs/videos';
+import CloudIndicator from 'src/componentsOld/dashboard/CloudIndicator';
+import NavBar from 'src/componentsOld/general/NavBar';
+import Clips from 'src/componentsOld/obs/clips';
+import ClipProcessingItems from 'src/componentsOld/obs/progress/ClipProgressItems';
+import Videos from 'src/componentsOld/obs/videos';
 import "src/pages/main/subpages/dashboard/index.css";
 
 

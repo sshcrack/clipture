@@ -2,12 +2,12 @@ import { SessionInfo, SessionStatus } from '@backend/managers/auth/interfaces';
 import { Button, Flex } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from 'react-i18next';
-import DiscoverList from 'src/components/discover/list/DiscoverList';
-import DiscoverProvider from 'src/components/discover/list/DiscoverProvider';
-import DiscoverSearch from 'src/components/discover/list/DiscoverSearch';
-import SingleDiscoverPage from 'src/components/discover/single/SingleProvider';
-import NavBar from 'src/components/general/NavBar';
-import OfflinePlaceholder from 'src/components/general/placeholder/OfflinePlaceholder';
+import DiscoverList from 'src/componentsOld/discover/list/DiscoverList';
+import DiscoverProvider from 'src/componentsOld/discover/list/DiscoverProvider';
+import DiscoverSearch from 'src/componentsOld/discover/list/DiscoverSearch';
+import SingleDiscoverPage from 'src/componentsOld/discover/single/SingleProvider';
+import NavBar from 'src/componentsOld/general/NavBar';
+import OfflinePlaceholder from 'src/componentsOld/general/placeholder/OfflinePlaceholder';
 
 export type DiscoverDisplayType = "single" | "list"
 

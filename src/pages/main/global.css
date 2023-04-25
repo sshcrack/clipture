@@ -1,8 +1,3 @@
-@font-face {
-    font-family: "Quattrocento";
-    src: url("../../assets/renderer/font/Quattrocento.ttf") format("truetype");
-}
-
 body[data-basic-video-invisible-children=true] *[data-basic-video-invisible-check=true] {
     display: none !important;
 }

@@ -6,7 +6,7 @@ import { DeleteMethods } from '@backend/managers/storage/interface';
 import { app, safeStorage } from 'electron';
 import { default as Store } from 'electron-store';
 import path from 'path';
-import { SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
+import { SourceInfo } from 'src/componentsOld/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 
 

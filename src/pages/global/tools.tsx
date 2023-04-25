@@ -1,7 +1,7 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import * as React from 'react';
 import { createRoot } from "react-dom/client";
-import RecordErrorListener from 'src/components/dashboard/error/RecordErrorListener';
+import RecordErrorListener from 'src/componentsOld/dashboard/error/RecordErrorListener';
 import { TitleBar } from 'src/components/titlebar';
 import TitlebarBalancer from 'src/components/titlebar/TitlebarBalancer';
 import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
@@ -13,6 +13,9 @@ import { addErrorCatch } from './catchErrors';
 import OnlyUnminimizedRender from "./OnlyUnminimizedRender";
 import theme from "./theme";
 import ToastNotifier from './ToastNotifier';
+
+import '@fontsource/inter/400.css'
+
 
 
 export function renderMain(Comp: () => JSX.Element) {

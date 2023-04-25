@@ -5,7 +5,7 @@ import { getAddRemoveListener } from '@general/tools/listener';
 import { MainGlobals } from '@Globals/mainGlobals';
 import { Storage } from '@Globals/storage';
 import type { Global as globalType, IInput, InputFactory as inputType, IVolmeter, VolmeterFactory as volType } from "@streamlabs/obs-studio-node";
-import { FixedSources, SourceInfo } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface';
+import { FixedSources, SourceInfo } from 'src/componentsOld/settings/categories/OBS/Audio/OBSInputDevices/interface';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import { getLocalizedT } from 'src/locales/backend_i18n';
 import { SettingsCat } from 'src/types/obs/obs-enums';

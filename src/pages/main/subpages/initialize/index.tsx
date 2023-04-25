@@ -1,68 +1,35 @@
 import { Progress } from '@backend/processors/events/interface';
-import { Flex, Heading, useColorModeValue, Progress as ProgressBar, Text, Grid } from '@chakra-ui/react';
+import { Flex, Text, Grid, Box } from '@chakra-ui/react';
 import { motion } from "framer-motion";
 import * as React from "react";
+import Page from 'src/components/general/page';
+import ProgressBar from 'src/components/general/progress';
 
 export function InitializePage({ progress }: { progress: Progress }) {
     const { percent, status } = progress
-    const primaryName = useColorModeValue("black", "white")
-    const secondaryName = useColorModeValue("purple.700", "purple.300")
-    const thirdName = useColorModeValue("blue.700", "blue.300")
-
-    const primary = `var(--chakra-colors-${primaryName.replace(".", "-")})`
-    const secondary = `var(--chakra-colors-${secondaryName.replace(".", "-")})`
-    const third = `var(--chakra-colors-${thirdName.replace(".", "-")})`
-
-    return <Flex
+    return <Page
         alignItems='center'
-        justifyContent='space-around'
-        w='100%'
-        h='100%'
-        flexDir='column'
+        justifyContent='center'
+        sidebar='disabled'
     >
         <Flex
+            dir='column'
+            gap='5'
+            flexDir='column'
             alignItems='center'
             justifyContent='center'
-            w='100%'
+            w='90%'
             h='100%'
-            gap='5'
         >
-            <svg xmlns="http://www.w3.org/2000/svg"
-                width='1'
-                height='1'
-                style={{ width: "5em", height: "5em" }}
-                viewBox='0 0 100 100'
-            >
-                <motion.circle
-                    cx={50}
-                    cy={50}
-                    fill={primary}
-                    animate={{ r: [0, 40] }}
-                />
-                <motion.circle
-                    cx={50}
-                    cy={50}
-                    fill={secondary}
-                    animate={{ r: [0, 35, 0] }}
-                    transition={{ repeat: Infinity, duration: 2 }}
-                />
-                <motion.circle
-                    cx={50}
-                    cy={50}
-                    fill={third}
-                    animate={{ r: [0, 30, 0] }}
-                    transition={{ repeat: Infinity, duration: 2, delay: 1 }}
-                />
-            </svg>
-
-            <Heading marginLeft='1em'>{status}</Heading>
+            <Text
+                fontSize='4xl'
+            >{status}</Text>
+            <ProgressBar
+                progress={percent}
+                stroke
+                w='100%'
+                h='2.5rem'
+            />
         </Flex>
-        <Flex w='75%' h='100%' gap='5' alignItems='center' justifyContent='center'>
-            <ProgressBar rounded='md' w='100%' colorScheme='green' size='md' value={percent} max={1} />
-            <Grid justifyContent='end' alignItems='center'>
-                <Text justifySelf='end' gridRow='1' gridColumn='1'>{(percent * 100).toFixed(2)}%</Text>
-                <Text justifySelf='end' gridRow='1' gridColumn='1' opacity='0'>000.00%</Text>
-            </Grid>
-        </Flex>
-    </Flex >
+    </Page >
 }

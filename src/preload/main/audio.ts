@@ -1,7 +1,7 @@
 import { AudioUpdateListener } from '@backend/managers/obs/Scene/interfaces'
 import { RegManRender } from '@general/register/render'
 import { getAddRemoveListener } from '@general/tools/listener'
-import { FixedSources } from 'src/components/settings/categories/OBS/Audio/OBSInputDevices/interface'
+import { FixedSources } from 'src/componentsOld/settings/categories/OBS/Audio/OBSInputDevices/interface'
 
 type VolmeterListener = (source: string, magnitude: number[], peak: number[], inputPeak: number[]) => void
 const volmeterListeners = [] as VolmeterListener[]
