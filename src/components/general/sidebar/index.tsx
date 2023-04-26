@@ -1,13 +1,16 @@
-import { Flex, list } from '@chakra-ui/react'
+import { Flex } from '@chakra-ui/react'
 import React, { useContext, useEffect, useRef } from 'react'
+import { BiMoviePlay } from 'react-icons/bi'
 import { TitlebarContext } from 'src/components/titlebar/TitleBarProvider'
 import CliptureIcon from '../page/icon'
+import SidebarItem from './item'
 
 export type SidebarProps = {
-    disabled?: boolean
+    disabled?: boolean,
+    active?: "dashboard"
 }
 
-export default function Sidebar({ disabled }: SidebarProps) {
+export default function Sidebar({ disabled, active }: SidebarProps) {
     const { setSidebar, setUpdate } = useContext(TitlebarContext)
     const ref = useRef<HTMLDivElement>(null)
     const contentRef = useRef<HTMLDivElement>(null)
@@ -29,9 +32,10 @@ export default function Sidebar({ disabled }: SidebarProps) {
     }, [ref, contentRef])
 
 
+    console.log("Active", active, "dashboard", active === "dashboard")
     return <>
         <Flex
-            w='3rem'
+            w='4rem'
             position='fixed'
             top='0'
             left='0'
@@ -39,11 +43,19 @@ export default function Sidebar({ disabled }: SidebarProps) {
             ref={ref}
             bg='page.bg.secondary'
             h='100%'
-            justifyContent='center'
-            dir='column'
+            flexDir='column'
             pt='2'
+            gap='10'
         >
-            <CliptureIcon boxSize='29px' />
+            <CliptureIcon alignSelf='center' boxSize='40px' />
+            <Flex
+                h='100%'
+                w='100%'
+                alignItems='center'
+                flexDir='column'
+            >
+                <SidebarItem svg={BiMoviePlay}  enabled={active === "dashboard" }/>
+            </Flex>
         </Flex>
         {/* This element is for things to be sized nicely*/}
         <Flex h='100%' ref={contentRef}>

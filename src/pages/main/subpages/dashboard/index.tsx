@@ -3,6 +3,7 @@ import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import Page from 'src/components/general/page';
 import CloudIndicator from 'src/componentsOld/dashboard/CloudIndicator';
 import NavBar from 'src/componentsOld/general/NavBar';
 import Clips from 'src/componentsOld/obs/clips';
@@ -62,85 +63,11 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
     }, [])
 
     const additionalElements = ClipProcessingItems()
-    return <Flex
-        gap={4}
-        flexDir='row'
-
-        width='100%'
-        height='100%'
+    return <Page
+        alignItems='center'
+        justifyContent='center'
+        sidebar='dashboard'
     >
         <CloudIndicator />
-        <NavBar
-            data={data}
-            w='5em'
-            h='100%'
-            ref={navbarRef}
-        />
-        <Flex
-            flexDir='column'
-            alignItems='center'
-            w='100%'
-            h='100%'
-            ref={outerRef}
-        >
-            <Tabs
-                w='100%'
-                h='calc(100% - var(--chakra-space-5))'
-                isLazy
-                overflowY='hidden'
-                display='flex'
-                flexDir='column'
-                isFitted
-                index={currentPage}
-                onChange={newIndex => {
-                    setCurrentPage(newIndex)
-                    console.log("Pushing state")
-                    if (newIndex === 0)
-                        history.pushState(null, null, '#/clips');
-                    else
-                        history.pushState(null, null, '#/videos');
-                }}
-            >
-                <TabList>
-                    <Tab className='tabHotkey select-everything'>{t("clips.title")}</Tab>
-                    <Tab className='tabHotkey select-everything'>{t("videos.title")}</Tab>
-                </TabList>
-                <TabPanels
-                    display='flex'
-                    w='100%'
-                    h='100%'
-                    flexDir='column'
-                    justifyContent='center'
-                    alignItems='center'
-                >
-                    <TabPanel
-                        display='flex'
-                        w='100%'
-                        className='select-everything'
-                        h='100%'
-                        flexDir='column'
-                        justifyContent='center'
-                        alignItems='center'
-                        pb='0'
-                        pt='0'
-                    >
-                        <Clips additionalElements={additionalElements} />
-                    </TabPanel>
-                    <TabPanel
-                        display='flex'
-                        w='100%'
-                        h='100%'
-                        className='select-everything'
-                        flexDir='column'
-                        justifyContent='center'
-                        alignItems='center'
-                        pb='0'
-                        pt='0'
-                    >
-                        <Videos additionalElements={additionalElements} />
-                    </TabPanel>
-                </TabPanels>
-            </Tabs>
-        </Flex>
-    </Flex>
+    </Page>
 }

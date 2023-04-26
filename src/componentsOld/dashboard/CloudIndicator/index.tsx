@@ -1,7 +1,7 @@
 import { SessionStatus } from '@backend/managers/auth/interfaces';
 import { CloudUsage } from '@backend/managers/cloud/interface';
 import { Flex, Progress, ProgressProps, Text } from '@chakra-ui/react';
-import { IoCloudOfflineOutline } from "react-icons/io5"
+import { IoCloud, IoCloudOfflineOutline } from "react-icons/io5"
 import prettyBytes from 'pretty-bytes';
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
@@ -34,8 +34,6 @@ export default function CloudIndicator() {
 
 
     const percentage = !usage ? 0 : usage.current / usage.maxTotal
-    const color = `hsl(${120 * (1 - percentage)}, 100%, 70%)`
-
     const progGeneral = {
         w: '50%',
         max: 1,
@@ -48,12 +46,20 @@ export default function CloudIndicator() {
     const content = <>
         <Progress
             value={percentage}
+            h='1.1rem'
             style={{
-                "--prog-color": color
+                "--prog-color": "#ABB8FF"
             } as any}
             {...progGeneral}
         />
-        <Text color='white' pl='2'>{prettierUsed} / {prettierTotal}</Text>
+        <Flex pl='5' justifyContent='center' alignItems='center'>
+            <IoCloud style={{
+                color: "white",
+                width: "calc(var(--titlebar-size) - 10px)",
+                height: "calc(var(--titlebar-size) - 10px)"
+            }} />
+            <Text color='white' pl='2'>{prettierUsed} / {prettierTotal}</Text>
+        </Flex>
     </>
 
     const placeholder = <>

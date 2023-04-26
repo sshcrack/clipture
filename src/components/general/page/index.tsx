@@ -1,9 +1,9 @@
 import React, { PropsWithChildren } from 'react';
 import { Flex, FlexProps } from '@chakra-ui/react';
-import Sidebar from '../sidebar';
+import Sidebar, { SidebarProps } from '../sidebar';
 
 export type PageProps = FlexProps & {
-    sidebar: "disabled"
+    sidebar: "disabled" | SidebarProps["active"]
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -15,7 +15,7 @@ export default function Page({ children, sidebar, ...props }: PropsWithChildren<
         h='100%'
         bgGradient='linear(to right bottom, page.bg.0 0%, page.bg.1 25.71%, page.bg.2 100%)'
     >
-        <Sidebar />
+        <Sidebar active={sidebar !== "disabled" ? sidebar : null} disabled={sidebar === "disabled"}/>
         <Flex
             w='100%'
             h='100%'

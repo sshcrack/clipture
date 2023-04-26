@@ -80,6 +80,7 @@ export const getMaskBorderFull = (size: number) => {
 export default function GradientBorder({ radius, _before, gradient, full, size, children, ...props }: GradientBorderProps) {
     const negative = "0"//`calc(${size} * -1)`
 
+    // Still a little bit offset
     const maskBorder = full ? getMaskBorderFull(size) : MASK_BORDER_HALF
     return <Flex
         position='relative'
