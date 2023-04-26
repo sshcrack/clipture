@@ -35,7 +35,7 @@ export default function App() {
     const [obsInitialized, setOBSInitialized] = useState(() => obs.isInitialized())
     const [downloadedModules, setModulesDownloaded] = useState(undefined as boolean)
     const [originalDownloadedModules, setOriginalModulesDownload] = useState(undefined as boolean)
-/*
+
     useEffect(() => {
         console.log("Checking if prerequisites are valid")
         prerequisites.isValid()
@@ -106,8 +106,8 @@ export default function App() {
         window.addEventListener("hashchange", listener)
         return () => window.removeEventListener("hashchange", listener)
     }, [])
-*/
-    const initialized = false && !isLocked && obsInitialized && downloadedModules && status !== SessionStatus.LOADING
+
+    const initialized = !isLocked && obsInitialized && downloadedModules && status !== SessionStatus.LOADING
 
     const { status: progStat, percent } = progress ?? { percent: 0, status: t("initializing") }
     const relativePercentage = downloadedModules ? percent * 0.5 + 0.5 : percent * 0.5

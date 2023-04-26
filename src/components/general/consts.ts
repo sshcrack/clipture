@@ -1,0 +1,1 @@
+export const BRAND_GRADIENT = 'linear(to right, brand.secondary 0%, brand.primary 100%);'

@@ -1,6 +1,5 @@
 import { Progress } from '@backend/processors/events/interface';
-import { Flex, Text, Grid, Box } from '@chakra-ui/react';
-import { motion } from "framer-motion";
+import { Flex, Text } from '@chakra-ui/react';
 import * as React from "react";
 import Page from 'src/components/general/page';
 import ProgressBar from 'src/components/general/progress';
@@ -28,7 +27,7 @@ export function InitializePage({ progress }: { progress: Progress }) {
                 progress={percent}
                 stroke
                 w='100%'
-                h='2.5rem'
+                h='4rem'
             />
         </Flex>
     </Page >

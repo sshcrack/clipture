@@ -1,7 +1,7 @@
 import React, { useEffect } from "react"
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
-import Logo from "../../assets/renderer/logo_recording.svg"
+import { Image } from '@chakra-ui/react'
 
 export default function App() {
     useEffect(() => {
@@ -21,6 +21,6 @@ export default function App() {
             background: "#111111"
         }}
     >
-        <Logo style={{ width: "100%", height: "100%" }} />
+        <Image src='../assets/logo_recording.svg' style={{ width: "100%", height: "100%" }} />
     </div>
 }
