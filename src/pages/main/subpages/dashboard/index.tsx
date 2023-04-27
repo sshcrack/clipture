@@ -1,9 +1,11 @@
 import { SessionData, SessionInfo } from '@backend/managers/auth/interfaces';
-import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react';
+import { Flex, Text } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import Page from 'src/components/general/page';
+import TabList from 'src/components/general/tabList';
+import Tab from 'src/components/general/tabList/tab';
 import CloudIndicator from 'src/componentsOld/dashboard/CloudIndicator';
 import NavBar from 'src/componentsOld/general/NavBar';
 import Clips from 'src/componentsOld/obs/clips';
@@ -32,6 +34,7 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
         console.log("Default page update to", currentPage)
         system.set_default_dashboard_page(currentPage)
     }, [currentPage])
+
 
     useEffect(() => {
         if (!navbarRef?.current || !outerRef?.current)
@@ -64,10 +67,18 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
 
     const additionalElements = ClipProcessingItems()
     return <Page
-        alignItems='center'
-        justifyContent='center'
         sidebar='dashboard'
+        noPadding
     >
         <CloudIndicator />
+        <Flex p='6' pl='8'>
+            <Text fontSize='2xl'>Recorded clips</Text>
+        </Flex>
+        <TabList pl='20'>
+            <Tab active>All Clips</Tab>
+            <Tab>Local</Tab>
+            <Tab>Uploaded</Tab>
+            <Tab>Videos</Tab>
+        </TabList>
     </Page>
 }

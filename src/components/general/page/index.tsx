@@ -3,11 +3,12 @@ import { Flex, FlexProps } from '@chakra-ui/react';
 import Sidebar, { SidebarProps } from '../sidebar';
 
 export type PageProps = FlexProps & {
-    sidebar: "disabled" | SidebarProps["active"]
+    sidebar: "disabled" | SidebarProps["active"],
+    noPadding?: boolean
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-export default function Page({ children, sidebar, ...props }: PropsWithChildren<PageProps>) {
+export default function Page({ noPadding, children, sidebar, ...props }: PropsWithChildren<PageProps>) {
     return <Flex
         {...props}
         dir='row'
@@ -19,11 +20,9 @@ export default function Page({ children, sidebar, ...props }: PropsWithChildren<
         <Flex
             w='100%'
             h='100%'
-            pl='7'
-            pb='3'
-            pt='3'
-            pr='7'
-            dir='column'
+            p={!noPadding && '6'}
+            pl={!noPadding && '8'}
+            flexDir='column'
             {...props}
         >
             {children}

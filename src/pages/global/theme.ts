@@ -21,12 +21,20 @@ const colors = {
             secondary: "#3F3263"
         },
     },
+
+
     pg_bar: {
         disabled: {
             "0":"rgba(87, 87, 87, 0.49)",
             "1": "rgba(255, 255, 255, 0.49)"
         }
     },
+    tab: {
+        base: "#4E4E4E",
+        highlight: "#21AEFD"
+    },
+
+
     illustration: {
         bg: "#04294F",
         primary: "#FFB400",

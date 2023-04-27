@@ -11,13 +11,14 @@ export type SidebarItemProps = {
 export default function SidebarItem({ svg: Icon, enabled }: PropsWithChildren<SidebarItemProps>) {
     const grad = enabled ? "linear-gradient(to bottom right, #CA83E2 0%, #4E5DAD 100%);" : "linear-gradient(to bottom right, #000000 1.04%, #6C6C6C 1.05%, #323232 101.04%);"
     return <Flex
-    background={grad}
-    p='2'
-    rounded='lg'
+        background={grad}
+        p='2'
+        rounded='lg'
+        cursor='pointer'
     >
         <Icon style={{
-            height: "2rem",
-            width: "2rem"
-        }}></Icon>
+            height: "1.75rem",
+            width: "1.75rem"
+        }} />
     </Flex>
 }

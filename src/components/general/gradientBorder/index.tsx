@@ -73,7 +73,6 @@ export const MASK_BORDER_HALF = "url('data:image/svg+xml;base64,PD94bWwgdmVyc2lv
 export const getMaskBorderFull = (size: number) => {
     const svgOut = borderSvg.replace("--stroke-width", size.toString())
 
-    console.log(svgOut)
     return `url('data:image/svg+xml;base64,${window.btoa(svgOut)}')`
 }
 
