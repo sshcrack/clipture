@@ -143,10 +143,10 @@ export default function TabList({ tabSize, children, ...props }: TabListProps) {
             <Box
                 position='absolute'
                 ref={hoverDetector}
-                top='-7'
-                left='-7'
-                right='-7'
-                bottom='-7'
+                top='-5'
+                left='-5'
+                right='-5'
+                bottom='-5'
                 zIndex='-1'
             />
             <Flex w='100%' pb='1' gap='3' {...props}>

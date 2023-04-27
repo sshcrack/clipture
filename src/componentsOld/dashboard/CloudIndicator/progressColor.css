@@ -1,3 +1,4 @@
 .progress-color div {
     background-color: var(--prog-color);
+    border-radius: var(--chakra-radii-full);
 }

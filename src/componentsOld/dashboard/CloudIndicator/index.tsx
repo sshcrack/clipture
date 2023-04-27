@@ -63,7 +63,7 @@ export default function CloudIndicator() {
     </>
 
     const placeholder = <>
-        <Progress isAnimated hasStripe value={1} {...progGeneral} />
+        <Progress isAnimated hasStripe value={1} {...progGeneral} _first={{ rounded: "full"}} />
         <Text color='white' pl='2'> {t("loading")}</Text>
     </>
 
