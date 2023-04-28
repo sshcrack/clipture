@@ -1,4 +1,4 @@
-import { Flex } from '@chakra-ui/react'
+import { Button, Flex } from '@chakra-ui/react'
 import React, { useContext, useEffect, useRef } from 'react'
 import { BiMoviePlay } from 'react-icons/bi'
 import { ImCompass2 } from "react-icons/im"
@@ -9,7 +9,7 @@ import { FaVideo } from 'react-icons/fa'
 
 export type SidebarProps = {
     disabled?: boolean,
-     active?: "dashboard" | "discover" | "recording"
+    active?: "dashboard" | "discover" | "recording"
 }
 
 export default function Sidebar({ disabled, active }: SidebarProps) {
@@ -42,7 +42,7 @@ export default function Sidebar({ disabled, active }: SidebarProps) {
             left='0'
             zIndex={10000}
             ref={ref}
-            bg='page.bg.secondary'
+            bg={disabled ? 'linear-gradient(to bottom, var(--chakra-colors-page-bg-secondary), transparent 20%)' : 'page.bg.secondary'}
             h='100%'
             flexDir='column'
             pt='2'
@@ -57,10 +57,14 @@ export default function Sidebar({ disabled, active }: SidebarProps) {
                 gap='5'
                 display={disabled ? "none" : "inherit"}
             >
-                <SidebarItem svg={BiMoviePlay}  enabled={active === "dashboard" }/>
-                <SidebarItem svg={ImCompass2}  enabled={active === "discover" }/>
-                <SidebarItem svg={FaVideo}  enabled={active === "recording" }/>
+                <SidebarItem svg={BiMoviePlay} enabled={active === "dashboard"} />
+                <SidebarItem svg={ImCompass2} enabled={active === "discover"} />
+                <SidebarItem svg={FaVideo} enabled={active === "recording"} />
             </Flex>
+            <Button
+                onClick={() => window.api.auth.signOut()}
+                display={disabled ? "none" : "inherit"}
+            >Logout</Button>
         </Flex>
         {/* This element is for things to be sized nicely*/}
         <Flex h='100%' ref={contentRef}>

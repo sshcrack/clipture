@@ -5,12 +5,12 @@ import { useParams } from 'react-router-dom'
 import CloseSettingsButton from 'src/componentsOld/settings/CloseSettingsButton'
 import SettingsMenu from 'src/componentsOld/settings/navbar/SettingsMenu'
 import SettingsSavePopup from 'src/componentsOld/settings/popup/SavePopup'
-import GameBehavior from './categories/Game/Behavior'
+import GameBehavior from './categories/Game/Behavior.tsx.old'
 import GameList from './categories/Game/List'
-import OBSAudio from './categories/OBS/Audio'
-import OBSGeneral from './categories/OBS/General'
-import OBSVideo from './categories/OBS/Video'
-import SettingsSaveProvider from './SettingsSaveProvider'
+import OBSAudio from './categories/OBS/Audio.tsx.old'
+import OBSGeneral from './categories/OBS/General.tsx.old'
+import OBSVideo from './categories/OBS/Video.tsx.old'
+import SettingsSaveProvider from './SettingsSaveProvider.tsx.old'
 
 const mappings = {
     "game": {

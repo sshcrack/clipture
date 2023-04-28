@@ -1,4 +1,4 @@
-import { SessionData, SessionInfo } from '@backend/managers/auth/interfaces';
+import { SessionInfo } from '@backend/managers/auth/interfaces';
 import { Flex, Text } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,13 +7,11 @@ import Page from 'src/components/general/page';
 import TabList from 'src/components/general/tabList';
 import Tab from 'src/components/general/tabList/tab';
 import CloudIndicator from 'src/components/dashboard/CloudIndicator';
-import NavBar from 'src/componentsOld/general/NavBar';
-import Clips from 'src/componentsOld/obs/clips';
-import ClipProcessingItems from 'src/componentsOld/obs/progress/ClipProgressItems';
-import Videos from 'src/componentsOld/obs/videos';
 import "src/pages/main/subpages/dashboard/index.css";
+import { sitesToIndex, strToId } from './tools';
 
 
+const idList = ["all_clips", "local", "uploaded", "videos"]
 //TODO: Add Illustration credits to settings
 export default function DashboardPage({ info }: { info: SessionInfo }) {
     const [currentPage, setCurrentPage] = useState(0)
@@ -23,7 +21,6 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
     const outerRef = useRef<HTMLDivElement>()
 
     const { system } = window.api
-    const { data } = info
     const { mode } = useParams()
     const { t } = useTranslation("dashboard")
 
@@ -57,7 +54,7 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
     useEffect(() => {
         console.log("Mode is", mode)
         if (mode)
-            return setCurrentPage(mode === "videos" ? 1 : 0)
+            return setCurrentPage(sitesToIndex(idList, mode))
 
         system.get_dashboard_page_default().then(e => {
             setCurrentPage(e)
@@ -65,7 +62,7 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
         })
     }, [])
 
-    const additionalElements = ClipProcessingItems()
+
     return <Page
         sidebar='dashboard'
         noPadding
@@ -74,11 +71,20 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
         <Flex p='6' pl='8'>
             <Text fontSize='2xl'>Recorded clips</Text>
         </Flex>
-        <TabList pl='20'>
-            <Tab active>All Clips</Tab>
-            <Tab>Local</Tab>
-            <Tab>Uploaded</Tab>
-            <Tab>Videos</Tab>
+        <TabList pl='20' index={currentPage}>
+            {idList.map((e, newIndex) => {
+                return <Tab
+                    key={`tab-${e}`}
+                    onClick={() => {
+                        setCurrentPage(newIndex)
+
+                        const siteName = strToId(e)
+                        history.pushState(null, null, `#/${siteName}`);
+                    }}
+                >
+                    {t(`sites.${e}` as any)}
+                </Tab>
+            })}
         </TabList>
     </Page>
 }

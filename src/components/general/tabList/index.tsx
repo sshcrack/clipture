@@ -2,22 +2,14 @@ import { isRoughly } from '@backend/tools/math'
 import { Box, Flex, FlexProps } from '@chakra-ui/react'
 import { ExpFilter } from '@general/ExpFilter'
 import React, { useEffect, useRef, useState, useMemo } from "react"
+import TabIndexProvider from './indexProvider'
 
-export type TabListProps = React.PropsWithChildren<{
-    tabSize?: string
-} & FlexProps>
+export type TabListProps = {
+    tabSize?: string,
+    index: number,
+    children?: JSX.Element[]
+} & Omit<FlexProps, "children">
 
-export type TabListState = {
-    addTabHook: (div: HTMLDivElement) => (() => void),
-    setTabActive: (div: HTMLDivElement) => unknown,
-    tabSize: string
-}
-
-export const TabListContext = React.createContext<TabListState>({
-    addTabHook: () => (() => {/**/ }),
-    setTabActive: () => {/**/ },
-    tabSize: "0"
-})
 
 type Coords = { x: number, y: number }
 
@@ -28,18 +20,16 @@ const gradientBefore = 0.0222; // in number percent
 const mouseHoverWidth = 40
 const gradientActivePadding = 0.25
 
-export default function TabList({ tabSize, children, ...props }: TabListProps) {
+export default function TabList({ index, tabSize, children, ...props }: TabListProps) {
     const baseColor = "var(--chakra-colors-tab-base)";
     const highlightColor = "var(--chakra-colors-tab-highlight)";
 
-    const [tabs] = useState<Map<number, HTMLDivElement>>(new Map())
     const [update, setUpdate] = useState(0)
 
     // Ease in out smoothly
     const startXEase = useMemo(() => new ExpFilter(0, 0.05, 0.05), [])
     const startEndXEase = useMemo(() => new ExpFilter(0, 0.05, 0.05), [])
 
-    const [active, setActive] = useState<number>(null)
     const [currMouse, setCurrMouse] = useState<Coords>(null)
 
     const gradientBox = useRef<HTMLDivElement>(null)
@@ -47,10 +37,10 @@ export default function TabList({ tabSize, children, ...props }: TabListProps) {
     const hoverDetector = useRef<HTMLDivElement>(null)
 
     const setGradient = (relX: number, relXEnd: number) => {
-        const tabParentRects = tabParentDiv.current.getBoundingClientRect()
+        const gradientRects = gradientBox.current.getBoundingClientRect()
 
-        const percentX = relX / tabParentRects.width * 100
-        const percentEndX = relXEnd / tabParentRects.width * 100
+        const percentX = relX / gradientRects.width * 100
+        const percentEndX = relXEnd / gradientRects.width * 100
 
         const easedX = startXEase.update(percentX)
         const easeEndX = startEndXEase.update(percentEndX)
@@ -104,32 +94,36 @@ export default function TabList({ tabSize, children, ...props }: TabListProps) {
             return;
 
         const tabParentRects = tabParentDiv.current.getBoundingClientRect()
+        const gradientRects = gradientBox.current.getBoundingClientRect()
         if (currMouse) {
             const x = currMouse.x
             const halfWidth = mouseHoverWidth /2;
 
-            const relX = Math.min(Math.max(x - tabParentRects.x, 0), tabParentRects.width) - halfWidth
+            const minConstrain = tabParentRects.x
+            const maxConstrain = tabParentRects.width + minConstrain
+            const relX = Math.min(Math.max(x, minConstrain), maxConstrain) - halfWidth - gradientRects.x
             const endX = relX + halfWidth *2
 
             setGradient(relX, endX)
             return
         }
 
-        if (!active)
+        if (index === -1)
             return
 
-        const activeTab = tabs.get(active)
-        if (!activeTab)
+        const activeTabList = tabParentDiv.current.getElementsByClassName(`tab-${index}`)
+        if (!activeTabList || activeTabList.length === 0)
             return;
 
+        const activeTab = activeTabList[0]
         const activeRects = activeTab.getBoundingClientRect()
         const inset = gradientActivePadding * activeRects.width
 
-        const relX = activeRects.x - tabParentRects.x + inset
+        const relX = activeRects.x - gradientRects.x + inset
         const relXEnd = relX + activeRects.width - inset *2
 
         setGradient(relX, relXEnd)
-    }, [active, gradientBox, currMouse, update, tabParentDiv])
+    }, [index, gradientBox, currMouse, update, tabParentDiv])
 
     useEffect(() => {
         const l = () => setUpdate(Math.random())
@@ -138,28 +132,8 @@ export default function TabList({ tabSize, children, ...props }: TabListProps) {
         return () => window.removeEventListener("resize", l)
     }, [])
 
-    return <TabListContext.Provider
-        value={{
-            addTabHook: div => {
-                const id = Math.random()
-                div.setAttribute("data-id", id.toString())
-                tabs.set(id, div)
-
-                return () => tabs.delete(id)
-            },
-            setTabActive: div => {
-                const id = div.getAttribute("data-id")
-                if (!id)
-                    return console.warn("Invalid tab id")
-
-                setActive(parseFloat(id))
-            },
-            tabSize: tabSize ?? "5"
-        }}
-    >
-        <Flex
-            w='100%'
-            alignItems='center'
+    return <Flex
+            justifyContent='center'
             flexDir='column'
             position='relative'
         >
@@ -172,10 +146,13 @@ export default function TabList({ tabSize, children, ...props }: TabListProps) {
                 bottom='-5'
                 zIndex='-1'
             />
-            <Flex w='100%' pb='1' gap='3' ref={tabParentDiv} {...props}>
-                {children}
+            <Flex pb='1' gap='3' w='fit-content' ref={tabParentDiv} {...props}>
+                {React.Children.map(children, (e, i) => (
+                    <TabIndexProvider index={i} tabSize={tabSize} isActive={i === index}>
+                        {e}
+                    </TabIndexProvider>
+                ))}
             </Flex>
             <Box  ref={gradientBox} w='100%' h='2px' bg={baseColor} />
         </Flex>
-    </TabListContext.Provider>
 }

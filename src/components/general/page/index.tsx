@@ -3,7 +3,7 @@ import { Flex, FlexProps } from '@chakra-ui/react';
 import Sidebar, { SidebarProps } from '../sidebar';
 
 export type PageProps = FlexProps & {
-    sidebar: "disabled" | SidebarProps["active"],
+    sidebar: "disabled" | "none" | SidebarProps["active"],
     noPadding?: boolean
 }
 
@@ -11,12 +11,12 @@ export type PageProps = FlexProps & {
 export default function Page({ noPadding, children, sidebar, ...props }: PropsWithChildren<PageProps>) {
     return <Flex
         {...props}
-        dir='row'
+        flexDir='row'
         w='100%'
         h='100%'
         bgGradient='linear(to right bottom, page.bg.0 0%, page.bg.1 25.71%, page.bg.2 100%)'
     >
-        <Sidebar active={sidebar !== "disabled" ? sidebar : null} disabled={sidebar === "disabled"}/>
+        {sidebar !== "none" && <Sidebar active={sidebar !== "disabled" ? sidebar : null} disabled={sidebar === "disabled"} />}
         <Flex
             w='100%'
             h='100%'

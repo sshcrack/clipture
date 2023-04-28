@@ -3,17 +3,12 @@ import { useToast } from '@chakra-ui/react'
 import React, { useEffect, useState } from "react"
 import { useTranslation } from 'react-i18next'
 import { HashRouter, Route, Routes } from "react-router-dom"
-import DiscoverListSingle from 'src/componentsOld/discover/list/DiscoverListSingle'
 import { useLock } from 'src/componentsOld/hooks/useLock'
 import { useSession } from 'src/componentsOld/hooks/useSession'
 import { RenderLogger } from 'src/interfaces/renderLogger'
 import DashboardPage from './subpages/dashboard'
-import DiscoverPage from './subpages/discover'
-import EditorPage from './subpages/editor/EditorPage'
 import { InitializePage } from './subpages/initialize'
 import LoginPage from './subpages/login'
-import RecordPage from './subpages/record'
-import SettingsPage from './subpages/settings'
 
 const log = RenderLogger.get("App")
 export default function App() {
@@ -121,14 +116,6 @@ export default function App() {
         <Routes>
             <Route path="/" element={<DashboardPage info={info} />} />
             <Route path="/:mode" element={<DashboardPage info={info} />} />
-            <Route path="/discover" element={<DiscoverPage info={info} />} />
-            <Route path="/discover/single" element={<DiscoverPage info={info} type='single' />} />
-            <Route path="/discover/list" element={<DiscoverPage info={info} type='list' />} />
-            <Route path="/videoSingle/:id" element={<DiscoverListSingle info={info} />} />
-            <Route path="/record" element={<RecordPage info={info} />} />
-            <Route path="/settings" element={<SettingsPage prevPage={prevPage} />} />
-            <Route path="/settings/:item" element={<SettingsPage prevPage={prevPage} />} />
-            <Route path="/editor/:videoName" element={<EditorPage />} />
         </Routes>
     </HashRouter>
 }

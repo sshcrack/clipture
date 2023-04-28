@@ -120,7 +120,7 @@
         }
     },
     "login": {
-        "sign_in": "Sign in using Discord",
+        "sign_in": "Sign in using discord",
         "opening_browser": "Opening browser..."
     },
     "titlebar": {
@@ -214,31 +214,11 @@
         }
     },
     "dashboard": {
-        "clips": {
-            "cutting": "Cutting...",
-            "title": "Clips",
-            "could_not_list": "Could not list clips",
-            "retry": "{{message}}. Retrying in 5 seconds",
-            "corrupted_clip": "CORRUPTED CLIP",
-            "deleting_clip": "Deleting clip...",
-            "delete_clip": "Delete Clip",
-            "opening_folder": "Opening folder...",
-            "open_folder": "Open affected clip",
-            "loading": "Loading clips...",
-            "uploading": "Uploading...",
-            "uploaded_to_cloud": "Uploaded  to cloud.",
-            "cloud_only": "Only in cloud, not local storage",
-            "general_info": {
-                "cloud_only": "Cloud only",
-                "public": "public",
-                "private": "private"
-            }
-        },
-        "videos": {
-            "title": "Videos",
-            "could_not_list": "Could not list videos",
-            "retry": "{{message}}. Retrying in 5 seconds",
-            "loading": "Loading videos..."
+        "sites": {
+            "all_clips": "All Clips",
+            "local": "Local",
+            "uploaded": "Uploaded",
+            "videos": "Videos"
         },
         "cloud_indicator": {
             "loading": "Loading...",

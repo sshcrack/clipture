@@ -1,39 +1,19 @@
-import { Flex } from '@chakra-ui/react';
-import React, { PropsWithChildren, useContext, useEffect, useRef, useState } from 'react';
-import { TabListContext } from '.';
+import { Flex, FlexProps } from '@chakra-ui/react';
+import React, { PropsWithChildren, useContext, useRef } from 'react';
+import { IndividualTabContext } from './indexProvider';
 
 export type TabProps = PropsWithChildren<{
-    active?: boolean
-}>
+} & FlexProps>
 
-export default function Tab({ active, children }: TabProps) {
+export default function Tab({ children, ...props }: TabProps) {
     const ref = useRef<HTMLDivElement>(null)
-    const { addTabHook, setTabActive, tabSize } = useContext(TabListContext)
-    const [update, setUpdate] = useState(Math.random())
 
-    useEffect(() => {
-        if (!ref.current)
-            return
-
-        if (active)
-            setTabActive(ref.current)
-    }, [active, ref, update])
-
-    useEffect(() => {
-        if (!ref.current)
-            return
-
-
-        const out = addTabHook(ref.current)
-        setUpdate(Math.random())
-
-        return out;
-    }, [ref])
-
-
+    const { index, tabSize, isActive } = useContext(IndividualTabContext)
+    const bg = 'rgba(255, 255, 255, 0.1)'
     return <Flex
         ref={ref}
         cursor='pointer'
+        className={`tab-${index}`}
         pl={tabSize}
         pr={tabSize}
         pt='3'
@@ -43,9 +23,11 @@ export default function Tab({ active, children }: TabProps) {
         alignItems='center'
         rounded='md'
         _hover={{
-            bg: 'rgba(255, 255, 255, 0.1)'
+            bg
         }}
         transition='.1s background ease-in-out'
+        filter={isActive && 'drop-shadow(0px 0px 5px var(--chakra-colors-brand-secondary))'}
+        {...props}
     >
         {children}
     </Flex>

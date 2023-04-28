@@ -1,7 +1,6 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import * as React from 'react';
 import { createRoot } from "react-dom/client";
-import RecordErrorListener from 'src/componentsOld/dashboard/error/RecordErrorListener';
 import { TitleBar } from 'src/components/titlebar';
 import TitlebarBalancer from 'src/components/titlebar/TitlebarBalancer';
 import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
@@ -45,7 +44,7 @@ export function renderMain(Comp: () => JSX.Element) {
                 <TitleBar icon='../assets/logo.svg' />
                 <TitlebarBalancer className='sc2'>
                     <ToastNotifier />
-                    <RecordErrorListener />
+                    {/*<RecordErrorListener />*/}
                     <OnlyUnminimizedRender>
                         <Comp />
                     </OnlyUnminimizedRender>

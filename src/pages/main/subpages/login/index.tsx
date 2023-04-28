@@ -2,6 +2,7 @@ import { Box, Button, Flex, Grid, GridItem, Heading, Image, useToast } from '@ch
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaDiscord } from "react-icons/fa";
+import Page from 'src/components/general/page';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("OBS", "LoginPage")
@@ -19,7 +20,8 @@ export default function LoginPage() {
         bg='rgba(88, 101, 242, 1)'
     >{t("sign_in")}</Button>
 
-    return <Flex
+    return <Page
+        sidebar='disabled'
         alignItems='center'
         justifyContent='start'
         flexDir='column'
@@ -72,5 +74,5 @@ export default function LoginPage() {
                 </Grid>
             </Flex>
         </Flex>
-    </Flex >
+    </Page>
 }
