@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import Page from 'src/components/general/page';
 import TabList from 'src/components/general/tabList';
 import Tab from 'src/components/general/tabList/tab';
-import CloudIndicator from 'src/componentsOld/dashboard/CloudIndicator';
+import CloudIndicator from 'src/components/dashboard/CloudIndicator';
 import NavBar from 'src/componentsOld/general/NavBar';
 import Clips from 'src/componentsOld/obs/clips';
 import ClipProcessingItems from 'src/componentsOld/obs/progress/ClipProgressItems';
