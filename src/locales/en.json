@@ -18,12 +18,12 @@
             "original_not_found": "Original clip does not exist"
         },
         "discover": {
-            "offline":" Cannot get info when in offline mode",
+            "offline": " Cannot get info when in offline mode",
             "user_offline": "Cannot get user when offline",
             "like_offline": "Cannot like when offline",
             "not_authenticated": "Not authenticated.",
             "visibility_offline": "Cannot set visibility when offline",
-            "id_not_found":" Could not find id in cloud."
+            "id_not_found": " Could not find id in cloud."
         },
         "cloud": {
             "invalid_back": "Invalid go back thingy",
@@ -63,7 +63,7 @@
             "prerequisites": {
                 "already": "Already initializing.",
                 "invalid_lock": "Could not acquire lock.",
-                "initializing":" Initializing prerequisites...",
+                "initializing": " Initializing prerequisites...",
                 "obs_already_installing": "OBS is already installing.",
                 "downloading_obs": "Downloading OBS...",
                 "extracting_obs": "Extracting OBS..."
@@ -177,7 +177,7 @@
                 "too_large": "Clip is too large to be uploaded.",
                 "too_large_tooltip": "Clip too large.",
                 "uploading": "Uploading",
-                "usage_wait" : "Getting usage",
+                "usage_wait": "Getting usage",
                 "share": "Share",
                 "rename": "Rename",
                 "visibility": {
@@ -229,6 +229,15 @@
                 "creation_date": "{{DATE}} ago",
                 "public": "Public",
                 "private": "Private"
+            },
+            "heading": {
+                "status": {
+                    "uploaded": "Stored in cloud",
+                    "uploading": "Uploading",
+                    "cutting": "Cutting...",
+                    "local_only": "Only Local",
+                    "video": "Video"
+                }
             }
         }
     },

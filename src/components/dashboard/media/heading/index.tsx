@@ -1,10 +1,11 @@
 import { RenderGlobals } from '@Globals/renderGlobals';
 import { GeneralMediaInfo, MediaStatus } from '@backend/managers/clip/new_interfaces';
-import { Box, Circle, Flex, Grid, Image, Text } from '@chakra-ui/react';
+import { Box, Circle, Flex, Grid, Image, Text, Tooltip } from '@chakra-ui/react';
 import { getGameInfo } from '@general/tools/game';
 import React from "react"
 import { MdModeEditOutline } from "react-icons/md"
 import { FaCut } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
 
 function statusToColor(status: MediaStatus) {
@@ -22,7 +23,9 @@ function statusToColor(status: MediaStatus) {
 
 export default function MediaHeading({ media }: { media: GeneralMediaInfo }) {
     const { mediaName, status, game } = media.info
+    const { t } = useTranslation("dashboard", { keyPrefix: "item.heading" })
     const statusColor = statusToColor(status)
+    const statusTooltip = t(`status.${status}`)
 
     const { gameName, icon, id } = getGameInfo(game, mediaName)
     const gameImg = id ? `${RenderGlobals.baseUrl}/api/game/image?id=${id ?? "null"}&icon=${icon ?? "null"}` : icon
@@ -37,7 +40,9 @@ export default function MediaHeading({ media }: { media: GeneralMediaInfo }) {
         alignItems='center'
     >
         <Flex justifyContent='center' alignItems='center'>
-            <Circle size='6px' bg={statusColor} />
+            <Tooltip label={statusTooltip}>
+                <Circle size='6px' bg={statusColor} />
+            </Tooltip>
         </Flex>
         <Flex
             pr='2'
@@ -50,7 +55,7 @@ export default function MediaHeading({ media }: { media: GeneralMediaInfo }) {
                 textOverflow='ellipsis'
                 overflow='hidden'
             >{mediaName}</Text>
-            <Box as={MdModeEditOutline} h='1rem' w='1rem' color='dashboard.item.edit_pen'/>
+            <Box as={MdModeEditOutline} h='1rem' w='1rem' color='dashboard.item.edit_pen' />
         </Flex>
         {status !== MediaStatus.Cutting ?
             <>

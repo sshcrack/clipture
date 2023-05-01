@@ -1,4 +1,4 @@
-import { isRoughly } from '@backend/tools/math'
+import { clamp, isRoughly } from '@backend/tools/math'
 import { Box, Flex, FlexProps } from '@chakra-ui/react'
 import { ExpFilter } from '@general/ExpFilter'
 import React, { useEffect, useRef, useState, useMemo } from "react"
@@ -56,22 +56,30 @@ export default function TabList({ index, tabSize, children, ...props }: TabListP
 
         const roughlyX = isRoughly(easedX, percentX, updateAccuracy)
         const roughlyEndX = isRoughly(easeEndX, percentEndX, updateAccuracy)
-        if(!roughlyX || !roughlyEndX) {
+        if (!roughlyX || !roughlyEndX) {
             setTimeout(() => setUpdate(Math.random()), 10)
         }
     }
 
     useEffect(() => {
-        if (!hoverDetector.current)
+        if (!hoverDetector.current || !tabParentDiv.current)
             return
         const curr = hoverDetector.current
 
         let isCurr = false
         const onMouseMove = (e: MouseEvent) => {
-            const { x, y, width, height }= curr.getBoundingClientRect()
-            if(e.x < x || e.y < y || e.x > x + width || e.y > y + height) {
-                if(!isCurr)
+            const { x, y, width, height } = curr.getBoundingClientRect()
+            const tabParentRects = tabParentDiv.current.getBoundingClientRect()
+            const minConstrain = tabParentRects.x
+            const maxConstrain = tabParentRects.width + minConstrain
+
+            const outOfBounds = e.x < x || e.y < y || e.x > x + width || e.y > y + height
+            const outOfTabList = e.x < minConstrain || e.x > maxConstrain
+
+            if (outOfBounds || outOfTabList) {
+                if (!isCurr)
                     return
+
 
                 isCurr = false
                 setCurrMouse(null)
@@ -87,22 +95,19 @@ export default function TabList({ index, tabSize, children, ...props }: TabListP
         return () => {
             window.removeEventListener("mousemove", onMouseMove)
         }
-    }, [hoverDetector, setCurrMouse])
+    }, [hoverDetector, setCurrMouse, tabParentDiv])
 
     useEffect(() => {
         if (!gradientBox.current || !tabParentDiv.current)
             return;
 
-        const tabParentRects = tabParentDiv.current.getBoundingClientRect()
         const gradientRects = gradientBox.current.getBoundingClientRect()
         if (currMouse) {
             const x = currMouse.x
-            const halfWidth = mouseHoverWidth /2;
+            const halfWidth = mouseHoverWidth / 2;
 
-            const minConstrain = tabParentRects.x
-            const maxConstrain = tabParentRects.width + minConstrain
-            const relX = Math.min(Math.max(x, minConstrain), maxConstrain) - halfWidth - gradientRects.x
-            const endX = relX + halfWidth *2
+            const relX = x - halfWidth - gradientRects.x
+            const endX = relX + halfWidth * 2
 
             setGradient(relX, endX)
             return
@@ -120,7 +125,7 @@ export default function TabList({ index, tabSize, children, ...props }: TabListP
         const inset = gradientActivePadding * activeRects.width
 
         const relX = activeRects.x - gradientRects.x + inset
-        const relXEnd = relX + activeRects.width - inset *2
+        const relXEnd = relX + activeRects.width - inset * 2
 
         setGradient(relX, relXEnd)
     }, [index, gradientBox, currMouse, update, tabParentDiv])
@@ -133,26 +138,26 @@ export default function TabList({ index, tabSize, children, ...props }: TabListP
     }, [])
 
     return <Flex
-            justifyContent='center'
-            flexDir='column'
-            position='relative'
-        >
-            <Box
-                position='absolute'
-                ref={hoverDetector}
-                top='-5'
-                left='-5'
-                right='-5'
-                bottom='-5'
-                zIndex='-1'
-            />
-            <Flex pb='1' gap='3' w='fit-content' ref={tabParentDiv} {...props}>
-                {React.Children.map(children, (e, i) => (
-                    <TabIndexProvider index={i} tabSize={tabSize} isActive={i === index}>
-                        {e}
-                    </TabIndexProvider>
-                ))}
-            </Flex>
-            <Box  ref={gradientBox} w='100%' h='2px' bg={baseColor} />
+        justifyContent='center'
+        flexDir='column'
+        position='relative'
+    >
+        <Box
+            position='absolute'
+            ref={hoverDetector}
+            top='-5'
+            left='-5'
+            right='-5'
+            bottom='-5'
+            zIndex='-1'
+        />
+        <Flex pb='1' gap='3' w='fit-content' ref={tabParentDiv} {...props}>
+            {React.Children.map(children, (e, i) => (
+                <TabIndexProvider index={i} tabSize={tabSize} isActive={i === index}>
+                    {e}
+                </TabIndexProvider>
+            ))}
         </Flex>
+        <Box ref={gradientBox} w='100%' h='2px' bg={baseColor} />
+    </Flex>
 }

@@ -32,9 +32,9 @@ export type GeneralMediaInfo = {
 }
 
 export enum MediaStatus {
-    Uploaded,
-    LocalOnly,
-    Cutting,
-    Video,
-    Uploading
+    Uploaded = "uploaded",
+    LocalOnly = "local_only",
+    Cutting = "cutting",
+    Video = "video",
+    Uploading = "uploading"
 }
