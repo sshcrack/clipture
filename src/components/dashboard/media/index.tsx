@@ -10,7 +10,7 @@ export type GeneralMediaProps = {
     update: number
 }
 
-const log  = RenderLogger.get("Dashboard", "Media", "Overview")
+const log = RenderLogger.get("Dashboard", "Media", "Overview")
 export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
     const { type, storageLoc, info } = media
     const { mediaName: clipName } = info
@@ -50,15 +50,13 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
 
     return <GridItem
         display='flex'
-        className='group'
         minHeight='22em'
         animation={isLoading ? "0.8s linear 0s infinite alternate none running backgroundSkeleton !important" : ""}
         rounded="2xl"
         flexDir='column'
         cursor='pointer'
         _hover={{
-            filter: " drop-shadow(10px 2px 45px black)",
-            transform: "scale(1.0125)"
+            filter: "drop-shadow(10px 2px 45px black)"
         }}
         style={{
             transition: "all .2s ease-out",
@@ -68,7 +66,7 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
         <Flex
             w='100%'
             roundedTop="2xl"
-            style={{ aspectRatio: "16 / 9"}}
+            style={{ aspectRatio: "16 / 9" }}
             bgSize='contain'
             bgRepeat='no-repeat'
             bgImage={thumbnail}
@@ -92,31 +90,24 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
                 bgSize: 'cover',
                 roundedTop: '2xl',
                 transform: 'scaleY(-1)',
-                backgroundPosition: 'bottom',
-                _groupHover: {
-                    filter: "blur(27px)"
-                }
+                backgroundPosition: 'bottom'
             }}
         >
             <Flex
-            w='100%'
-            bg='rgba(33, 33, 33, 45%)'
-            borderRadius='inherit'
-            backdropFilter='auto'
-            backdropBlur='27px'
-            zIndex='1'
-            _groupHover={{
-                backdropFilter: 'none',
-            }}
-
-            flexDir='column'
-            p='2'
-            pb='1'
-            pt='4'
+                w='100%'
+                bg='rgba(33, 33, 33, 45%)'
+                borderRadius='inherit'
+                backdropFilter='auto'
+                backdropBlur='27px'
+                zIndex='1'
+                flexDir='column'
+                p='2'
+                pb='1'
+                pt='4'
             >
                 <MediaHeading media={media} />
-                <Flex flex='1'/>
-                <MediaFooter media={media}/>
+                <Flex flex='1' />
+                <MediaFooter media={media} />
             </Flex>
         </Flex>
     </GridItem>
