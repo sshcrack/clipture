@@ -19,6 +19,8 @@
       "@Globals": ["src/Globals"],
       "@processors/*": ["src/processors/*"],
       "@backend/*": ["src/backend/*"],
+      "@components/*": ["src/components/*"],
+      "@pages/*": ["src/pages/*"],
       "@general/*": ["src/general/*"],
       "@register/*": ["src/general/register/*"],
       "src/*": ["src/*"],

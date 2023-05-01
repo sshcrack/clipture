@@ -2,7 +2,7 @@ import { Box, Button, Flex, Grid, GridItem, Heading, Image, useToast } from '@ch
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FaDiscord } from "react-icons/fa";
-import Page from 'src/components/general/page';
+import Page from '@components/general/page';
 import { RenderLogger } from 'src/interfaces/renderLogger';
 
 const log = RenderLogger.get("OBS", "LoginPage")

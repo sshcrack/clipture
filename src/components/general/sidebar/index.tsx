@@ -2,7 +2,7 @@ import { Button, Flex } from '@chakra-ui/react'
 import React, { useContext, useEffect, useRef } from 'react'
 import { BiMoviePlay } from 'react-icons/bi'
 import { ImCompass2 } from "react-icons/im"
-import { TitlebarContext } from 'src/components/titlebar/TitleBarProvider'
+import { TitlebarContext } from '@components/titlebar/TitleBarProvider'
 import CliptureIcon from '../page/icon'
 import SidebarItem from './item'
 import { FaVideo } from 'react-icons/fa'

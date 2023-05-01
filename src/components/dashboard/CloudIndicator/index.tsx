@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { useSession } from 'src/componentsOld/hooks/useSession';
 //import "src/componentsOld/titlebar/style.css";
-import TitleBarItem from 'src/components/titlebar/TitleBarItem';
+import TitleBarItem from '@components/titlebar/TitleBarItem';
 import "./progressColor.css";
 
 export default function CloudIndicator() {

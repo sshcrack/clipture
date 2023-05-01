@@ -3,15 +3,16 @@ import { Flex, Text } from '@chakra-ui/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import Page from 'src/components/general/page';
-import TabList from 'src/components/general/tabList';
-import Tab from 'src/components/general/tabList/tab';
-import CloudIndicator from 'src/components/dashboard/CloudIndicator';
-import "src/pages/main/subpages/dashboard/index.css";
+import Page from '@components/general/page';
+import TabList from '@components/general/tabList';
+import Tab from '@components/general/tabList/tab';
+import CloudIndicator from '@components/dashboard/CloudIndicator';
+import "@pages/main/subpages/dashboard/index.css";
 import { sitesToIndex, strToId } from './tools';
+import { Globals, MediaCategories } from '@Globals/index';
+import MediaOverview from '@components/dashboard/media/overview';
 
 
-const idList = ["all_clips", "local", "uploaded", "videos"]
 //TODO: Add Illustration credits to settings
 export default function DashboardPage({ info }: { info: SessionInfo }) {
     const [currentPage, setCurrentPage] = useState(0)
@@ -54,7 +55,7 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
     useEffect(() => {
         console.log("Mode is", mode)
         if (mode)
-            return setCurrentPage(sitesToIndex(idList, mode))
+            return setCurrentPage(sitesToIndex(MediaCategories, mode))
 
         system.get_dashboard_page_default().then(e => {
             setCurrentPage(e)
@@ -68,11 +69,11 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
         noPadding
     >
         <CloudIndicator />
-        <Flex p='6' pl='8'>
+        <Flex className='title' p='6' pl='8'>
             <Text fontSize='2xl'>Recorded clips</Text>
         </Flex>
         <TabList pl='20' index={currentPage}>
-            {idList.map((e, newIndex) => {
+            {MediaCategories.map((e, newIndex) => {
                 return <Tab
                     key={`tab-${e}`}
                     onClick={() => {
@@ -86,5 +87,8 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
                 </Tab>
             })}
         </TabList>
+        <Flex className='content' w='100%' h='100%' p='6' pl='8'>
+            <MediaOverview category={MediaCategories[currentPage]}/>
+        </Flex>
     </Page>
 }

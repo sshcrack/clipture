@@ -223,6 +223,13 @@
         "cloud_indicator": {
             "loading": "Loading...",
             "offline_mode": "Offline Mode"
+        },
+        "item": {
+            "footer": {
+                "creation_date": "{{DATE}} ago",
+                "public": "Public",
+                "private": "Private"
+            }
         }
     },
     "navbar": {

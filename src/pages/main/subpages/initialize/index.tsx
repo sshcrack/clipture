@@ -1,8 +1,8 @@
 import { Progress } from '@backend/processors/events/interface';
 import { Flex, Text } from '@chakra-ui/react';
 import * as React from "react";
-import Page from 'src/components/general/page';
-import ProgressBar from 'src/components/general/progress';
+import Page from '@components/general/page';
+import ProgressBar from '@components/general/progress';
 
 export function InitializePage({ progress }: { progress: Progress }) {
     const { percent, status } = progress

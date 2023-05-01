@@ -1,9 +1,9 @@
 import { ChakraProvider } from "@chakra-ui/react";
 import * as React from 'react';
 import { createRoot } from "react-dom/client";
-import { TitleBar } from 'src/components/titlebar';
-import TitlebarBalancer from 'src/components/titlebar/TitlebarBalancer';
-import TitleBarProvider from 'src/components/titlebar/TitleBarProvider';
+import { TitleBar } from '@components/titlebar';
+import TitlebarBalancer from '@components/titlebar/TitlebarBalancer';
+import TitleBarProvider from '@components/titlebar/TitleBarProvider';
 import i18n from "src/locales/i18n";
 import "src/pages/main/scrollbar.css";
 import '../../components/titlebar/style.css';

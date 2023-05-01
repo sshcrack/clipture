@@ -22,7 +22,21 @@ const colors = {
         },
     },
 
-
+    dashboard: {
+        item: {
+            cutting: "#FFEE57",
+            local: "#FF8080",
+            uploaded: "#80FF9C",
+            video: "#D781FF",
+            edit_pen: "#B1B1B1",
+            separator: "#B1B1B1",
+        },
+        buttons: {
+            open_folder: "#fff",
+            upload: "#6587ff",
+            delete: "#FF6161"
+        }
+    },
     pg_bar: {
         disabled: {
             "0":"rgba(87, 87, 87, 0.49)",
