@@ -3,7 +3,7 @@
 [![discordBadge](https://img.shields.io/discord/638769122330804234?style=for-the-badge&color=7289da)](https://discord.gg/WHYhUF4)
 ![issuesOpen](https://img.shields.io/github/issues/sshcrack/clipture?style=for-the-badge)
 ![lines](https://img.shields.io/tokei/lines/github/sshcrack/clipture?style=for-the-badge)
-![status](https://img.shields.io/github/workflow/status/sshcrack/clipture/Release?style=for-the-badge)
+![status](https://img.shields.io/github/actions/workflow/status/sshcrack/clipture/release.yml?branch=main&style=for-the-badge)
 ![downloads](https://img.shields.io/github/downloads/sshcrack/clipture/latest/total?label=Downloads&logo=github&style=for-the-badge)
 
 # Download (Windows only)
