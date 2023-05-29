@@ -87,7 +87,7 @@ export default function DashboardPage({ info }: { info: SessionInfo }) {
                 </Tab>
             })}
         </TabList>
-        <Flex className='content' w='100%' h='100%' p='6' pl='8'>
+        <Flex className='content' w='100%' h='100%' p='6' pl='8' overflow='auto'>
             <MediaOverview category={MediaCategories[currentPage]}/>
         </Flex>
     </Page>

@@ -47,6 +47,7 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
 
     const isLoading = thumbnailRaw === undefined
     const thumbnail = thumbnailRaw && `url("data:image/png;base64,${thumbnailRaw}")`
+    console.log("THumbnail is", thumbnail)
 
     return <GridItem
         display='flex'
@@ -66,10 +67,9 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
         <Flex
             w='100%'
             roundedTop="2xl"
-            style={{ aspectRatio: "16 / 9" }}
+            style={{ aspectRatio: "16 / 9", backgroundImage: thumbnail }}
             bgSize='contain'
             bgRepeat='no-repeat'
-            bgImage={thumbnail}
         >
         </Flex>
         <Flex
