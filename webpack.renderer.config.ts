@@ -1,13 +1,12 @@
-const rules = require('./webpack.rules');
-const plugins = require('./webpack.plugins');
-const CopyWebpackPlugin = require("copy-webpack-plugin")
-const path = require("path")
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+import { rules } from './webpack.rules';
+import { plugins } from './webpack.plugins';
+import CopyWebpackPlugin from "copy-webpack-plugin"
+import path from "path"
+import { TsconfigPathsPlugin} from 'tsconfig-paths-webpack-plugin';
+import { Configuration } from 'webpack';
 
 const assets = ["assets"]
-const shouldAnalyze = process.argv.includes("--analyze")
-module.exports = {
+export const rendererConfig: Configuration = {
   module: {
     rules: [
       ...rules,
@@ -26,9 +25,6 @@ module.exports = {
     ],
   },
   plugins: [
-    shouldAnalyze && new BundleAnalyzerPlugin({
-      analyzerPort: "auto"
-    }),
     new CopyWebpackPlugin({
       patterns: assets.map(asset => {
         return {

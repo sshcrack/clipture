@@ -17,23 +17,29 @@ import { DebugGatherer } from './managers/system/debug_gatherer';
 import { registerProcessorEvents } from './processors/eventRegister';
 import { TitlebarManager } from './titlebar';
 
-export const registerFuncs = [
-    () => RegManMain.register(),
-    registerLockEvents,
-    registerProcessorEvents,
-    () => Prerequisites.register(),
-    () => AuthManager.register(),
-    () => TitlebarManager.register(),
-    () => Scene.register(),
-    () => GameManager.register(),
-    () => ClipManager.register(),
-    () => SystemManager.register(),
-    () => AudioSceneManager.register(),
-    () => SettingsManager.register(),
-    () => BookmarkManager.register(),
-    () => DiscordManager.register(),
-    () => CloudManager.register(),
-    () => DiscoverManager.register(),
-    () => OverlayManager.register(),
-    () => DebugGatherer.register()
-]
+type RegisterFuncs = {
+    [key: string]: () => unknown
+}
+
+const registerFuncs: RegisterFuncs = {
+    RegManMain: () => RegManMain.register(),
+    LockEvents: registerLockEvents,
+    ProcessorEvents: registerProcessorEvents,
+    Prerequisites: () => Prerequisites.register(),
+    AuthManager: () => AuthManager.register(),
+    TitlebarManager: () => TitlebarManager.register(),
+    Scene: () => Scene.register(),
+    GameManager: () => GameManager.register(),
+    ClipManager: () => ClipManager.register(),
+    SystemManager: () => SystemManager.register(),
+    AudioSceneManager: () => AudioSceneManager.register(),
+    SettingsManager: () => SettingsManager.register(),
+    BookmarkManager: () => BookmarkManager.register(),
+    DiscordManager: () => DiscordManager.register(),
+    CloudManager: () => CloudManager.register(),
+    DiscoverManager: () => DiscoverManager.register(),
+    OverlayManager: () => OverlayManager.register(),
+    DebugGatherer: () => DebugGatherer.register()
+}
+
+export default registerFuncs

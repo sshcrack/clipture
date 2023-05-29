@@ -10,7 +10,7 @@ require('source-map-support').install();
 
 import { ClipProtocol } from '@backend/managers/clip/protocol';
 import { SystemManager } from '@backend/managers/system';
-import { registerFuncs } from '@backend/registerFuncs';
+import registerFuncs from '@backend/registerFuncs';
 import { shutdownFuncs } from '@backend/shutdownFuncs';
 import windowStateKeeper from "electron-window-state";
 import exitHook from 'exit-hook';
@@ -26,6 +26,7 @@ if (MainGlobals.getOS() !== "Windows_NT") {
   dialog.showErrorBox("Error", "This application is only supported on Windows")
   app.quit()
 }
+
 
 
 const gotTheLock = app.requestSingleInstanceLock()
@@ -71,7 +72,7 @@ const createWindow = (): void => {
     frame: false,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: false,
+      nodeIntegration: true,
     }
   });
 
@@ -165,4 +166,9 @@ app.on("will-quit", (e) => {
     e.preventDefault()
 })
 
-registerFuncs.map(e => e())
+const log = MainLogger.get("MainRegister")
+Object.entries(registerFuncs)
+  .map(([key, func]) => {
+    //log.info(`------------Registering ${key}------------`)
+    func()
+  })

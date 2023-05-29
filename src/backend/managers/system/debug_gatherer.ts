@@ -4,15 +4,12 @@ import { MainGlobals } from '@Globals/mainGlobals';
 import { app, dialog, shell } from 'electron';
 import fs from "fs";
 import { readFile } from 'fs/promises';
-import { glob } from 'glob';
 import JSZip from 'jszip';
 import path from 'path';
 import { MainLogger } from 'src/interfaces/mainLogger';
 import si from "systeminformation";
-import { promisify } from 'util';
 import { v4 as uuid } from "uuid";
 
-const globProm = promisify(glob);
 const log = MainLogger.get("Managers", "System", "DebugGatherer")
 
 export class DebugGatherer {
@@ -47,8 +44,9 @@ export class DebugGatherer {
         const pattern = `${logDirLocal.split("\\").join("/")}/**/*.log*`
 
         log.info("LogInfo pattern", pattern)
+        const glob = (await import("glob")).glob
         const logFiles = await Promise.all(
-            (await globProm(pattern))
+            (await glob(pattern))
                 .map(async e => {
                     log.silly("Appending log", e)
                     const content = await readFile(e)

@@ -1,27 +1,30 @@
 import { AuthManager } from '@backend/managers/auth'
 import { DebugGatherer } from '@backend/managers/system/debug_gatherer'
 import { MainGlobals } from '@Globals/mainGlobals'
-import { autoUpdater, dialog } from 'electron'
+import { MessageBoxOptions, autoUpdater, dialog } from 'electron'
 import unhandled from "electron-unhandled"
 import FormData from 'form-data'
 import { createReadStream } from 'fs'
 import got from 'got/dist/source'
 import { MainLogger } from './interfaces/mainLogger'
 const log = MainLogger.get("Main", "Updater")
+import updater from "update-electron-app"
 
 
 export function addUpdater() {
 
 
+    console.log("Updater start")
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    require('update-electron-app')({
+    updater({
         repo: 'sshcrack/clipture',
         updateInterval: '10 minutes',
         logger: log
     })
+    console.log("Updater end")
 
     autoUpdater.on('update-downloaded', (_, releaseNotes, releaseName) => {
-        const dialogOpts = {
+        const dialogOpts: MessageBoxOptions = {
             type: 'info',
             buttons: ['Restart', 'Later'],
             title: 'Application Update',

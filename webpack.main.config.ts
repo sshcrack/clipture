@@ -1,14 +1,14 @@
-const plugins = require('./webpack.plugins');
-const CopyWebpackPlugin = require("copy-webpack-plugin")
-const path = require("path")
-const webpack = require('webpack');
-const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+import { plugins } from './webpack.plugins'
+import CopyWebpackPlugin from "copy-webpack-plugin"
+import path from "path"
+import webpack, { Configuration } from 'webpack';
+import { rules } from './webpack.rules';
+import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 
 
 const assets = ["assets"]
-const shouldAnalyze = process.argv.includes("--analyze")
-module.exports = {
+
+export const mainConfig: Configuration = {
   /**
    * This is the main entry point for your application, it's the first file
    * that runs in the main process.
@@ -16,15 +16,12 @@ module.exports = {
   entry: './src/index.ts',
   // Put your normal webpack config below here
   module: {
-    rules: require('./webpack.rules'),
+    rules,
   },
   node: {
     __dirname: false,
   },
   plugins: [
-    shouldAnalyze && new BundleAnalyzerPlugin({
-      analyzerPort: "auto"
-    }),
     new webpack.DefinePlugin({
       'process.env.FLUENTFFMPEG_COV': false
     }),
@@ -47,7 +44,7 @@ module.exports = {
       ]
     }),
     ...plugins
-  ].filter(e => e),
+  ],
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
     plugins: [
