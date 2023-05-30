@@ -14,13 +14,12 @@ export function getGameInfo(game: CloudGeneralGame, original: string) {
         }
 
 
-    console.log(game?.type === "detectable", !!game?.game, game.type)
     if (game?.type === "detectable") {
         const { aliases, name, icon: innerIcon, id: innerId } = game.game ?? {}
         const detectableName = name ?? aliases?.[0]
         icon = innerIcon;
         id = innerId
-
+7
         if (detectableName)
             gameName = detectableName
     }

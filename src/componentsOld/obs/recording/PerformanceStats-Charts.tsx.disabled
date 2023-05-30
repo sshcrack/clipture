@@ -158,7 +158,6 @@ export default function PerformanceStatistics() {
         yAxisType: y => prettyBytes(y),
     } as ChartyProps
 
-    console.log(cpuData, fpsData, bandwidthData)
     return <Flex
         w='100%'
         h='100%'

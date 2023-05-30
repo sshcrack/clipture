@@ -46,6 +46,6 @@ export default function MediaOverview({ category, ...props }: MediaOverviewProps
         pr='2'
         mr='4'
     >
-        {items.map(e => <GeneralMediaItem key={e.info.modified} update={0} media={e} />)}
+        {items.map(e => <GeneralMediaItem key={`${e.info.mediaName}-${e.info.size}`} update={0} media={e} />)}
     </ Grid>
 }

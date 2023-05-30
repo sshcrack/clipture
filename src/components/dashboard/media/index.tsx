@@ -21,6 +21,7 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
         window.api[type === "clip" ? "clips" : "videos"]
 
     useEffect(() => {
+        console.log("Setting undefined")
         setThumbnail(undefined)
     }, [update, clipName])
 
@@ -47,7 +48,6 @@ export default function GeneralMediaItem({ update, media }: GeneralMediaProps) {
 
     const isLoading = thumbnailRaw === undefined
     const thumbnail = thumbnailRaw && `url("data:image/png;base64,${thumbnailRaw}")`
-    console.log("THumbnail is", thumbnail)
 
     return <GridItem
         display='flex'

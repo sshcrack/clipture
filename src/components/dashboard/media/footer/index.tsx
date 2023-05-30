@@ -27,7 +27,7 @@ export default function MediaFooter({ media }: { media: GeneralMediaInfo }) {
         )
     return <Flex pl='2' alignItems='center' justifyContent='space-between'>
         <Flex alignItems='center' gap='2'>
-            <Text>{dateTranslatable}</Text>
+            <Text whiteSpace='nowrap'>{dateTranslatable}</Text>
             <Separator />
             <Flex gap='1' alignItems='end'>
                 <Text>{numb}</Text>
@@ -43,6 +43,6 @@ export default function MediaFooter({ media }: { media: GeneralMediaInfo }) {
                 </>
             }
         </Flex>
-            <FooterButtons media={media} />
+        <FooterButtons media={media} />
     </Flex>
 }
