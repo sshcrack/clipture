@@ -9,6 +9,9 @@
 # Download (Windows only)
 ### Official Build:&nbsp;&nbsp;&nbsp;&nbsp;[![Official Build](https://custom-icon-badges.herokuapp.com/badge/-Download-blue?style=for-the-badge&logo=download&logoColor=white)](https://clipture.sshcrack.me/api/download)
 
+## Careful!
+Use the Game Overlay with caution it *may* get you banned (although I played a lot of games and there was nothing)
+
 ## Selfhosting
 Make sure you have yarn installed, if not sure:
 ```bash
